@@ -1,0 +1,3 @@
+echo "🔍 ESLint 검사 중..."
+
+npm run lint
