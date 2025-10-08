@@ -32,17 +32,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
       - name: Install Vercel CLI
         run: npm install -g vercel
 
       - name: Pull Vercel environment info
         run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
 
+      # 🔧 핵심 수정: main이면 --prod로 빌드, 아니면 preview로 빌드
       - name: Build Vercel output
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
       - name: Deploy to Vercel
         run: |
