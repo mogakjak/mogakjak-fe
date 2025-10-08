@@ -1,32 +1,38 @@
-name: ci
+name: CI
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  sync:
-    name: Sync forked repo
+  build-and-test:
+    name: build-and-test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          token: ${{ secrets.AUTO_ACTIONS }}
-          fetch-depth: 0
-          ref: main
+          node-version: 22
+          cache: "npm"
 
-      - name: Add remote-url
-        run: |
-          git remote add forked-repo https://mogakjak:${{ secrets.AUTO_ACTIONS }}@github.com/mogakjak/mogakjak-fe
-          git config user.name mogakjak
-          git config user.email ${{ secrets.EMAIL }}
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Push changes to forked-repo
-        run: |
-          git push -f forked-repo main
+      - name: Lint (optional)
+        run: npm run lint --if-present
 
-      - name: Clean up
-        run: |
-          git remote remove forked-repo
+      - name: Test (optional)
+        run: npm test --if-present
+
+      - name: Build
+        run: npm run build
