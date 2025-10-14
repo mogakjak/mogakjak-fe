@@ -1,0 +1,155 @@
+:root {
+  /* === UI_Basic === */
+  --black: #121212;
+  --white: #fafafa;
+
+  /* === UI_Grayscale === */
+  --gray-50: #f7f8fa;
+  --gray-100: #f2f4f7;
+  --gray-200: #e6e8eb;
+  --gray-300: #cacdd2;
+  --gray-400: #a8aeb2;
+  --gray-500: #7e8389;
+  --gray-600: #585d63;
+  --gray-700: #47484d;
+  --gray-800: #323437;
+
+  /* === UI_Point === */
+  --yellow: #f8edad;
+  --green: #00770e;
+
+  /* === UI_Red === */
+  --red-50: #ffeeeb;
+  --red-100: #ffd6ce;
+  --red-200: #fdb8ab;
+  --red-300: #fc9b88;
+  --red-400: #fb7055;
+  --red-500: #fa5332; /* primary */
+  --red-600: #af3a23;
+  --red-700: #8f2c19;
+  --red-800: #6f1d0e;
+
+  /* === Typography base === */
+  --font-sans: "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Apple Color Emoji",
+    "Segoe UI Emoji", sans-serif;
+  --line-height-140: 1.4;
+  --letter-spacing-0: 0;
+  --paragraph-spacing-0: 0;
+
+  /* === Font sizes (px → rem) === */
+  --fs-32: 2rem;
+  --fs-28: 1.75rem;
+  --fs-24: 1.5rem;
+  --fs-20: 1.25rem;
+  --fs-16: 1rem;
+  --fs-14: 0.875rem;
+  --fs-12: 0.75rem;
+
+  /* === Font weights === */
+  --fw-bold: 700;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-regular: 400;
+}
+
+/* === UI_Heading === */
+.heading1_32B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-32);
+  line-height: var(--line-height-140);
+}
+
+.heading1_32M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-32);
+  line-height: var(--line-height-140);
+}
+
+.heading2_28SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-28);
+  line-height: var(--line-height-140);
+}
+
+.heading3_24SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-24);
+  line-height: var(--line-height-140);
+}
+
+.heading4_20SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-20);
+  line-height: var(--line-height-140);
+}
+
+.heading4_20R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-20);
+  line-height: var(--line-height-140);
+}
+
+/* === UI_Body === */
+.body1_16B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-16);
+  line-height: var(--line-height-140);
+}
+
+.body1_16SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-16);
+  line-height: var(--line-height-140);
+}
+
+.body1_16M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-16);
+  line-height: var(--line-height-140);
+}
+
+.body1_16R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-16);
+  line-height: var(--line-height-140);
+}
+
+.body2_14SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-14);
+  line-height: var(--line-height-140);
+}
+
+.body2_14R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-14);
+  line-height: var(--line-height-140);
+}
+
+/* === UI_Caption === */
+.caption_12SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-12);
+  line-height: var(--line-height-140);
+}
+
+.caption_12R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-12);
+  line-height: var(--line-height-140);
+}
