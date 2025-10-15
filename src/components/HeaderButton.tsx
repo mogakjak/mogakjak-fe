@@ -20,7 +20,7 @@ export default function HeaderButton({ text, href }: HeaderButtonProps) {
     <button
       onClick={handleClick}
       className={
-        "w-30 h-10 rounded-3xl body1_16M transition-colors border " +
+        "w-30 h-10 rounded-3xl text-body1-16M transition-colors border " +
         (isActive
           ? "border-red-500 bg-red-500 text-white"
           : "text-gray-600 border-gray-200 hover:text-red-500 hover:border-red-500")
