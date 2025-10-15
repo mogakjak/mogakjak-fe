@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.2",
@@ -20,13 +22,18 @@
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/eslintrc": "^3",
+    "@storybook/nextjs": "^9.1.10",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "ajv": "^8.17.1",
+    "ajv-keywords": "^5.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "eslint-plugin-storybook": "^9.1.10",
     "husky": "^9.1.7",
+    "storybook": "^9.1.10",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
