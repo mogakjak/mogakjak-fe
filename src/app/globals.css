@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@import "./_token/token.css";
+
 /* === 색상 / 폰트 등 전역 토큰 === */
-:root  {
+:root {
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -65,4 +65,107 @@ body {
 
 button {
   cursor: pointer;
+}
+
+/* === Typography Utilities === */
+
+/* === Heading === */
+@utility text-heading1-32B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-32);
+  line-height: var(--leading-140);
+}
+
+@utility text-heading1-32M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-32);
+  line-height: var(--leading-140);
+}
+
+@utility text-heading2-28SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-28);
+  line-height: var(--leading-140);
+}
+
+@utility text-heading3-24SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-24);
+  line-height: var(--leading-140);
+}
+
+@utility text-heading4-20SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-20);
+  line-height: var(--leading-140);
+}
+
+@utility text-heading4-20R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-20);
+  line-height: var(--leading-140);
+}
+
+/* === Body === */
+@utility text-body1-16B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+
+@utility text-body1-16SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+
+@utility text-body1-16M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+
+@utility text-body1-16R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+
+@utility text-body2-14SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-14);
+  line-height: var(--leading-140);
+}
+
+@utility text-body2-14R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-14);
+  line-height: var(--leading-140);
+}
+
+/* === Caption === */
+@utility text-caption-12SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-12);
+  line-height: var(--leading-140);
+}
+
+@utility text-caption-12R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-12);
+  line-height: var(--leading-140);
 }
