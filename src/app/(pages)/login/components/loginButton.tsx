@@ -1,27 +1,51 @@
-import Image from "next/image";
-import { LoginButtonProps } from "../_types/login";
+"use client";
 
-export default function LoginButton({ type, onClick }: LoginButtonProps) {
-  const config = {
+import Image from "next/image";
+import { useLogin } from "@/app/_api/auth/useLogin";
+
+type LoginType = "google" | "kakao";
+
+interface LoginButtonProps {
+  type: LoginType;
+}
+
+export default function LoginButton({ type }: LoginButtonProps) {
+  const login = useLogin();
+
+  const handleLogin = () => {
+    if (login.isPending) return;
+    login.mutate({ provider: type });
+  };
+
+  const CONFIG = {
     google: {
-      style: " border-gray-200 bg-white ",
-      label: "구글 로그인/회원가입",
+      label: "구글로 계속하기",
       icon: "/Icons/google.svg",
+      bg: "bg-white",
+      hover: "hover:bg-gray-50",
+      text: "text-gray-800",
+      border: "border-gray-200",
     },
     kakao: {
-      style: "border-[#FADD0E] bg-[#FADD0E] ",
-      label: "카카오 로그인/회원가입",
+      label: "카카오로 계속하기",
       icon: "/Icons/kakao.svg",
+      bg: "bg-[#FEE500]",
+      hover: "hover:brightness-95",
+      text: "text-black",
+      border: "border-gray-200",
     },
-  }[type];
+  } as const;
+
+  const { label, icon, bg, hover, text, border } = CONFIG[type];
 
   return (
     <button
-      onClick={onClick}
-      className={`bodey1_16M w-[360px] rounded-2xl flex items-center justify-center gap-2 border px-10 py-4 ${config.style}`}
+      onClick={handleLogin}
+      disabled={login.isPending}
+      className={`w-72 h-12 rounded-lg flex items-center justify-center gap-2 transition active:scale-[0.99] disabled:opacity-70 ${bg} ${hover} ${border} border`}
     >
-      <Image src={config.icon} alt={type} width={20} height={20} />
-      <span>{config.label}</span>
+      <Image src={icon} alt={label} width={20} height={20} />
+      <span className={`text-body1-16M ${text}`}>{label}</span>
     </button>
   );
 }
