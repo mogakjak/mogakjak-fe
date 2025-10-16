@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import Image from "next/image";
 
@@ -10,6 +11,8 @@ type Props = {
   selected?: boolean;
   onSelect?: () => void;
   showHandle?: boolean;
+  editable?: boolean;
+  onRename?: (newName: string) => void;
 };
 
 export default function CategoryRow({
@@ -17,44 +20,84 @@ export default function CategoryRow({
   colorToken,
   selected,
   onSelect,
-  showHandle = false,
+  showHandle,
+  editable,
+  onRename,
 }: Props) {
+  const [isEditing, setIsEditing] = useState<boolean>(editable ?? false);
+  const [value, setValue] = useState(label);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (isEditing) inputRef.current?.focus();
+  }, [isEditing]);
+
+  const handleBlur = () => {
+    setIsEditing(false);
+    const trimmed = value.trim();
+    if (trimmed && trimmed !== label) onRename?.(trimmed);
+    else setValue(label);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleBlur();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      setValue(label);
+      setIsEditing(false);
+    }
+  };
+
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex items-center gap-1 w-full">
       <button
         type="button"
-        onClick={onSelect}
+        onClick={() => !isEditing && onSelect?.()}
+        onDoubleClick={() => setIsEditing(true)}
         className={clsx(
-          "w-64 h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all",
-          "outline outline-offset-[-1px]",
-          selected
-            ? "outline-[1.5px] outline-red-500"
-            : "outline-1 outline-gray-200",
+          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left outline-1 transition-all",
+          selected ? "outline-[1.5px] outline-red-500" : "outline-gray-200",
         )}
       >
         <div className={clsx("w-3 h-full", `bg-${colorToken}`)} />
         <div className="flex-1 bg-gray-100 px-4 py-2.5 inline-flex items-center">
-          <span
-            className={clsx(
-              "text-base leading-snug",
-              selected ? "text-neutral-900 font-semibold" : "text-neutral-700",
-            )}
-          >
-            {label}
-          </span>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+              className="w-full bg-transparent outline-none text-neutral-900 font-medium text-base"
+            />
+          ) : (
+            <span
+              className={clsx(
+                "text-base leading-snug truncate cursor-text",
+                selected
+                  ? "text-neutral-900 font-semibold"
+                  : "text-neutral-700",
+              )}
+            >
+              {value}
+            </span>
+          )}
         </div>
       </button>
-      {showHandle ? (
-        <Image
-          src="/icons/drag.svg"
-          alt="drag handle"
-          width={24}
-          height={24}
-          className="w-6 h-6 shrink-0"
-        />
-      ) : (
-        <div className="w-7 h-6 shrink-0" /> 
-      )}
+
+      <div className="w-6 h-6 flex items-center justify-center">
+        {showHandle && (
+          <Image
+            src="/icons/drag.svg"
+            alt="drag handle"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
+        )}
+      </div>
     </div>
   );
 }

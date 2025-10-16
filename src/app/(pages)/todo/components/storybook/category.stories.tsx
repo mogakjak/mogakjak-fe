@@ -23,7 +23,6 @@ const meta = {
     selectedId: { control: false },
     onChangeFilter: { control: false },
     onSelect: { control: false },
-    onAddCategory: { control: false },
   },
   args: {
     selectedId: "all",
@@ -47,7 +46,6 @@ export const Playground: Story = {
         selectedId={selectedId}
         onChangeFilter={setFilter}
         onSelect={setSelectedId}
-        onAddCategory={() => alert("새 카테고리 추가하기")}
       />
     );
   },
@@ -63,7 +61,6 @@ export const TodayOnly: Story = {
         selectedId={selectedId}
         onSelect={setSelectedId}
         onChangeFilter={() => {}}
-        onAddCategory={() => alert("추가")}
       />
     );
   },
@@ -79,7 +76,6 @@ export const AllTab: Story = {
         selectedId={selectedId}
         onSelect={setSelectedId}
         onChangeFilter={() => {}}
-        onAddCategory={() => alert("추가")}
       />
     );
   },

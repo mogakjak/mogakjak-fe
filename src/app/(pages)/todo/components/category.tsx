@@ -2,30 +2,12 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import { memo } from "react";
+import { memo, useState } from "react";
 import FilterPill from "./filterPill";
 import CategoryRow from "./categoryRow";
 
 export type DayFilter = "today" | "all";
-
-export type Category = {
-  id: string;
-  name: string;
-  color: string;
-};
-
-type Props = {
-  filter: DayFilter;
-  onChangeFilter?: (f: DayFilter) => void;
-
-  categories: Category[];
-  selectedId: string;
-  onSelect?: (id: string) => void;
-
-  onAddCategory?: () => void;
-
-  className?: string;
-};
+export type Category = { id: string; name: string; color: string };
 
 function Category({
   filter,
@@ -33,9 +15,47 @@ function Category({
   categories,
   selectedId,
   onSelect,
-  onAddCategory,
   className,
-}: Props) {
+}: {
+  filter: DayFilter;
+  onChangeFilter?: (f: DayFilter) => void;
+  categories: Category[];
+  selectedId: string;
+  onSelect?: (id: string) => void;
+  className?: string;
+}) {
+  const [categoryList, setCategoryList] = useState(categories);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const CATEGORY_COLORS = [
+    "category-1-red",
+    "category-2-orange",
+    "category-3-yellow",
+    "category-4-green",
+    "category-5-skyblue",
+    "category-6-blue",
+    "category-7-purple",
+  ];
+
+  const handleAddCategory = () => {
+    const nextIndex = categoryList.length % CATEGORY_COLORS.length;
+    const color = CATEGORY_COLORS[nextIndex];
+    const newCategory: Category = {
+      id: crypto.randomUUID(),
+      name: "새로운 카테고리",
+      color,
+    };
+    setCategoryList((prev) => [...prev, newCategory]);
+    setEditingId(newCategory.id);
+  };
+
+  const handleRename = (id: string, newName: string) => {
+    setCategoryList((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, name: newName } : c)),
+    );
+    setEditingId(null);
+  };
+
   return (
     <section
       className={clsx(
@@ -62,6 +82,7 @@ function Category({
         </div>
 
         <div className="h-px w-full bg-gray-200" />
+
         <div className="flex flex-col gap-4">
           <h3 className="text-base font-semibold text-neutral-900">카테고리</h3>
 
@@ -75,7 +96,7 @@ function Category({
           />
 
           <div className="flex flex-col gap-3">
-            {categories.map((c) => (
+            {categoryList.map((c) => (
               <CategoryRow
                 key={c.id}
                 id={c.id}
@@ -84,13 +105,15 @@ function Category({
                 selected={selectedId === c.id}
                 onSelect={() => onSelect?.(c.id)}
                 showHandle
+                editable={editingId === c.id}
+                onRename={(newName) => handleRename(c.id, newName)}
               />
             ))}
           </div>
 
           <button
             type="button"
-            onClick={onAddCategory}
+            onClick={handleAddCategory}
             className="h-11 w-full rounded-lg bg-gray-200 inline-flex items-center gap-2 px-4"
           >
             <Image
@@ -100,7 +123,9 @@ function Category({
               height={24}
               className="w-6 h-6"
             />
-            <span className="text-base text-neutral-700 font-normal">새 카테고리 추가하기</span>
+            <span className="text-base text-neutral-700 font-normal">
+              새 카테고리 추가하기
+            </span>
           </button>
         </div>
       </div>
