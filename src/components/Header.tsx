@@ -1,12 +1,29 @@
+import Image from "next/image";
+import HeaderButton from "./HeaderButton";
+
 export default function Header() {
   return (
-    <header className="relative w-full flex justify-between">
-      <p>모각작</p>
-      <div className="flex gap-3">
-        <button>홈</button>
-        <button>대시보드</button>
-        <button>카테고리</button>
-      </div>
+    <header className="relative w-full flex justify-between px-9 py-4">
+      <Image src="/icons/logo.svg" alt="logo" width={105} height={36}></Image>
+      <nav className="flex gap-3">
+        <HeaderButton text="Home" href="/" />
+        <HeaderButton text="TO DO" href="/todo" />
+        <HeaderButton text="기록" href="/history" />
+        <button className="relative w-10 h-10">
+          <Image
+            src="/Icons/profile/profile_default.svg"
+            alt="프로필"
+            fill
+            className="object-contain transition-opacity duration-200 opacity-100 hover:opacity-0"
+          />
+          <Image
+            src="/Icons/profile/profile_hover.svg"
+            alt="프로필 hover"
+            fill
+            className="object-contain transition-opacity duration-200 opacity-0 hover:opacity-100"
+          />
+        </button>
+      </nav>
     </header>
   );
 }
