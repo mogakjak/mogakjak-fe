@@ -85,11 +85,10 @@ function Category({
 
         <div className="flex flex-col gap-4">
           <h3 className="text-base font-semibold text-neutral-900">카테고리</h3>
-
           <CategoryRow
             id="all"
             label="전체"
-            colorToken="zinc-500"
+            colorToken="gray-500"
             selected={selectedId === "all"}
             onSelect={() => onSelect?.("all")}
             showHandle={false}
