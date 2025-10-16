@@ -26,26 +26,4 @@ export default function Header() {
       </nav>
     </header>
   );
-});
-
-type PillTabProps = {
-  label: string;
-  selected?: boolean;
-  onClick?: () => void;
 };
-
-function PillTab({ label, selected, onClick }: PillTabProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={clsx(
-        "w-28 h-10 px-7 py-3 rounded-3xl flex justify-center items-center transition-all",
-        selected
-          ? "bg-red-500 text-white font-semibold"
-          : "bg-white text-zinc-600 font-medium  outline-1 outline-gray-200",
-      )}
-    >
-      {label}
-    </button>
-  );
-}
