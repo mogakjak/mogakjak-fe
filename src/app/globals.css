@@ -1,18 +1,83 @@
+/* ----------------------------------------------------
+   Tailwind v4 + 디자인 토큰 매핑 (globals.css)
+   ---------------------------------------------------- */
 @import "tailwindcss";
-@import "./_token/token.css";
+/* (선택) Pretendard CDN
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css");
+*/
 
+/* === 전역 배경/전경 === */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* === @theme inline: Tailwind v4 토큰 정의 === */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ===== Color (JSON 매핑) ===== */
+  /* UI_Basic */
+  --color-black: #121212;
+  --color-white: #fafafa;
+
+  /* UI_Grayscale */
+  --color-gray-50: #f7f8fa;
+  --color-gray-100: #f2f4f7;
+  --color-gray-200: #e6e8eb;
+  --color-gray-300: #cacdd2;
+  --color-gray-400: #a8aeb2;
+  --color-gray-500: #7e8389;
+  --color-gray-600: #585d63;
+  --color-gray-700: #47484d;
+  --color-gray-800: #323437;
+
+  /* UI_Point */
+  --color-yellow: #f8edad;
+  --color-green: #00770e;
+
+  /* UI_Red */
+  --color-red-50: #ffeeeb;
+  --color-red-100: #ffd6ce;
+  --color-red-200: #fdb8ab;
+  --color-red-300: #fc9b88;
+  --color-red-400: #fb7055;
+  --color-red-500: #fa5332; /* primary */
+  --color-red-600: #af3a23;
+  --color-red-700: #8f2c19;
+  --color-red-800: #6f1d0e;
+
+  /* UI_category */
+  --color-category-1-red: #f86e64;
+  --color-category-2-orange: #ffa569;
+  --color-category-3-yellow: #fbda55;
+  --color-category-4-green: #73e07a;
+  --color-category-5-skyblue: #69e3f6;
+  --color-category-6-blue: #6297f3;
+  --color-category-7-purple: #a27bf0;
+
+  /* ===== Font family ===== */
+  --font-sans: "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  /* ===== Font weights (JSON의 Bold/Medium/SemiBold/Regular → 숫자화) ===== */
+  --fw-bold: 700; /* pretendard-0: Bold */
+  --fw-medium: 500; /* pretendard-1: Medium */
+  --fw-semibold: 600; /* pretendard-2: SemiBold */
+  --fw-regular: 400; /* pretendard-3: Regular */
+
+  /* ===== Font sizes (px → rem) ===== */
+  --text-12: 0.75rem; /* 12 */
+  --text-14: 0.875rem; /* 14 */
+  --text-16: 1rem; /* 16 */
+  --text-20: 1.25rem; /* 20 */
+  --text-24: 1.5rem; /* 24 */
+  --text-28: 1.75rem; /* 28 */
+  --text-32: 2rem; /* 32 */
+
+  /* ===== Line heights ===== */
+  --leading-140: 1.4; /* JSON: "140%" */
 }
 
+/* 다크 모드 전환(필요 시) */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -20,12 +85,107 @@
   }
 }
 
+/* === 전역 기본 스타일 === */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
-
 button {
   cursor: pointer;
+}
+
+/* ----------------------------------------------------
+   Typography Utilities (@utility)  — 네이밍 고정
+   text-heading1-32B / text-body1-16B ... 등
+   ---------------------------------------------------- */
+
+/* === Heading === */
+@utility text-heading1-32B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-32);
+  line-height: var(--leading-140);
+}
+@utility text-heading1-32M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-32);
+  line-height: var(--leading-140);
+}
+@utility text-heading2-28SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-28);
+  line-height: var(--leading-140);
+}
+@utility text-heading3-24SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-24);
+  line-height: var(--leading-140);
+}
+@utility text-heading4-20SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-20);
+  line-height: var(--leading-140);
+}
+@utility text-heading4-20R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-20);
+  line-height: var(--leading-140);
+}
+
+/* === Body === */
+@utility text-body1-16B {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+@utility text-body1-16SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+@utility text-body1-16M {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+@utility text-body1-16R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-16);
+  line-height: var(--leading-140);
+}
+@utility text-body2-14SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-14);
+  line-height: var(--leading-140);
+}
+@utility text-body2-14R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-14);
+  line-height: var(--leading-140);
+}
+
+/* === Caption === */
+@utility text-caption-12SB {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-12);
+  line-height: var(--leading-140);
+}
+@utility text-caption-12R {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-12);
+  line-height: var(--leading-140);
 }
