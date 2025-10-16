@@ -5,7 +5,7 @@ export default function Login() {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
       <Image
-        src="/Icons/logo_slogan.svg"
+        src="/Icons/logoSlogan.svg"
         alt="slogan"
         width={257}
         height={224}
