@@ -55,8 +55,8 @@
   --color-category-7-purple: #a27bf0;
 
   /* ===== Font family ===== */
-  --font-sans: "Pretendard", system-ui, -apple-system, "Segoe UI", Roboto,
-    "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-sans: "Pretendard Variable", "Pretendard", system-ui, -apple-system,
+    "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 
   /* ===== Font weights (JSON의 Bold/Medium/SemiBold/Regular → 숫자화) ===== */
   --fw-bold: 700; /* pretendard-0: Bold */

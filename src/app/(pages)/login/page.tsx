@@ -10,7 +10,7 @@ export default function Login() {
         width={257}
         height={224}
       ></Image>
-      <p className="body1_16R mt-5 gray-600">
+      <p className="text-body1-16R mt-5 text-gray-600">
         함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!
       </p>
 
