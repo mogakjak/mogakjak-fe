@@ -5,7 +5,7 @@ import clsx from "clsx";
 import WorkItem, { WorkItemProps } from "./workItem";
 import Image from "next/image";
 
-type Category = {
+export type Category = {
   id: string | number;
   title: string;
   barColorClass: string;
@@ -45,16 +45,8 @@ function CategoryHeader({
             onClick={onAdd}
             className="p-1 rounded-lg flex justify-start items-center gap-2"
           >
-            <span className="text-zinc-600 text-sm leading-tight">
-              할 일 추가하기
-            </span>
-            <Image
-              src="/icons/plusRed.svg"
-              alt="추가"
-              className="w-6 h-6"
-              width={24}
-              height={24}
-            />
+            <span className="text-zinc-600 text-sm leading-tight">할 일 추가하기</span>
+            <Image src="/icons/plusRed.svg" alt="추가" className="w-6 h-6" width={24} height={24} />
           </button>
         </div>
       </div>
@@ -84,11 +76,7 @@ export default function TodoList({
   className,
 }: TodoListProps) {
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(
-    () =>
-      categories.reduce((acc, c) => {
-        acc[c.id] = c.expanded ?? true;
-        return acc;
-      }, {} as Record<string | number, boolean>),
+    () => categories.reduce((acc, c) => ((acc[c.id] = c.expanded ?? true), acc), {} as Record<string | number, boolean>),
   );
 
   const toggle = (id: Category["id"]) => {
@@ -100,23 +88,13 @@ export default function TodoList({
   };
 
   return (
-    <div
-      className={clsx(
-        "w-[913px] inline-flex flex-col justify-center items-center gap-7",
-        className,
-      )}
-    >
+    <div className={clsx("w-[913px] inline-flex flex-col justify-center items-center gap-7", className)}>
       <div className="self-stretch flex flex-col justify-start items-start gap-4">
         {categories.map((cat) => {
           const expanded = openMap[cat.id] ?? true;
           return (
             <Fragment key={cat.id}>
-              <CategoryHeader
-                category={cat}
-                expanded={expanded}
-                onToggle={() => toggle(cat.id)}
-                onAdd={() => onAddWork?.(cat.id)}
-              />
+              <CategoryHeader category={cat} expanded={expanded} onToggle={() => toggle(cat.id)} onAdd={() => onAddWork?.(cat.id)} />
               {expanded && (
                 <div className="self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2">
                   {cat.items.map((w, idx) => (
