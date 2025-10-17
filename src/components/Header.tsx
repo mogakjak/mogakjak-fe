@@ -3,12 +3,12 @@ import HeaderButton from "./HeaderButton";
 
 export default function Header() {
   return (
-    <header className="relative w-full flex justify-between px-9 py-4">
+    <header className="relative w-full flex justify-between px-9 py-4 bg-white">
       <Image src="/logo.svg" alt="logo" width={105} height={36}></Image>
       <nav className="flex gap-3">
         <HeaderButton text="Home" href="/" />
         <HeaderButton text="TO DO" href="/todo" />
-        <HeaderButton text="기록" href="/history" />
+        <HeaderButton text="기록" href="/record" />
         <button className="relative w-10 h-10">
           <Image
             src="/profileDefault.svg"
