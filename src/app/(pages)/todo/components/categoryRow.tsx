@@ -7,7 +7,7 @@ import Image from "next/image";
 type Props = {
   id: string;
   label: string;
-  colorToken: string;
+  colorToken: string; // e.g. 'bg-category-1-red'
   selected?: boolean;
   onSelect?: () => void;
   showHandle?: boolean;
@@ -57,11 +57,11 @@ export default function CategoryRow({
         onClick={() => !isEditing && onSelect?.()}
         onDoubleClick={() => setIsEditing(true)}
         className={clsx(
-          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left outline-1 transition-all",
-          selected ? "outline-[1.5px] outline-red-500" : "outline-gray-200",
+          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all outline outline-1",
+          selected ? "outline-red-500" : "outline-gray-200",
         )}
       >
-        <div className={clsx("w-3 h-full", `bg-${colorToken}`)} />
+        <div className={clsx("w-3 h-full", colorToken)} />
         <div className="flex-1 bg-gray-100 px-4 py-2.5 inline-flex items-center">
           {isEditing ? (
             <input
@@ -76,9 +76,7 @@ export default function CategoryRow({
             <span
               className={clsx(
                 "text-base leading-snug truncate cursor-text",
-                selected
-                  ? "text-neutral-900 font-semibold"
-                  : "text-neutral-700",
+                selected ? "text-neutral-900 font-semibold" : "text-neutral-700",
               )}
             >
               {value}

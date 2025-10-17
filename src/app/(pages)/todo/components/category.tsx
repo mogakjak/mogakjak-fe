@@ -28,13 +28,13 @@ function Category({
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const CATEGORY_COLORS = [
-    "category-1-red",
-    "category-2-orange",
-    "category-3-yellow",
-    "category-4-green",
-    "category-5-skyblue",
-    "category-6-blue",
-    "category-7-purple",
+    "bg-category-1-red",
+    "bg-category-2-orange",
+    "bg-category-3-yellow",
+    "bg-category-4-green",
+    "bg-category-5-skyblue",
+    "bg-category-6-blue",
+    "bg-category-7-purple",
   ];
 
   const handleAddCategory = () => {
@@ -59,14 +59,14 @@ function Category({
   return (
     <section
       className={clsx(
-        "w-80 px-6 py-9 rounded-[20px] bg-neutral-50 inline-flex flex-col gap-7",
+        "w-[327px] h-[856px] px-6 py-9 rounded-[20px] bg-neutral-50 inline-flex flex-col gap-7",
         className,
       )}
     >
       <h2 className="text-xl font-semibold text-neutral-900 leading-7">ToDo</h2>
 
-      <div className="flex flex-col gap-5">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-5 flex-1 overflow-y-auto">
+        <div className="flex gap-2 my-2 mx-0.5">
           <FilterPill
             selected={filter === "today"}
             onClick={() => onChangeFilter?.("today")}
@@ -88,7 +88,7 @@ function Category({
           <CategoryRow
             id="all"
             label="전체"
-            colorToken="gray-500"
+            colorToken="bg-gray-500"
             selected={selectedId === "all"}
             onSelect={() => onSelect?.("all")}
             showHandle={false}
