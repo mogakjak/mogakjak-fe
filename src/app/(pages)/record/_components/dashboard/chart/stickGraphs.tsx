@@ -90,7 +90,7 @@ export default function StickGraphs({ data }: StickGraphsProps) {
           cornerRadius: 8,
           padding: 12,
           displayColors: false,
-          bodyFont: { size: 13, weight: "Semibold" },
+          bodyFont: { size: 13, weight: 600 },
           callbacks: {
             title: () => "",
             label: (ctx: TooltipItem<"bar">) =>
