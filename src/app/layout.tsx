@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="mx-auto w-full flex flex-col min-h-screen items-center max-w-[1440px] bg-gray-100">
+      <body className="mx-auto w-full flex flex-col min-h-screen items-center bg-gray-100 overflow-x-hidden">
         <Header />
         <div className="px-[36px] bg-gray-100 w-full">
           <Providers>{children}</Providers>

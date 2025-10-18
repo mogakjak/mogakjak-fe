@@ -1,3 +1,4 @@
+import ChartMain from "./chart/chartMain";
 import Cards from "./data/cards";
 import Tabs from "./tabs/tabs";
 
@@ -11,6 +12,7 @@ export default function DashBorad() {
         personalFocusSec={1 * 3600}
         doneTasks={2}
       />
+      <ChartMain />
     </div>
   );
 }

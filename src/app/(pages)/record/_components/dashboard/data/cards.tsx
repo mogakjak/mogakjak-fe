@@ -24,7 +24,7 @@ export default function Cards({
   doneTasks,
 }: CardsProps) {
   return (
-    <div className={clsx("grid grid-cols-4 gap-4 ")}>
+    <div className={clsx("grid grid-cols-4 gap-4 mt-[104px]")}>
       <DataCard
         title="총 몰입 시간"
         value={formatHM(totalFocusSec)}
