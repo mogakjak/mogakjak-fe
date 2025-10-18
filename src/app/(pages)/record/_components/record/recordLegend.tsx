@@ -3,16 +3,21 @@ import RecordDot from "./recordDot";
 
 export default function RecordLegend({ dotSize = 16 }: { dotSize?: number }) {
   return (
-    <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-      <span className="whitespace-nowrap">기록 강도</span>
-      <div className="flex items-center gap-1">
-        {[0, 1, 2, 3, 4].map((lv) => (
-          <RecordDot key={lv} level={lv as 0 | 1 | 2 | 3 | 4} size={dotSize} />
+    <div className="mt-6">
+      <div className="flex justify-end gap-5">
+        {[
+          { lv: 0, label: "0~1h 미만" },
+          { lv: 1, label: "1~3h 미만" },
+          { lv: 2, label: "3~6h 미만" },
+          { lv: 3, label: "6~9h 미만" },
+          { lv: 4, label: "9h~" },
+        ].map(({ lv, label }) => (
+          <div key={lv} className="flex items-center gap-2">
+            <RecordDot level={lv as 0 | 1 | 2 | 3 | 4} size={dotSize} />
+            <span className="text-caption-12R text-gray-600">{label}</span>
+          </div>
         ))}
       </div>
-      <span className="ml-2 text-gray-400">
-        0~1h / 1~3h / 3~6h / 6~9h / 9h~
-      </span>
     </div>
   );
 }

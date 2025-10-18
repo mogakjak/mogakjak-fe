@@ -43,12 +43,10 @@ export default function RecordBoard({
   gap = 6,
 }: RecordBoardProps) {
   const values = useMemo(() => Object.values(data), [data]);
-  const columnWidth = dotSize + gap;
-  const rowHeight = dotSize + gap;
 
   return (
-    <div className="w-full overflow-x-auto bg-white rounded-[20pxz] p-6">
-      <div className="ml-11 mb-2 flex select-non gap-20">
+    <div className="w-full bg-white rounded-[20px] px-10 py-7">
+      <div className="ml-8 mb-2 flex gap-20">
         {MONTH_LABELS.map((m) => (
           <p key={m} className="text-center text-body2-14SB text-gray-800">
             {m}
@@ -56,26 +54,18 @@ export default function RecordBoard({
         ))}
       </div>
 
-      <div className="flex">
-        <div className="text-body2-14SB flex flex-col justify-between text-gray-800 w-10">
+      <div className="flex justify-evenly w-full">
+        <div className="text-body2-14SB flex flex-col justify-between text-gray-800">
           {WEEKDAY_LABELS_MON.map((lab) => (
-            <div
-              key={lab}
-              className="flex items-center"
-              style={{ height: rowHeight }}
-            >
+            <div key={lab} className="flex items-center">
               {lab}
             </div>
           ))}
         </div>
 
-        <div className="flex">
+        <div className="flex gap-1.5">
           {Array.from({ length: 52 }).map((_, colIdx) => (
-            <div
-              key={colIdx}
-              className="flex flex-col"
-              style={{ marginRight: gap / 2 }}
-            >
+            <div key={colIdx} className="flex flex-col gap-1.5">
               {Array.from({ length: 7 }).map((__, rowIdx) => {
                 const flatIdx = colIdx * 7 + rowIdx;
                 const minutes = values[flatIdx] ?? 0;
@@ -84,7 +74,6 @@ export default function RecordBoard({
                   <div
                     key={rowIdx}
                     className="flex items-center justify-center"
-                    style={{ width: columnWidth, height: rowHeight }}
                   >
                     <RecordDot
                       level={level}
