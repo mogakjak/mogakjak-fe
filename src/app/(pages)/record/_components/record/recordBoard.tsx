@@ -37,11 +37,7 @@ const MONTH_LABELS = [
 ];
 const WEEKDAY_LABELS_MON = ["월", "화", "수", "목", "금", "토", "일"];
 
-export default function RecordBoard({
-  data,
-  dotSize = 18,
-  gap = 6,
-}: RecordBoardProps) {
+export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
   const values = useMemo(() => Object.values(data), [data]);
 
   return (
