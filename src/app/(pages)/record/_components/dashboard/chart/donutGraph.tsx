@@ -9,6 +9,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { formatHM } from "../../../_utils/formatHM";
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
@@ -22,15 +23,6 @@ interface DonutGraphProps {
   totalMinutes: number;
   categories: DonutCategory[];
   cutout?: string | number;
-}
-
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-function formatHM(mins: number) {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${pad2(h)}h ${pad2(m)}m`;
 }
 
 export default function DonutGraph({

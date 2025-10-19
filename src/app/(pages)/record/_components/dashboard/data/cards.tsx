@@ -3,6 +3,7 @@
 import React from "react";
 import clsx from "clsx";
 import DataCard from "./dataCard";
+import { formatHM } from "../../../_utils/formatHM";
 
 interface CardsProps {
   totalFocusSec: number;
@@ -11,18 +12,13 @@ interface CardsProps {
   doneTasks: number;
 }
 
-function formatHM(totalSec: number) {
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  return `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}m`;
-}
-
 export default function Cards({
   totalFocusSec,
   groupFocusSec,
   personalFocusSec,
   doneTasks,
 }: CardsProps) {
+  console.log(totalFocusSec);
   return (
     <div className={clsx("grid grid-cols-4 gap-4 mt-[104px]")}>
       <DataCard

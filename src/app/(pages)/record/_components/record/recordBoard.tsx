@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import RecordDot, { RecordLevel } from "./recordDot";
 import RecordLegend from "./recordLegend";
+import RecordToolTip from "./recordToolTip";
+import { formatHM } from "../../_utils/formatHM";
 
 type DataMap = Record<string, number>;
 
@@ -51,7 +53,7 @@ export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
       </div>
 
       <div className="flex justify-evenly w-full">
-        <div className="text-body2-14SB flex flex-col justify-between text-gray-800">
+        <div className="text-body2-14SB flex flex-col justify-between text-gray-800 mr-4">
           {WEEKDAY_LABELS_MON.map((lab) => (
             <div key={lab} className="flex items-center">
               {lab}
@@ -66,16 +68,19 @@ export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
                 const flatIdx = colIdx * 7 + rowIdx;
                 const minutes = values[flatIdx] ?? 0;
                 const level = minutesToLevel(minutes);
+
                 return (
                   <div
                     key={rowIdx}
                     className="flex items-center justify-center"
                   >
-                    <RecordDot
-                      level={level}
-                      size={dotSize}
-                      title={`${Math.floor(minutes / 60)}h ${minutes % 60}m`}
-                    />
+                    <RecordToolTip label={formatHM(minutes)}>
+                      <RecordDot
+                        level={level}
+                        size={dotSize}
+                        title={`${Math.floor(minutes / 60)}h ${minutes % 60}m`}
+                      />
+                    </RecordToolTip>
                   </div>
                 );
               })}
