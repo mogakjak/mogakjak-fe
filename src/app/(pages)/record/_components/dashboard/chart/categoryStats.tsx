@@ -56,7 +56,7 @@ export default function CategoryStats({ type, items }: CategoryStatsProps) {
   }, [items]);
 
   return (
-    <div className="h-[274px] overflow-y-auto space-y-4 pr-2 category-scroll">
+    <div className="category-scroll  h-[274px] overflow-y-auto space-y-4 pr-2">
       {items.map((item, idx) => {
         const color =
           coloredItems[idx]?.color ||

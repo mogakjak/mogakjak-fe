@@ -48,7 +48,7 @@ export default function ChartMain() {
         </p>
       </div>
       <StickGraphs data={focusData} />
-      <div className="flex mt-[100px]  gap-[100px]">
+      <div className="flex mt-[100px]  gap-[140px]">
         <section>
           <p className="text-heading4-20SB text-black mb-10">
             카테고리별 집중시간

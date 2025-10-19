@@ -33,7 +33,7 @@ export default function RecordToolTip({
     if (!anchorRef.current) return;
 
     tipRef.current = tippy(anchorRef.current, {
-      content: String(label),
+      content: "",
       placement,
       arrow: true,
       theme,
