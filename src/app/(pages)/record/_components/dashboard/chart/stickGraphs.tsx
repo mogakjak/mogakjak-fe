@@ -46,8 +46,8 @@ export default function StickGraphs({ data }: StickGraphsProps) {
           data: processed,
           backgroundColor: "#fb7055",
           borderRadius: {
-            topLeft: 8,
-            topRight: 8,
+            topLeft: 10,
+            topRight: 10,
             bottomLeft: 0,
             bottomRight: 0,
           },
@@ -97,6 +97,7 @@ export default function StickGraphs({ data }: StickGraphsProps) {
               `${formatTime(ctx.parsed.y ?? 0)}`,
           },
         },
+        datalabels: { display: false },
       },
       layout: {
         padding: { top: 4, right: 8, bottom: 0, left: 8 },
