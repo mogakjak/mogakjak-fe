@@ -42,17 +42,9 @@ export default function RecordBoard({ data }: RecordBoardProps) {
   const values = useMemo(() => Object.values(data), [data]);
 
   return (
-    <div className="w-full bg-white rounded-[20px] px-10 py-7">
-      <div className="ml-8 mb-2 flex gap-20">
-        {MONTH_LABELS.map((m) => (
-          <p key={m} className="text-center text-body2-14SB text-gray-800">
-            {m}
-          </p>
-        ))}
-      </div>
-
-      <div className="flex justify-evenly w-full">
-        <div className="text-body2-14SB flex flex-col justify-between text-gray-800 mr-4">
+    <div className="w-full bg-white rounded-[20px] px-10 py-10">
+      <div className="flex justify-center w-full">
+        <div className="pt-7 text-body2-14SB flex flex-col justify-between text-gray-800 mr-4">
           {WEEKDAY_LABELS_MON.map((lab) => (
             <div key={lab} className="flex items-center">
               {lab}
@@ -60,27 +52,36 @@ export default function RecordBoard({ data }: RecordBoardProps) {
           ))}
         </div>
 
-        <div className="flex gap-1.5">
-          {Array.from({ length: 52 }).map((_, colIdx) => (
-            <div key={colIdx} className="flex flex-col gap-1.5">
-              {Array.from({ length: 7 }).map((__, rowIdx) => {
-                const flatIdx = colIdx * 7 + rowIdx;
-                const minutes = values[flatIdx] ?? 0;
-                const level = minutesToLevel(minutes);
+        <div className="flex flex-col">
+          <div className="mb-2 flex gap-20">
+            {MONTH_LABELS.map((m) => (
+              <p key={m} className="text-center text-body2-14SB text-gray-800">
+                {m}
+              </p>
+            ))}
+          </div>
+          <div className="flex gap-1.5">
+            {Array.from({ length: 52 }).map((_, colIdx) => (
+              <div key={colIdx} className="flex flex-col gap-1.5">
+                {Array.from({ length: 7 }).map((__, rowIdx) => {
+                  const flatIdx = colIdx * 7 + rowIdx;
+                  const minutes = values[flatIdx] ?? 0;
+                  const level = minutesToLevel(minutes);
 
-                return (
-                  <div
-                    key={rowIdx}
-                    className="flex items-center justify-center"
-                  >
-                    <RecordToolTip label={formatHM(minutes)}>
-                      <RecordDot level={level} />
-                    </RecordToolTip>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  return (
+                    <div
+                      key={rowIdx}
+                      className="flex items-center justify-center"
+                    >
+                      <RecordToolTip label={formatHM(minutes)}>
+                        <RecordDot level={level} />
+                      </RecordToolTip>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
