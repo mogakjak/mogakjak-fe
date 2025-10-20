@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { categoryTime } from "../../../_utils/categoryTime";
+import { formatHM } from "../../../_utils/formatHM";
 
 interface BaseItem {
   category: string;
@@ -16,14 +17,6 @@ interface CategoryStatsProps {
 
 function isTimeItem(item: TimeItem | CountItem): item is TimeItem {
   return typeof (item as TimeItem).minutes === "number";
-}
-
-function formatTime(mins: number) {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  const hh = String(h).padStart(2, "0");
-  const mm = String(m).padStart(2, "0");
-  return `${hh}h ${mm}m`;
 }
 
 const FALLBACK_PALETTE = [
@@ -76,7 +69,7 @@ export default function CategoryStats({ type, items }: CategoryStatsProps) {
 
             {type === "time" && isTimeItem(item) ? (
               <span className="text-gray-800 text-body1-16SB ml-auto mr-[100px]">
-                {formatTime(item.minutes)}
+                {formatHM(item.minutes)}
               </span>
             ) : (
               <div className="flex items-center gap-1 text-gray-800 text-body1-16SB mr-[100px] ml-auto">

@@ -1,7 +1,7 @@
 // components/RecordLegend.tsx
 import RecordDot from "./recordDot";
 
-export default function RecordLegend({ dotSize = 16 }: { dotSize?: number }) {
+export default function RecordLegend() {
   return (
     <div className="mt-6">
       <div className="flex justify-end gap-5">
@@ -13,7 +13,7 @@ export default function RecordLegend({ dotSize = 16 }: { dotSize?: number }) {
           { lv: 4, label: "9h~" },
         ].map(({ lv, label }) => (
           <div key={lv} className="flex items-center gap-2">
-            <RecordDot level={lv as 0 | 1 | 2 | 3 | 4} size={dotSize} />
+            <RecordDot level={lv as 0 | 1 | 2 | 3 | 4} />
             <span className="text-caption-12R text-gray-600">{label}</span>
           </div>
         ))}

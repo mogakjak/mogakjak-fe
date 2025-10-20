@@ -40,7 +40,7 @@ export default function ChartMain() {
 
   const categories = categoryTime(timeItems);
   return (
-    <main className="mt-[100px]">
+    <div className="mt-[100px]">
       <div className="flex items-center gap-5 mb-5">
         <p className="text-heading4-20SB text-black">시간대별 분석</p>
         <p className="text-body1-16R text-gray-600">
@@ -70,6 +70,6 @@ export default function ChartMain() {
           <CategoryStats type="count" items={countItems} />
         </section>
       </div>
-    </main>
+    </div>
   );
 }

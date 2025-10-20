@@ -10,7 +10,6 @@ type DataMap = Record<string, number>;
 
 export type RecordBoardProps = {
   data: DataMap;
-  dotSize?: number;
   gap?: number;
 };
 
@@ -39,7 +38,7 @@ const MONTH_LABELS = [
 ];
 const WEEKDAY_LABELS_MON = ["월", "화", "수", "목", "금", "토", "일"];
 
-export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
+export default function RecordBoard({ data }: RecordBoardProps) {
   const values = useMemo(() => Object.values(data), [data]);
 
   return (
@@ -75,11 +74,7 @@ export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
                     className="flex items-center justify-center"
                   >
                     <RecordToolTip label={formatHM(minutes)}>
-                      <RecordDot
-                        level={level}
-                        size={dotSize}
-                        title={`${Math.floor(minutes / 60)}h ${minutes % 60}m`}
-                      />
+                      <RecordDot level={level} />
                     </RecordToolTip>
                   </div>
                 );
@@ -89,7 +84,7 @@ export default function RecordBoard({ data, dotSize = 18 }: RecordBoardProps) {
         </div>
       </div>
 
-      <RecordLegend dotSize={dotSize} />
+      <RecordLegend />
     </div>
   );
 }

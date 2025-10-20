@@ -4,9 +4,7 @@ export type RecordLevel = 0 | 1 | 2 | 3 | 4;
 
 export interface RecordDotProps {
   level: RecordLevel;
-  size?: number;
   className?: string;
-  title?: string;
   dimmed?: boolean;
 }
 
@@ -29,7 +27,6 @@ const BORDER_BY_LEVEL: Record<RecordLevel, string> = {
 export default function RecordDot({
   level,
   className,
-  title,
   dimmed = false,
 }: RecordDotProps) {
   const bg = BG_BY_LEVEL[level];
@@ -37,7 +34,6 @@ export default function RecordDot({
 
   return (
     <div
-      title={title}
       className={clsx(
         "inline-block rounded-full border-2",
         bg,

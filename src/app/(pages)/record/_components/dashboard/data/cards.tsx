@@ -18,7 +18,6 @@ export default function Cards({
   personalFocusSec,
   doneTasks,
 }: CardsProps) {
-  console.log(totalFocusSec);
   return (
     <div className={clsx("grid grid-cols-4 gap-4 mt-[104px]")}>
       <DataCard
