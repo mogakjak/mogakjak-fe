@@ -1,33 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAuthToken } from "./getAuthToken";
 
-const ACCESS_TOKEN_KEY = "mg_access_token";
-
-type AuthStatus = "loading" | "loggedIn" | "loggedOut";
+const AUTH_QUERY_KEY = ["auth", "token"];
 
 export function useAuthState() {
-  const [status, setStatus] = useState<AuthStatus>("loading");
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    try {
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-      setStatus(token ? "loggedIn" : "loggedOut");
-    } catch {
-      setStatus("loggedOut");
-    }
+  const {
+    data: token,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: AUTH_QUERY_KEY,
+    queryFn: getAuthToken,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: false,
+  });
 
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === ACCESS_TOKEN_KEY) {
-        setStatus(e.newValue ? "loggedIn" : "loggedOut");
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  const invalidateAuth = () => {
+    queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
+  };
+
+  const setAuthToken = (newToken: string | null) => {
+    queryClient.setQueryData(AUTH_QUERY_KEY, newToken);
+  };
 
   return {
-    isLoggedIn: status === "loggedIn",
-    ready: status !== "loading",
+    isLoggedIn: !!token && !error,
+    ready: !isLoading,
+    token,
+    invalidateAuth,
+    setAuthToken,
   };
 }
