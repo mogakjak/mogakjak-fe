@@ -54,8 +54,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const isMuted = variant === "muted" || disabled;
     const iconSrc = isMuted
-      ? "/icons/plusGray.svg"
-      : "/icons/plusWhite.svg";
+      ? "/Icons/plusGray.svg"
+      : "/Icons/plusWhite.svg";
 
     return (
       <button

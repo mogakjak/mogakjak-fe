@@ -46,7 +46,7 @@ function CategoryHeader({
             className="p-1 rounded-lg flex justify-start items-center gap-2"
           >
             <span className="text-zinc-600 text-sm leading-tight">할 일 추가하기</span>
-            <Image src="/icons/plusRed.svg" alt="추가" className="w-6 h-6" width={24} height={24} />
+            <Image src="/Icons/plusRed.svg" alt="추가" className="w-6 h-6" width={24} height={24} />
           </button>
         </div>
       </div>
@@ -58,7 +58,7 @@ function CategoryHeader({
         className="w-6 h-6 grid place-items-center"
       >
         <Image
-          src={expanded ? "/icons/arrowUpGray.svg" : "/icons/arrowDownGray.svg"}
+          src={expanded ? "/Icons/arrowUpGray.svg" : "/Icons/arrowDownGray.svg"}
           alt={expanded ? "위로" : "아래로"}
           className="w-6 h-6"
           width={24}
