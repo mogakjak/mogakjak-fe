@@ -76,7 +76,7 @@ export default function WorkItem({
         )}
       >
         <Image
-          src={completed ? "/icons/checkboxSelected.svg" : "/icons/checkboxDefault.svg"}
+          src={completed ? "/Icons/checkboxSelected.svg" : "/Icons/checkboxDefault.svg"}
           alt={completed ? "체크됨" : "미체크"}
           className="w-6 h-6"
           width={24}
@@ -102,10 +102,10 @@ export default function WorkItem({
 
           <div className="flex justify-end items-center gap-4">
             <button type="button" onClick={onEdit} aria-label="편집" className="w-6 h-6 relative overflow-hidden">
-              <Image src="/icons/edit.svg" alt="편집" className="w-6 h-6" width={24} height={24} />
+              <Image src="/Icons/edit.svg" alt="편집" className="w-6 h-6" width={24} height={24} />
             </button>
             <button type="button" onClick={onDelete} aria-label="삭제" className="w-6 h-6 relative overflow-hidden">
-              <Image src="/icons/delete.svg" alt="삭제" className="w-6 h-6" width={24} height={24} />
+              <Image src="/Icons/delete.svg" alt="삭제" className="w-6 h-6" width={24} height={24} />
             </button>
           </div>
         </div>
