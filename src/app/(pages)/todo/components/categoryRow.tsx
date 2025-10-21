@@ -7,7 +7,7 @@ import Image from "next/image";
 type Props = {
   id: string;
   label: string;
-  colorToken: string; // e.g. 'bg-category-1-red'
+  colorToken: string; 
   selected?: boolean;
   onSelect?: () => void;
   showHandle?: boolean;
@@ -57,7 +57,7 @@ export default function CategoryRow({
         onClick={() => !isEditing && onSelect?.()}
         onDoubleClick={() => setIsEditing(true)}
         className={clsx(
-          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all outline outline-1",
+          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all outline-1",
           selected ? "outline-red-500" : "outline-gray-200",
         )}
       >

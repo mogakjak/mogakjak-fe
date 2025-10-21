@@ -56,7 +56,7 @@ export default function WorkItem({
   return (
     <div
       className={clsx(
-        "w-[863px] h-36 pl-4 pr-5 py-4 bg-gray-100 rounded-xl",
+        "w-full h-36 pl-4 pr-5 py-4 bg-gray-100 rounded-xl",
         "outline-1 outline-offset-[-1px] outline-gray-200",
         "inline-flex justify-start items-start gap-4 overflow-hidden",
         className,

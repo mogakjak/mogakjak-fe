@@ -70,13 +70,21 @@ function CategoryHeader({
 }
 
 export default function TodoList({
-  categories,
+  categories: initialCategories,
   onAddWork,
   onToggleCategory,
   className,
 }: TodoListProps) {
-  const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(
-    () => categories.reduce((acc, c) => ((acc[c.id] = c.expanded ?? true), acc), {} as Record<string | number, boolean>),
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
+
+  const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
+    initialCategories.reduce(
+      (acc, c) => {
+        acc[c.id] = c.expanded ?? true;
+        return acc;
+      },
+      {} as Record<string | number, boolean>,
+    ),
   );
 
   const toggle = (id: Category["id"]) => {
@@ -87,18 +95,38 @@ export default function TodoList({
     });
   };
 
+  const toggleItemCompleted = (catId: Category["id"], idx: number, next: boolean) => {
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id === catId
+          ? { ...c, items: c.items.map((it, i) => (i === idx ? { ...it, completed: next } : it)) }
+          : c,
+      ),
+    );
+  };
+
   return (
-    <div className={clsx("w-[913px] inline-flex flex-col justify-center items-center gap-7", className)}>
+    <div className={clsx("w-full inline-flex flex-col items-stretch gap-6 pt-7", className)}>
       <div className="self-stretch flex flex-col justify-start items-start gap-4">
         {categories.map((cat) => {
           const expanded = openMap[cat.id] ?? true;
           return (
             <Fragment key={cat.id}>
-              <CategoryHeader category={cat} expanded={expanded} onToggle={() => toggle(cat.id)} onAdd={() => onAddWork?.(cat.id)} />
+              <CategoryHeader
+                category={cat}
+                expanded={expanded}
+                onToggle={() => toggle(cat.id)}
+                onAdd={() => onAddWork?.(cat.id)}
+              />
               {expanded && (
                 <div className="self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2">
                   {cat.items.map((w, idx) => (
-                    <WorkItem key={`${cat.id}-${idx}`} {...w} className="self-stretch w-[863px]" />
+                    <WorkItem
+                      key={`${cat.id}-${idx}`}
+                      {...w}
+                      onToggleCompleted={(next) => toggleItemCompleted(cat.id, idx, next)}
+                      className="self-stretch w-full"
+                    />
                   ))}
                 </div>
               )}
