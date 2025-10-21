@@ -73,7 +73,7 @@ export default function StickGraphs({ data }: StickGraphsProps) {
         },
         y: {
           min: 0,
-          max: 100,
+          max: 60,
           beginAtZero: true,
           grid: { display: false },
           ticks: { display: false },

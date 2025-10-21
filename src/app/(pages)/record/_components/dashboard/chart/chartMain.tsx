@@ -7,7 +7,7 @@ import StickGraphs from "./stickGraphs";
 export default function ChartMain() {
   const totalMinutes = 600;
   const focusData = [
-    90, 70, 0, 0, 0, 0, 0, 0, 0, 40, 65, 30, 0, 0, 8, 12, 45, 60, 100, 75, 100,
+    60, 40, 0, 0, 0, 0, 0, 0, 0, 40, 60, 30, 0, 0, 8, 12, 45, 60, 30, 45, 60,
     25, 35, 50,
   ];
 
