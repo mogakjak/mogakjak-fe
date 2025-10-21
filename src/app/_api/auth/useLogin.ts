@@ -30,9 +30,23 @@ function buildAuthorizeUrl(provider: Provider): string {
 
   // 우선순위: NEXT_PUBLIC_REDIRECT_URI(있으면 그대로) > runtimeOrigin
   // 백엔드가 콜백 경로를 자동으로 붙이는 환경이라면 호스트만 전달되도록 한다
-  const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI
+  let redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI
     ? stripSlash(process.env.NEXT_PUBLIC_REDIRECT_URI)
     : stripSlash(runtimeOrigin);
+
+  // 로컬 개발 환경에서 콜백을 항상 localhost:3000으로 고정
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const isLocalHostLike =
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0";
+    if (isLocalHostLike) {
+      redirectUri = "http://localhost:3000";
+    }
+  } else if (process.env.NODE_ENV === "development") {
+    redirectUri = "http://localhost:3000";
+  }
 
   const url = new URL(`/oauth2/authorization/${provider}`, apiBase);
 

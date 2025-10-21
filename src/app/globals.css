@@ -8,7 +8,7 @@
 
 /* === 전역 배경/전경 === */
 :root {
-  --background: #ffffff;
+  --background: #fafafa;
   --foreground: #171717;
 }
 
@@ -188,4 +188,28 @@ button {
   font-weight: var(--fw-regular);
   font-size: var(--text-12);
   line-height: var(--leading-140);
+}
+
+/* 기록 페이지 스크롤 커스텀 */
+@layer utilities {
+  .category-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-400, #9ca3af)
+      var(--color-gray-200, #f3f4f6);
+  }
+}
+
+/* 툴팁 chartjs와 스타일 같게 만듦 */
+.tippy-box[data-theme~="chart"] {
+  background: #fff;
+  color: var(--color-gray-800, #323437);
+  border-radius: 5px;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+.tippy-box[data-theme~="chart"] .tippy-content {
+  padding: 0;
+}
+.tippy-box[data-theme~="chart"] .tippy-arrow {
+  color: #fff;
 }
