@@ -1,6 +1,5 @@
 "use client";
 
-import clsx from "clsx";
 import TodoList, { type Category as CategoryType } from "./todoList";
 import type { DayFilter } from "./category";
 
@@ -8,9 +7,6 @@ export default function TodoSection({
   filter,
   dateLabel,
   categories,
-  onAddWork,
-  onToggleCategory,
-  className,
 }: {
   filter: DayFilter;
   dateLabel?: string;
