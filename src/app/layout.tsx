@@ -16,10 +16,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="mx-auto w-full flex flex-col min-h-screen items-center bg-gray-100 overflow-x-hidden">
-        <ConditionalHeader />
-        <div className="px-[36px] bg-gray-100 w-full">
-          <Providers>{children}</Providers>
-        </div>
+        <Providers>
+          <ConditionalHeader />
+          <div className="px-[36px] bg-gray-100 w-full">{children}</div>
+        </Providers>
       </body>
     </html>
   );

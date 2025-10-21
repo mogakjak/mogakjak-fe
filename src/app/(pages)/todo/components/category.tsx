@@ -70,13 +70,13 @@ function Category({
           <FilterPill
             selected={filter === "today"}
             onClick={() => onChangeFilter?.("today")}
-            icon="/icons/todoToday.svg"
+            icon="/Icons/todoToday.svg"
             label="오늘"
           />
           <FilterPill
             selected={filter === "all"}
             onClick={() => onChangeFilter?.("all")}
-            icon="/icons/todoAll.svg"
+            icon="/Icons/todoAll.svg"
             label="전체"
           />
         </div>
@@ -116,7 +116,7 @@ function Category({
             className="h-11 w-full rounded-lg bg-gray-200 inline-flex items-center gap-2 px-4"
           >
             <Image
-              src="/icons/plusFilled.svg"
+              src="/Icons/plusFilled.svg"
               alt="추가"
               width={24}
               height={24}

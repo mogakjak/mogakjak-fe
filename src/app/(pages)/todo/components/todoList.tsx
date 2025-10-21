@@ -68,7 +68,7 @@ function CategoryHeader({
         className="w-6 h-6 grid place-items-center"
       >
         <Image
-          src={expanded ? "/icons/arrowUpGray.svg" : "/icons/arrowDownGray.svg"}
+          src={expanded ? "/Icons/arrowUpGray.svg" : "/Icons/arrowDownGray.svg"}
           alt={expanded ? "위로" : "아래로"}
           className="w-6 h-6"
           width={24}
