@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./_providers/providers";
-import ConditionalHeader from "@/components/ConditionalHeader";
+import ConditionalHeader from "@/components/header/ConditionalHeader";
 
 export const metadata: Metadata = {
   title: "모각작",

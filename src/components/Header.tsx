@@ -1,5 +1,6 @@
 import Image from "next/image";
-import HeaderButton from "./HeaderButton";
+import HeaderButton from "./header/HeaderButton";
+import ProfileButton from "./header/ProfileButton";
 
 export default function Header() {
   return (
@@ -9,20 +10,7 @@ export default function Header() {
         <HeaderButton text="Home" href="/" />
         <HeaderButton text="TO DO" href="/todo" />
         <HeaderButton text="기록" href="/record" />
-        <button className="relative w-10 h-10">
-          <Image
-            src="/profileDefault.svg"
-            alt="프로필"
-            fill
-            className="object-contain transition-opacity duration-200 opacity-100 hover:opacity-0"
-          />
-          <Image
-            src="/profileSelected.svg"
-            alt="프로필 선택"
-            fill
-            className="object-contain transition-opacity duration-200 opacity-0 hover:opacity-100"
-          />
-        </button>
+        <ProfileButton />
       </nav>
     </header>
   );
