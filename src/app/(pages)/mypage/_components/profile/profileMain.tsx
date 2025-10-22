@@ -27,8 +27,8 @@ export default function Profile() {
 
       <section className="flex flex-col gap-3">
         <ProfileInfo title="완료한 작업" content="35개" />
-        <ProfileInfo title="완료한 시간" content="35개" />
-        <ProfileInfo title="수집 캐릭터" content="5개" />
+        <ProfileInfo title="완료한 시간" content="3시간" />
+        <ProfileInfo title="수집 캐릭터" content="6개" />
       </section>
     </div>
   );

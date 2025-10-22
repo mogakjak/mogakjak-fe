@@ -31,13 +31,14 @@ export default function BoardMate() {
   }, [selectedGroup, submittedSearch]);
 
   const handleSearchSubmit = (value: string) => {
-    console.log("검색:", value);
     setSubmittedSearch(value);
   };
 
   return (
     <div className="p-4">
-      <h2 className="text-heading4-20SB text-black">내 모각작 메이트(18)</h2>
+      <h2 className="text-heading4-20SB text-black">
+        내 모각작 메이트({total})
+      </h2>
 
       <section className="flex justify-between items-center mt-7">
         <DropdownList

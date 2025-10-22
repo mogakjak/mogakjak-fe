@@ -13,10 +13,10 @@ export default function Character({ name, locked = false }: CharacterProps) {
         alt={`${name} 캐릭터`}
         width={120}
         height={120}
-        className={`object-contain transition-all duration-300 pt-3.5 pb-2.5`}
+        className={"object-contain transition-all duration-300 pt-3.5 pb-2.5"}
       />
 
-      <p className={`text-body1-16SB transition-colors duration-300 `}>
+      <p className={"text-body1-16SB transition-colors duration-300 "}>
         {name}
       </p>
 
