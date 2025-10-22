@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
 
@@ -17,6 +17,7 @@ interface ProfileListProps {
   page?: number;
   pageSize?: number;
   onCountChange?: (n: number) => void;
+  search?: string;
 }
 
 export default function ProfileList({
@@ -24,6 +25,7 @@ export default function ProfileList({
   page = 1,
   pageSize = 6,
   onCountChange,
+  search = "",
 }: ProfileListProps) {
   const profiles: Profile[] = [
     {
@@ -91,10 +93,18 @@ export default function ProfileList({
     },
   ];
 
-  const filtered =
-    groupName === "전체 그룹"
-      ? profiles
-      : profiles.filter((p) => p.groups.includes(groupName));
+  const norm = (s: string) => s.trim().toLowerCase();
+  const q = norm(search);
+
+  const filtered = useMemo(() => {
+    const byGroup =
+      groupName === "전체 그룹"
+        ? profiles
+        : profiles.filter((p) => p.groups.includes(groupName));
+
+    if (!q) return byGroup;
+    return byGroup.filter((p) => norm(p.name).includes(q));
+  }, [groupName, q]);
 
   useEffect(() => {
     onCountChange?.(filtered.length);
@@ -115,13 +125,14 @@ export default function ProfileList({
             name={profile.name}
             active={profile.active}
           />
+
           <p className="text-heading4-20SB text-black ml-7">{profile.name}</p>
 
           <div className="w-px h-5 bg-black m-2" />
           <div className="text-gray-500 text-body1-16R flex gap-2">
             <p>{profile.groups.join(", ")}</p>
             <p>·</p>
-            <p>몰입 중</p>
+            <p>{profile.active ? "몰입 중" : "대기 중"}</p>
           </div>
 
           <div className="ml-auto">
@@ -132,7 +143,14 @@ export default function ProfileList({
 
       {filtered.length === 0 && (
         <p className="text-sm text-gray-400 px-5 py-8">
-          해당 그룹에 속한 메이트가 없습니다.
+          {q ? (
+            <>
+              검색어 <span className="font-semibold">“{search}”</span>에
+              해당하는 메이트가 없습니다.
+            </>
+          ) : (
+            <>해당 그룹에 속한 메이트가 없습니다.</>
+          )}
         </p>
       )}
     </div>

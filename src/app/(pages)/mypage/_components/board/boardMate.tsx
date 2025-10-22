@@ -11,7 +11,9 @@ export default function BoardMate() {
   const [total, setTotal] = useState(0);
   const pageSize = 6;
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(""); // 입력 중인 검색어
+  const [submittedSearch, setSubmittedSearch] = useState(""); // 실제 검색된 이름
+
   const groupItems = [
     "전체 그룹",
     "그룹이름가나다라",
@@ -26,7 +28,13 @@ export default function BoardMate() {
 
   useEffect(() => {
     setPage(1);
-  }, [selectedGroup]);
+  }, [selectedGroup, submittedSearch]);
+
+  const handleSearchSubmit = (value: string) => {
+    console.log("검색:", value);
+    setSubmittedSearch(value);
+  };
+
   return (
     <div className="p-4">
       <h2 className="text-heading4-20SB text-black">내 모각작 메이트(18)</h2>
@@ -40,15 +48,17 @@ export default function BoardMate() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          onSubmit={(v) => console.log("검색:", v)}
+          onSubmit={handleSearchSubmit}
         />
       </section>
+
       <section className="flex flex-col justify-between">
         <ProfileList
           groupName={selectedGroup}
           page={page}
           pageSize={pageSize}
           onCountChange={setTotal}
+          search={submittedSearch}
         />
         <PageNation
           page={page}
