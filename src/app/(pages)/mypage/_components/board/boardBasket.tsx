@@ -1,4 +1,4 @@
-import Character from "./character";
+import Character from "./basket/character";
 
 export default function BoardBasket() {
   const characters = [

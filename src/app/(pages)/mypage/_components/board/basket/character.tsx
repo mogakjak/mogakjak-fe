@@ -7,13 +7,13 @@ interface CharacterProps {
 
 export default function Character({ name, locked = false }: CharacterProps) {
   return (
-    <div className="relative flex flex-col items-center justify-center gap-2 rounded-lg px-8 py-6 bg-gray-100 border border-gray-200 overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center gap-2 rounded-lg px-8 py-5.5 bg-gray-100 border border-gray-200 overflow-hidden">
       <Image
         src={`/character/${name}.svg`}
         alt={`${name} 캐릭터`}
         width={120}
         height={120}
-        className={`object-contain transition-all duration-300 pt-4 pb-2.5`}
+        className={`object-contain transition-all duration-300 pt-3.5 pb-2.5`}
       />
 
       <p className={`text-body1-16SB transition-colors duration-300 `}>
