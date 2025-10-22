@@ -1,11 +1,11 @@
-"use client";
-
-import { useState } from "react";
 import MenuTab from "./menuTab";
 
-export default function Menu() {
-  const [selected, setSelected] = useState("내 채소 바구니");
+interface MenuProps {
+  selected: string;
+  onSelect: (menu: string) => void;
+}
 
+export default function Menu({ selected, onSelect }: MenuProps) {
   const menuItems = ["내 채소 바구니", "내 모각작 메이트"];
 
   return (
@@ -18,7 +18,7 @@ export default function Menu() {
             key={item}
             title={item}
             selected={selected === item}
-            onClick={() => setSelected(item)}
+            onClick={() => onSelect(item)}
           />
         ))}
       </div>

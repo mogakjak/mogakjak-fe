@@ -1,7 +1,14 @@
-export default function Board() {
+import BoardBasket from "./boardBasket";
+import BoardMate from "./boardMate";
+
+interface BoardProps {
+  selectedMenu: string;
+}
+
+export default function Board({ selectedMenu }: BoardProps) {
   return (
-    <div className="w-[1021px] h-[856px] p-6 rounded-[20px] bg-white">
-      메인보드
+    <div className="w-full p-6 bg-white rounded-[20px]">
+      {selectedMenu === "내 채소 바구니" ? <BoardBasket /> : <BoardMate />}
     </div>
   );
 }
