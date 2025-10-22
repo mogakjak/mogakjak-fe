@@ -104,7 +104,7 @@ export default function ProfileList({
 
     if (!q) return byGroup;
     return byGroup.filter((p) => norm(p.name).includes(q));
-  }, [groupName, q]);
+  }, [groupName, profiles, q]);
 
   useEffect(() => {
     onCountChange?.(filtered.length);
