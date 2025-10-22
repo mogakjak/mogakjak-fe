@@ -1,5 +1,5 @@
-import BoardBasket from "./boardBasket";
-import BoardMate from "./boardMate";
+import BoardBasket from "./basket/boardBasket";
+import BoardMate from "./mate/boardMate";
 
 interface BoardProps {
   selectedMenu: string;
