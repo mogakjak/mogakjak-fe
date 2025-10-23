@@ -26,7 +26,7 @@ export default function PreviewCharacter({
 
   return (
     <div className="flex flex-col border border-gray-200 rounded-[12px] p-4 mt-5">
-      <div className="flex flex-col items-center pt-1.5">
+      <div className="flex flex-col items-center pt-1.5 gap-2">
         <Image
           src="/character/tomato.svg"
           alt="캐릭터"

@@ -53,7 +53,7 @@ export default function BoardMate() {
         />
       </section>
 
-      <section className="flex flex-col justify-between">
+      <section className="flex flex-col justify-between mt-4 pb-3">
         <ProfileList
           groupName={selectedGroup}
           page={page}
