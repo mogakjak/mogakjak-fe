@@ -39,6 +39,7 @@ export default function GroupRoom(props: GroupRoomProps) {
           ) : (
             <MembersHover
               members={members}
+              activeCount={activeCount}
               trigger={<Members members={members} size="default" />}
             />
           )}

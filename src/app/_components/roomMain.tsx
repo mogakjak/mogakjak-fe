@@ -14,9 +14,9 @@ export default function RoomMain() {
       members: [
         { id: 1, isActive: true },
         { id: 2, isActive: false },
-        { id: 3, isActive: true },
+        { id: 3, isActive: false },
         { id: 4, isActive: true },
-        { id: 5, isActive: false },
+        { id: 5, isActive: true },
         { id: 6, isActive: true },
         { id: 7, isActive: true },
       ],
@@ -27,7 +27,7 @@ export default function RoomMain() {
       members: [
         { id: 1, isActive: true },
         { id: 2, isActive: true },
-        { id: 3, isActive: false },
+        { id: 3, isActive: true },
       ],
     },
     {
@@ -37,6 +37,8 @@ export default function RoomMain() {
         { id: 1, isActive: true },
         { id: 2, isActive: true },
         { id: 3, isActive: false },
+        { id: 4, isActive: true },
+        { id: 5, isActive: true },
       ],
     },
   ];

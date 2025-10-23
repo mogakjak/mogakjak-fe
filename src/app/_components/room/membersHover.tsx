@@ -10,6 +10,7 @@ import {
   autoUpdate,
   safePolygon,
 } from "@floating-ui/react";
+import clsx from "clsx";
 import { useState } from "react";
 import MemberProfile from "./memberProfile";
 import StateButton from "./stateButton";
@@ -19,12 +20,14 @@ type MemberItem = { id: number | string; isActive: boolean };
 interface MembersHoverProps {
   trigger: React.ReactNode;
   members: MemberItem[];
+  activeCount: number;
   className?: string;
 }
 
 export default function MembersHover({
   trigger,
   members,
+  activeCount,
   className = "",
 }: MembersHoverProps) {
   const [open, setOpen] = useState(false);
@@ -45,8 +48,6 @@ export default function MembersHover({
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
 
-  const activeCount = members.filter((m) => m.isActive).length;
-
   return (
     <>
       <div ref={refs.setReference} {...getReferenceProps()}>
@@ -58,11 +59,11 @@ export default function MembersHover({
           ref={refs.setFloating}
           {...getFloatingProps()}
           style={floatingStyles}
-          className={[
+          className={clsx(
             "z-[60] w-60  rounded-xl  bg-white shadow-md p-5",
             "transition-opacity duration-150",
-            className,
-          ].join(" ")}
+            className
+          )}
         >
           <div className="flex text-body1-16SB text-gray-800 mb-2">
             참여자

@@ -15,7 +15,7 @@ interface MembersProps {
 export default function Members({
   members,
   size = "default",
-  max = 6,
+  max = 5,
   isGuide = false,
 }: MembersProps) {
   const shown = members.slice(0, max);
@@ -47,22 +47,24 @@ export default function Members({
 
   return (
     <div className="relative flex items-center">
-      {rest >= 0 && (
+      {rest > 0 && (
         <div className={`absolute right-0 z-10 ${overlapClass}`}>
           <div
             className={`${ringClass} ${sizeClass} bg-gray-400 text-white flex items-center justify-center font-semibold`}
             aria-label={`추가 멤버 ${rest}명`}
             title={`+${rest}`}
           >
-            +{rest + 1}
+            +{rest}
           </div>
         </div>
       )}
-      {shown.map((m, idx) => (
-        <div key={m.id} className={idx === 0 ? "" : overlapClass}>
-          <MemberProfile isActive={m.isActive} size={size} />
-        </div>
-      ))}
+      <div className={`${rest > 0 ? "mr-5" : ""} flex items-center`}>
+        {shown.map((m, idx) => (
+          <div key={m.id} className={idx === 0 ? "" : overlapClass}>
+            <MemberProfile isActive={m.isActive} size={size} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
