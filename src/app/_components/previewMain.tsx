@@ -6,7 +6,7 @@ import Quotes from "./preview/quotes";
 
 export default function PreviewMain() {
   return (
-    <div className="w-[327px] px-6 py-9 rounded-[20px] bg-white">
+    <div className="w-[327px] min-w-[327px] px-6 py-9 rounded-[20px] bg-white">
       <h2 className="text-heading4-20SB text-black">
         오늘은 어떤 몰입을 해볼까요?
       </h2>
