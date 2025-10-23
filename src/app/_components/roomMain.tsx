@@ -14,9 +14,9 @@ export default function RoomMain() {
       members: [
         { id: 1, isActive: true },
         { id: 2, isActive: false },
-        { id: 3, isActive: true },
+        { id: 3, isActive: false },
         { id: 4, isActive: true },
-        { id: 5, isActive: false },
+        { id: 5, isActive: true },
         { id: 6, isActive: true },
         { id: 7, isActive: true },
       ],
@@ -27,7 +27,7 @@ export default function RoomMain() {
       members: [
         { id: 1, isActive: true },
         { id: 2, isActive: true },
-        { id: 3, isActive: false },
+        { id: 3, isActive: true },
       ],
     },
     {
@@ -37,12 +37,14 @@ export default function RoomMain() {
         { id: 1, isActive: true },
         { id: 2, isActive: true },
         { id: 3, isActive: false },
+        { id: 4, isActive: true },
+        { id: 5, isActive: true },
       ],
     },
   ];
 
   return (
-    <div className="w-[1000px]  p-6 pb-0 bg-white rounded-[20px]">
+    <div className="w-full p-6 pb-0 bg-white rounded-[20px]">
       <div className="flex justify-between mb-4">
         <h2 className="text-heading4-20SB text-black">
           모각작 함께 몰입하는 시간

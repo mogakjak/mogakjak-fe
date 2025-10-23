@@ -8,7 +8,7 @@ export default function StateButton({ state }: StateButtonProps) {
   return (
     <div
       className={clsx(
-        "px-5 py-1 rounded-[100px] text-caption-12SB w-[85px] text-center",
+        "px-4 py-1 rounded-[100px] text-caption-12SB w-[74px] text-center",
         state ? "text-red-500 bg-red-100" : "text-gray-500 bg-gray-200"
       )}
     >
