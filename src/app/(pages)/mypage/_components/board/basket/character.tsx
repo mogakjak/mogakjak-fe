@@ -24,7 +24,7 @@ export default function Character({ name, locked = false }: CharacterProps) {
         <>
           <div className="absolute inset-0 bg-gray-200/60 z-10"></div>
           <Image
-            src="/icons/lock.svg"
+            src="/Icons/lock.svg"
             alt="잠김"
             width={48}
             height={48}

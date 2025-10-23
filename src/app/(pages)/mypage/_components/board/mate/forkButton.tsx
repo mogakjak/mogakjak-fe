@@ -18,7 +18,7 @@ export default function ForkButton({ active }: ForkButtonProps) {
       `}
     >
       <Image
-        src={active ? "/Icons/ForkActive.svg" : "/Icons/ForkInactive.svg"}
+        src={active ? "/Icons/forkActive.svg" : "/Icons/forkInactive.svg"}
         alt="포크 아이콘"
         width={20}
         height={20}
