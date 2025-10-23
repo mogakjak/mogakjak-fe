@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DropdownList from "./mate/dropdownList";
-import SearchBar from "./mate/searchBar";
-import ProfileList from "./mate/profileList";
-import PageNation from "./mate/pageNation";
+import DropdownList from "../(pages)/mypage/_components/board/mate/dropdownList";
+import SearchBar from "../(pages)/mypage/_components/board/mate/searchBar";
+import ProfileList from "../(pages)/mypage/_components/board/mate/profileList";
 
-export default function BoardMate() {
+export default function FriendMain() {
   const [selectedGroup, setSelectedGroup] = useState("전체 그룹");
-  const [total, setTotal] = useState(0);
   const pageSize = 6;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState(""); // 입력 중인 검색어
@@ -35,10 +33,8 @@ export default function BoardMate() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-heading4-20SB text-black">
-        내 모각작 메이트({total})
-      </h2>
+    <div className="px-10 pt-9 bg-white rounded-[20px]">
+      <h2 className="text-heading4-20SB text-black">친구들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-7">
         <DropdownList
@@ -53,19 +49,12 @@ export default function BoardMate() {
         />
       </section>
 
-      <section className="flex flex-col justify-between mt-4 pb-3">
+      <section className="flex flex-col justify-between mt-4 h-[228px] overflow-y-auto">
         <ProfileList
           groupName={selectedGroup}
           page={page}
           pageSize={pageSize}
-          onCountChange={setTotal}
           search={submittedSearch}
-        />
-        <PageNation
-          page={page}
-          pageSize={pageSize}
-          totalItems={total}
-          onChange={setPage}
         />
       </section>
     </div>

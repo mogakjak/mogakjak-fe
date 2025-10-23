@@ -42,8 +42,8 @@ export default function DropdownList({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-2 text-heading4-20SB transition-colors duration-150 ${
-          label !== defaultLabel ? "text-red-400" : "text-black"
+        className={`flex items-center gap-2 text-body1-16SB transition-colors duration-150 ${
+          label !== defaultLabel ? "text-red-400" : "text-gray-500"
         }`}
       >
         {label}
@@ -52,7 +52,7 @@ export default function DropdownList({
           alt="화살표"
           width={24}
           height={24}
-          className="transition-transform duration-200"
+          className="transition-transform duration-200 opacity-40"
         />
       </button>
 
