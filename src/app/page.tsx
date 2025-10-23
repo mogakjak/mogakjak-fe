@@ -1,6 +1,6 @@
 import FriendMain from "./_components/friendMain";
 import PreviewMain from "./_components/previewMain";
-import RoomMain from "./_components/roomMian";
+import RoomMain from "./_components/roomMain";
 
 export default function Home() {
   return (
