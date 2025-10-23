@@ -3,6 +3,7 @@
 import Members from "./members";
 import StateButton from "./stateButton";
 import HomeButton from "./homeButton";
+import MembersHover from "./membersHover";
 
 type Member = { id: number; isActive: boolean };
 type Group = { id: number; name: string; members: Member[] };
@@ -33,7 +34,14 @@ export default function GroupRoom(props: GroupRoomProps) {
 
       <div className="flex items-center ml-auto gap-9">
         <div className="flex items-center gap-4">
-          <Members members={members} size="default" isGuide={isGuide} />
+          {isGuide ? (
+            <Members members={members} size="default" isGuide />
+          ) : (
+            <MembersHover
+              members={members}
+              trigger={<Members members={members} size="default" />}
+            />
+          )}
           <span className="text-body1-16R text-gray-700">
             {isGuide ? "n/n" : `${activeCount}/${totalCount}`} 명
           </span>

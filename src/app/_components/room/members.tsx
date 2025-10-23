@@ -47,14 +47,14 @@ export default function Members({
 
   return (
     <div className="relative flex items-center">
-      {rest > 0 && (
+      {rest >= 0 && (
         <div className={`absolute right-0 z-10 ${overlapClass}`}>
           <div
             className={`${ringClass} ${sizeClass} bg-gray-400 text-white flex items-center justify-center font-semibold`}
             aria-label={`추가 멤버 ${rest}명`}
             title={`+${rest}`}
           >
-            +{rest}
+            +{rest + 1}
           </div>
         </div>
       )}
