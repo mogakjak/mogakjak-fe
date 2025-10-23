@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import DropdownList from "../(pages)/mypage/_components/board/mate/dropdownList";
 import SearchBar from "../(pages)/mypage/_components/board/mate/searchBar";
 import ProfileList from "../(pages)/mypage/_components/board/mate/profileList";
-import PageNation from "../(pages)/mypage/_components/board/mate/pageNation";
 
 export default function FriendMain() {
   const [selectedGroup, setSelectedGroup] = useState("전체 그룹");
-  const [total, setTotal] = useState(0);
   const pageSize = 6;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState(""); // 입력 중인 검색어
@@ -56,7 +54,6 @@ export default function FriendMain() {
           groupName={selectedGroup}
           page={page}
           pageSize={pageSize}
-          onCountChange={setTotal}
           search={submittedSearch}
         />
       </section>
