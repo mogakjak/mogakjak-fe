@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 interface ProfileActiveProps {
-  src: string;
+  src?: string;
   name: string;
   active: boolean;
 }
@@ -11,11 +11,13 @@ export default function ProfileActive({
   name,
   active,
 }: ProfileActiveProps) {
+  const imageSrc = src || "/Icons/defaultImage.svg";
+
   return (
     <div className="relative w-[60px] h-[60px]">
       <div className="absolute inset-0 rounded-full bg-gray-100 border border-gray-200 overflow-hidden z-0">
         <Image
-          src={src}
+          src={imageSrc}
           alt={name}
           fill
           className="object-cover"
