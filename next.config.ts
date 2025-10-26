@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 import path from "path";
+import type { RuleSetRule } from "webpack";
 
 const nextConfig: NextConfig = {
   webpack(config) {
-    const assetRule = (config.module.rules as any[]).find(
-      (rule) => rule?.test?.test && rule.test.test(".svg")
+    const assetRule = (config.module.rules as RuleSetRule[]).find(
+      (rule) => rule?.test instanceof RegExp && rule.test.test(".svg")
     );
     if (assetRule) {
       assetRule.exclude = /\.svg$/i;
