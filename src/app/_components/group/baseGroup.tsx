@@ -2,7 +2,8 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
+import { SearchField } from "./searchField";
 
 export type Group = {
   id: string;
@@ -38,9 +39,6 @@ export function BaseGroup({
     if (!q) return groups;
     return groups.filter((g) => g.name.toLowerCase().includes(q));
   }, [groups, query]);
-  const onSubmitSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-  }, []);
 
   return (
     <div
@@ -53,50 +51,12 @@ export function BaseGroup({
       role="tabpanel"
       aria-hidden={!active}
     >
-      <form
-        onSubmit={onSubmitSearch}
-        className={clsx(
-          "h-12 px-5 py-3 bg-gray-100 rounded-lg",
-          "outline-1 outline-offset-[-1px] outline-gray-200",
-          "inline-flex items-center gap-3 w-full",
-        )}
-        role="search"
-      >
-        <input
-          type="search"
-          inputMode="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="그룹을 검색해보세요"
-          className={clsx(
-            "flex-1 bg-transparent outline-none appearance-none",
-            "text-neutral-900 placeholder:text-zinc-500 text-base leading-6",
-          )}
-          aria-label="그룹 검색"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            aria-label="검색어 지우기"
-            className="w-6 h-6 grid place-items-center rounded-full hover:bg-black/5"
-          >
-            <span aria-hidden className="block w-3.5 h-3.5 relative">
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-[2px] bg-zinc-500 rotate-45 rounded" />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-[2px] bg-zinc-500 -rotate-45 rounded" />
-            </span>
-          </button>
-        )}
-        <button
-          type="submit"
-          aria-label="검색"
-          className="w-6 h-6 relative shrink-0 rounded-md hover:bg-black/5"
-        >
-          <span className="absolute inset-0 grid place-items-center">
-            <Image src="/Icons/search.svg" alt="" width={16} height={16} />
-          </span>
-        </button>
-      </form>
+      <SearchField
+  value={query}
+  onChange={setQuery}
+  onSubmit={() => {}}
+  placeholder="그룹을 검색해보세요"
+/>
 
       <div className="flex-1 w-full flex gap-5">
         <div className="flex-1 h-96 flex flex-col gap-2 overflow-y-auto pr-1 custom-scroll">
