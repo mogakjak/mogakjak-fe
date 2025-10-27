@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
-import Icon from "../Icons";
+import Icon from "../../common/Icons";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";

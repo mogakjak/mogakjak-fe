@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import GroupQuoteCTA from "./groupQuoteCTA";
+import GroupQuoteCTA from "../common/groupQuoteCTA";
 
 export default function GroupQuote() {
   const [mode, setMode] = useState<"edit" | "check">("edit");

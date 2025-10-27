@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
-import ToggleButton from "../toggleButton";
+import ToggleButton from "./toggleButton";
 
 export default function NotiModal() {
   const [value, setValue] = useState(1);

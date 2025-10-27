@@ -1,6 +1,6 @@
 "use client";
 
-import Icon from "../Icons";
+import Icon from "./Icons";
 
 import Edit from "/Icons/edit.svg";
 import Check from "/Icons/check.svg";

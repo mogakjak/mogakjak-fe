@@ -1,4 +1,4 @@
-import Icon from "../Icons";
+import Icon from "../common/Icons";
 import Edit from "/Icons/edit.svg";
 
 export default function GroupMySidebar() {
