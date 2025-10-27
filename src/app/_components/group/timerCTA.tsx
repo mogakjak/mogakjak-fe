@@ -29,7 +29,7 @@ export default function TimerCTA({
 
   const variantCls =
     variant === "primary"
-      ? "bg-red-500 text-white"
+      ? "bg-red-400 text-white"
       : variant === "secondary"
       ? "bg-gray-700 text-white"
       : variant === "default"

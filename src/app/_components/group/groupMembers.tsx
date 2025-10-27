@@ -9,16 +9,23 @@ export default function GroupMembers() {
     { id: 5, name: "김이름5", isActive: true },
     { id: 6, name: "김이름6", isActive: true },
     { id: 7, name: "김이름7", isActive: true },
+    { id: 8, name: "김이름7", isActive: true },
+    { id: 9, name: "김이름7", isActive: true },
+    { id: 10, name: "김이름7", isActive: true },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-x-[40px] gap-y-[12px]">
+    <div
+      className="grid grid-cols-2 gap-x-[40px] gap-y-[12px] h-[288px]
+            items-start content-start auto-rows-max overflow-y-auto"
+    >
       {members.map((member) => (
         <div key={member.id} className="flex items-center gap-3">
           <ProfileActive
             key={member.id}
             name={member.name}
             active={member.isActive}
+            className="w-[48px] h-[48px]"
           />
           <p className="text-body1-16SB text-gray-700">{member.name}</p>
         </div>
