@@ -8,6 +8,7 @@ import Icon from "../Icons";
 import StartIcon from "/Icons/start.svg";
 import Pause from "/Icons/pause.svg";
 import Stop from "/Icons/stop.svg";
+import { formatTime } from "@/app/_utils/formatTime";
 
 type Status = "idle" | "running";
 
@@ -21,13 +22,6 @@ export default function GroupTimer() {
     () => stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds,
     [stopwatch.hours, stopwatch.minutes, stopwatch.seconds]
   );
-
-  const formatTime = (s: number) => {
-    const h = String(Math.floor(s / 3600)).padStart(2, "0");
-    const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-    const sec = String(s % 60).padStart(2, "0");
-    return `${h} : ${m} : ${sec}`;
-  };
 
   const handleStart = () => {
     stopwatch.start();
