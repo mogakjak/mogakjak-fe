@@ -24,7 +24,7 @@ export default function GroupMyField() {
       <section className="flex justify-between items-center mt-auto">
         <div className="flex items-center gap-1">
           <MemberProfile isActive size="small" />
-          <p className="text-body2-14SB text-gray-500">가나디(나)</p>
+          <p className="text-body2-14SB text-black">가나디(나)</p>
         </div>
         <CheerUp />
       </section>
