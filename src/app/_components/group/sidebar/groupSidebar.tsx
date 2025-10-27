@@ -1,6 +1,6 @@
 "use client";
 
-import Icon from "../Icons";
+import Icon from "../../common/Icons";
 import GroupMembers from "./groupMembers";
 import GroupTimer from "./groupTimer";
 import SidebarButton from "./sidebarButton";

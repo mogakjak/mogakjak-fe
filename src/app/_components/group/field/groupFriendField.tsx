@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import MemberProfile from "../../home/room/memberProfile";
+import MemberProfile from "../../room/memberProfile";
 import CheerUp from "./cheerUp";
 import MessageBubble from "./messageBubble";
 import GroupMemberState from "./groupMemberState";

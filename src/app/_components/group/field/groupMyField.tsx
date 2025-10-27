@@ -3,7 +3,7 @@
 import React from "react";
 import MessageBubble from "./messageBubble";
 import Image from "next/image";
-import MemberProfile from "../../home/room/memberProfile";
+import MemberProfile from "../../room/memberProfile";
 import CheerUp from "./cheerUp";
 
 export default function GroupMyField() {

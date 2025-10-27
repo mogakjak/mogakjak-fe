@@ -7,12 +7,12 @@ import ReviewTag from "./reviewTag";
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
 interface ReviewBlock {
-  types: readonly EmojiType[];
+  types: EmojiType[];
   question: string;
-  options: readonly string[];
+  options: string[];
 }
 
-const REVIEW_OPTIONS = [
+const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   {
     types: ["toobad", "bad"],
     question: "어떤 점이 아쉬우셨나요?",
@@ -43,7 +43,7 @@ const REVIEW_OPTIONS = [
       "방해 없이 몰입할 수 있었어요",
     ],
   },
-] as const satisfies readonly ReviewBlock[];
+];
 
 export default function ReviewPopup() {
   const emojis: EmojiType[] = ["toobad", "bad", "soso", "good", "sogood"];
