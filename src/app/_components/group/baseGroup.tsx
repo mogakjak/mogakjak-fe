@@ -52,11 +52,11 @@ export function BaseGroup({
       aria-hidden={!active}
     >
       <SearchField
-  value={query}
-  onChange={setQuery}
-  onSubmit={() => {}}
-  placeholder="그룹을 검색해보세요"
-/>
+        value={query}
+        onChange={setQuery}
+        onSubmit={() => {}}
+        placeholder="그룹을 검색해보세요"
+      />
 
       <div className="flex-1 w-full flex gap-5">
         <div className="flex-1 h-96 flex flex-col gap-2 overflow-y-auto pr-1 custom-scroll">
@@ -103,10 +103,6 @@ export function BaseGroup({
               </button>
             );
           })}
-        </div>
-
-        <div className="w-2 h-96 relative bg-gray-200 rounded-[20px] overflow-hidden">
-          <div className="w-2 h-20 left-0 top-0 absolute bg-gray-400 rounded-[20px]" />
         </div>
       </div>
     </div>
