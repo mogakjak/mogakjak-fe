@@ -89,7 +89,7 @@ export function NewGroup({
           >
             <Image
               src={image}
-              alt=""
+              alt={name || "새 그룹 이미지"}
               width={80}
               height={80}
               unoptimized
@@ -178,7 +178,7 @@ export function NewGroup({
               {filtered.map((m) => {
                 const checked = !!invited[m.id];
                 return (
-                  <label
+                  <div
                     key={m.id}
                     className="h-16 px-4 py-2 bg-neutral-50 rounded-[10px] flex items-center justify-between"
                   >
@@ -186,7 +186,7 @@ export function NewGroup({
                       <div className="relative w-12 h-12 shrink-0 grid place-items-center">
                         <div className="w-12 h-12 rounded-full outline-1 outline-offset-[-1px] outline-gray-200 bg-white overflow-hidden grid place-items-center">
                           {m.avatar ? (
-                            <Image src={m.avatar} alt="" fill className="object-cover rounded-full" />
+                            <Image src={m.avatar} alt={m.name} fill className="object-cover rounded-full" />
                           ) : (
                             <Image src="/Icons/profileDefault.svg" alt="" width={24} height={24} className="opacity-60" />
                           )}
@@ -232,7 +232,7 @@ export function NewGroup({
                         height={24}
                       />
                     </button>
-                  </label>
+                  </div>
                 );
               })}
             </div>

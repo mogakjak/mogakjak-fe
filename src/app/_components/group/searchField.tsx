@@ -13,7 +13,6 @@ type SearchFieldProps = {
   autoFocus?: boolean;
   onChange?: (v: string) => void;
   onSubmit?: (v: string) => void;
-  onClear?: () => void;
 };
 
 export function SearchField({

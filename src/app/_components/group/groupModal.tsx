@@ -69,7 +69,7 @@ export default function GroupModal({
                   aria-selected={tab === "find"}
                   className={clsx(
                     "h-10 px-6 text-sm font-semibold rounded-t-[10px] -mb-[1px] transition-colors w-fit",
-                    tab === "find" ? "bg-[#FF6243] text-white" : "bg-[#D1D1D1] text-white"
+                    tab === "find" ? "bg-red-400 text-white" : "bg-neutral-300 text-white"
                   )}
                 >
                   기존 그룹 찾기
@@ -80,7 +80,7 @@ export default function GroupModal({
                   aria-selected={tab === "create"}
                   className={clsx(
                     "h-10 px-6 text-sm font-semibold rounded-t-[10px] -mb-[1px] transition-colors w-fit",
-                    tab === "create" ? "bg-[#FF6243] text-white" : "bg-[#D1D1D1] text-white"
+                    tab === "create" ? "bg-red-400 text-white" : "bg-neutral-300 text-white"
                   )}
                 >
                   새 그룹 만들기
