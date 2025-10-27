@@ -5,7 +5,7 @@ import { Button } from "@/components/button";
 export default function InvitedModal() {
   return (
     <GroupModal>
-      <div className="px-[28px] py-[16px] flex flex-col items-center mt-2">
+      <div className="px-7 py-[16px] flex flex-col items-center mt-2">
         <h2 className="text-heading4-20SB">
           김이름님이 &quot;그룹 이름&quot; 으로 초대했어요!
         </h2>
@@ -13,7 +13,7 @@ export default function InvitedModal() {
           모각작에 참여하여 더 몰입되는 경험을 해보세요.
         </p>
 
-        <div className="flex items-center w-[360px] mt-[28px] bg-red-50 px-4 py-3 rounded-[10px]">
+        <div className="flex items-center w-[360px] mt-7 bg-red-50 px-4 py-3 rounded-[10px]">
           <div className="w-[56px] h-[56px] rounded-lg">
             <Image
               src={"/Icons/defaultImage.svg"}
