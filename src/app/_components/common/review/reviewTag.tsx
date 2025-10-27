@@ -23,7 +23,7 @@ export default function ReviewTag({
           : "bg-gray-100  border-gray-200 hover:bg-gray-200 hover:border-gray-200"
       )}
     >
-      <p className="text-body2-14R">{text}</p>
+      <p>{text}</p>
     </button>
   );
 }
