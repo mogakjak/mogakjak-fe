@@ -56,6 +56,43 @@ function Category({
     setEditingId(null);
   };
 
+  const handleDelete = (id: string) => {
+    setCategoryList((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const moveUp = (id: string) => {
+    setCategoryList((prev) => {
+      const i = prev.findIndex((c) => c.id === id);
+      if (i <= 0) return prev;
+      const next = [...prev];
+      [next[i - 1], next[i]] = [next[i], next[i - 1]];
+      return next;
+    });
+  };
+
+  const moveDown = (id: string) => {
+    setCategoryList((prev) => {
+      const i = prev.findIndex((c) => c.id === id);
+      if (i < 0 || i === prev.length - 1) return prev;
+      const next = [...prev];
+      [next[i], next[i + 1]] = [next[i + 1], next[i]];
+      return next;
+    });
+  };
+
+  const reorder = (fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    setCategoryList((prev) => {
+      const fromIdx = prev.findIndex((c) => c.id === fromId);
+      const toIdx = prev.findIndex((c) => c.id === toId);
+      if (fromIdx < 0 || toIdx < 0) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+  };
+
   return (
     <section
       className={clsx(
@@ -87,6 +124,7 @@ function Category({
           <h3 className="text-base font-semibold text-neutral-900">카테고리</h3>
           <CategoryRow
             id="all"
+            index={-1}
             label="전체"
             colorToken="bg-gray-500"
             selected={selectedId === "all"}
@@ -95,10 +133,11 @@ function Category({
           />
 
           <div className="flex flex-col gap-3">
-            {categoryList.map((c) => (
+            {categoryList.map((c, idx) => (
               <CategoryRow
                 key={c.id}
                 id={c.id}
+                index={idx}
                 label={c.name}
                 colorToken={c.color}
                 selected={selectedId === c.id}
@@ -106,6 +145,10 @@ function Category({
                 showHandle
                 editable={editingId === c.id}
                 onRename={(newName) => handleRename(c.id, newName)}
+                onDelete={handleDelete}
+                onMoveUp={moveUp}
+                onMoveDown={moveDown}
+                onReorder={reorder}
               />
             ))}
           </div>
