@@ -105,7 +105,7 @@ export default function GroupMemberState({
             status == "active"
               ? "text-red-500"
               : status == "rest"
-              ? "text-red-3000 "
+              ? "text-red-300 "
               : "text-gray-400"
           }`}
         />
