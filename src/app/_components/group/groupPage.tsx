@@ -5,7 +5,7 @@ import GroupFriendField, {
   GroupFriendFieldProps,
 } from "./field/groupFriendField";
 import GroupMyField from "./field/groupMyField";
-import GroupMySidebar from "./groupMySidebar";
+import GroupMySidebar from "./sidebar/groupMySidebar";
 import GroupQuote from "./groupQuote";
 import GroupSidebar from "./sidebar/groupSidebar";
 import Icon from "../common/Icons";
