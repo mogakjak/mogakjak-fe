@@ -1,9 +1,13 @@
 import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
 
-export default function GoalModal() {
+interface GoalModalProps {
+  onClose: () => void;
+}
+
+export default function GoalModal({ onClose }: GoalModalProps) {
   return (
-    <GroupModal>
+    <GroupModal onClose={onClose}>
       <div className="flex flex-col px-7 py-4 w-[336px] items-center">
         <h2 className="text-heading4-20SB">그룹 공동 목표</h2>
         <p className="text-body1-16R text-gray-700 mt-2 text-center">

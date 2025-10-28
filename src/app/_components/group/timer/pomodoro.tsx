@@ -1,10 +1,7 @@
 "use client";
 import { Box, Paper } from "@mui/material";
-import { useMemo } from "react";
 
 type PomodoroProps = {
-  totalSeconds: number;
-  remainingSeconds: number;
   size?: number;
   color?: string;
   ticks?: number;
@@ -15,8 +12,6 @@ type PomodoroProps = {
 };
 
 export default function Pomodoro({
-  totalSeconds,
-  remainingSeconds,
   size = 360,
   color = "#F54E32",
   ticks = 12,
@@ -26,9 +21,6 @@ export default function Pomodoro({
   centerRatio = 0.46,
 }: PomodoroProps) {
   const radius = size / 2;
-  const clampedRemain = Math.max(0, Math.min(remainingSeconds, totalSeconds));
-  const remainRatio = totalSeconds > 0 ? clampedRemain / totalSeconds : 0;
-  const remainAngle = useMemo(() => remainRatio * 360, [remainRatio]);
 
   const toXY = (deg: number, r: number) => {
     const a = (deg * Math.PI) / 180;

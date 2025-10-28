@@ -11,22 +11,13 @@ import EyesClosed from "/Icons/eyesClosed.svg";
 export default function GroupMySidebar() {
   const [isTaskOpen, setIsTaskOpen] = useState(true);
   const [isTimeOpen, setIsTimeOpen] = useState(true);
-  const [taskTipOpen, setTaskTipOpen] = useState(false);
-  const [timeTipOpen, setTimeTipOpen] = useState(false);
-
-  const pulse = (set: (v: boolean) => void, ms = 1000) => {
-    set(true);
-    window.setTimeout(() => set(false), ms);
-  };
 
   const toggleTaskEye = () => {
     setIsTaskOpen((v) => !v);
-    pulse(setTaskTipOpen);
   };
 
   const toggleTimeEye = () => {
     setIsTimeOpen((v) => !v);
-    pulse(setTimeTipOpen);
   };
 
   return (

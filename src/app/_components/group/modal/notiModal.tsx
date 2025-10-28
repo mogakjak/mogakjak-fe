@@ -5,7 +5,11 @@ import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
 import ToggleButton from "./toggleButton";
 
-export default function NotiModal() {
+interface GoalModalProps {
+  onClose: () => void;
+}
+
+export default function NotiModal({ onClose }: GoalModalProps) {
   const [value, setValue] = useState(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -13,7 +17,7 @@ export default function NotiModal() {
     setValue(v);
   };
   return (
-    <GroupModal>
+    <GroupModal onClose={onClose}>
       <div className="flex flex-col px-7 py-4">
         <h2 className="text-heading4-20SB text-center">집중 체크 알림</h2>
         <p className="text-body1-16R text-gray-700 mt-2">
