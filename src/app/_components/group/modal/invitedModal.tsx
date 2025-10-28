@@ -2,9 +2,13 @@ import Image from "next/image";
 import GroupModal from "./groupModal";
 import { Button } from "@/components/button";
 
-export default function InvitedModal() {
+interface GoalModalProps {
+  onClose: () => void;
+}
+
+export default function InvitedModal({ onClose }: GoalModalProps) {
   return (
-    <GroupModal>
+    <GroupModal onClose={onClose}>
       <div className="px-7 py-[16px] flex flex-col items-center mt-2">
         <h2 className="text-heading4-20SB">
           김이름님이 &quot;그룹 이름&quot; 으로 초대했어요!
