@@ -5,21 +5,21 @@ import clsx from "clsx";
 import Image from "next/image";
 
 type Variant =
-  | "primary" 
-  | "brick" 
-  | "salmon" 
-  | "slate700" 
-  | "neutral700" 
-  | "slate600" 
-  | "muted"; 
+  | "primary"
+  | "brick"
+  | "salmon"
+  | "slate700"
+  | "neutral700"
+  | "slate600"
+  | "muted";
 
 type Size = "md" | "sm";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
-  block?: boolean; 
-  leftIcon?: "plus" | null; 
+  block?: boolean;
+  leftIcon?: "plus" | null; // ← null 허용
 };
 
 const VARIANT_CLASS: Record<Variant, string> = {
@@ -50,12 +50,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref,
+    ref
   ) => {
     const isMuted = variant === "muted" || disabled;
-    const iconSrc = isMuted
-      ? "/Icons/plusGray.svg"
-      : "/Icons/plusWhite.svg";
+    const iconSrc = isMuted ? "/Icons/plusGray.svg" : "/Icons/plusWhite.svg";
 
     return (
       <button
@@ -67,11 +65,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           VARIANT_CLASS[variant],
           block && "w-full",
           !isMuted && "active:scale-[0.98]",
-          className,
+          className
         )}
         {...props}
       >
-        {leftIcon === "plus" && (
+        {leftIcon && (
           <Image
             src={iconSrc}
             alt="plus icon"
@@ -83,7 +81,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <span className="font-semibold leading-snug">{children}</span>
       </button>
     );
-  },
+  }
 );
 
 Button.displayName = "Button";
