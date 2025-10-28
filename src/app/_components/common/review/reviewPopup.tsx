@@ -11,7 +11,9 @@ interface ReviewBlock {
   question: string;
   options: string[];
 }
-
+interface ReviewPopupProps {
+  onClose: () => void;
+}
 const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   {
     types: ["toobad", "bad"],
@@ -45,7 +47,7 @@ const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   },
 ];
 
-export default function ReviewPopup() {
+export default function ReviewPopup({ onClose }: ReviewPopupProps) {
   const emojis: EmojiType[] = ["toobad", "bad", "soso", "good", "sogood"];
 
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiType | null>(null);
@@ -123,7 +125,10 @@ export default function ReviewPopup() {
       </div>
 
       <div className="flex">
-        <button className="w-full py-3 bg-gray-200 text-gray-600 rounded-bl-xl">
+        <button
+          onClick={onClose}
+          className="w-full py-3 bg-gray-200 text-gray-600 rounded-bl-xl"
+        >
           취소
         </button>
         <button
