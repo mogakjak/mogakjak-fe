@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getFormattedDate } from "../_utils/getFormattedDate";
+import { getFormattedDate } from "../../_utils/getFormattedDate";
 import TodayPreview from "./preview/todayPreview";
 import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
