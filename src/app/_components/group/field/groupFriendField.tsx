@@ -9,7 +9,7 @@ import GroupMemberState from "./groupMemberState";
 
 type Status = "active" | "rest" | "end";
 
-interface GroupFriendFieldProps {
+export interface GroupFriendFieldProps {
   status: Status;
   friendName?: string;
   avatarSrc?: string;

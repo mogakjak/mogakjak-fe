@@ -1,16 +1,18 @@
-import FriendMain from "./_components/friendMain";
-import PreviewMain from "./_components/previewMain";
-import RoomMain from "./_components/roomMain";
+import GroupPage from "./_components/group/groupPage";
+import FriendMain from "./_components/home/friendMain";
+import PreviewMain from "./_components/home/previewMain";
+import RoomMain from "./_components/home/roomMain";
 
 export default function Home() {
   return (
     <main className="w-full max-w-[1440px] min-h-screen py-9 mx-auto flex gap-5 items-center overflow-x-hidden">
-      <PreviewMain />
+      <GroupPage></GroupPage>
+      {/* <PreviewMain />
 
       <section className="w-full flex flex-col gap-5">
         <RoomMain />
         <FriendMain />
-      </section>
+      </section> */}
     </main>
   );
 }
