@@ -2,14 +2,14 @@ import Image from "next/image";
 import GroupModal from "./groupModal";
 import { Button } from "@/components/button";
 
-interface GoalModalProps {
+interface InvitedModalProps {
   onClose: () => void;
 }
 
-export default function InvitedModal({ onClose }: GoalModalProps) {
+export default function InvitedModal({ onClose }: InvitedModalProps) {
   return (
     <GroupModal onClose={onClose}>
-      <div className="px-7 py-[16px] flex flex-col items-center mt-2">
+      <div className="px-7 py-4 flex flex-col items-center mt-2">
         <h2 className="text-heading4-20SB">
           김이름님이 &quot;그룹 이름&quot; 으로 초대했어요!
         </h2>
@@ -18,7 +18,7 @@ export default function InvitedModal({ onClose }: GoalModalProps) {
         </p>
 
         <div className="flex items-center w-[360px] mt-7 bg-red-50 px-4 py-3 rounded-[10px]">
-          <div className="w-[56px] h-[56px] rounded-lg">
+          <div className="w-14 h-14 rounded-lg">
             <Image
               src={"/Icons/defaultImage.svg"}
               alt={"빈 값"}
@@ -30,7 +30,7 @@ export default function InvitedModal({ onClose }: GoalModalProps) {
           <p className="text-gray-700 text-body1-16R ml-auto">n&#47;10 명</p>
         </div>
 
-        <div className="flex items-center w-full gap-2 mt-[28px]">
+        <div className="flex items-center w-full gap-2 mt-7">
           <Button className="flex-1" leftIcon={null} variant="muted">
             거절
           </Button>

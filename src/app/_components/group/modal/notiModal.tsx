@@ -5,11 +5,11 @@ import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
 import ToggleButton from "./toggleButton";
 
-interface GoalModalProps {
+interface NotiModalProps {
   onClose: () => void;
 }
 
-export default function NotiModal({ onClose }: GoalModalProps) {
+export default function NotiModal({ onClose }: NotiModalProps) {
   const [value, setValue] = useState(1);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
