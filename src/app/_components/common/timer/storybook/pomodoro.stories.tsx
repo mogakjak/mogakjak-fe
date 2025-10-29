@@ -40,3 +40,7 @@ export const ShortTimer: Story = {
   name: "10분 타이머",
   args: { minutes: 10 },
 };
+export const NoTimer: Story = {
+  name: "비활성 타이머",
+  args: { minutes: 0 },
+};
