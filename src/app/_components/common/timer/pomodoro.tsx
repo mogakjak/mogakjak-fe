@@ -30,15 +30,24 @@ export default function PomodoroDial({
   className?: string;
   onComplete?: () => void;
 }) {
-  const [targetSec, setTargetSec] = useState(minutes * 60);
+  const isUnset = !minutes || minutes <= 0;
+
+  const [targetSec, setTargetSec] = useState(Math.max(0, (minutes ?? 0) * 60));
   const [leftSec, setLeftSec] = useState(targetSec);
   const endAtRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const total = minutes * 60;
+    const total = Math.max(0, (minutes ?? 0) * 60);
     setTargetSec(total);
     setLeftSec(total);
+
+    if (total === 0) {
+      endAtRef.current = null; // 비활성일때 
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      return;
+    }
+
     endAtRef.current = performance.now() + total * 1000;
 
     const loop = () => {
@@ -64,8 +73,8 @@ export default function PomodoroDial({
   );
   const elapsedRatio = 1 - remainRatio;
 
-  const mm = Math.floor(leftSec / 60);
-  const ss = Math.floor(leftSec % 60);
+  const mm = isUnset ? 0 : Math.floor(leftSec / 60);
+  const ss = isUnset ? 0 : Math.floor(leftSec % 60);
 
   const dial = 288;
   const cx = dial / 2;
@@ -73,6 +82,7 @@ export default function PomodoroDial({
   const rOuter = dial / 2 - 8;
   const rFill = rOuter - 10;
   const all12 = Array.from({ length: 12 }, (_, i) => i * 30);
+  const maskProgress = isUnset ? 0 : elapsedRatio;
 
   return (
     <section
@@ -80,6 +90,7 @@ export default function PomodoroDial({
         "w-140 h-80 rounded-2xl inline-flex justify-center items-center gap-6 bg-neutral-50",
         className,
       )}
+      data-state={isUnset ? "inactive" : "active"}
     >
       <div className="w-72 h-72 relative grid place-items-center">
         <div className="w-72 h-72 bg-gray-100 rounded-full border border-gray-200" />
@@ -87,7 +98,7 @@ export default function PomodoroDial({
           <defs>
             <mask id="cut">
               <rect x="0" y="0" width={dial} height={dial} fill="white" />
-              <path d={elapsedSectorPath(cx, cy, rFill, elapsedRatio)} fill="black" />
+              <path d={elapsedSectorPath(cx, cy, rFill, maskProgress)} fill="black" />
             </mask>
           </defs>
           <circle cx={cx} cy={cy} r={rFill} fill="currentColor" className="text-red-500" mask="url(#cut)" />
@@ -123,16 +134,25 @@ export default function PomodoroDial({
           <div className="flex-1 flex flex-col gap-1 items-start">
             <div className="text-center w-full text-gray-400 text-body1-16M">MINS</div>
             <div className="inline-flex gap-1">
-              <div className="w-14 h-16 px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-                <span className="text-3xl font-bold text-gray-800">{dd(mm)[0]}</span>
+              <div className={clsx(
+                "w-14 h-16 px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center",
+              )}>
+                <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
+                  {dd(mm)[0]}
+                </span>
               </div>
               <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-                <span className="text-3xl font-bold text-gray-800">{dd(mm)[1]}</span>
+                <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
+                  {dd(mm)[1]}
+                </span>
               </div>
             </div>
           </div>
           <div className="w-3 h-24 relative">
-            <span className="absolute left-1/2 -translate-x-1/2 top-[34px] text-3xl font-medium text-gray-800">
+            <span className={clsx(
+              "absolute left-1/2 -translate-x-1/2 top-[34px] text-3xl font-medium",
+              isUnset ? "text-gray-400" : "text-gray-800",
+            )}>
               :
             </span>
           </div>
@@ -140,10 +160,14 @@ export default function PomodoroDial({
             <div className="text-center w-full text-gray-400 text-body1-16M">SECS</div>
             <div className="inline-flex gap-1">
               <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-                <span className="text-3xl font-bold text-gray-800">{dd(ss)[0]}</span>
+                <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
+                  {dd(ss)[0]}
+                </span>
               </div>
               <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-                <span className="text-3xl font-bold text-gray-800">{dd(ss)[1]}</span>
+                <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
+                  {dd(ss)[1]}
+                </span>
               </div>
             </div>
           </div>
@@ -153,19 +177,19 @@ export default function PomodoroDial({
         <div className="inline-flex items-center gap-[6px] select-none -mt-2">
           <div className="flex items-center gap-1">
             <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-600">{dd(Math.floor(targetSec / 60))[0]}</span>
+              <span className="text-2xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[0]}</span>
             </div>
             <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-600">{dd(Math.floor(targetSec / 60))[1]}</span>
+              <span className="text-2xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[1]}</span>
             </div>
           </div>
           <span className="text-2xl font-semibold text-gray-400">:</span>
           <div className="flex items-center gap-1">
             <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-500">0</span>
+              <span className="text-2xl font-semibold text-gray-400">0</span>
             </div>
             <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-500">0</span>
+              <span className="text-2xl font-semibold text-gray-400">0</span>
             </div>
           </div>
         </div>
