@@ -26,9 +26,7 @@ export default function GroupMemberState({
   isPublic,
   task,
   activeTime,
-  restTime,
   activeSec,
-  breakSec,
   lastActiveAt,
 }: GroupMemberStateProps) {
   const effectiveActive = toSec(activeTime ?? activeSec ?? 0);

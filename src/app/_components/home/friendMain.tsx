@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DropdownList from "../(pages)/mypage/_components/board/mate/dropdownList";
-import SearchBar from "../(pages)/mypage/_components/board/mate/searchBar";
-import ProfileList from "../(pages)/mypage/_components/board/mate/profileList";
+import DropdownList from "../../(pages)/mypage/_components/board/mate/dropdownList";
+import SearchBar from "../../(pages)/mypage/_components/board/mate/searchBar";
+import ProfileList from "../../(pages)/mypage/_components/board/mate/profileList";
 
 export default function FriendMain() {
   const [selectedGroup, setSelectedGroup] = useState("전체 그룹");
