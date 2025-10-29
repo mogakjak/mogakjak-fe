@@ -1,8 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Image from "next/image";
 import clsx from "clsx";
+
+export type PomodoroDialHandle = {
+  start: () => void;
+  pause: () => void;
+  reset: (nextMinutes?: number) => void;
+  stop: () => void;
+  getSeconds: () => number;
+};
 
 function polarToCartesian(cx: number, cy: number, r: number, deg: number) {
   const a = ((deg - 90) * Math.PI) / 180;
@@ -21,19 +36,17 @@ function elapsedSectorPath(cx: number, cy: number, r: number, elapsedRatio: numb
 
 const dd = (n: number) => n.toString().padStart(2, "0");
 
-export default function PomodoroDial({
-  minutes = 60,
-  className,
-  onComplete,
-}: {
+export default forwardRef<PomodoroDialHandle, {
   minutes?: number;
   className?: string;
   onComplete?: () => void;
-}) {
-  const isUnset = !minutes || minutes <= 0;
-
+}>(function PomodoroDial(
+  { minutes = 60, className, onComplete },
+  ref
+) {
   const [targetSec, setTargetSec] = useState(Math.max(0, (minutes ?? 0) * 60));
   const [leftSec, setLeftSec] = useState(targetSec);
+  const [running, setRunning] = useState(false);
   const endAtRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -41,38 +54,81 @@ export default function PomodoroDial({
     const total = Math.max(0, (minutes ?? 0) * 60);
     setTargetSec(total);
     setLeftSec(total);
+    setRunning(false);
+    endAtRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  }, [minutes]);
 
-    if (total === 0) {
-      endAtRef.current = null; // 비활성일때 
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  const loop = () => {
+    const endAt = endAtRef.current!;
+    const now = performance.now();
+    const ms = Math.max(0, endAt - now);
+    setLeftSec(ms / 1000);
+    if (ms <= 0) {
+      setRunning(false);
+      endAtRef.current = null;
+      onComplete?.();
       return;
     }
+    rafRef.current = requestAnimationFrame(loop);
+  };
 
-    endAtRef.current = performance.now() + total * 1000;
+  const start = () => {
+    if (running || targetSec === 0) return;
+    endAtRef.current = performance.now() + leftSec * 1000;
+    setRunning(true);
+    rafRef.current = requestAnimationFrame(loop);
+  };
 
-    const loop = () => {
-      const endAt = endAtRef.current!;
+  const pause = () => {
+    if (!running) return;
+    const endAt = endAtRef.current;
+    if (endAt != null) {
       const now = performance.now();
       const ms = Math.max(0, endAt - now);
       setLeftSec(ms / 1000);
-      if (ms <= 0) {
-        onComplete?.();
-        return;
-      }
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [minutes, onComplete]);
+    }
+    setRunning(false);
+    endAtRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  };
+
+  const reset = (nextMinutes?: number) => {
+    const total = Math.max(0, (nextMinutes ?? minutes ?? 0) * 60);
+    setTargetSec(total);
+    setLeftSec(total);
+    setRunning(false);
+    endAtRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  };
+
+  const stop = () => {
+    setTargetSec(0);
+    setLeftSec(0);
+    setRunning(false);
+    endAtRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      start,
+      pause,
+      reset,
+      stop,
+      getSeconds: () => Math.floor(leftSec),
+    }),
+    [leftSec, running, minutes, targetSec]
+  );
 
   const remainRatio = useMemo(
     () => (targetSec > 0 ? Math.max(0, Math.min(1, leftSec / targetSec)) : 0),
-    [leftSec, targetSec],
+    [leftSec, targetSec]
   );
   const elapsedRatio = 1 - remainRatio;
 
+  const isUnset = targetSec === 0;
   const mm = isUnset ? 0 : Math.floor(leftSec / 60);
   const ss = isUnset ? 0 : Math.floor(leftSec % 60);
 
@@ -88,9 +144,9 @@ export default function PomodoroDial({
     <section
       className={clsx(
         "w-140 h-80 rounded-2xl inline-flex justify-center items-center gap-6 bg-neutral-50",
-        className,
+        className
       )}
-      data-state={isUnset ? "inactive" : "active"}
+      data-state={isUnset ? "inactive" : running ? "running" : "paused"}
     >
       <div className="w-72 h-72 relative grid place-items-center">
         <div className="w-72 h-72 bg-gray-100 rounded-full border border-gray-200" />
@@ -134,9 +190,7 @@ export default function PomodoroDial({
           <div className="flex-1 flex flex-col gap-1 items-start">
             <div className="text-center w-full text-gray-400 text-body1-16M">MINS</div>
             <div className="inline-flex gap-1">
-              <div className={clsx(
-                "w-14 h-16 px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center",
-              )}>
+              <div className="w-14 h-16 px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
                 <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
                   {dd(mm)[0]}
                 </span>
@@ -151,7 +205,7 @@ export default function PomodoroDial({
           <div className="w-3 h-24 relative">
             <span className={clsx(
               "absolute left-1/2 -translate-x-1/2 top-[34px] text-3xl font-medium",
-              isUnset ? "text-gray-400" : "text-gray-800",
+              isUnset ? "text-gray-400" : "text-gray-800"
             )}>
               :
             </span>
@@ -196,4 +250,4 @@ export default function PomodoroDial({
       </div>
     </section>
   );
-}
+});
