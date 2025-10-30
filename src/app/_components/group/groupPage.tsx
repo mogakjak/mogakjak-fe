@@ -12,7 +12,6 @@ import GroupSidebar from "./sidebar/groupSidebar";
 
 //아이콘
 import ReviewPopup from "../common/review/reviewPopup";
-import GainCharacterModal from "../common/gainCharacterModal";
 
 // 더미데이터 삭제예정
 export const mockGroupFriends = [
