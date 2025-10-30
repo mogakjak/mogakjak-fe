@@ -1,26 +1,30 @@
-import Icon from "@/app/_components/common/Icons";
+"use client";
+import { useMemo, useState } from "react";
 import Character from "./basket/character";
 
 // 아이콘
 import Image from "next/image";
 import CharacterModal from "./basket/characterModal";
-import { useState } from "react";
+import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
 
-export default function BoardBasket() {
-  const characters = [
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: false },
-    { name: "tomato", locked: true },
-    { name: "tomato", locked: true },
-    { name: "tomato", locked: true },
-    { name: "tomato", locked: true },
-    { name: "tomato", locked: true },
-    { name: "tomato", locked: true },
-  ];
+export default function BoardBasket({
+  totalHours = 0,
+}: {
+  totalHours?: number;
+}) {
+  const characters = useMemo(() => {
+    const rows = Object.values(CHARACTER_BY_HOURS).sort(
+      (a, b) => a.level - b.level
+    );
+    return rows.map((r) => ({
+      level: r.level,
+      name: r.name,
+      hours: r.hours,
+      description: r.description,
+      locked: r.level === 1 ? false : totalHours < r.hours, // Lv1은 항상 언락
+    }));
+  }, [totalHours]);
+
   const [openCharacter, setOpenCharacter] = useState(false);
   const unlockedCount = characters.filter((c) => !c.locked).length;
   const totalCount = characters.length;
@@ -49,7 +53,10 @@ export default function BoardBasket() {
         {characters.map((character, index) => (
           <Character
             key={`${character.name}-${index}`}
+            hours={character.hours}
+            level={character.level}
             name={character.name}
+            description={character.description}
             locked={character.locked}
           />
         ))}
