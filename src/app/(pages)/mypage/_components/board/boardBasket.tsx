@@ -31,7 +31,7 @@ export default function BoardBasket({
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center  mb-6">
+      <div className="flex justify-between items-center  mb-6.5">
         <h2 className="text-heading4-20SB text-black">
           내 채소 바구니 ({unlockedCount}/{totalCount})
         </h2>

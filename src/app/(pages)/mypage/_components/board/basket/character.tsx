@@ -16,7 +16,7 @@ export default function Character({
   locked = false,
 }: CharacterProps) {
   return (
-    <div className="h-[236px] flex flex-col items-center justify-center gap-2 rounded-lg p-5 bg-gray-100 border border-gray-200 overflow-hidden">
+    <div className="h-[238px] flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-100 border border-gray-200 overflow-hidden">
       {!locked ? (
         <>
           <p className="text-body1-16SB">{`Lv.${level} ${name}`}</p>

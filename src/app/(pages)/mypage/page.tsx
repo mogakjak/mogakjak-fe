@@ -15,7 +15,9 @@ export default function MyPage() {
         <Profile />
       </section>
 
-      <Board selectedMenu={selectedMenu} />
+      <section className="w-full self-stretch">
+        <Board selectedMenu={selectedMenu} />
+      </section>
     </div>
   );
 }

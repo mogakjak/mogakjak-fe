@@ -31,7 +31,7 @@ export default function CharacterModal({ onClose }: CharacterModalProps) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((item, idx) => (
+                {rows.map((item) => (
                   <tr key={item.level} className={"border-b border-gray-300 "}>
                     <td className="py-[13px] pl-4 text-gray-600 text-body1-16R">
                       Lv {item.level}
