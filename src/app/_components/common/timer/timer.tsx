@@ -48,11 +48,11 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   useEffect(() => {
     const el = digitsWrapRef.current;
     if (!el) return;
-    const nowW = Math.round(el.getBoundingClientRect().width);
-    setDigitsWidth(nowW);
+    const w0 = Math.round(el.getBoundingClientRect().width);
+    setDigitsWidth(w0);
     const ro = new ResizeObserver((entries) => {
       const w = Math.round(entries[0].contentRect.width);
-      if (w !== digitsWidth) setDigitsWidth(w);
+      setDigitsWidth(w);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -185,12 +185,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
 
   const Colon = ({ inactive }: { inactive: boolean }) => (
     <div className="w-10 h-32 grid place-items-center">
-      <div
-        className={clsx(
-          "flex flex-col items-center gap-2 translate-y-9", 
-          inactive ? "opacity-40" : "opacity-80"
-        )}
-      >
+      <div className={clsx("flex flex-col items-center gap-2 translate-y-9", inactive ? "opacity-40" : "opacity-80")}>
         <span className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
         <span className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
       </div>
@@ -200,7 +195,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   return (
     <section
       className={clsx(
-        "w-[560px] h-80 px-10 py-8 bg-neutral-50  outline-offset-[-1px] inline-flex flex-col items-center gap-6",
+        "w-[560px] h-80 px-10 py-8 bg-neutral-50  inline-flex flex-col items-center gap-6",
         className
       )}
     >
@@ -216,21 +211,18 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
 
       <div className="w-full flex flex-col items-center gap-3">
         <div
-          className="h-12 bg-gray-100 rounded-lg outline-1 outline-gray-200 outline-offset-[-1px] px-1 py-[3px] overflow-hidden mx-auto"
-          style={{
-            width: digitsWidth ? `${digitsWidth}px` : undefined,
-            visibility: digitsWidth ? "visible" : "hidden",
-          }}
+          className="relative h-12 bg-gray-100 rounded-lg outline-1 outline-gray-200 outline-offset-[-1px] overflow-hidden mx-auto transition-opacity"
+          style={{ width: digitsWidth ? `${digitsWidth}px` : undefined, opacity: digitsWidth ? 1 : 0 }}
         >
           <div
-            className="h-10 rounded-md transition-[width] duration-150 ease-linear will-change-[width]"
-            style={{ width: `${progress * 100}%`, backgroundColor: "#ff5a3d" }}
+            className="absolute inset-[3px] rounded-md origin-left transition-transform duration-150 ease-linear"
+            style={{ transform: `scaleX(${progress})`, backgroundColor: "#ff5a3d" }}
           />
         </div>
 
         <div
-          className="inline-flex justify-center items-center gap-8 mx-auto"
-          style={{ width: digitsWidth ? `${digitsWidth}px` : undefined, visibility: digitsWidth ? "visible" : "hidden" }}
+          className="inline-flex justify-center items-center gap-8 mx-auto transition-opacity"
+          style={{ width: digitsWidth ? `${digitsWidth}px` : undefined, opacity: digitsWidth ? 1 : 0 }}
         >
           <span className="text-gray-400 text-xl font-semibold leading-7">SET TIME</span>
           <span className="text-gray-400 text-xl font-semibold leading-7 tabular-nums">
