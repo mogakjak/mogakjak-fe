@@ -149,19 +149,6 @@ export default function GroupPage() {
           </div>
         </div>
       )}
-
-      {/* 캐릭터 획득 모달 */}
-      {/* <div
-        className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-        onClick={() => setOpenReview(false)}
-      >
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <GainCharacterModal
-            onClose={() => setOpenReview(false)}
-            hours={1}
-          ></GainCharacterModal>
-        </div>
-      </div> */}
     </div>
   );
 }

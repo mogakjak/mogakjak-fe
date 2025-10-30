@@ -42,7 +42,7 @@ export default function GainCharacterModal({
         <p className="text-body1-16R text-gray-500 mb-7">
           수집된 캐릭터는 마이페이지 &gt; 내 채소바구니에서 확인할 수 있어요
         </p>
-        <Button className="w-[200px]" leftIcon={null}>
+        <Button className="w-[200px]" leftIcon={null} onClick={onClose}>
           보상 받기
         </Button>
       </div>
