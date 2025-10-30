@@ -6,6 +6,7 @@ import {
   useImperativeHandle,
   useRef,
   useState,
+  useCallback
 } from "react";
 import clsx from "clsx";
 
@@ -48,25 +49,24 @@ export default forwardRef<StopwatchHandle, StopwatchProps>(function Stopwatch(
     Math.max(0, initialSeconds) * 1000
   );
   const [running, setRunning] = useState<boolean>(autoStart);
-
-  const loop = () => {
+  const loop = useCallback(() => {
     if (anchorRef.current == null) return;
     const now = performance.now();
     const ms = baseElapsedRef.current + (now - anchorRef.current);
     setElapsedMs(ms);
     onTick?.(Math.floor(ms / 1000));
     rafRef.current = requestAnimationFrame(loop);
-  };
-
-  const start = () => {
+  }, [onTick]);
+  
+  const start = useCallback(() => {
     if (running) return;
     anchorRef.current = performance.now();
     setRunning(true);
     rafRef.current = requestAnimationFrame(loop);
     onStart?.();
-  };
-
-  const pause = () => {
+  }, [running, loop, onStart]);
+  
+  const pause = useCallback(() => {
     if (!running) return;
     if (anchorRef.current != null) {
       const now = performance.now();
@@ -76,25 +76,26 @@ export default forwardRef<StopwatchHandle, StopwatchProps>(function Stopwatch(
     setRunning(false);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     onPause?.();
-  };
-
-  const reset = () => {
+  }, [running, onPause]);
+  
+  const reset = useCallback(() => {
     baseElapsedRef.current = 0;
     if (anchorRef.current != null) {
       anchorRef.current = performance.now();
     }
     setElapsedMs(0);
     onTick?.(0);
-  };
-
-  const stop = () => {
+  }, [onTick]);
+  
+  const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     anchorRef.current = null;
     baseElapsedRef.current = 0;
     setElapsedMs(0);
     setRunning(false);
     onStop?.();
-  };
+  }, [onStop]);
+  
 
   useImperativeHandle(
     ref,
@@ -105,7 +106,7 @@ export default forwardRef<StopwatchHandle, StopwatchProps>(function Stopwatch(
       stop,
       getSeconds: () => Math.floor(elapsedMs / 1000),
     }),
-    [elapsedMs, running]
+    [start, pause, reset, stop, elapsedMs]
   );
 
   useEffect(() => {

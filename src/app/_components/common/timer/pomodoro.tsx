@@ -2,6 +2,7 @@
 
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -59,8 +60,9 @@ export default forwardRef<PomodoroDialHandle, {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [minutes]);
 
-  const loop = () => {
-    const endAt = endAtRef.current!;
+  const loop = useCallback(() => {
+    const endAt = endAtRef.current;
+    if (!endAt) return;
     const now = performance.now();
     const ms = Math.max(0, endAt - now);
     setLeftSec(ms / 1000);
@@ -71,16 +73,16 @@ export default forwardRef<PomodoroDialHandle, {
       return;
     }
     rafRef.current = requestAnimationFrame(loop);
-  };
+  }, [onComplete]);
 
-  const start = () => {
+  const start = useCallback(() => {
     if (running || targetSec === 0) return;
     endAtRef.current = performance.now() + leftSec * 1000;
     setRunning(true);
     rafRef.current = requestAnimationFrame(loop);
-  };
-
-  const pause = () => {
+  }, [running, targetSec, leftSec, loop]);
+  
+  const pause = useCallback(() => {
     if (!running) return;
     const endAt = endAtRef.current;
     if (endAt != null) {
@@ -91,24 +93,25 @@ export default forwardRef<PomodoroDialHandle, {
     setRunning(false);
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  };
-
-  const reset = (nextMinutes?: number) => {
+  }, [running]);
+  
+  const reset = useCallback((nextMinutes?: number) => {
     const total = Math.max(0, (nextMinutes ?? minutes ?? 0) * 60);
     setTargetSec(total);
     setLeftSec(total);
     setRunning(false);
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  };
-
-  const stop = () => {
+  }, [minutes]);
+  
+  const stop = useCallback(() => {
     setTargetSec(0);
     setLeftSec(0);
     setRunning(false);
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-  };
+  }, []);
+  
 
   useImperativeHandle(
     ref,
@@ -119,9 +122,8 @@ export default forwardRef<PomodoroDialHandle, {
       stop,
       getSeconds: () => Math.floor(leftSec),
     }),
-    [leftSec, running, minutes, targetSec]
+    [start, pause, reset, stop, leftSec]
   );
-
   const remainRatio = useMemo(
     () => (targetSec > 0 ? Math.max(0, Math.min(1, leftSec / targetSec)) : 0),
     [leftSec, targetSec]
