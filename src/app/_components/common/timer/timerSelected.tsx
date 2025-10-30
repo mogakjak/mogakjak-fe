@@ -27,11 +27,11 @@ export default function TimerSelected({
   };
 
   return (
-    <div className={clsx("inline-flex items-center gap-6", className)}>
+    <div className={clsx("inline-flex items-center gap-2", className)}>
       <Button
         variant={v === "pomodoro" ? "selected" : "muted"}
         size={size}
-        className="min-w-[260px] justify-start"
+        className="min-w-[181px] justify-start"
         onClick={() => handle("pomodoro")}
         leftIcon={<Icon name="pomodoro" />}
         aria-pressed={v === "pomodoro"}
@@ -42,7 +42,7 @@ export default function TimerSelected({
       <Button
         variant={v === "stopwatch" ? "selected" : "muted"}
         size={size}
-        className="min-w-[260px] justify-start"
+        className="min-w-[181px] justify-start"
         onClick={() => handle("stopwatch")}
         leftIcon={<Icon name="stopwatch" />}
         aria-pressed={v === "stopwatch"}
@@ -53,7 +53,7 @@ export default function TimerSelected({
       <Button
         variant={v === "timer" ? "selected" : "muted"}
         size={size}
-        className="min-w-[260px] justify-start"
+        className="min-w-[181px] justify-start"
         onClick={() => handle("timer")}
         leftIcon={<Icon name="timer" />}
         aria-pressed={v === "timer"}
