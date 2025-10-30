@@ -4,7 +4,7 @@ import ProfileInfo from "./profileInfo";
 
 export default function Profile() {
   return (
-    <div className="w-[327px] p-6 rounded-[20px] bg-white">
+    <div className="w-[327px] h-full p-6 rounded-[20px] bg-white">
       <div className="flex justify-between items-center mb-7">
         <h2 className="text-heading4-20SB text-black">내 프로필</h2>
         <button className="text-body2-14R text-gray-500 underline">
