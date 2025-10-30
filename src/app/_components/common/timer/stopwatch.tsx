@@ -126,63 +126,49 @@ export default forwardRef<StopwatchHandle, StopwatchProps>(function Stopwatch(
   const S = dd(secs);
 
   const isZero = hrs === 0 && mins === 0 && secs === 0;
-
   const renderUnit = (label: "HRS" | "MINS" | "SECS", digits: string) => (
-    <div className="inline-flex flex-col items-center gap-2">
-      <span className="text-center text-gray-400 text-body1-16M">{label}</span>
+    <div className="flex flex-col items-center gap-2">
+      <div className="text-center text-gray-400 text-xl font-semibold leading-7">{label}</div>
       <div className="flex items-center gap-2">
-        <div className="w-28 h-32 bg-gray-100 rounded-2xl outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-          <span
-            className={clsx(
-              "text-6xl font-bold",
-              isZero ? "text-neutral-400" : "text-neutral-800"
-            )}
-          >
-            {digits[0]}
-          </span>
+        <div className="w-16 h-24 px-6 py-3 bg-gray-100 rounded-xl outline-1 outline-offset-[-1px] outline-gray-200 flex flex-col justify-center items-center">
+          <span className={clsx(
+            "text-6xl font-semibold leading-[78px]",
+            isZero ? "text-neutral-400" : "text-neutral-800"
+          )}>{digits[0]}</span>
         </div>
-        <div className="w-28 h-32 bg-gray-100 rounded-2xl outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-          <span
-            className={clsx(
-              "text-6xl font-bold",
-              isZero ? "text-neutral-400" : "text-neutral-800"
-            )}
-          >
-            {digits[1]}
-          </span>
+        <div className="w-16 h-24 px-6 py-3 bg-gray-100 rounded-xl outline-1 outline-offset-[-1px] outline-gray-200 flex flex-col justify-center items-center">
+          <span className={clsx(
+            "text-6xl font-semibold leading-[78px]",
+            isZero ? "text-neutral-400" : "text-neutral-800"
+          )}>{digits[1]}</span>
         </div>
       </div>
     </div>
   );
-
+  
   const Colon = () => (
-    <span
-      className={clsx(
-        "text-5xl font-semibold",
+    <div className="w-3.5 h-32 flex items-center justify-center">
+      <span className={clsx(
+        "text-5xl font-bold leading-[67px] pt-7",
         isZero ? "text-neutral-400" : "text-neutral-700"
-      )}
-    >
-      :
-    </span>
+      )}>:</span>
+    </div>
   );
-
+  
   return (
     <section
       className={clsx(
-        "w-[560px] h-80 bg-neutral-50 rounded-2xl inline-flex items-center justify-center",
+        "w-[560px] h-80 relative bg-neutral-50 rounded-2xl outline-1 outline-offset-[-1px] outline-gray-200",
         className
       )}
     >
-      <div className="w-full max-w-[820px] px-8">
-
-        <div className="mt-3 w-full flex items-center justify-between gap-4">
-          {renderUnit("HRS", H)}
-          <Colon />
-          {renderUnit("MINS", M)}
-          <Colon />
-          {renderUnit("SECS", S)}
-        </div>
+      <div className="absolute left-[54px] top-[88px] inline-flex justify-start items-center gap-2">
+        {renderUnit("HRS", H)}
+        <Colon />
+        {renderUnit("MINS", M)}
+        <Colon />
+        {renderUnit("SECS", S)}
       </div>
     </section>
   );
-});
+});  

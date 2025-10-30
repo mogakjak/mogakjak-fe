@@ -132,24 +132,24 @@ export default forwardRef<PomodoroDialHandle, {
   const mm = isUnset ? 0 : Math.floor(leftSec / 60);
   const ss = isUnset ? 0 : Math.floor(leftSec % 60);
 
-  const dial = 288;
+  const dial = 272;
   const cx = dial / 2;
   const cy = dial / 2;
-  const rOuter = dial / 2 - 8;
+  const rOuter = dial / 2 - 10;
   const rFill = rOuter - 10;
   const all12 = Array.from({ length: 12 }, (_, i) => i * 30);
   const maskProgress = isUnset ? 0 : elapsedRatio;
 
   return (
     <section
-      className={clsx(
-        "w-140 h-80 rounded-2xl inline-flex justify-center items-center gap-6 bg-neutral-50",
-        className
-      )}
-      data-state={isUnset ? "inactive" : running ? "running" : "paused"}
-    >
-      <div className="w-72 h-72 relative grid place-items-center">
-        <div className="w-72 h-72 bg-gray-100 rounded-full border border-gray-200" />
+  className={clsx(
+    "w-[580px] h-[328px] rounded-2xl flex items-center justify-start gap-7 pl-3 bg-neutral-50",
+    className
+  )}
+  data-state={isUnset ? "inactive" : running ? "running" : "paused"}
+>
+      <div className="w-[272px] h-[272px] relative grid place-items-center">
+        <div className="w-[272px] h-[272px] bg-gray-100 rounded-full border border-gray-200" />
         <svg width={dial} height={dial} viewBox={`0 0 ${dial} ${dial}`} className="absolute">
           <defs>
             <mask id="cut">
@@ -160,7 +160,7 @@ export default forwardRef<PomodoroDialHandle, {
           <circle cx={cx} cy={cy} r={rFill} fill="currentColor" className="text-red-500" mask="url(#cut)" />
           {all12.map((deg) => {
             const isCardinal = [0, 90, 180, 270].includes(deg);
-            const len = isCardinal ? 25 : 17;
+            const len = isCardinal ? 28 : 18;
             const sw = 4;
             const col = isCardinal ? "#fa5332" : "#fc9b88";
             const p1 = polarToCartesian(cx, cy, rOuter, deg);
@@ -185,40 +185,40 @@ export default forwardRef<PomodoroDialHandle, {
         </div>
       </div>
 
-      <div className="w-64 flex flex-col items-center gap-6">
-        <div className="w-full flex items-center gap-3">
-          <div className="flex-1 flex flex-col gap-1 items-start">
-            <div className="text-center w-full text-gray-400 text-body1-16M">MINS</div>
+      <div className="w-[210px] flex flex-col items-center gap-8">
+        <div className="w-full flex items-center gap-2">
+          <div className="flex-1 flex flex-col gap-2 items-start">
+            <div className="text-center w-full text-gray-400 text-base font-semibold">MINS</div>
             <div className="inline-flex gap-1">
-              <div className="w-14 h-16 px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <div className="w-12 h-16 px-2.5 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
                 <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
                   {dd(mm)[0]}
                 </span>
               </div>
-              <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <div className="w-12 h-16 px-2.5 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
                 <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
                   {dd(mm)[1]}
                 </span>
               </div>
             </div>
           </div>
-          <div className="w-3 h-24 relative">
+          <div className="w-5 h-20 relative flex items-center justify-center">
             <span className={clsx(
-              "absolute left-1/2 -translate-x-1/2 top-[34px] text-3xl font-medium",
+              "text-3xl font-medium",
               isUnset ? "text-gray-400" : "text-gray-800"
             )}>
               :
             </span>
           </div>
-          <div className="flex-1 flex flex-col gap-1 items-start">
-            <div className="text-center w-full text-gray-400 text-body1-16M">SECS</div>
+          <div className="flex-1 flex flex-col gap-2 items-start">
+            <div className="text-center w-full text-gray-400 text-base font-semibold">SECS</div>
             <div className="inline-flex gap-1">
-              <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <div className="w-12 h-16 px-2.5 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
                 <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
                   {dd(ss)[0]}
                 </span>
               </div>
-              <div className="w-14 h-16 px-3 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <div className="w-12 h-16 px-2.5 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
                 <span className={clsx("text-3xl font-bold", isUnset ? "text-gray-400" : "text-gray-800")}>
                   {dd(ss)[1]}
                 </span>
@@ -227,23 +227,23 @@ export default forwardRef<PomodoroDialHandle, {
           </div>
         </div>
 
-        <div className="text-center text-gray-400 text-caption-12SB">SET TIMES</div>
-        <div className="inline-flex items-center gap-[6px] select-none -mt-2">
+        <div className="text-center text-gray-400 text-[13px] font-semibold mt-2">SET TIMES</div>
+        <div className="inline-flex items-center gap-2 select-none -mt-0.5">
           <div className="flex items-center gap-1">
-            <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[0]}</span>
+            <div className="w-8 h-10 px-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <span className="text-xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[0]}</span>
             </div>
-            <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[1]}</span>
+            <div className="w-8 h-10 px-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <span className="text-xl font-semibold text-gray-400">{dd(Math.floor(targetSec / 60))[1]}</span>
             </div>
           </div>
-          <span className="text-2xl font-semibold text-gray-400">:</span>
+          <span className="text-xl font-semibold text-gray-400">:</span>
           <div className="flex items-center gap-1">
-            <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-400">0</span>
+            <div className="w-8 h-10 px-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <span className="text-xl font-semibold text-gray-400">0</span>
             </div>
-            <div className="w-10 h-12 px-2.5 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
-              <span className="text-2xl font-semibold text-gray-400">0</span>
+            <div className="w-8 h-10 px-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 grid place-items-center">
+              <span className="text-xl font-semibold text-gray-400">0</span>
             </div>
           </div>
         </div>
