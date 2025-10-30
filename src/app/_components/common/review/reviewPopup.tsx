@@ -132,7 +132,7 @@ export default function ReviewPopup({ onClose }: ReviewPopupProps) {
           취소
         </button>
         <button
-          className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:opacity-50"
+          className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300 "
           disabled={!selectedEmoji}
           onClick={() => {
             console.log("emoji:", selectedEmoji);
