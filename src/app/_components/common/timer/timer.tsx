@@ -42,22 +42,6 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   const rafRef = useRef<number | null>(null);
   const endAtRef = useRef<number | null>(null);
 
-  const digitsWrapRef = useRef<HTMLDivElement>(null);
-  const [digitsWidth, setDigitsWidth] = useState<number>(0);
-
-  useEffect(() => {
-    const el = digitsWrapRef.current;
-    if (!el) return;
-    const w0 = Math.round(el.getBoundingClientRect().width);
-    setDigitsWidth(w0);
-    const ro = new ResizeObserver((entries) => {
-      const w = Math.round(entries[0].contentRect.width);
-      setDigitsWidth(w);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   useEffect(() => {
     setTargetMs(initialMs);
     setLeftMs(initialMs);
@@ -68,6 +52,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
       endAtRef.current = performance.now() + initialMs;
       rafRef.current = requestAnimationFrame(loop);
     }
+    // eslint-disable-next-line
   }, [hours, minutes, seconds, autoStart]);
 
   const loop = () => {
@@ -158,8 +143,8 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   );
 
   const Digit = ({ char, inactive }: { char: string; inactive: boolean }) => (
-    <div className="w-28 h-32 rounded-2xl bg-gray-100 outline-1 outline-gray-200 outline-offset-[-1px] grid place-items-center">
-      <span className={clsx("text-6xl font-bold tabular-nums", inactive ? "text-neutral-400" : "text-neutral-800")}>
+    <div className="w-16 h-20 rounded-xl bg-gray-100 outline-1 outline-gray-200 grid place-items-center">
+      <span className={clsx("text-4xl font-bold tabular-nums", inactive ? "text-neutral-400" : "text-neutral-800")}>
         {char}
       </span>
     </div>
@@ -174,9 +159,9 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
     value: string;
     inactive: boolean;
   }) => (
-    <div className="inline-flex flex-col items-center gap-3 min-w-[13rem]">
-      <span className="text-gray-400 text-xl font-semibold leading-7">{label}</span>
-      <div className="inline-flex items-center gap-3">
+    <div className="inline-flex flex-col items-center gap-1 min-w-[6rem]">
+      <span className="text-gray-400 text-base font-semibold">{label}</span>
+      <div className="inline-flex items-center gap-1">
         <Digit char={value[0]} inactive={inactive} />
         <Digit char={value[1]} inactive={inactive} />
       </div>
@@ -184,50 +169,39 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   );
 
   const Colon = ({ inactive }: { inactive: boolean }) => (
-    <div className="w-10 h-32 grid place-items-center">
-      <div className={clsx("flex flex-col items-center gap-2 translate-y-9", inactive ? "opacity-40" : "opacity-80")}>
-        <span className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
-        <span className="w-2.5 h-2.5 rounded-full bg-neutral-700" />
+    <div className="w-6 h-20 grid place-items-center">
+      <div className={clsx("flex flex-col items-center gap-1 translate-y-5", inactive ? "opacity-40" : "opacity-80")}>
+        <span className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
+        <span className="w-1.5 h-1.5 rounded-full bg-neutral-700" />
       </div>
     </div>
   );
 
   return (
-    <section
-      className={clsx(
-        "w-[560px] h-80 px-10 py-8 bg-neutral-50  inline-flex flex-col items-center gap-6",
-        className
-      )}
-    >
-      <div className="w-full grid place-items-center">
-        <div ref={digitsWrapRef} className="inline-flex items-start justify-center gap-4">
-          <Unit label="HRS" value={H} inactive={isZeroInitial} />
-          <Colon inactive={isZeroInitial} />
-          <Unit label="MINS" value={M} inactive={isZeroInitial} />
-          <Colon inactive={isZeroInitial} />
-          <Unit label="SECS" value={S} inactive={isZeroInitial} />
-        </div>
-      </div>
+    <section className={clsx("w-full bg-neutral-50 inline-flex items-center justify-center", className)}>
+      <div className="w-full max-w-[820px] px-4 py-4">
+        <div className="w-fit mx-auto">
+          <div className="flex items-start justify-center gap-3">
+            <Unit label="HRS" value={H} inactive={isZeroInitial} />
+            <Colon inactive={isZeroInitial} />
+            <Unit label="MINS" value={M} inactive={isZeroInitial} />
+            <Colon inactive={isZeroInitial} />
+            <Unit label="SECS" value={S} inactive={isZeroInitial} />
+          </div>
 
-      <div className="w-full flex flex-col items-center gap-3">
-        <div
-          className="relative h-12 bg-gray-100 rounded-lg outline-1 outline-gray-200 outline-offset-[-1px] overflow-hidden mx-auto transition-opacity"
-          style={{ width: digitsWidth ? `${digitsWidth}px` : undefined, opacity: digitsWidth ? 1 : 0 }}
-        >
-          <div
-            className="absolute inset-[3px] rounded-md origin-left transition-transform duration-150 ease-linear"
-            style={{ transform: `scaleX(${progress})`, backgroundColor: "#ff5a3d" }}
-          />
-        </div>
+          <div className="mt-3 relative h-8 bg-gray-100 rounded-lg outline-1 outline-gray-200 overflow-hidden w-full">
+            <div
+              className="absolute inset-[2px] rounded-md origin-left transition-transform duration-150 ease-linear"
+              style={{ transform: `scaleX(${progress})`, backgroundColor: "#ff5a3d" }}
+            />
+          </div>
 
-        <div
-          className="inline-flex justify-center items-center gap-8 mx-auto transition-opacity"
-          style={{ width: digitsWidth ? `${digitsWidth}px` : undefined, opacity: digitsWidth ? 1 : 0 }}
-        >
-          <span className="text-gray-400 text-xl font-semibold leading-7">SET TIME</span>
-          <span className="text-gray-400 text-xl font-semibold leading-7 tabular-nums">
-            {dd(Math.floor(targetMs / 3600000))} : {dd(Math.floor((targetMs % 3600000) / 60000))} : {dd(Math.floor((targetMs % 60000) / 1000))}
-          </span>
+          <div className="mt-3 w-full inline-flex justify-center items-center gap-3">
+            <span className="text-gray-400 text-base font-semibold">SET TIME</span>
+            <span className="text-gray-400 text-base font-semibold tabular-nums">
+              {dd(Math.floor(targetMs / 3600000))} : {dd(Math.floor((targetMs % 3600000) / 60000))} : {dd(Math.floor((targetMs % 60000) / 1000))}
+            </span>
+          </div>
         </div>
       </div>
     </section>
