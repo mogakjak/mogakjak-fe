@@ -12,6 +12,7 @@ import GroupSidebar from "./sidebar/groupSidebar";
 
 //아이콘
 import ReviewPopup from "../common/review/reviewPopup";
+import GainCharacterModal from "../common/gainCharacterModal";
 
 // 더미데이터 삭제예정
 export const mockGroupFriends = [
@@ -149,6 +150,19 @@ export default function GroupPage() {
           </div>
         </div>
       )}
+
+      {/* 캐릭터 획득 모달 */}
+      {/* <div
+        className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+        onClick={() => setOpenReview(false)}
+      >
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <GainCharacterModal
+            onClose={() => setOpenReview(false)}
+            hours={1}
+          ></GainCharacterModal>
+        </div>
+      </div> */}
     </div>
   );
 }
