@@ -33,7 +33,7 @@ export default function FriendMain() {
   };
 
   return (
-    <div className="px-10 pt-9 bg-white rounded-[20px]">
+    <div className="px-10 pt-9 bg-white rounded-[20px] self-stretch">
       <h2 className="text-heading4-20SB text-black">친구들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-7">

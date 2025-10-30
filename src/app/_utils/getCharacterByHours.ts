@@ -1,16 +1,15 @@
 import { CHARACTER_BY_HOURS } from "../_constants/character";
 import { CharacterLevelInfo } from "../_types/characterLevel";
 
-const thresholds = Object.keys(CHARACTER_BY_HOURS)
-  .map(Number)
-  .sort((a, b) => a - b);
+export const rows: CharacterLevelInfo[] = Object.values(
+  CHARACTER_BY_HOURS
+).sort((a, b) => a.hours - b.hours);
 
 export function getCharacterByHours(totalHours: number): CharacterLevelInfo {
-  let current: CharacterLevelInfo = CHARACTER_BY_HOURS[thresholds[0]];
-  for (const h of thresholds) {
-    if (totalHours >= h) current = CHARACTER_BY_HOURS[h];
+  let current = rows[0];
+  for (const c of rows) {
+    if (totalHours >= c.hours) current = c;
     else break;
   }
-
   return current;
 }
