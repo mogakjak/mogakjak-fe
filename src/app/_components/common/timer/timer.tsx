@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useCallback
 } from "react";
 import clsx from "clsx";
 
@@ -55,7 +56,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
     // eslint-disable-next-line
   }, [hours, minutes, seconds, autoStart]);
 
-  const loop = () => {
+  const loop = useCallback(() => {
     const endAt = endAtRef.current;
     if (endAt == null) return;
     const now = performance.now();
@@ -69,44 +70,44 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
       return;
     }
     rafRef.current = requestAnimationFrame(loop);
-  };
-
-  const start = () => {
+  }, [onTick, onComplete]);
+  
+  const start = useCallback(() => {
     if (running || targetMs <= 0) return;
     endAtRef.current = performance.now() + leftMs;
     setRunning(true);
     rafRef.current = requestAnimationFrame(loop);
-  };
-
-  const pause = () => {
+  }, [running, targetMs, leftMs, loop]);
+  
+  const pause = useCallback(() => {
     if (!running) return;
     setRunning(false);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     endAtRef.current = null;
-  };
-
-  const reset = () => {
+  }, [running]);
+  
+  const reset = useCallback(() => {
     setLeftMs(targetMs);
     setRunning(false);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     endAtRef.current = null;
-  };
-
-  const stop = () => {
+  }, [targetMs]);
+  
+  const stop = useCallback(() => {
     setRunning(false);
     setLeftMs(0);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     endAtRef.current = null;
-  };
-
-  const setTime = (h: number, m: number, s: number) => {
+  }, []);
+  
+  const setTime = useCallback((h: number, m: number, s: number) => {
     const ms = Math.max(0, (h * 3600 + m * 60 + s) * 1000);
     setTargetMs(ms);
     setLeftMs(ms);
     setRunning(false);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     endAtRef.current = null;
-  };
+  }, []);
 
   useImperativeHandle(
     ref,
@@ -118,7 +119,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
       setTime,
       getLeftSeconds: () => Math.floor(leftMs / 1000),
     }),
-    [leftMs, targetMs, running]
+    [start, pause, reset, stop, setTime, leftMs]
   );
 
   useEffect(() => {
