@@ -5,7 +5,7 @@ import Character from "./basket/character";
 // 아이콘
 import Image from "next/image";
 import CharacterModal from "./basket/characterModal";
-import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
+import { rows } from "@/app/_utils/getCharacterByHours";
 
 export default function BoardBasket({
   totalHours = 0,
@@ -13,9 +13,6 @@ export default function BoardBasket({
   totalHours?: number;
 }) {
   const characters = useMemo(() => {
-    const rows = Object.values(CHARACTER_BY_HOURS).sort(
-      (a, b) => a.level - b.level
-    );
     return rows.map((r) => ({
       level: r.level,
       name: r.name,

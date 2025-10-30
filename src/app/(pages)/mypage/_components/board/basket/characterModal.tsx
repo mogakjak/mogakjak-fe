@@ -1,15 +1,12 @@
 import Image from "next/image";
 import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
+import { rows } from "@/app/_utils/getCharacterByHours";
 
 interface CharacterModalProps {
   onClose: () => void;
 }
 
 export default function CharacterModal({ onClose }: CharacterModalProps) {
-  const rows = Object.values(CHARACTER_BY_HOURS).sort(
-    (a, b) => a.level - b.level
-  );
-
   return (
     <div className="bg-white p-5 w-[516px] rounded-[20px]">
       <button className="flex ml-auto" onClick={onClose}>
