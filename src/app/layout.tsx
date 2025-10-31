@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="mx-auto w-full flex flex-col min-h-screen items-center bg-gray-100 overflow-x-hidden">
         <Providers>
           <ConditionalHeader />
-          <div className="px-[36px] bg-gray-100 w-full">{children}</div>
+          <div className="px-[36px] bg-gray-100 w-full ">{children}</div>
         </Providers>
       </body>
     </html>

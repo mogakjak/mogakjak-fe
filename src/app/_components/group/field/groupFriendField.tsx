@@ -2,14 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
-import MemberProfile from "../../room/memberProfile";
+import MemberProfile from "../../home/room/memberProfile";
 import CheerUp from "./cheerUp";
 import MessageBubble from "./messageBubble";
 import GroupMemberState from "./groupMemberState";
 
 type Status = "active" | "rest" | "end";
 
-interface GroupFriendFieldProps {
+export interface GroupFriendFieldProps {
   status: Status;
   friendName?: string;
   avatarSrc?: string;

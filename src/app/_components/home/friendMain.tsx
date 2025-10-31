@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DropdownList from "../(pages)/mypage/_components/board/mate/dropdownList";
-import SearchBar from "../(pages)/mypage/_components/board/mate/searchBar";
-import ProfileList from "../(pages)/mypage/_components/board/mate/profileList";
+import DropdownList from "../../(pages)/mypage/_components/board/mate/dropdownList";
+import SearchBar from "../../(pages)/mypage/_components/board/mate/searchBar";
+import ProfileList from "../../(pages)/mypage/_components/board/mate/profileList";
 
 export default function FriendMain() {
   const [selectedGroup, setSelectedGroup] = useState("전체 그룹");
@@ -33,7 +33,7 @@ export default function FriendMain() {
   };
 
   return (
-    <div className="px-10 pt-9 bg-white rounded-[20px]">
+    <div className="px-10 pt-9 bg-white rounded-[20px] self-stretch">
       <h2 className="text-heading4-20SB text-black">친구들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-7">
