@@ -30,7 +30,7 @@ export default function BoardBasket({
     <div className="w-full">
       <div className="flex justify-between items-center  mb-6.5">
         <h2 className="text-heading4-20SB text-black">
-          내 채소 바구니 ({unlockedCount}/{totalCount})
+          내 과일 바구니 ({unlockedCount}/{totalCount})
         </h2>
         <button
           className="flex items-center gap-2.5 text-body1-16M text-gray-400 px-7 py-2 border border-gray-200 rounded-[22px]"
@@ -42,7 +42,7 @@ export default function BoardBasket({
             width={24}
             height={24}
           ></Image>
-          채소 도감
+          과일 도감
         </button>
       </div>
 

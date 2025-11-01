@@ -13,7 +13,7 @@ export default function CharacterModal({ onClose }: CharacterModalProps) {
         <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
       </button>
       <div className="p-5">
-        <h2 className="text-heading4-20SB mb-[27px]  text-center">채소 도감</h2>
+        <h2 className="text-heading4-20SB mb-[27px]  text-center">과일 도감</h2>
 
         <div>
           <div className="max-h-[784px] overflow-y-auto">
