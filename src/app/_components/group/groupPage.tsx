@@ -19,7 +19,7 @@ export const mockGroupFriends = [
     id: 1,
     status: "active",
     friendName: "가나디",
-    avatarSrc: "/character/tomato.svg",
+    level: 1,
     isPublic: true,
     activeTime: 120,
   },
@@ -27,7 +27,7 @@ export const mockGroupFriends = [
     id: 2,
     status: "rest",
     friendName: "당근이",
-    avatarSrc: "/character/tomato.svg",
+    level: 3,
     isPublic: true,
     activeTime: 45,
   },
@@ -35,7 +35,7 @@ export const mockGroupFriends = [
     id: 3,
     status: "active",
     friendName: "브로콜리",
-    avatarSrc: "/character/tomato.svg",
+    level: 6,
     isPublic: false,
     activeTime: 300,
   },
@@ -43,7 +43,7 @@ export const mockGroupFriends = [
     id: 4,
     status: "end",
     friendName: "양상추",
-    avatarSrc: "/character/tomato.svg",
+    level: 3,
     isPublic: true,
     activeTime: 0,
   },
@@ -51,7 +51,7 @@ export const mockGroupFriends = [
     id: 5,
     status: "rest",
     friendName: "감자",
-    avatarSrc: "/character/tomato.svg",
+    level: 3,
     isPublic: true,
     activeTime: 210,
   },
@@ -59,7 +59,7 @@ export const mockGroupFriends = [
     id: 6,
     status: "active",
     friendName: "옥수수",
-    avatarSrc: "/character/tomato.svg",
+    level: 2,
     isPublic: false,
     activeTime: 380,
   },
@@ -67,7 +67,7 @@ export const mockGroupFriends = [
     id: 7,
     status: "end",
     friendName: "파프리카",
-    avatarSrc: "/character/tomato.svg",
+    level: 5,
     isPublic: true,
     activeTime: 0,
   },
@@ -75,7 +75,7 @@ export const mockGroupFriends = [
     id: 8,
     status: "rest",
     friendName: "바질",
-    avatarSrc: "/character/tomato.svg",
+    level: 1,
     isPublic: true,
     activeTime: 90,
   },
@@ -83,7 +83,7 @@ export const mockGroupFriends = [
     id: 9,
     status: "active",
     friendName: "라디쉬",
-    avatarSrc: "/character/tomato.svg",
+    level: 2,
     isPublic: true,
     activeTime: 460,
   },
@@ -118,14 +118,14 @@ export default function GroupPage() {
               key={f.id}
               status={f.status}
               friendName={f.friendName}
-              avatarSrc={f.avatarSrc}
+              level={f.level}
               isPublic={f.isPublic}
               activeTime={f.activeTime}
             />
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-5 ml-5">
+      <div className="flex flex-col gap-5 ml-5 self-stretch">
         <div className="flex flex-col gap-2.5">
           <GroupMyField></GroupMyField>
           <GroupMySidebar></GroupMySidebar>

@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import CategorySidebar, { type Category as CatType, type DayFilter } from "./components/category";
+import CategorySidebar, {
+  type Category as CatType,
+  type DayFilter,
+} from "./components/category";
 import TodoSection from "./components/todoSection";
 import type { Category as ListCategory } from "./components/todoList";
 
@@ -25,8 +28,20 @@ export default function TodoPage() {
       barColorClass: "bg-red-400",
       expanded: true,
       items: [
-        { date: "2025.10.14", title: "할 일 예시 가나다라마바사", targetSeconds: 10800, currentSeconds: 5400, completed: false },
-        { date: "2025.10.14", title: "할 일 예시 가나다라마바사", targetSeconds: 10800, currentSeconds: 10800, completed: true },
+        {
+          date: "2025.10.14",
+          title: "할 일 예시 가나다라마바사",
+          targetSeconds: 10800,
+          currentSeconds: 5400,
+          completed: false,
+        },
+        {
+          date: "2025.10.14",
+          title: "할 일 예시 가나다라마바사",
+          targetSeconds: 10800,
+          currentSeconds: 10800,
+          completed: true,
+        },
       ],
     },
     {
@@ -34,7 +49,15 @@ export default function TodoPage() {
       title: "카테고리 예시 가나다",
       barColorClass: "bg-orange-300",
       expanded: true,
-      items: [{ date: "2025.10.14", title: "할 일 예시 가나다라마바사", targetSeconds: 10800, currentSeconds: 5400, completed: false }],
+      items: [
+        {
+          date: "2025.10.14",
+          title: "할 일 예시 가나다라마바사",
+          targetSeconds: 10800,
+          currentSeconds: 5400,
+          completed: false,
+        },
+      ],
     },
   ];
 
@@ -42,7 +65,7 @@ export default function TodoPage() {
 
   return (
     <main className="min-h-screen bg-gray-100 flex">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <CategorySidebar
           filter={filter}
           onChangeFilter={setFilter}

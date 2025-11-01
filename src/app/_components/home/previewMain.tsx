@@ -4,14 +4,21 @@ import TodayPreview from "./preview/todayPreview";
 import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
 
-export default function PreviewMain() {
+interface PreviewMainProps {
+  setPageState: (state: "group" | "personal") => void;
+}
+
+export default function PreviewMain({ setPageState }: PreviewMainProps) {
   return (
     <div className="w-[327px] min-w-[327px] px-6 py-9 rounded-[20px] bg-white">
       <h2 className="text-heading4-20SB text-black">
         오늘은 어떤 몰입을 해볼까요?
       </h2>
       <section className="flex gap-2 mt-3">
-        <button className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB">
+        <button
+          onClick={() => setPageState("group")}
+          className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB"
+        >
           <Image
             src="/Icons/groupIcon.svg"
             alt="모각작"
@@ -20,7 +27,10 @@ export default function PreviewMain() {
           ></Image>
           <p>모각작하기</p>
         </button>
-        <button className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB">
+        <button
+          onClick={() => setPageState("personal")}
+          className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB"
+        >
           <Image
             src="/Icons/personalIcon.svg"
             alt="개인 몰입하기"

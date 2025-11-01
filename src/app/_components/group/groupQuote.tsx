@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import GroupQuoteCTA from "../common/groupQuoteCTA";
 
 export default function GroupQuote() {
-  const [mode, setMode] = useState<"edit" | "check">("edit");
+  const [mode, setMode] = useState<"edit" | "check">("check");
   const [text, setText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 

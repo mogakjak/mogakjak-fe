@@ -11,22 +11,26 @@ type Status = "active" | "rest" | "end";
 
 export interface GroupFriendFieldProps {
   status: Status;
+  level: number;
   friendName?: string;
-  avatarSrc?: string;
   isPublic?: boolean;
   activeTime?: number;
 }
 
 export default function GroupFriendField({
   status,
+  level,
   friendName = "가나디",
-  avatarSrc = "/character/tomato.svg",
   isPublic = true,
   activeTime = 0,
 }: GroupFriendFieldProps) {
   const [friendMsg, setFriendMsg] = React.useState("");
 
   const isActive = status === "end";
+
+  const avatarSrc = isActive
+    ? `/character/sleeping/sleepingLevel${level}.svg`
+    : `/character/level${level}.svg`;
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -50,7 +54,7 @@ export default function GroupFriendField({
             isActive ? "justify-center" : "justify-between"
           }`}
         >
-          <Image src={avatarSrc} alt="토마토" width={70} height={70} />
+          <Image src={avatarSrc} alt="토마토" width={100} height={100} />
           {!isActive && (
             <MessageBubble
               type="friend"
