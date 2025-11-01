@@ -25,14 +25,17 @@ function polarToCartesian(cx: number, cy: number, r: number, deg: number) {
   return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
 }
 
-function elapsedSectorPath(cx: number, cy: number, r: number, elapsedRatio: number) {
-  const p = Math.max(0, Math.min(1, elapsedRatio));
-  if (p <= 0) return "";
-  const sweep = Math.max(360 * p, 0.5);
-  const largeArc = sweep > 180 ? 1 : 0;
-  const s = polarToCartesian(cx, cy, r, 0);
-  const e = polarToCartesian(cx, cy, r, sweep);
-  return [`M ${cx} ${cy}`, `L ${s.x} ${s.y}`, `A ${r} ${r} 0 ${largeArc} 1 ${e.x} ${e.y}`, "Z"].join(" ");
+function norm360(d: number) {
+  return ((d % 360) + 360) % 360;
+}
+
+function sectorPathFromTo(cx: number, cy: number, r: number, startDeg: number, endDeg: number) {
+  const s = polarToCartesian(cx, cy, r, startDeg);
+  const e = polarToCartesian(cx, cy, r, endDeg);
+  const diffCW = norm360(endDeg - startDeg);
+  const largeArc = diffCW > 180 ? 1 : 0;
+  const sweepFlag = 1;
+  return `M ${cx} ${cy} L ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} ${sweepFlag} ${e.x} ${e.y} Z`;
 }
 
 const dd = (n: number) => n.toString().padStart(2, "0");
@@ -81,7 +84,7 @@ export default forwardRef<PomodoroDialHandle, {
     setRunning(true);
     rafRef.current = requestAnimationFrame(loop);
   }, [running, targetSec, leftSec, loop]);
-  
+
   const pause = useCallback(() => {
     if (!running) return;
     const endAt = endAtRef.current;
@@ -94,7 +97,7 @@ export default forwardRef<PomodoroDialHandle, {
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [running]);
-  
+
   const reset = useCallback((nextMinutes?: number) => {
     const total = Math.max(0, (nextMinutes ?? minutes ?? 0) * 60);
     setTargetSec(total);
@@ -103,7 +106,7 @@ export default forwardRef<PomodoroDialHandle, {
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, [minutes]);
-  
+
   const stop = useCallback(() => {
     setTargetSec(0);
     setLeftSec(0);
@@ -111,7 +114,6 @@ export default forwardRef<PomodoroDialHandle, {
     endAtRef.current = null;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }, []);
-  
 
   useImperativeHandle(
     ref,
@@ -128,7 +130,6 @@ export default forwardRef<PomodoroDialHandle, {
     () => (targetSec > 0 ? Math.max(0, Math.min(1, leftSec / targetSec)) : 0),
     [leftSec, targetSec]
   );
-  const elapsedRatio = 1 - remainRatio;
 
   const isUnset = targetSec === 0;
   const mm = isUnset ? 0 : Math.floor(leftSec / 60);
@@ -140,31 +141,36 @@ export default forwardRef<PomodoroDialHandle, {
   const rOuter = dial / 2 - 10;
   const rFill = rOuter - 10;
   const all12 = Array.from({ length: 12 }, (_, i) => i * 30);
-  const maskProgress = isUnset ? 0 : elapsedRatio;
+  const MAX_SECONDS = 60 * 60;
+  const minutesRatio = targetSec > 0 ? Math.min(1, targetSec / MAX_SECONDS) : 0;
+  const maxSweep = 360 * minutesRatio;        
+  const liveSweep = maxSweep * remainRatio;  
+  const EPS = 0.6;
+  const liveStart = 0 - EPS;
+  const liveEnd   = liveSweep + EPS;
 
   return (
     <section
-  className={clsx(
-    "w-[580px] h-[328px] rounded-2xl flex items-center justify-start gap-7 pl-3 bg-neutral-50",
-    className
-  )}
-  data-state={isUnset ? "inactive" : running ? "running" : "paused"}
->
+      className={clsx(
+        "w-[580px] h-[328px] rounded-2xl flex items-center justify-start gap-7 pl-3 bg-neutral-50",
+        className
+      )}
+      data-state={isUnset ? "inactive" : running ? "running" : "paused"}
+    >
       <div className="w-[272px] h-[272px] relative grid place-items-center">
         <div className="w-[272px] h-[272px] bg-gray-100 rounded-full border border-gray-200" />
-        <svg width={dial} height={dial} viewBox={`0 0 ${dial} ${dial}`} className="absolute">
-          <defs>
-            <mask id="cut">
-              <rect x="0" y="0" width={dial} height={dial} fill="white" />
-              <path d={elapsedSectorPath(cx, cy, rFill, maskProgress)} fill="black" />
-            </mask>
-          </defs>
-          <circle cx={cx} cy={cy} r={rFill} fill="currentColor" className="text-red-500" mask="url(#cut)" />
+        <svg
+          width={dial}
+          height={dial}
+          viewBox={`0 0 ${dial} ${dial}`}
+          className="absolute"
+          shapeRendering="geometricPrecision"
+        >
+          <path d={sectorPathFromTo(cx, cy, rFill, liveStart, liveEnd)} fill="#fa5332" />
           {all12.map((deg) => {
-            const isCardinal = [0, 90, 180, 270].includes(deg);
-            const len = isCardinal ? 28 : 18;
+            const len =  18;
             const sw = 4;
-            const col = isCardinal ? "#fa5332" : "#fc9b88";
+            const col ="#E6E8EB";
             const p1 = polarToCartesian(cx, cy, rOuter, deg);
             const p2 = polarToCartesian(cx, cy, rOuter - len, deg);
             return (
@@ -205,12 +211,7 @@ export default forwardRef<PomodoroDialHandle, {
             </div>
           </div>
           <div className="w-5 h-20 relative flex items-center justify-center">
-            <span className={clsx(
-              "text-3xl font-medium",
-              isUnset ? "text-gray-400" : "text-gray-800"
-            )}>
-              :
-            </span>
+            <span className={clsx("text-3xl font-medium", isUnset ? "text-gray-400" : "text-gray-800")}>:</span>
           </div>
           <div className="flex-1 flex flex-col gap-2 items-start">
             <div className="text-center w-full text-gray-400 text-base font-semibold">SECS</div>
