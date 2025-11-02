@@ -186,7 +186,7 @@ export default function TodoList({
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <AddWorkForm
-            type="select"
+            type="add"
             categories={categories.map((c) => ({
               id: String(c.id),
               name: c.title,
