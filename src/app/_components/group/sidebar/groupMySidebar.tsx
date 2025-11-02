@@ -7,13 +7,16 @@ import Icon from "../../common/Icons";
 import Edit from "/Icons/edit.svg";
 import EyesOpen from "/Icons/eyesOpen.svg";
 import EyesClosed from "/Icons/eyesClosed.svg";
-import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
+import AddWorkForm, {
+  AddWorkPayload,
+} from "@/app/(pages)/todo/components/addWorkForm";
 import { categoriesData } from "@/app/_utils/mockData";
 import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 
 export default function GroupMySidebar() {
   const [isTaskOpen, setIsTaskOpen] = useState(true);
   const [isTimeOpen, setIsTimeOpen] = useState(true);
+  const [selectedWork, setSelectedWork] = useState<AddWorkPayload | null>(null);
 
   const toggleTaskEye = () => {
     setIsTaskOpen((v) => !v);
@@ -23,7 +26,23 @@ export default function GroupMySidebar() {
     setIsTimeOpen((v) => !v);
   };
 
+  const formatSeconds = (seconds: number) => {
+    const safeSeconds = Math.max(0, seconds);
+    const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, "0");
+    const minutes = String(
+      Math.floor((safeSeconds % 3600) / 60)
+    ).padStart(2, "0");
+    const secs = String(safeSeconds % 60).padStart(2, "0");
+    return `${hours} : ${minutes} : ${secs}`;
+  };
+
   const [modalOpen, setModalOpen] = useState(false);
+
+  const handleWorkSubmit = (payload: AddWorkPayload) => {
+    setSelectedWork(payload);
+    setModalOpen(false);
+  };
+
   return (
     <div className="p-5 bg-white w-[238px] h-[512px] rounded-2xl">
       <h3 className="text-body1-16SB">할 일</h3>
@@ -39,7 +58,9 @@ export default function GroupMySidebar() {
           </button>
         </EyesTooltip>
 
-        <p className="text-body2-14SB text-green">와이어프레임 완료</p>
+        <p className="text-body2-14SB text-green">
+          {selectedWork?.title ?? "와이어프레임 완료"}
+        </p>
 
         <button className="ml-auto" onClick={() => setModalOpen(true)}>
           <Icon Svg={Edit} size={24} className="text-gray-600" />
@@ -48,7 +69,7 @@ export default function GroupMySidebar() {
 
       <div className="flex flex-col gap-1 mt-2 bg-gray-100 rounded-lg px-3 py-2">
         <p className="text-caption-12SB text-gray-600">
-          <b className="text-black mr-2">목표시간</b> 00 : 00 : 00
+          <b className="text-black mr-2">목표시간</b> {formatSeconds(selectedWork?.targetSeconds ?? 0)}
         </p>
         <p className="text-caption-12SB text-gray-600">
           <b className="text-black mr-2">현재 달성률</b> 50%
@@ -81,6 +102,7 @@ export default function GroupMySidebar() {
               name: c.title,
               colorToken: "category-1-red" as CategoryOption["colorToken"],
             }))}
+            onSubmit={handleWorkSubmit}
             onClose={() => setModalOpen(false)}
           />
         </div>

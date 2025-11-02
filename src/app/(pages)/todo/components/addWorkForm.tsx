@@ -112,6 +112,15 @@ export default function AddWorkForm({
         {type == "select" ? (
           <button
             type="button"
+            onClick={() =>
+              isValid &&
+              onSubmit?.({
+                categoryId,
+                title: title.trim(),
+                date,
+                targetSeconds: target,
+              })
+            }
             disabled={!isValid}
             className={clsx(
               "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
