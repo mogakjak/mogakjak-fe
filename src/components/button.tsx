@@ -1,8 +1,7 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import clsx from "clsx";
-import Image from "next/image";
 
 type Variant =
   | "primary"
@@ -11,7 +10,8 @@ type Variant =
   | "slate700"
   | "neutral700"
   | "slate600"
-  | "muted";
+  | "muted"
+  | "selected";
 
 type Size = "md" | "sm";
 
@@ -19,7 +19,7 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
   block?: boolean;
-  leftIcon?: "plus" | null; // ← null 허용
+  leftIcon?: ReactNode; 
 };
 
 const VARIANT_CLASS: Record<Variant, string> = {
@@ -31,11 +31,13 @@ const VARIANT_CLASS: Record<Variant, string> = {
     "bg-neutral-700 text-neutral-50 hover:opacity-95 active:opacity-90",
   slate600: "bg-zinc-600 text-neutral-50 hover:opacity-95 active:opacity-90",
   muted: "bg-gray-200 text-gray-400 cursor-not-allowed",
+  selected:
+    "bg-neutral-50 text-red-500 outline outline-1 outline-offset-[-1px] outline-red-500",
 };
 
 const SIZE_CLASS: Record<Size, string> = {
-  md: "h-12 px-6 py-3 text-base rounded-2xl",
-  sm: "h-10 px-4 py-2 text-sm rounded-xl",
+  md: "h-12 px-6 py-3 text-base rounded-xl",
+  sm: "h-10 px-4 py-2 text-sm rounded-lg",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -44,7 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       block,
-      leftIcon = "plus",
+      leftIcon,
       className,
       disabled,
       children,
@@ -53,7 +55,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const isMuted = variant === "muted" || disabled;
-    const iconSrc = isMuted ? "/Icons/plusGray.svg" : "/Icons/plusWhite.svg";
+    const enablePressScale = !isMuted && variant !== "selected";
 
     return (
       <button
@@ -64,19 +66,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           SIZE_CLASS[size],
           VARIANT_CLASS[variant],
           block && "w-full",
-          !isMuted && "active:scale-[0.98]",
+          enablePressScale && "active:scale-[0.98]",
           className
         )}
         {...props}
       >
         {leftIcon && (
-          <Image
-            src={iconSrc}
-            alt="plus icon"
-            width={24}
-            height={24}
-            className="w-6 h-6 select-none"
-          />
+          <span aria-hidden className="w-6 h-6 grid place-items-center">
+            {leftIcon}
+          </span>
         )}
         <span className="font-semibold leading-snug">{children}</span>
       </button>
