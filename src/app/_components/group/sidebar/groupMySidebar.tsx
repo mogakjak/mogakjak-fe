@@ -7,6 +7,9 @@ import Icon from "../../common/Icons";
 import Edit from "/Icons/edit.svg";
 import EyesOpen from "/Icons/eyesOpen.svg";
 import EyesClosed from "/Icons/eyesClosed.svg";
+import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
+import { categoriesData } from "@/app/_utils/mockData";
+import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 
 export default function GroupMySidebar() {
   const [isTaskOpen, setIsTaskOpen] = useState(true);
@@ -20,6 +23,7 @@ export default function GroupMySidebar() {
     setIsTimeOpen((v) => !v);
   };
 
+  const [modalOpen, setModalOpen] = useState(false);
   return (
     <div className="p-5 bg-white w-[238px] h-[512px] rounded-2xl">
       <h3 className="text-body1-16SB">할 일</h3>
@@ -37,7 +41,7 @@ export default function GroupMySidebar() {
 
         <p className="text-body2-14SB text-green">와이어프레임 완료</p>
 
-        <button className="ml-auto">
+        <button className="ml-auto" onClick={() => setModalOpen(true)}>
           <Icon Svg={Edit} size={24} className="text-gray-600" />
         </button>
       </div>
@@ -67,6 +71,20 @@ export default function GroupMySidebar() {
         </div>
         <p className="text-body2-14SB text-red-500">00 : 00 : 00</p>
       </div>
+
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <AddWorkForm
+            type="select"
+            categories={categoriesData.map((c) => ({
+              id: String(c.id),
+              name: c.title,
+              colorToken: "category-1-red" as CategoryOption["colorToken"],
+            }))}
+            onClose={() => setModalOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

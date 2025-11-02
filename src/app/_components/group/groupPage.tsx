@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import GroupFriendField, {
-  GroupFriendFieldProps,
-} from "./field/groupFriendField";
+import GroupFriendField from "./field/groupFriendField";
 import GroupMyField from "./field/groupMyField";
 import GroupMySidebar from "./sidebar/groupMySidebar";
 import GroupQuote from "./groupQuote";
@@ -12,82 +10,7 @@ import GroupSidebar from "./sidebar/groupSidebar";
 
 //아이콘
 import ReviewPopup from "../common/review/reviewPopup";
-
-// 더미데이터 삭제예정
-export const mockGroupFriends = [
-  {
-    id: 1,
-    status: "active",
-    friendName: "가나디",
-    level: 1,
-    isPublic: true,
-    activeTime: 120,
-  },
-  {
-    id: 2,
-    status: "rest",
-    friendName: "당근이",
-    level: 3,
-    isPublic: true,
-    activeTime: 45,
-  },
-  {
-    id: 3,
-    status: "active",
-    friendName: "브로콜리",
-    level: 6,
-    isPublic: false,
-    activeTime: 300,
-  },
-  {
-    id: 4,
-    status: "end",
-    friendName: "양상추",
-    level: 3,
-    isPublic: true,
-    activeTime: 0,
-  },
-  {
-    id: 5,
-    status: "rest",
-    friendName: "감자",
-    level: 3,
-    isPublic: true,
-    activeTime: 210,
-  },
-  {
-    id: 6,
-    status: "active",
-    friendName: "옥수수",
-    level: 2,
-    isPublic: false,
-    activeTime: 380,
-  },
-  {
-    id: 7,
-    status: "end",
-    friendName: "파프리카",
-    level: 5,
-    isPublic: true,
-    activeTime: 0,
-  },
-  {
-    id: 8,
-    status: "rest",
-    friendName: "바질",
-    level: 1,
-    isPublic: true,
-    activeTime: 90,
-  },
-  {
-    id: 9,
-    status: "active",
-    friendName: "라디쉬",
-    level: 2,
-    isPublic: true,
-    activeTime: 460,
-  },
-] satisfies ({ id: number } & GroupFriendFieldProps)[];
+import { mockGroupFriends } from "@/app/_utils/mockData";
 
 export default function GroupPage() {
   const [openReview, setOpenReview] = useState(false);

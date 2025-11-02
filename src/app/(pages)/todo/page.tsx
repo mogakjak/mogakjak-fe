@@ -6,7 +6,7 @@ import CategorySidebar, {
   type DayFilter,
 } from "./components/category";
 import TodoSection from "./components/todoSection";
-import type { Category as ListCategory } from "./components/todoList";
+import { categoriesData } from "@/app/_utils/mockData";
 
 function getKoreanDateLabel(d = new Date()) {
   const days = ["일", "월", "화", "수", "목", "금", "토"] as const;
@@ -20,46 +20,6 @@ function getKoreanDateLabel(d = new Date()) {
 export default function TodoPage() {
   const [filter, setFilter] = useState<DayFilter>("today");
   const [selectedId, setSelectedId] = useState<string>("all");
-
-  const categories: ListCategory[] = [
-    {
-      id: 1,
-      title: "카테고리 예시 가나다",
-      barColorClass: "bg-red-400",
-      expanded: true,
-      items: [
-        {
-          date: "2025.10.14",
-          title: "할 일 예시 가나다라마바사",
-          targetSeconds: 10800,
-          currentSeconds: 5400,
-          completed: false,
-        },
-        {
-          date: "2025.10.14",
-          title: "할 일 예시 가나다라마바사",
-          targetSeconds: 10800,
-          currentSeconds: 10800,
-          completed: true,
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "카테고리 예시 가나다",
-      barColorClass: "bg-orange-300",
-      expanded: true,
-      items: [
-        {
-          date: "2025.10.14",
-          title: "할 일 예시 가나다라마바사",
-          targetSeconds: 10800,
-          currentSeconds: 5400,
-          completed: false,
-        },
-      ],
-    },
-  ];
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
 
@@ -80,7 +40,7 @@ export default function TodoPage() {
         <TodoSection
           filter={filter}
           dateLabel={dateLabel}
-          categories={categories}
+          categories={categoriesData}
           className="mb-6"
         />
       </div>

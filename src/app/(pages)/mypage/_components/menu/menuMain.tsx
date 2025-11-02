@@ -6,7 +6,7 @@ interface MenuProps {
 }
 
 export default function Menu({ selected, onSelect }: MenuProps) {
-  const menuItems = ["내 채소 바구니", "내 모각작 메이트"];
+  const menuItems = ["내 과일 바구니", "내 모각작 메이트"];
 
   return (
     <div className="w-[327px] p-6 rounded-[20px] bg-white">

@@ -2,18 +2,11 @@
 
 import { useState, Fragment } from "react";
 import clsx from "clsx";
-import WorkItem, { WorkItemProps } from "./workItem";
+import WorkItem from "./workItem";
 import Image from "next/image";
 import AddWorkForm, { AddWorkPayload } from "./addWorkForm";
-import { CategoryOption } from "./categorySelect"; 
-
-export type Category = {
-  id: string | number;
-  title: string;
-  barColorClass: string;
-  items: WorkItemProps[];
-  expanded?: boolean;
-};
+import { CategoryOption } from "./categorySelect";
+import { Category } from "@/app/_types/category";
 
 export type TodoListProps = {
   dateLabel?: string;
@@ -87,13 +80,10 @@ export default function TodoList({
   const [categories, setCategories] = useState<Category[]>(initialCategories);
 
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
-    initialCategories.reduce(
-      (acc, c) => {
-        acc[c.id] = c.expanded ?? true;
-        return acc;
-      },
-      {} as Record<string | number, boolean>,
-    ),
+    initialCategories.reduce((acc, c) => {
+      acc[c.id] = c.expanded ?? true;
+      return acc;
+    }, {} as Record<string | number, boolean>)
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<
@@ -108,13 +98,22 @@ export default function TodoList({
     });
   };
 
-  const toggleItemCompleted = (catId: Category["id"], idx: number, next: boolean) => {
+  const toggleItemCompleted = (
+    catId: Category["id"],
+    idx: number,
+    next: boolean
+  ) => {
     setCategories((prev) =>
       prev.map((c) =>
         c.id === catId
-          ? { ...c, items: c.items.map((it, i) => (i === idx ? { ...it, completed: next } : it)) }
-          : c,
-      ),
+          ? {
+              ...c,
+              items: c.items.map((it, i) =>
+                i === idx ? { ...it, completed: next } : it
+              ),
+            }
+          : c
+      )
     );
   };
   const handleAddClick = (catId: Category["id"]) => {
@@ -139,15 +138,20 @@ export default function TodoList({
                 },
               ],
             }
-          : c,
-      ),
+          : c
+      )
     );
     setModalOpen(false);
   };
 
   return (
     <>
-      <div className={clsx("w-full inline-flex flex-col items-stretch gap-6 pt-7", className)}>
+      <div
+        className={clsx(
+          "w-full inline-flex flex-col items-stretch gap-6 pt-7",
+          className
+        )}
+      >
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           {categories.map((cat) => {
             const expanded = openMap[cat.id] ?? true;
@@ -165,7 +169,9 @@ export default function TodoList({
                       <WorkItem
                         key={`${cat.id}-${idx}`}
                         {...w}
-                        onToggleCompleted={(next) => toggleItemCompleted(cat.id, idx, next)}
+                        onToggleCompleted={(next) =>
+                          toggleItemCompleted(cat.id, idx, next)
+                        }
                         className="self-stretch w-full"
                       />
                     ))}
@@ -180,6 +186,7 @@ export default function TodoList({
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <AddWorkForm
+            type="select"
             categories={categories.map((c) => ({
               id: String(c.id),
               name: c.title,

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
 import { rows } from "@/app/_utils/getCharacterByHours";
 
 interface CharacterModalProps {
