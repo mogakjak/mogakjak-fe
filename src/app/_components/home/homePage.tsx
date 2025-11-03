@@ -21,7 +21,6 @@ export default function HomePage() {
             <RoomMain />
             <FriendMain />
           </section>
-          :
         </>
       ) : pageState == "group" ? (
         <GroupPage />
