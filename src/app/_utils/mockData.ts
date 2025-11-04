@@ -1,6 +1,7 @@
 import type { Category as ListCategory } from "@/app/_types/category";
 import { GroupFriendFieldProps } from "../_components/group/field/groupFriendField";
-
+import type { Friend } from "@/app/_components/personal/friendList";
+import type { ForkGroup } from "@/app/_components/common/forkPopup";
 //카테고리 목업데이터
 export const categoriesData: ListCategory[] = [
   {
@@ -117,3 +118,62 @@ export const mockGroupFriends = [
     activeTime: 460,
   },
 ] satisfies ({ id: number } & GroupFriendFieldProps)[];
+
+export const mockFriends: Friend[] = [
+  {
+    id: "1",
+    name: "김이름",
+    teams: ["팀이름예시1", "팀이름예시2"],
+    active: true,
+    lastText: "몰입 중",
+  },
+  {
+    id: "2",
+    name: "이이름",
+    teams: ["팀이름예시1", "팀이름예시2"],
+    active: false,
+    lastText: "n일 전",
+  },
+  {
+    id: "3",
+    name: "박이름",
+    teams: ["팀이름예시1", "팀이름예시2"],
+    active: false,
+    lastText: "n일 전",
+  },
+] satisfies Friend[];
+
+export const mockForkGroups: ForkGroup[] = [
+  {
+    id: "1",
+    name: "UI디자인 팀",
+    members: 5,
+    capacity: 7,
+    status: "active",
+    avatarUrl: "/Icons/group1.svg",
+  },
+  {
+    id: "2",
+    name: "React 스터디",
+    members: 3,
+    capacity: 5,
+    status: "inactive",
+    avatarUrl: "/Icons/group2.svg",
+  },
+  {
+    id: "3",
+    name: "코딩 부트캠프 5기",
+    members: 7,
+    capacity: 8,
+    status: "active",
+    avatarUrl: "/Icons/group3.svg",
+  },
+  {
+    id: "4",
+    name: "UX리서치 모임",
+    members: 2,
+    capacity: 6,
+    status: "inactive",
+    avatarUrl: "/Icons/group4.svg",
+  },
+] satisfies ForkGroup[];

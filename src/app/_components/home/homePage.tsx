@@ -5,6 +5,7 @@ import FriendMain from "./friendMain";
 import PreviewMain from "./previewMain";
 import RoomMain from "./roomMain";
 import GroupPage from "../group/groupPage";
+import PersonalPage from "../personal/personalPage";
 
 type PageState = "home" | "group" | "personal";
 
@@ -25,7 +26,7 @@ export default function HomePage() {
       ) : pageState == "group" ? (
         <GroupPage />
       ) : (
-        "개인 타이머 UI"
+        <PersonalPage />
       )}
     </main>
   );

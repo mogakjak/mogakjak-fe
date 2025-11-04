@@ -44,7 +44,7 @@ export default function MobileHomePage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {features.map(({ title, description }, i) => (
+        {features.map(({ title, description }) => (
           <div key={title} className="flex items-start gap-1.5">
             <Image
               src="/Icons/check.svg"

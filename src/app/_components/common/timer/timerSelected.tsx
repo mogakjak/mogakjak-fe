@@ -3,12 +3,11 @@
 import clsx from "clsx";
 import { Button } from "@/components/button";
 import { Icon } from "./Icon";
-import { useState } from "react";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
 export default function TimerSelected({
-  value,
+  value = "pomodoro",
   onChange,
   size = "md",
   className,
@@ -18,45 +17,37 @@ export default function TimerSelected({
   size?: "md" | "sm";
   className?: string;
 }) {
-  const [inner, setInner] = useState<Mode>(value ?? "pomodoro");
-  const v = value ?? inner;
-
-  const handle = (next: Mode) => {
-    if (!value) setInner(next);
-    onChange?.(next);
-  };
-
   return (
     <div className={clsx("inline-flex items-center gap-2", className)}>
       <Button
-        variant={v === "pomodoro" ? "selected" : "muted"}
+        variant={value === "pomodoro" ? "selected" : "muted"}
         size={size}
         className="min-w-[181px] justify-start"
-        onClick={() => handle("pomodoro")}
+        onClick={() => onChange?.("pomodoro")}
         leftIcon={<Icon name="pomodoro" />}
-        aria-pressed={v === "pomodoro"}
+        aria-pressed={value === "pomodoro"}
       >
         뽀모도로
       </Button>
 
       <Button
-        variant={v === "stopwatch" ? "selected" : "muted"}
+        variant={value === "stopwatch" ? "selected" : "muted"}
         size={size}
         className="min-w-[181px] justify-start"
-        onClick={() => handle("stopwatch")}
+        onClick={() => onChange?.("stopwatch")}
         leftIcon={<Icon name="stopwatch" />}
-        aria-pressed={v === "stopwatch"}
+        aria-pressed={value === "stopwatch"}
       >
         스톱워치
       </Button>
 
       <Button
-        variant={v === "timer" ? "selected" : "muted"}
+        variant={value === "timer" ? "selected" : "muted"}
         size={size}
         className="min-w-[181px] justify-start"
-        onClick={() => handle("timer")}
+        onClick={() => onChange?.("timer")}
         leftIcon={<Icon name="timer" />}
-        aria-pressed={v === "timer"}
+        aria-pressed={value === "timer"}
       >
         타이머
       </Button>
