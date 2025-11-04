@@ -1,14 +1,13 @@
 "use client";
 
-import {  useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import CategorySelect, {
-  type CategoryOption,
-} from "./categorySelect";
+import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
 import DateField from "./dateField";
 import DurationField from "./durationField";
 import clsx from "clsx";
+import WorkSelectField from "./workSelectField";
 
 export type AddWorkPayload = {
   categoryId: string;
@@ -18,12 +17,14 @@ export type AddWorkPayload = {
 };
 
 export default function AddWorkForm({
+  type,
   categories,
   defaultDate = new Date(),
   onSubmit,
   onClose,
   className,
 }: {
+  type: string;
   categories: CategoryOption[];
   defaultDate?: Date;
   onSubmit?: (payload: AddWorkPayload) => void;
@@ -42,7 +43,7 @@ export default function AddWorkForm({
     <div
       className={clsx(
         "w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0_0_20px_0_rgba(0,0,0,0.15)] inline-flex flex-col items-end gap-2",
-        className,
+        className
       )}
     >
       <button
@@ -62,7 +63,9 @@ export default function AddWorkForm({
 
       <div className="self-stretch p-5 flex flex-col items-center gap-7">
         <div className="self-stretch text-center text-neutral-900 text-xl font-semibold leading-7">
-          할 일을  등록해 보세요!
+          {type == "select"
+            ? "할 일을 등록해 보세요!"
+            : "몰입할 일을 선택해 보세요!"}
         </div>
 
         <div className="self-stretch flex flex-col gap-5">
@@ -81,7 +84,11 @@ export default function AddWorkForm({
             <div className="text-neutral-900 text-base font-semibold leading-snug">
               할 일
             </div>
-            <WorkTitleField value={title} onChange={setTitle} />
+            {type == "select" ? (
+              <WorkSelectField value={title} onChange={setTitle} />
+            ) : (
+              <WorkTitleField value={title} onChange={setTitle} />
+            )}
           </div>
 
           <div className="flex flex-col gap-3">
@@ -102,20 +109,51 @@ export default function AddWorkForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() =>
-            isValid &&
-            onSubmit?.({ categoryId, title: title.trim(), date, targetSeconds: target })
-          }
-          disabled={!isValid}
-          className={clsx(
-            "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
-            isValid ? "bg-red-500 text-neutral-50" : "bg-gray-200 text-gray-400",
-          )}
-        >
-          할 일 추가
-        </button>
+        {type == "select" ? (
+          <button
+            type="button"
+            onClick={() =>
+              isValid &&
+              onSubmit?.({
+                categoryId,
+                title: title.trim(),
+                date,
+                targetSeconds: target,
+              })
+            }
+            disabled={!isValid}
+            className={clsx(
+              "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
+              isValid
+                ? "bg-red-500 text-neutral-50"
+                : "bg-gray-200 text-gray-400"
+            )}
+          >
+            할 일 선택
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() =>
+              isValid &&
+              onSubmit?.({
+                categoryId,
+                title: title.trim(),
+                date,
+                targetSeconds: target,
+              })
+            }
+            disabled={!isValid}
+            className={clsx(
+              "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
+              isValid
+                ? "bg-red-500 text-neutral-50"
+                : "bg-gray-200 text-gray-400"
+            )}
+          >
+            할 일 추가
+          </button>
+        )}
       </div>
     </div>
   );

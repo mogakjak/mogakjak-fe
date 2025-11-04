@@ -6,7 +6,7 @@ import Menu from "./_components/menu/menuMain";
 import Profile from "./_components/profile/profileMain";
 
 export default function MyPage() {
-  const [selectedMenu, setSelectedMenu] = useState("내 채소 바구니");
+  const [selectedMenu, setSelectedMenu] = useState("내 과일 바구니");
 
   return (
     <div className="w-full max-w-[1440px] min-h-screen py-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">

@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/button";
-import GroupFriendField, {
-  GroupFriendFieldProps,
-} from "./field/groupFriendField";
+import GroupFriendField from "./field/groupFriendField";
 import GroupMyField from "./field/groupMyField";
 import GroupMySidebar from "./sidebar/groupMySidebar";
 import GroupQuote from "./groupQuote";
@@ -12,82 +10,7 @@ import GroupSidebar from "./sidebar/groupSidebar";
 
 //아이콘
 import ReviewPopup from "../common/review/reviewPopup";
-
-// 더미데이터 삭제예정
-export const mockGroupFriends = [
-  {
-    id: 1,
-    status: "active",
-    friendName: "가나디",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 120,
-  },
-  {
-    id: 2,
-    status: "rest",
-    friendName: "당근이",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 45,
-  },
-  {
-    id: 3,
-    status: "active",
-    friendName: "브로콜리",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: false,
-    activeTime: 300,
-  },
-  {
-    id: 4,
-    status: "end",
-    friendName: "양상추",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 0,
-  },
-  {
-    id: 5,
-    status: "rest",
-    friendName: "감자",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 210,
-  },
-  {
-    id: 6,
-    status: "active",
-    friendName: "옥수수",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: false,
-    activeTime: 380,
-  },
-  {
-    id: 7,
-    status: "end",
-    friendName: "파프리카",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 0,
-  },
-  {
-    id: 8,
-    status: "rest",
-    friendName: "바질",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 90,
-  },
-  {
-    id: 9,
-    status: "active",
-    friendName: "라디쉬",
-    avatarSrc: "/character/tomato.svg",
-    isPublic: true,
-    activeTime: 460,
-  },
-] satisfies ({ id: number } & GroupFriendFieldProps)[];
+import { mockGroupFriends } from "@/app/_utils/mockData";
 
 export default function GroupPage() {
   const [openReview, setOpenReview] = useState(false);
@@ -118,14 +41,14 @@ export default function GroupPage() {
               key={f.id}
               status={f.status}
               friendName={f.friendName}
-              avatarSrc={f.avatarSrc}
+              level={f.level}
               isPublic={f.isPublic}
               activeTime={f.activeTime}
             />
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-5 ml-5">
+      <div className="flex flex-col gap-5 ml-5 self-stretch">
         <div className="flex flex-col gap-2.5">
           <GroupMyField></GroupMyField>
           <GroupMySidebar></GroupMySidebar>

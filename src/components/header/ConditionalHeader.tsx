@@ -1,14 +1,19 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useAuthState } from "@/app/_api/auth/useAuthState";
 import Header from "../Header";
 
-export default function ConditionalHeader() {
-  const { isLoggedIn, ready } = useAuthState();
+interface ConditionalHeaderProps {
+  isMobile: boolean;
+}
 
-  if (!ready || !isLoggedIn) {
-    return null;
-  }
+export default function ConditionalHeader({ isMobile }: ConditionalHeaderProps) {
+  const { isLoggedIn, ready } = useAuthState();
+  const pathname = usePathname();
+
+  if (!ready || !isLoggedIn) return null;
+  if (pathname === "/" && isMobile) return null;
 
   return <Header />;
 }
