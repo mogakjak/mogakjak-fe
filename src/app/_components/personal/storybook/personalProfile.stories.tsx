@@ -10,7 +10,6 @@ const meta: Meta<typeof PersonalProfile> = {
   tags: ["autodocs"],
   argTypes: {
     name: { control: "text", description: "사용자 이름" },
-    isMe: { control: "boolean", description: "본인 여부" },
     characterSrc: { control: "text", description: "캐릭터 이미지 경로" },
   },
 };
@@ -21,7 +20,6 @@ type Story = StoryObj<typeof PersonalProfile>;
 export const Base: Story = {
   args: {
     name: "가나디",
-    isMe: true,
     characterSrc: "/character/tomato.svg",
   },
 };

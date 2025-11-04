@@ -5,12 +5,10 @@ import clsx from "clsx";
 
 export default function PersonalProfile({
   name = "가나디",
-  isMe = true,
   characterSrc = "/character/tomato.svg",
   className,
 }: {
   name?: string;
-  isMe?: boolean;
   characterSrc?: string;
   className?: string;
 }) {
@@ -45,7 +43,7 @@ export default function PersonalProfile({
           }}
         />
         <p className="text-lg font-semibold text-neutral-900 leading-tight">
-          {name} {isMe && <span className="text-neutral-800">(나)</span>}
+          {name}<span className="text-neutral-800">(나)</span>
         </p>
       </div>
     </section>
