@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
@@ -6,16 +8,12 @@ import { useCharacterBasket } from "@/app/api/mypage/hooks";
 export default function Profile() {
   const { data: res } = useCharacterBasket();
   const basket = res;
-
   const {
     nickname,
     email,
     totalTaskCount,
     totalFocusTime,
-    mainCharacter,
     collectedCharacterCount,
-    ownedCharacters = [],
-    lockedCharacters = [],
   } = basket ?? {};
 
   return (
@@ -42,7 +40,7 @@ export default function Profile() {
 
       <section className="flex flex-col gap-3">
         <ProfileInfo title="완료한 작업" content={`${totalTaskCount}개`} />
-        <ProfileInfo title="완료한 시간" content={`${totalFocusTime}개`} />
+        <ProfileInfo title="완료한 시간" content={`${totalFocusTime}`} />
         <ProfileInfo
           title="수집 캐릭터"
           content={`${collectedCharacterCount}개`}

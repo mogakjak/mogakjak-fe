@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+"use client";
+
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   getCharacterBasket,
   getCharactersGuide,
@@ -6,20 +12,25 @@ import {
   patchProfile,
 } from "./api";
 import { mypageKeys } from "./keys";
-import type { CharacterUpdate, ProfileUpdate } from "./types";
+import type {
+  CharacterUpdate,
+  ProfileUpdate,
+  CharacterBasket,
+  CharacterGuideItem,
+} from "./types";
 
 export const useCharactersGuide = () =>
-  useQuery({
+  useSuspenseQuery<CharacterGuideItem[]>({
     queryKey: mypageKeys.guide(),
     queryFn: getCharactersGuide,
     staleTime: 5 * 60 * 1000,
   });
 
 export const useCharacterBasket = () =>
-  useQuery({
+  useSuspenseQuery<CharacterBasket>({
     queryKey: mypageKeys.basket(),
     queryFn: getCharacterBasket,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 
 export const useUpdateProfile = () => {

@@ -1,5 +1,4 @@
 import type {
-  ApiResponse,
   ProfileUpdate,
   CharacterUpdate,
   CharacterGuideItem,
@@ -30,9 +29,18 @@ async function request<T>(
     throw new Error(msg);
   }
 
-  const json: ApiResponse<T> = await res.json();
-  if (json.statusCode !== 0) throw new Error(json.message);
-  return json.data;
+  const json = await res.json().catch(() => undefined);
+
+  if (json && typeof json === "object" && typeof json.statusCode === "number") {
+    const code = json.statusCode as number;
+    const isSuccess = code === 0 || (code >= 200 && code < 300);
+    if (!isSuccess) {
+      throw new Error(json?.message ?? `HTTP ${code}`);
+    }
+    return json?.data as T;
+  }
+
+  return json as T;
 }
 
 export const patchProfile = (payload: ProfileUpdate) =>
