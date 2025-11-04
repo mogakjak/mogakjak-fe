@@ -1,8 +1,23 @@
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
+import { useCharacterBasket } from "@/app/api/mypage/hooks";
 
 export default function Profile() {
+  const { data: res } = useCharacterBasket();
+  const basket = res;
+
+  const {
+    nickname,
+    email,
+    totalTaskCount,
+    totalFocusTime,
+    mainCharacter,
+    collectedCharacterCount,
+    ownedCharacters = [],
+    lockedCharacters = [],
+  } = basket ?? {};
+
   return (
     <div className="w-[327px] p-6 rounded-[20px] bg-white">
       <div className="flex justify-between items-center mb-7">
@@ -19,16 +34,19 @@ export default function Profile() {
           height={160}
         />
         <div className="flex flex-col gap-1 text-center mt-5 mb-6">
-          <p className="text-heading3-24SB text-black">김이름</p>
-          <p className="text-body1-16R text-gray-500">email@gmail.com</p>
+          <p className="text-heading3-24SB text-black">{nickname}</p>
+          <p className="text-body1-16R text-gray-500">{email}</p>
         </div>
         <ProfileEditButton />
       </section>
 
       <section className="flex flex-col gap-3">
-        <ProfileInfo title="완료한 작업" content="35개" />
-        <ProfileInfo title="완료한 시간" content="3시간" />
-        <ProfileInfo title="수집 캐릭터" content="6개" />
+        <ProfileInfo title="완료한 작업" content={`${totalTaskCount}개`} />
+        <ProfileInfo title="완료한 시간" content={`${totalFocusTime}개`} />
+        <ProfileInfo
+          title="수집 캐릭터"
+          content={`${collectedCharacterCount}개`}
+        />
       </section>
     </div>
   );
