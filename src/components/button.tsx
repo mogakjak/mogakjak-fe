@@ -12,8 +12,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
   block?: boolean;
-  leftIcon?: ReactNode;        
-  leftIconSrc?: string;     
+  leftIcon?: ReactNode;
+  leftIconSrc?: string;
 };
 
 const VARIANT_CLASS: Record<Variant, string> = {
@@ -23,7 +23,7 @@ const VARIANT_CLASS: Record<Variant, string> = {
   slate700: "bg-zinc-700 text-neutral-50 hover:opacity-95 active:opacity-90",
   neutral700: "bg-neutral-700 text-neutral-50 hover:opacity-95 active:opacity-90",
   slate600: "bg-zinc-600 text-neutral-50 hover:opacity-95 active:opacity-90",
-  muted: "bg-gray-200 text-gray-400 cursor-not-allowed",
+  muted: "bg-gray-200 text-gray-700 hover:bg-gray-200 active:opacity-95",
   selected:
     "bg-neutral-50 text-red-500 outline outline-1 outline-offset-[-1px] outline-red-500",
 };
@@ -48,8 +48,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const isMuted = variant === "muted" || disabled;
-    const enablePressScale = !isMuted && variant !== "selected";
+    const isMuted = variant === "muted";
+    const enablePressScale = !disabled && variant !== "selected";
 
     const iconNode =
       leftIcon ??
@@ -60,13 +60,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        disabled={disabled || variant === "muted"}
+        disabled={disabled}
         className={clsx(
           "inline-flex items-center justify-center gap-2 select-none transition-[opacity,transform]",
           SIZE_CLASS[size],
           VARIANT_CLASS[variant],
           block && "w-full",
           enablePressScale && "active:scale-[0.98]",
+          isMuted && "cursor-pointer",
           className
         )}
         {...props}
