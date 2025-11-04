@@ -55,7 +55,7 @@ const mockGroups: ForkGroup[] = [
   },
 ];
 
-export const 기본: Story = {
+export const Base: Story = {
   args: {
     userName: "박뽀모",
     groups: mockGroups,
