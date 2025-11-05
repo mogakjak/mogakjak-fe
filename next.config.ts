@@ -1,7 +1,24 @@
 import type { NextConfig } from "next";
 import path from "path";
 import type { RuleSetRule } from "webpack";
+const RAW = process.env.NEXT_PUBLIC_API_PROXY; // 정확히 이 키로 설정했는지 확인
+console.log("[build] NEXT_PUBLIC_API_PROXY =", JSON.stringify(RAW));
 
+const BASE = RAW?.replace(/\/+$/, ""); // 끝의 / 제거
+
+if (!BASE) {
+  throw new Error(
+    "❌ Missing env NEXT_PUBLIC_API_PROXY. " +
+      "Vercel Project > Settings > Environment Variables에 " +
+      "http(s)://로 시작하는 값으로 넣고, Redeploy 하세요."
+  );
+}
+if (!/^https?:\/\//.test(BASE)) {
+  throw new Error(
+    "❌ NEXT_PUBLIC_API_PROXY는 반드시 http:// 또는 https:// 로 시작해야 합니다. 현재: " +
+      JSON.stringify(BASE)
+  );
+}
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
