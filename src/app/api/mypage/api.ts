@@ -25,7 +25,9 @@ async function request<T>(
     try {
       const err = await res.json();
       msg = err?.message || err?.error || msg;
-    } catch {}
+    } catch {
+      console.error("Failed to parse error response body");
+    }
     throw new Error(msg);
   }
 

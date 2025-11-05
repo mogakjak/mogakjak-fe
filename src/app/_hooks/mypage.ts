@@ -36,11 +36,12 @@ export const useCharacterBasket = () =>
 export const useUpdateProfile = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: ProfileUpdate) => {
-      await patchProfile(payload);
+    mutationFn: patchProfile,
+    onSuccess: () => {
+      return qc.invalidateQueries({ queryKey: mypageKeys.basket() });
     },
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: mypageKeys.basket() });
+    onError: (error) => {
+      console.error("프로필 업데이트에 실패했습니다.", error);
     },
   });
 };
@@ -48,12 +49,15 @@ export const useUpdateProfile = () => {
 export const useUpdateCharacter = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: CharacterUpdate) => {
-      await patchCharacter(payload);
+    mutationFn: patchCharacter,
+    onSuccess: () => {
+      return Promise.all([
+        qc.invalidateQueries({ queryKey: mypageKeys.basket() }),
+        qc.invalidateQueries({ queryKey: mypageKeys.guide() }),
+      ]);
     },
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: mypageKeys.basket() });
-      await qc.invalidateQueries({ queryKey: mypageKeys.guide() });
+    onError: (error) => {
+      console.error("캐릭터 업데이트에 실패했습니다.", error);
     },
   });
 };

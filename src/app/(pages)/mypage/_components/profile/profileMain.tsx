@@ -6,8 +6,7 @@ import ProfileInfo from "./profileInfo";
 import { useCharacterBasket } from "@/app/_hooks/mypage";
 
 export default function Profile() {
-  const { data: res } = useCharacterBasket();
-  const basket = res;
+  const { data: basket } = useCharacterBasket();
   const {
     nickname,
     email,
