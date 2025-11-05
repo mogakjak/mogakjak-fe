@@ -3,7 +3,7 @@ import type {
   CharacterUpdate,
   CharacterGuideItem,
   CharacterBasket,
-} from "./types";
+} from "../../_types/mypage";
 
 const MYPAGE_BASE = "/api/mypage";
 

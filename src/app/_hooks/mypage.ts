@@ -10,14 +10,14 @@ import {
   getCharactersGuide,
   patchCharacter,
   patchProfile,
-} from "./api";
-import { mypageKeys } from "./keys";
+} from "../api/mypage/api";
+import { mypageKeys } from "../api/mypage/keys";
 import type {
   CharacterUpdate,
   ProfileUpdate,
   CharacterBasket,
   CharacterGuideItem,
-} from "./types";
+} from "../_types/mypage";
 
 export const useCharactersGuide = () =>
   useSuspenseQuery<CharacterGuideItem[]>({

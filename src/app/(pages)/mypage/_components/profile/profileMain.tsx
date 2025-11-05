@@ -3,7 +3,7 @@
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
-import { useCharacterBasket } from "@/app/api/mypage/hooks";
+import { useCharacterBasket } from "@/app/_hooks/mypage";
 
 export default function Profile() {
   const { data: res } = useCharacterBasket();
