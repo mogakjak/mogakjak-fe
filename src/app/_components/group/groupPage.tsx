@@ -58,7 +58,7 @@ export default function GroupPage() {
           className="flex-1"
           leftIcon={null}
         >
-          몰입 종류 후 나가기
+          몰입 종료 후 나가기
         </Button>
       </div>
 
