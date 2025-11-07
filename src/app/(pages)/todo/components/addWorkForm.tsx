@@ -64,8 +64,8 @@ export default function AddWorkForm({
       <div className="self-stretch p-5 flex flex-col items-center gap-7">
         <div className="self-stretch text-center text-neutral-900 text-xl font-semibold leading-7">
           {type == "select"
-            ? "할 일을 등록해 보세요!"
-            : "몰입할 일을 선택해 보세요!"}
+            ? "몰입할 일을 선택해 보세요!"
+            : "할 일을 등록해 보세요!"}
         </div>
 
         <div className="self-stretch flex flex-col gap-5">

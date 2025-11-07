@@ -97,7 +97,7 @@ export default function WorkSelectField({
 
             <div className="flex items-center gap-2  border border-gray-200 rounded-lg px-4 py-2">
               <Image
-                src="/icons/plusFilled.svg"
+                src="/Icons/plusFilled.svg"
                 alt="add"
                 width={24}
                 height={24}
