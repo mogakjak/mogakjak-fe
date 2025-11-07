@@ -15,7 +15,6 @@ async function request<T>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      ...(options.headers || {}),
     },
     cache: "no-store",
     ...options,
@@ -26,8 +25,8 @@ async function request<T>(
     try {
       const err = await res.json();
       msg = err?.message || err?.error || msg;
-    } catch (e) {
-      console.warn("Error body JSON parse failed", e);
+    } catch {
+      console.error("Failed to parse error response body");
     }
     throw new Error(msg);
   }
