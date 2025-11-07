@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
+export const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
 
 function buildTargetUrl(path: string[] | undefined, req: NextRequest) {
   const joined = (path ?? []).join("/");
