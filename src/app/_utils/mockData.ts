@@ -2,6 +2,8 @@ import type { Category as ListCategory } from "@/app/_types/category";
 import { GroupFriendFieldProps } from "../_components/group/field/groupFriendField";
 import type { Friend } from "@/app/_components/personal/friendList";
 import type { ForkGroup } from "@/app/_components/common/forkPopup";
+import { Group } from "../_components/group/baseGroup";
+import { Mate } from "../_components/group/newGroup";
 //카테고리 목업데이터
 export const categoriesData: ListCategory[] = [
   {
@@ -177,3 +179,89 @@ export const mockForkGroups: ForkGroup[] = [
     avatarUrl: "/Icons/group4.svg",
   },
 ] satisfies ForkGroup[];
+
+// 모각작하기 그룹 모달 목업 데이터
+
+export const groups: Group[] = [
+  {
+    id: "g1",
+    name: "네가보내주는고무짜는릴스가좋아",
+    status: "active",
+    members: 6,
+    capacity: 7,
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "g2",
+    name: "몰딥브 팀",
+    status: "active",
+    members: 3,
+    capacity: 8,
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "g3",
+    name: "결속밴드 아자자!",
+    status: "rest",
+    members: 0,
+    capacity: 4,
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "g4",
+    name: "네가보내주는고무짜는릴스가좋아",
+    status: "active",
+    members: 6,
+    capacity: 7,
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "g5",
+    name: "몰딥브 팀",
+    status: "active",
+    members: 3,
+    capacity: 8,
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "g6",
+    name: "결속밴드 아자자!",
+    status: "rest",
+    members: 0,
+    capacity: 4,
+    avatar: "/favicon.svg",
+  },
+];
+
+export const mates: Mate[] = [
+  {
+    id: "u1",
+    name: "김이름",
+    status: "active",
+    teams: ["팀이름예시1", "팀이름예시2"],
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "u2",
+    name: "박이름",
+    status: "inactive",
+    teams: [],
+    lastSeen: "2일 전",
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "u3",
+    name: "최이름",
+    status: "active",
+    teams: [],
+    avatar: "/favicon.svg",
+  },
+  {
+    id: "u4",
+    name: "이이름",
+    status: "inactive",
+    teams: [],
+    lastSeen: "3일 전",
+    avatar: "/favicon.svg",
+  },
+];

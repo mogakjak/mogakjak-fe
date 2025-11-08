@@ -35,7 +35,7 @@ export default function BoardMate() {
   };
 
   return (
-    <div className="p-4 ">
+    <div className="p-4">
       <h2 className="text-heading4-20SB text-black">
         내 모각작 메이트({total})
       </h2>
