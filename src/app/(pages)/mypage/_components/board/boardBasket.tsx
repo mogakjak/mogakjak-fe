@@ -27,8 +27,8 @@ export default function BoardBasket({
   const totalCount = characters.length;
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center  mb-6.5">
+    <div className="w-full h-full min-h-0 flex flex-col">
+      <div className="flex justify-between items-center  mb-3.5">
         <h2 className="text-heading4-20SB text-black">
           내 과일 바구니 ({unlockedCount}/{totalCount})
         </h2>
@@ -46,7 +46,7 @@ export default function BoardBasket({
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-4 gap-4 items-stretch h-full  auto-rows-fr">
         {characters.map((character, index) => (
           <Character
             key={`${character.name}-${index}`}
