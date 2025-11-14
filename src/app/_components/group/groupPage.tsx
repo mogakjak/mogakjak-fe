@@ -14,7 +14,11 @@ import SidebarButton from "./sidebar/sidebarButton";
 
 import Add from "/Icons/add.svg";
 
-export default function GroupPage() {
+type GroupPageProps = {
+  onExitGroup: () => void;
+};
+
+export default function GroupPage({ onExitGroup }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openNoti, setOpenNoti] = useState(false);
   useEffect(() => {
@@ -79,7 +83,7 @@ export default function GroupPage() {
             onClick={() => setOpenReview(true)}
             leftIcon={null}
             size="custom"
-            className="text-body1-16SB h-12 px-5 text-base rounded-2xl ml-auto"
+            className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
           >
             몰입 종료 후 나가기
           </Button>
@@ -92,7 +96,10 @@ export default function GroupPage() {
           onClick={() => setOpenReview(false)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <ReviewPopup onClose={() => setOpenReview(false)} />
+            <ReviewPopup
+              onClose={() => setOpenReview(false)}
+              onExitGroup={onExitGroup}
+            />
           </div>
         </div>
       )}
