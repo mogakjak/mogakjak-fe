@@ -2,20 +2,20 @@
 
 import { useState } from "react";
 import Icon from "../../common/Icons";
-import GoalModal from "../modal/goalModal";
 
 import SidebarButton from "./sidebarButton";
 import Notification from "/Icons/notification.svg";
+import NotiModal from "../modal/notiModal";
 
 export default function GroupGoal() {
-  const [openGoal, setOpenGoal] = useState(false);
+  const [openNoti, setOpenNoti] = useState(false);
 
   return (
     <>
       <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl flex-1">
         <div className="flex items-center justify-between">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
-          <SidebarButton className="px-7" onClick={() => setOpenGoal(true)}>
+          <SidebarButton className="px-7" onClick={() => setOpenNoti(true)}>
             <Icon Svg={Notification} size={24} className="text-black" />
             집중 체크 알림
           </SidebarButton>
@@ -33,13 +33,13 @@ export default function GroupGoal() {
         </div>
       </div>
 
-      {openGoal && (
+      {openNoti && (
         <div
           className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-          onClick={() => setOpenGoal(false)}
+          onClick={() => setOpenNoti(false)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <GoalModal onClose={() => setOpenGoal(false)} />
+            <NotiModal onClose={() => setOpenNoti(false)} />
           </div>
         </div>
       )}

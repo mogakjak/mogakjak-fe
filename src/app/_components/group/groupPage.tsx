@@ -8,7 +8,6 @@ import Icon from "../common/Icons";
 import ReviewPopup from "../common/review/reviewPopup";
 import { mockGroupFriends } from "@/app/_utils/mockData";
 import GroupTimer from "./sidebar/groupTimer";
-import NotiModal from "./modal/notiModal";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 
@@ -20,7 +19,6 @@ type GroupPageProps = {
 
 export default function GroupPage({ onExitGroup }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
-  const [openNoti, setOpenNoti] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -43,16 +41,7 @@ export default function GroupPage({ onExitGroup }: GroupPageProps) {
         </div>
         <GroupGoal></GroupGoal>
       </div>
-      {openNoti && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
-          onClick={() => setOpenNoti(false)}
-        >
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <NotiModal onClose={() => setOpenNoti(false)} />
-          </div>
-        </div>
-      )}
+
       <div className="bg-white rounded-2xl px-8 py-5">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
