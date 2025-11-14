@@ -54,14 +54,17 @@ function Category({
             isNew: false,
           }) satisfies Category,
       );
-      const seen = new Set(base.map((c) => c.id));
+      const baseIds = new Set(base.map((c) => c.id));
+      // prev에서 isNew 상태인 항목만 필터링
+      const newItems = prev.filter((item) => item.isNew === true);
+      // base + isNew인 항목들만 합치기
       const merged: Category[] = [...base];
-      for (const item of prev) {
-        if (!seen.has(item.id)) {
+      for (const item of newItems) {
+        if (!baseIds.has(item.id)) {
           merged.push(item);
-          seen.add(item.id);
         }
       }
+      
       return merged;
     });
   }, [categories]);

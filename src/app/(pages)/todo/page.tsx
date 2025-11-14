@@ -38,7 +38,6 @@ export default function TodoPage() {
     updateTodo,
     deleteTodo,
     toggleTodoComplete,
-    isLoading: isTodosLoading,
   } = useTodoController();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
@@ -215,22 +214,16 @@ export default function TodoPage() {
       </div>
 
       <div className="flex-1 p-10">
-        {isTodosLoading ? (
-          <div className="w-full h-full grid place-items-center">
-            <span className="text-neutral-500 text-base">할 일을 불러오는 중입니다…</span>
-          </div>
-        ) : (
-          <TodoSection
-            filter={filter}
-            dateLabel={dateLabel}
-            categories={todoListCategories}
-            onCreateTodo={handleCreateTodo}
-            onUpdateTodo={handleUpdateTodo}
-            onDeleteTodo={handleDeleteTodo}
-            onToggleTodo={handleToggleTodo}
-            className="mb-6"
-          />
-        )}
+        <TodoSection
+          filter={filter}
+          dateLabel={dateLabel}
+          categories={todoListCategories}
+          onCreateTodo={handleCreateTodo}
+          onUpdateTodo={handleUpdateTodo}
+          onDeleteTodo={handleDeleteTodo}
+          onToggleTodo={handleToggleTodo}
+          className="mb-6"
+        />
       </div>
     </main>
   );
