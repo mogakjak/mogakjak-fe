@@ -1,32 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { LinearProgress, linearProgressClasses, styled } from "@mui/material";
-
-const RoundedLinearProgress = styled(LinearProgress)(() => ({
-  height: 12,
-  borderRadius: 9999,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: "#e5e7eb",
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 9999,
-    backgroundColor: "#f87171",
-  },
-}));
+import CheerUp from "../../group/field/cheerUp";
 
 type PreviewCharacterProps = {
-  progress?: number;
+  state: boolean;
 };
 
-export default function PreviewCharacter({
-  progress = 50,
-}: PreviewCharacterProps) {
-  const v = Math.max(0, Math.min(100, Math.round(progress)));
-
+export default function PreviewCharacter({ state }: PreviewCharacterProps) {
   return (
     <div className="flex flex-col mb-2">
-      <p className="text-heading4-20SB mb-4">김나은 (나)</p>
+      <div className="flex justify-between mb-2">
+        <p className="text-heading4-20SB ">김나은 (나)</p>
+        {state && <CheerUp />}
+      </div>
       <div className="flex flex-col items-center pt-1.5 gap-5">
         <Image
           src="/character/tomato.svg"
