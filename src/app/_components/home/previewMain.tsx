@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getFormattedDate } from "../../_utils/getFormattedDate";
 import TodayPreview from "./preview/todayPreview";
 import PreviewCharacter from "./preview/previewCharacter";
@@ -20,7 +21,10 @@ export default function PreviewMain() {
           ></Image>
           <p>모각작하기</p>
         </button>
-        <button className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB">
+        <Link
+          href="/personal"
+          className="flex-1 bg-red-400 px-4 py-5 flex flex-col gap-2 items-center rounded-2xl text-white text-body1-16SB hover:bg-red-500 transition-colors"
+        >
           <Image
             src="/Icons/personalIcon.svg"
             alt="개인 몰입하기"
@@ -28,7 +32,7 @@ export default function PreviewMain() {
             height={60}
           ></Image>
           <p>개인 몰입하기</p>
-        </button>
+        </Link>
       </section>
 
       <section className="mt-9">
