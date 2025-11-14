@@ -10,6 +10,7 @@ import { mockGroupFriends } from "@/app/_utils/mockData";
 import GroupTimer from "./sidebar/groupTimer";
 import NotiModal from "./modal/notiModal";
 import GroupGoal from "./sidebar/groupGoal";
+import { Icon } from "@mui/material";
 
 export default function GroupPage() {
   const [openReview, setOpenReview] = useState(false);
@@ -29,7 +30,7 @@ export default function GroupPage() {
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="flex">
+      <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer />
@@ -61,11 +62,7 @@ export default function GroupPage() {
         </div>
       </div>
       <div className="flex flex-col gap-5 ml-5 self-stretch">
-        <Button
-          onClick={() => setOpenReview(true)}
-          className="flex-1"
-          leftIcon={null}
-        >
+        <Button onClick={() => setOpenReview(true)} leftIcon={null}>
           몰입 종료 후 나가기
         </Button>
       </div>

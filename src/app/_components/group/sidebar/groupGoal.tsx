@@ -12,16 +12,16 @@ export default function GroupGoal() {
 
   return (
     <>
-      <div className="flex flex-col mt-5 py-5 border-t border-b border-gray-200">
-        <div className="flex items-center justify-between w-full">
+      <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl flex-1">
+        <div className="flex items-center justify-between">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
-          <SidebarButton className="w-full" onClick={() => setOpenGoal(true)}>
+          <SidebarButton className="px-7" onClick={() => setOpenGoal(true)}>
             <Icon Svg={Notification} size={24} className="text-black" />
             집중 체크 알림
           </SidebarButton>
         </div>
 
-        <div className="flex gap-10 items-center justify-center mt-[27px]">
+        <div className="flex gap-10 items-center justify-center mt-4">
           <div className="flex flex-col items-center">
             <p className="text-body2-14R text-gray-600">목표 시간</p>
             <p className="text-heading3-24SB text-gray-800">0h 00m</p>
