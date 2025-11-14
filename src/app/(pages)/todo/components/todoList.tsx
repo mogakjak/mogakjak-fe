@@ -268,6 +268,10 @@ export default function TodoList({
                     date: editingTodo.date instanceof Date ? editingTodo.date : new Date(editingTodo.date),
                     targetSeconds: editingTodo.targetSeconds,
                   }
+                : selectedCategoryId
+                ? {
+                    categoryId: String(selectedCategoryId),
+                  }
                 : undefined
             }
             onSubmit={handleSubmit}
