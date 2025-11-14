@@ -1,13 +1,17 @@
 "use client";
 
 import TodoList from "./todoList";
-import { Category as CategoryType } from "@/app/_types/category";
+import type { Category as CategoryType } from "@/app/_types/category";
 import type { DayFilter } from "./category";
 
 export default function TodoSection({
   filter,
   dateLabel,
   categories,
+  onCreateTodo,
+  onUpdateTodo,
+  onDeleteTodo,
+  onToggleTodo,
 }: {
   filter: DayFilter;
   dateLabel?: string;
@@ -17,6 +21,10 @@ export default function TodoSection({
     categoryId: CategoryType["id"],
     expanded: boolean
   ) => void;
+  onCreateTodo?: Parameters<typeof TodoList>[0]["onCreateTodo"];
+  onUpdateTodo?: Parameters<typeof TodoList>[0]["onUpdateTodo"];
+  onDeleteTodo?: Parameters<typeof TodoList>[0]["onDeleteTodo"];
+  onToggleTodo?: Parameters<typeof TodoList>[0]["onToggleTodo"];
   className?: string;
 }) {
   const isToday = filter === "today";
@@ -41,7 +49,14 @@ export default function TodoSection({
       )}
 
       <div className="flex-1 overflow-y-auto">
-        <TodoList categories={categories} className="w-full" />
+        <TodoList
+          categories={categories}
+          className="w-full"
+          onCreateTodo={onCreateTodo}
+          onUpdateTodo={onUpdateTodo}
+          onDeleteTodo={onDeleteTodo}
+          onToggleTodo={onToggleTodo}
+        />
       </div>
     </section>
   );

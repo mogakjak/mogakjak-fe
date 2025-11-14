@@ -5,6 +5,7 @@ import clsx from "clsx";
 import Image from "next/image";
 
 export type WorkItemProps = {
+  id?: string;
   date: Date | string;
   title: string;
   targetSeconds: number;
@@ -57,7 +58,7 @@ export default function WorkItem({
     <div
       className={clsx(
         "w-full h-36 pl-4 pr-5 py-4 bg-gray-100 rounded-xl",
-        "outline-1 outline-offset-[-1px] outline-gray-200",
+        "outline-1 outline-gray-200",
         "inline-flex justify-start items-start gap-4 overflow-hidden",
         className,
       )}

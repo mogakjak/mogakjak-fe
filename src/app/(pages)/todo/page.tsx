@@ -6,12 +6,13 @@ import CategorySidebar, {
   type DayFilter,
 } from "./components/category";
 import TodoSection from "./components/todoSection";
-import { categoriesData } from "@/app/_utils/mockData";
 import {
   CATEGORY_COLOR_NAME_BY_TOKEN,
   CATEGORY_COLOR_TOKEN_BY_NAME,
   useTodoCategoryController,
 } from "@/app/_hooks/todoCategory";
+import { useTodoController } from "@/app/_hooks/todo";
+import type { Category as ListCategory } from "@/app/_types/category";
 
 function getKoreanDateLabel(d = new Date()) {
   const days = ["일", "월", "화", "수", "목", "금", "토"] as const;
@@ -31,18 +32,65 @@ export default function TodoPage() {
     deleteCategory,
     reorderCategories,
   } = useTodoCategoryController();
+  const {
+    todayTodos,
+    createTodo,
+    updateTodo,
+    deleteTodo,
+    toggleTodoComplete,
+    isLoading: isTodosLoading,
+  } = useTodoController();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
-  const sidebarCategories = useMemo<CatType[]>(
-    () =>
-      categories.map((category) => ({
+  const sidebarCategories = useMemo<CatType[]>(() => {
+    return categories.map((category) => {
+      const baseToken =
+        CATEGORY_COLOR_TOKEN_BY_NAME[
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+        ] ?? "category-1-red";
+      return {
         id: category.id,
         name: category.name,
-        colorToken: CATEGORY_COLOR_TOKEN_BY_NAME[category.color] ?? "bg-category-1-red",
+        colorToken: baseToken,
         isNew: false,
-      })),
-    [categories],
-  );
+      };
+    });
+  }, [categories]);
+
+  const todoListCategories = useMemo<ListCategory[]>(() => {
+    // todayTodos를 카테고리 ID로 매핑
+    const todosByCategoryId = new Map(
+      todayTodos.map((cat) => [cat.id, cat])
+    );
+    return categories
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((category) => {
+        const categoryWithTodos = todosByCategoryId.get(category.id);
+        const todos = categoryWithTodos?.todos ?? [];
+        
+        const baseToken =
+          CATEGORY_COLOR_TOKEN_BY_NAME[
+            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          ] ?? "category-1-red";
+        const colorToken = `bg-${baseToken}`;
+        
+        return {
+          id: category.id,
+          title: category.name,
+          barColorClass: colorToken,
+          colorToken: baseToken,
+          expanded: category.isExpanded ?? true,
+          items: todos.map((todo) => ({
+            id: todo.id,
+            date: todo.date,
+            title: todo.task,
+            targetSeconds: todo.targetTimeInSeconds,
+            currentSeconds: todo.actualTimeInSeconds,
+            completed: todo.isCompleted,
+          })),
+        };
+      });
+  }, [categories, todayTodos]);
 
   const handleCreateCategory = useCallback(
     async ({ name, colorToken }: { name: string; colorToken: string }) => {
@@ -72,6 +120,84 @@ export default function TodoPage() {
     [reorderCategories],
   );
 
+  const handleCreateTodo = useCallback(
+    async ({
+      categoryId,
+      title,
+      date,
+      targetSeconds,
+    }: {
+      categoryId: string;
+      title: string;
+      date: Date;
+      targetSeconds: number;
+    }) => {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      const formatted = `${yyyy}-${mm}-${dd}`;
+      await createTodo({
+        categoryId,
+        task: title,
+        date: formatted,
+        targetTimeInSeconds: targetSeconds,
+      });
+    },
+    [createTodo],
+  );
+
+  const handleUpdateTodo = useCallback(
+    async ({
+      todoId,
+      categoryId,
+      title,
+      date,
+      targetSeconds,
+    }: {
+      todoId: string;
+      categoryId: string;
+      title: string;
+      date: Date;
+      targetSeconds: number;
+    }) => {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      const formatted = `${yyyy}-${mm}-${dd}`;
+      await updateTodo({
+        todoId,
+        payload: {
+          categoryId,
+          task: title,
+          date: formatted,
+          targetTimeInSeconds: targetSeconds,
+        },
+      });
+    },
+    [updateTodo],
+  );
+
+  const handleDeleteTodo = useCallback(
+    async (todoId: string) => {
+      if (!todoId) return;
+      await deleteTodo(todoId);
+    },
+    [deleteTodo],
+  );
+
+  const handleToggleTodo = useCallback(
+    async (todoId: string, next: boolean) => {
+      if (!todoId) return;
+      const category = todayTodos.find((cat) =>
+        cat.todos.some((todo) => todo.id === todoId),
+      );
+      const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
+      if (current === next) return;
+      await toggleTodoComplete(todoId);
+    },
+    [todayTodos, toggleTodoComplete],
+  );
+
   return (
     <main className="min-h-screen bg-gray-100 flex">
       <div className="shrink-0">
@@ -89,12 +215,22 @@ export default function TodoPage() {
       </div>
 
       <div className="flex-1 p-10">
-        <TodoSection
-          filter={filter}
-          dateLabel={dateLabel}
-          categories={categoriesData}
-          className="mb-6"
-        />
+        {isTodosLoading ? (
+          <div className="w-full h-full grid place-items-center">
+            <span className="text-neutral-500 text-base">할 일을 불러오는 중입니다…</span>
+          </div>
+        ) : (
+          <TodoSection
+            filter={filter}
+            dateLabel={dateLabel}
+            categories={todoListCategories}
+            onCreateTodo={handleCreateTodo}
+            onUpdateTodo={handleUpdateTodo}
+            onDeleteTodo={handleDeleteTodo}
+            onToggleTodo={handleToggleTodo}
+            className="mb-6"
+          />
+        )}
       </div>
     </main>
   );
