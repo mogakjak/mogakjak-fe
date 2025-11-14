@@ -45,7 +45,7 @@ export default function RoomMain() {
 
   return (
     <div className="w-full p-6 pb-0 bg-white rounded-[20px]">
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between mb-2">
         <h2 className="text-heading4-20SB text-black">
           모각작 함께 몰입하는 시간
         </h2>

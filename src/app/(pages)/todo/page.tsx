@@ -199,7 +199,7 @@ export default function TodoPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gray-100 flex">
+    <main className="h-full w-full bg-gray-100 flex mt-9 gap-5">
       <div className="shrink-0">
         <CategorySidebar
           filter={filter}

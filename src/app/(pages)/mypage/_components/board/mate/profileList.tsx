@@ -117,11 +117,11 @@ export default function ProfileList({
   const paged = filtered.slice(start, start + pageSize);
 
   return (
-    <div className="flex flex-col h-[552px] mb-16">
+    <div className="flex flex-col h-[552px] mb-1">
       {paged.map((profile) => (
         <div
           key={profile.id}
-          className="flex items-center border-b border-gray-200 px-5 py-4"
+          className="flex items-center border-b border-gray-200 px-5 py-3"
         >
           <ProfileActive
             src={profile.src}
