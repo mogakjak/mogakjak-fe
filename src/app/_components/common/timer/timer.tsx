@@ -175,7 +175,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   }) => (
     <div className="inline-flex flex-col items-center gap-1">
       <span className="text-gray-400 text-caption-12SB">{label}</span>
-      <div className="inline-flex items-center bg-gray-100 p-2.5 gap-1 rounded-lg">
+      <div className="inline-flex items-center bg-gray-100 py-1 px-3 gap-1 rounded-lg">
         <Digit char={value[0]} inactive={inactive} />
         <Digit char={value[1]} inactive={inactive} />
       </div>
@@ -183,7 +183,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
   );
 
   const Colon = ({ inactive }: { inactive: boolean }) => (
-    <div className="h-15 grid place-items-center">
+    <div className="h-12 grid place-items-center">
       <div
         className={clsx(
           "flex flex-col items-center gap-1 translate-y-5",
@@ -203,7 +203,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
         className
       )}
     >
-      <div className="w-full max-w-[820px] px-4 py-4">
+      <div className="w-full max-w-[820px] px-4">
         <div className="w-fit mx-auto">
           <div className="flex items-start justify-center gap-3">
             <Unit label="HRS" value={H} inactive={isZeroInitial} />
@@ -213,7 +213,7 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
             <Unit label="SECS" value={S} inactive={isZeroInitial} />
           </div>
 
-          <div className="mt-3 relative h-8 bg-gray-100 rounded-lg outline-1 outline-gray-200 overflow-hidden w-full">
+          <div className="mt-3 relative h-6 bg-gray-100 rounded-lg outline-1 outline-gray-200 overflow-hidden w-full">
             <div
               className="absolute inset-[2px] rounded-md origin-left transition-transform duration-150 ease-linear"
               style={{

@@ -13,8 +13,8 @@ export default function HomePage() {
     setState(true);
   };
   return (
-    <main className="w-full max-w-[1440px] pt-9 mx-auto flex gap-5 overflow-x-hidden">
-      <div className="self-stretch">
+    <main className="w-full h-full max-w-[1440px] pt-9 mx-auto flex gap-5 overflow-x-hidden">
+      <div className="self-stretch ">
         <PreviewMain state={state} />
       </div>
       {state ? (

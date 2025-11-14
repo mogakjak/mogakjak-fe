@@ -10,7 +10,7 @@ import Countdown, { CountdownHandle } from "./timer";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
-const CONTENT_FIXED = "h-[140px]";
+const CONTENT_FIXED = "h-[110px]";
 
 export default function TimerComponent({
   className,

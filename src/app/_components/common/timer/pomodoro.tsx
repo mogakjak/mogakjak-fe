@@ -155,7 +155,7 @@ export default forwardRef<
   const cx = dial / 2;
   const cy = dial / 2;
   const rOuter = dial / 2 - 10;
-  const rFill = rOuter - 10;
+  const rFill = rOuter - 4;
   const all12 = Array.from({ length: 12 }, (_, i) => i * 30);
   const MAX_SECONDS = 60 * 60;
   const minutesRatio = targetSec > 0 ? Math.min(1, targetSec / MAX_SECONDS) : 0;

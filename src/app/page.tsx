@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
-    <main>
+    <main className="h-full">
       <WithMobileDetection>
         {({ isMobile }) => (isMobile ? <MobileHomePage /> : <HomePage />)}
       </WithMobileDetection>

@@ -65,15 +65,7 @@ export default function GroupMemberState({
 
   return (
     <div className="flex flex-col text-body2-14SB gap-1">
-      <p
-        className={`flex items-center gap-2 ${
-          status == "active"
-            ? "text-black"
-            : status == "rest"
-            ? "text-gray-600 "
-            : "text-gray-500"
-        }`}
-      >
+      <div className="flex items-center gap-2">
         <Icon
           Svg={statusIcon}
           size={20}
@@ -85,8 +77,18 @@ export default function GroupMemberState({
               : "text-gray-500"
           }`}
         />
-        {line1}
-      </p>
+        <p
+          className={`truncate ${
+            status == "active"
+              ? "text-black"
+              : status == "rest"
+              ? "text-gray-600 "
+              : "text-gray-500"
+          }`}
+        >
+          {line1}
+        </p>
+      </div>
       <p
         className={`flex items-center gap-2 ${
           status == "active"

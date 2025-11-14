@@ -28,12 +28,19 @@ export default function TimerButtons({
       <div className={clsx("w-full flex items-center gap-3", className)}>
         <Button
           variant="slate600"
-          className="flex-1 rounded-2xl"
+          size="custom"
+          className="text-body2-14SB h-9 text-base rounded-lg w-full"
           onClick={onStart}
           leftIcon={null}
         >
           <span className="inline-flex items-center gap-2">
-            <Image src="/Icons/startWhite.svg" alt="start" width={24} height={24} className="w-6 h-6" />
+            <Image
+              src="/Icons/startWhite.svg"
+              alt="start"
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
             시작할래요
           </span>
         </Button>
@@ -47,23 +54,43 @@ export default function TimerButtons({
     <div className={clsx("w-full flex items-center gap-3", className)}>
       <Button
         variant="slate600"
-        className={clsx("rounded-2xl", isPomodoro ? "flex-1" : "flex-1")}
+        className={clsx(
+          " text-body2-14SB h-8 text-base rounded-lg w-full",
+          isPomodoro ? "flex-1" : "flex-1"
+        )}
+        size="custom"
         onClick={onPause}
         leftIcon={null}
       >
         <span className="inline-flex items-center gap-2 justify-center">
-          <Image src="/Icons/pauseWhite.svg" alt="pause" width={24} height={24} className="w-6 h-6" />
+          <Image
+            src="/Icons/pauseWhite.svg"
+            alt="pause"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
           휴식
         </span>
       </Button>
       <Button
         variant="primary"
-        className={clsx("rounded-2xl", isPomodoro ? "w-[180px]" : "flex-1")}
+        className={clsx(
+          " text-body2-14SB h-8 text-base rounded-lg w-full",
+          isPomodoro ? "flex-1" : "flex-1"
+        )}
+        size="custom"
         onClick={onStop}
         leftIcon={null}
       >
         <span className="inline-flex items-center gap-2 justify-center">
-          <Image src="/Icons/stopWhite.svg" alt="stop" width={24} height={24} className="w-6 h-6" />
+          <Image
+            src="/Icons/stopWhite.svg"
+            alt="stop"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
           종료
         </span>
       </Button>

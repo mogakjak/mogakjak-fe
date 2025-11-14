@@ -11,7 +11,7 @@ type PreviewMainProps = {
 
 export default function PreviewMain({ state }: PreviewMainProps) {
   return (
-    <div className="h-full w-[327px] min-w-[327px] flex flex-col px-6 py-6 rounded-[20px] bg-white">
+    <div className="h-full w-[327px] min-w-[327px] flex flex-col justify-between px-6 py-6 rounded-[20px] bg-white">
       <PreviewCharacter />
       {state ? <GroupMySidebar /> : <Quotes />}
       <TimerComponent></TimerComponent>

@@ -24,8 +24,6 @@ export default function GroupFriendField({
   isPublic = true,
   activeTime = 0,
 }: GroupFriendFieldProps) {
-  const [friendMsg, setFriendMsg] = React.useState("");
-
   const isActive = status === "end";
 
   const avatarSrc = isActive
@@ -33,8 +31,8 @@ export default function GroupFriendField({
     : `/character/level${level}.svg`;
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <div className="bg-white p-4 pt-3 rounded-t-xl w-[253px] h-[168px]">
+    <div className="flex flex-col">
+      <div className="bg-white p-4 pt-3 rounded-t-xl w-[224px] h-[144px] border-2 border-gray-200">
         <section
           className={`flex items-center ${
             isActive ? "justify-start" : "justify-between"
@@ -49,17 +47,13 @@ export default function GroupFriendField({
           {!isActive && <CheerUp />}
         </section>
 
-        <section
-          className={`flex mt-5 ${
-            isActive ? "justify-center" : "justify-between"
-          }`}
-        >
-          <Image src={avatarSrc} alt="토마토" width={100} height={100} />
+        <section className={`flex mt-2 justify-center`}>
+          <Image src={avatarSrc} alt="토마토" width={90} height={90} />
         </section>
       </div>
 
       <div
-        className={` rounded-b-xl px-5 py-3 ${
+        className={` rounded-b-xl px-3 py-3 border-2 border-gray-200 border-t-0 ${
           isActive ? "bg-gray-200" : "bg-red-50"
         }`}
       >

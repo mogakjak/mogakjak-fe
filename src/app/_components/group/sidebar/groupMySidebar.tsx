@@ -53,7 +53,7 @@ export default function GroupMySidebar() {
           isTaskOpen={isTaskOpen}
           setIsTaskOpen={setIsTaskOpen}
         />
-        <div className="flex flex-col gap-1 mt-3">
+        <div className="flex flex-col gap-1 mt-2">
           <div className="flex items-center">
             <Icon Svg={Clock} size={24} className={"text-gray-400"} />
             <h3 className="text-body2-14SB ml-1">00 : 00 : 00</h3>
@@ -65,7 +65,7 @@ export default function GroupMySidebar() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 mt-2 bg-gray-100 rounded-lg px-4 py-3">
+      <div className="flex flex-col gap-1 mt-4 bg-gray-100 rounded-lg px-4 py-3">
         <p className="text-caption-12SB text-gray-600">
           <b className="text-black mr-2">목표시간</b>{" "}
           {formatSeconds(selectedWork?.targetSeconds ?? 0)}

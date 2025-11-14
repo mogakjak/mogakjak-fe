@@ -25,8 +25,8 @@ export default function PreviewCharacter({
   const v = Math.max(0, Math.min(100, Math.round(progress)));
 
   return (
-    <div className="flex flex-col">
-      <p className="text-heading4-20SB mb-6">김나은 (나)</p>
+    <div className="flex flex-col mb-2">
+      <p className="text-heading4-20SB mb-4">김나은 (나)</p>
       <div className="flex flex-col items-center pt-1.5 gap-5">
         <Image
           src="/character/tomato.svg"
