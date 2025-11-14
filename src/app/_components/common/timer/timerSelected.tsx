@@ -13,7 +13,7 @@ export default function TimerSelected({
 }: {
   value?: Mode;
   onChange?: (v: Mode) => void;
-  size?: "custom";
+  size?: "md" | "sm" | "custom";
   className?: string;
 }) {
   return (

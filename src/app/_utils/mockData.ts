@@ -1,6 +1,6 @@
 import type { Category as ListCategory } from "@/app/_types/category";
 import { GroupFriendFieldProps } from "../_components/group/field/groupFriendField";
-import type { Friend } from "@/app/_components/personal/friendList";
+import type { Friend } from "../_types/friends";
 import type { ForkGroup } from "@/app/_components/common/forkPopup";
 import { Group } from "../_components/group/baseGroup";
 import { Mate } from "../_components/group/newGroup";
