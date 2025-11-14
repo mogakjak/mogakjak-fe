@@ -40,21 +40,23 @@ export default function GroupTimer() {
   };
 
   return (
-    <div className="w-[311px] h-[149px] bg-gray-100 border border-gray-200 flex flex-col justify-center items-center rounded-lg p-5">
-      <p
-        className={`text-heading1-32B  ${
-          status === "running" ? "text-gray-800" : "text-gray-400"
-        }`}
-      >
-        {formatTime(elapsedSeconds)}
-      </p>
-      <p
-        className={`text-body2-14R mb-3  ${
-          status === "running" ? "text-gray-800" : "text-gray-400"
-        }`}
-      >
-        누적 시간 {formatTime(totalSeconds)}
-      </p>
+    <div className="w-full h-[149px] flex items-center gap-5">
+      <div className="flex flex-col rounded-2xl px-[77px] py-[7px] bg-gray-100">
+        <p
+          className={`text-heading1-32B  ${
+            status === "running" ? "text-gray-800" : "text-gray-400"
+          }`}
+        >
+          {formatTime(elapsedSeconds)}
+        </p>
+        <p
+          className={`text-body1-16M ${
+            status === "running" ? "text-gray-800" : "text-gray-400"
+          }`}
+        >
+          누적 시간 {formatTime(totalSeconds)}
+        </p>
+      </div>
 
       {status === "idle" && (
         <button
@@ -62,25 +64,25 @@ export default function GroupTimer() {
           className="bg-red-400 py-1.5 text-white rounded-lg w-full text-body2-14SB flex justify-center items-center gap-2"
         >
           <Icon Svg={StartIcon} size={24} className="text-white" />
-          시작할래요
+          시작
         </button>
       )}
 
       {status === "running" && (
-        <div className="flex  w-full gap-2">
+        <div className="flex flex-col w-full gap-2">
           <button
             onClick={handlePause}
             className="w-full text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-0.5"
           >
             <Icon Svg={Pause} size={24} className="text-white" />
-            휴식할래요
+            휴식
           </button>
           <button
             onClick={handleStop}
             className="w-full text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-0.5"
           >
             <Icon Svg={Stop} size={24} className="text-white" />
-            종료할래요
+            종료
           </button>
         </div>
       )}

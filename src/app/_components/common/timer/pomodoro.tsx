@@ -20,9 +20,16 @@ export type PomodoroDialHandle = {
   getSeconds: () => number;
 };
 
+function roundCoord(v: number, decimals = 6) {
+  const factor = 10 ** decimals;
+  return Math.round(v * factor) / factor;
+}
+
 function polarToCartesian(cx: number, cy: number, r: number, deg: number) {
   const a = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  const x = cx + r * Math.cos(a);
+  const y = cy + r * Math.sin(a);
+  return { x: roundCoord(x), y: roundCoord(y) };
 }
 
 function norm360(d: number) {

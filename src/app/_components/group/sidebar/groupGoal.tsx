@@ -4,8 +4,9 @@ import { useState } from "react";
 import Icon from "../../common/Icons";
 import GoalModal from "../modal/goalModal";
 
-// 아이콘
-import Edit from "/Icons/edit.svg";
+import SidebarButton from "./sidebarButton";
+import Notification from "/Icons/notification.svg";
+
 export default function GroupGoal() {
   const [openGoal, setOpenGoal] = useState(false);
 
@@ -14,9 +15,10 @@ export default function GroupGoal() {
       <div className="flex flex-col mt-5 py-5 border-t border-b border-gray-200">
         <div className="flex items-center justify-between w-full">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
-          <button onClick={() => setOpenGoal(true)}>
-            <Icon Svg={Edit} size={24} className="text-gray-600" />
-          </button>
+          <SidebarButton className="w-full" onClick={() => setOpenGoal(true)}>
+            <Icon Svg={Notification} size={24} className="text-black" />
+            집중 체크 알림
+          </SidebarButton>
         </div>
 
         <div className="flex gap-10 items-center justify-center mt-[27px]">

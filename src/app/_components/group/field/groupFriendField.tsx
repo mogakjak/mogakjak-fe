@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import MemberProfile from "../../home/room/memberProfile";
 import CheerUp from "./cheerUp";
-import MessageBubble from "./messageBubble";
+
 import GroupMemberState from "./groupMemberState";
 
 type Status = "active" | "rest" | "end";
@@ -55,13 +55,6 @@ export default function GroupFriendField({
           }`}
         >
           <Image src={avatarSrc} alt="토마토" width={100} height={100} />
-          {!isActive && (
-            <MessageBubble
-              type="friend"
-              value={friendMsg}
-              onChange={setFriendMsg}
-            />
-          )}
         </section>
       </div>
 

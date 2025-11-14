@@ -111,14 +111,6 @@ export const mockGroupFriends = [
     isPublic: true,
     activeTime: 90,
   },
-  {
-    id: 9,
-    status: "active",
-    friendName: "라디쉬",
-    level: 2,
-    isPublic: true,
-    activeTime: 460,
-  },
 ] satisfies ({ id: number } & GroupFriendFieldProps)[];
 
 export const mockFriends: Friend[] = [
