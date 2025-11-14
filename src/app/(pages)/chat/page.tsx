@@ -30,12 +30,20 @@ export default function ChatPage() {
       <div className="max-w-2xl mx-auto bg-white rounded-[20px] shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-heading3-24SB text-black">채팅방 목록</h1>
-          <button
-            onClick={() => refetch()}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-body2-14R text-gray-700 transition-colors"
-          >
-            새로고침
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => router.push("/chat/users")}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-body2-14R transition-colors"
+            >
+              사용자 목록
+            </button>
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-body2-14R text-gray-700 transition-colors"
+            >
+              새로고침
+            </button>
+          </div>
         </div>
 
         {loading && (

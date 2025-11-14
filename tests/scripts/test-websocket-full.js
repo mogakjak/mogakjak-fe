@@ -4,7 +4,7 @@ const SockJS = require("sockjs-client");
 const Stomp = require("webstomp-client");
 const axios = require("axios");
 
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080";
 
 async function testWebSocket() {
   console.log("🔐 1단계: 로그인 시도...\n");

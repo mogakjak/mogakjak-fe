@@ -4,7 +4,11 @@ const SockJS = require("sockjs-client");
 const Stomp = require("webstomp-client");
 const axios = require("axios");
 
-const API_BASE_URL = "http://localhost:8080";
+// 환경 변수로 API 주소 설정 가능 (기본값: localhost:8080)
+// 프로덕션 테스트: API_BASE_URL=https://mogakjak.site node tests/scripts/test-websocket-with-token.js
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080";
+
+console.log(`🌐 API Base URL: ${API_BASE_URL}`);
 
 // 제공된 액세스 토큰
 const accessToken =
@@ -12,45 +16,49 @@ const accessToken =
 
 const email = "esther0904@naver.com";
 
-async function testWebSocket() {
+async function testWebSocket(roomIdOverride) {
   console.log("🌐 웹소켓 연결 테스트 시작...\n");
 
   try {
-    // 먼저 채팅방 목록 조회
-    console.log("📋 1단계: 채팅방 목록 조회...");
-    const chatRoomsResponse = await axios.get(
-      `${API_BASE_URL}/chat/room/group/list`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }
-    );
+    let testRoomId = roomIdOverride;
 
-    console.log(`   ✅ 채팅방 목록 조회 성공`);
-    console.log(`   채팅방 수: ${chatRoomsResponse.data.length}\n`);
+    // roomId가 제공되지 않으면 채팅방 목록 조회
+    if (!testRoomId) {
+      console.log("📋 1단계: 채팅방 목록 조회...");
+      const chatRoomsResponse = await axios.get(
+        `${API_BASE_URL}/chat/room/group/list`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
 
-    if (chatRoomsResponse.data.length === 0) {
-      console.log("⚠️  채팅방이 없습니다.");
-      console.log("   채팅방을 생성하거나, 내 채팅방 목록을 확인합니다...\n");
+      console.log(`   ✅ 채팅방 목록 조회 성공`);
+      console.log(`   채팅방 수: ${chatRoomsResponse.data.length}\n`);
 
-      // 내 채팅방 목록 확인
-      const myRoomsResponse = await axios.get(`${API_BASE_URL}/chat/my/rooms`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      console.log(`   내 채팅방 수: ${myRoomsResponse.data.length}\n`);
+      if (chatRoomsResponse.data.length === 0) {
+        console.log("⚠️  채팅방이 없습니다.");
+        console.log("   채팅방을 생성하거나, 내 채팅방 목록을 확인합니다...\n");
 
-      if (myRoomsResponse.data.length === 0) {
-        console.log("⚠️  테스트할 채팅방이 없습니다.");
-        console.log("   채팅방이 없어도 웹소켓 연결만 테스트합니다...\n");
+        // 내 채팅방 목록 확인
+        const myRoomsResponse = await axios.get(`${API_BASE_URL}/chat/my/rooms`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        console.log(`   내 채팅방 수: ${myRoomsResponse.data.length}\n`);
+
+        if (myRoomsResponse.data.length === 0) {
+          console.log("⚠️  테스트할 채팅방이 없습니다.");
+          console.log("   채팅방이 없어도 웹소켓 연결만 테스트합니다...\n");
+          testRoomId = "test-room-id";
+        } else {
+          // 내 채팅방 중 하나 사용
+          testRoomId = String(myRoomsResponse.data[0].roomId);
+        }
       } else {
-        // 내 채팅방 중 하나 사용
-        const testRoomId = String(myRoomsResponse.data[0].roomId);
-        testWebSocketConnection(testRoomId);
-        return;
+        // 첫 번째 채팅방으로 테스트
+        testRoomId = String(chatRoomsResponse.data[0].roomId);
       }
     }
 
-    // 첫 번째 채팅방으로 테스트
-    const testRoomId = String(chatRoomsResponse.data[0].roomId);
     console.log(`📡 2단계: 웹소켓 연결 테스트 (roomId: ${testRoomId})...\n`);
 
     testWebSocketConnection(testRoomId);
@@ -177,4 +185,6 @@ function testWebSocketConnection(roomId) {
 }
 
 // 테스트 실행
-testWebSocket();
+// 환경 변수로 roomId 지정 가능: ROOM_ID=xxx node tests/scripts/test-websocket-with-token.js
+const roomIdFromEnv = process.env.ROOM_ID;
+testWebSocket(roomIdFromEnv);

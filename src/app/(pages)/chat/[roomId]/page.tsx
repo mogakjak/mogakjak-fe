@@ -18,6 +18,8 @@ export default function ChatRoomPage({ params }: ChatRoomPageProps) {
   const [joining, setJoining] = useState(false);
   const { isConnected, isConnecting, messages, error, sendMessage } =
     useChatSocket(roomId, hasJoined);
+  
+  // 메시지가 추가될 때마다 스크롤
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

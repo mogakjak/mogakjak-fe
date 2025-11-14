@@ -24,7 +24,72 @@ export function useChatSocket(roomId?: string, shouldConnect: boolean = true) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const clientRef = useRef<Client | null>(null);
+
+  // 채팅 히스토리 불러오기
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!roomId || !ready || !isLoggedIn || historyLoaded) {
+        return;
+      }
+
+      try {
+        console.log("📜 채팅 히스토리 불러오기 시작...");
+        const response = await fetch(`/api/chat/history/${roomId}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const history = await response.json();
+          console.log("📜 채팅 히스토리:", history);
+          
+          // 응답이 배열이거나 { data: [...] } 형태일 수 있음
+          const messagesList = Array.isArray(history) ? history : history.data || [];
+          
+          // ChatMessage 형태로 변환
+          // 백엔드 응답: { roomId, message, senderEmail }
+          const formattedMessages: ChatMessage[] = messagesList.map(
+            (msg: {
+              roomId?: string | null;
+              message: string;
+              senderEmail: string;
+              timestamp?: string;
+              createdAt?: string;
+              sentAt?: string;
+            }) => ({
+              senderEmail: msg.senderEmail || "",
+              message: msg.message || "",
+              roomId: msg.roomId || roomId, // roomId가 null이면 URL의 roomId 사용
+              timestamp: msg.timestamp || msg.createdAt || msg.sentAt,
+            })
+          );
+
+          // 시간순으로 정렬 (오래된 것부터)
+          formattedMessages.sort((a, b) => {
+            if (a.timestamp && b.timestamp) {
+              return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+            }
+            return 0;
+          });
+
+          setMessages(formattedMessages);
+          setHistoryLoaded(true);
+          console.log(`✅ 채팅 히스토리 ${formattedMessages.length}개 불러오기 완료`);
+        } else {
+          console.warn("⚠️ 채팅 히스토리 불러오기 실패 (새 채팅방일 수 있음)");
+          setHistoryLoaded(true); // 실패해도 계속 진행
+        }
+      } catch (err) {
+        console.error("❌ 채팅 히스토리 불러오기 오류:", err);
+        setHistoryLoaded(true); // 실패해도 계속 진행
+      }
+    };
+
+    loadChatHistory();
+  }, [roomId, ready, isLoggedIn, historyLoaded]);
 
   useEffect(() => {
     if (!roomId) {
@@ -101,7 +166,21 @@ export function useChatSocket(roomId?: string, shouldConnect: boolean = true) {
                   const payload: ChatMessage = JSON.parse(message.body);
                   console.log("✅ [채팅] 파싱된 메시지:", payload);
 
-                  setMessages((prev) => [...prev, payload]);
+                  // 중복 메시지 방지 (같은 timestamp나 ID가 있으면 추가하지 않음)
+                  setMessages((prev) => {
+                    // 이미 같은 메시지가 있는지 확인
+                    const isDuplicate = prev.some(
+                      (msg) =>
+                        msg.message === payload.message &&
+                        msg.senderEmail === payload.senderEmail &&
+                        msg.timestamp === payload.timestamp
+                    );
+                    if (isDuplicate) {
+                      console.log("⚠️ 중복 메시지 무시:", payload);
+                      return prev;
+                    }
+                    return [...prev, payload];
+                  });
                   setError(null);
                 } catch (err) {
                   console.error("❌ [채팅] 메시지 파싱 실패:", err);
