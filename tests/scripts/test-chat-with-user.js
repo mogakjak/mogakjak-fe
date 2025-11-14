@@ -8,7 +8,8 @@ const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080";
 const accessToken =
   "eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoi7Jqw7J2A7KeEIiwidHlwIjoiYWNjZXNzIiwidXNlcklkIjoiN2YwMDAwMDEtOTlkZi0xZTU1LTgxOTktZGYzMDViYzcwMDAwIiwiZW1haWwiOiJlc3RoZXIwOTA0QG5hdmVyLmNvbSIsInN1YiI6ImVzdGhlcjA5MDRAbmF2ZXIuY29tIiwiaXNzIjoibW9nYWtqYWsiLCJpYXQiOjE3NjMxMTQwMzYsImV4cCI6MTc2NjcxNDAzNn0.BH_PZ5a7OR5XecPhtzVaS1L-2q-KNTfvDpsDLC51Bco";
 
-// 상대방 UUID
+// 상대방 UUID (환경 변수로 지정 가능)
+// 예: TARGET_USER_ID=7f000001-99df-1528-8199-df35e8f00000 API_BASE_URL=https://mogakjak.site node tests/scripts/test-chat-with-user.js
 const targetUserId = process.env.TARGET_USER_ID || "7f000001-99df-1528-8199-df35e8f00000";
 
 console.log(`🌐 API Base URL: ${API_BASE_URL}`);
@@ -44,21 +45,21 @@ async function findOrCreateChatRoom() {
     console.log("   채팅방 생성 시도...\n");
 
     // 1:1 채팅방 생성 시도
-    // 실제 API 엔드포인트는 백엔드에 따라 다를 수 있음
+    // 백엔드 API: POST /chat/room/private/create?otherMemberId={uuid}
     try {
       const createResponse = await axios.post(
-        `${API_BASE_URL}/chat/room/personal/create`,
-        {
-          targetUserId: targetUserId,
-        },
+        `${API_BASE_URL}/chat/room/private/create?otherMemberId=${targetUserId}`,
+        {},
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
 
-      console.log(`✅ 채팅방 생성 성공!`);
-      console.log(`   채팅방 ID: ${createResponse.data.roomId}\n`);
-      return createResponse.data.roomId;
+      // 응답이 UUID 문자열일 수 있음
+      const roomId = createResponse.data?.roomId || createResponse.data || createResponse.data?.data;
+      console.log(`✅ 개인 채팅방 생성 성공!`);
+      console.log(`   채팅방 ID: ${roomId}\n`);
+      return String(roomId);
     } catch (createError) {
       if (createError.response?.status === 404) {
         console.log("⚠️  1:1 채팅방 생성 API가 없습니다.");

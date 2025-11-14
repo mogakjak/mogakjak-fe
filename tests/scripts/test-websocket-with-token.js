@@ -40,9 +40,12 @@ async function testWebSocket(roomIdOverride) {
         console.log("   채팅방을 생성하거나, 내 채팅방 목록을 확인합니다...\n");
 
         // 내 채팅방 목록 확인
-        const myRoomsResponse = await axios.get(`${API_BASE_URL}/chat/my/rooms`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const myRoomsResponse = await axios.get(
+          `${API_BASE_URL}/chat/my/rooms`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
         console.log(`   내 채팅방 수: ${myRoomsResponse.data.length}\n`);
 
         if (myRoomsResponse.data.length === 0) {
