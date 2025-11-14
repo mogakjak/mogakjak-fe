@@ -98,7 +98,8 @@ export default function TodoList({
 }: TodoListProps) {
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
     categories.reduce((acc, c) => {
-      acc[c.id] = c.expanded ?? true;
+      // 할일이 있으면 expanded ?? true, 없으면 false
+      acc[c.id] = c.items.length > 0 ? (c.expanded ?? true) : false;
       return acc;
     }, {} as Record<string | number, boolean>)
   );
@@ -120,8 +121,9 @@ export default function TodoList({
       const next = { ...prev };
       let changed = false;
       categories.forEach((cat) => {
-        if (!(cat.id in next)) {
-          next[cat.id] = cat.expanded ?? true;
+        const shouldBeOpen = cat.items.length > 0 ? (cat.expanded ?? true) : false;
+        if (!(cat.id in next) || next[cat.id] !== shouldBeOpen) {
+          next[cat.id] = shouldBeOpen;
           changed = true;
         }
       });
@@ -153,7 +155,6 @@ export default function TodoList({
   }) => {
     let todoDate: Date;
     if (typeof todo.date === "string") {
-      // YYYY-MM-DD 형식인 경우
       const [year, month, day] = todo.date.split("-").map(Number);
       todoDate = new Date(year, month - 1, day);
     } else {
@@ -210,7 +211,8 @@ export default function TodoList({
       >
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           {categories.map((cat) => {
-            const expanded = openMap[cat.id] ?? true;
+            // 할일이 있으면 openMap 값 사용, 없으면 false
+            const expanded = cat.items.length > 0 ? (openMap[cat.id] ?? true) : false;
             return (
               <Fragment key={cat.id}>
                 <CategoryHeader

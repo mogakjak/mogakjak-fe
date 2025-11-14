@@ -86,14 +86,14 @@ export default function WorkItem({
       </button>
 
       <div className={clsx("flex-1 inline-flex flex-col justify-start items-start gap-5", completed && "opacity-50")}>
-        <div className="self-stretch inline-flex justify-between items-start">
+        <div className="self-stretch inline-flex justify-between items-center">
           <div className="inline-flex flex-col justify-start items-start gap-1">
-            <div className="text-center justify-center text-zinc-500 text-xs font-normal leading-none">
+            <div className="text-zinc-500 text-xs font-normal leading-none">
               {toDateLabel(date)}
             </div>
             <div
               className={clsx(
-                "text-center justify-center text-neutral-700 text-base font-semibold leading-snug",
+                "text-neutral-700 text-base font-semibold leading-snug",
                 completed && "line-through",
               )}
             >
@@ -113,21 +113,21 @@ export default function WorkItem({
 
         <div className="self-stretch flex flex-col justify-start items-start gap-2">
           <div className="self-stretch inline-flex justify-between items-center">
-            <div className="text-right justify-center text-red-500 text-base font-semibold leading-snug">
+            <div className="text-red-500 text-base font-semibold leading-snug">
               {percentLabel}
             </div>
 
             <div className="flex justify-start items-center gap-7">
               <div className="flex justify-start items-center gap-2">
-                <div className="justify-center text-zinc-700 text-sm font-normal leading-tight">목표 달성 시간</div>
-                <div className="justify-center text-zinc-500 text-sm font-normal leading-tight">
+                <div className="text-zinc-700 text-sm font-normal leading-tight">목표 달성 시간</div>
+                <div className="text-zinc-500 text-sm font-normal leading-tight">
                   {toHHMMSS(safeTarget)}
                 </div>
               </div>
 
               <div className="flex justify-start items-center gap-2">
-                <div className="justify-center text-zinc-700 text-sm font-normal leading-tight">현재 달성 시간</div>
-                <div className="justify-center text-zinc-500 text-sm font-normal leading-tight">
+                <div className="text-zinc-700 text-sm font-normal leading-tight">현재 달성 시간</div>
+                <div className="text-zinc-500 text-sm font-normal leading-tight">
                   {toHHMMSS(displayCurrent)}
                 </div>
               </div>
