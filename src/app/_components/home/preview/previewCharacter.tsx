@@ -25,28 +25,16 @@ export default function PreviewCharacter({
   const v = Math.max(0, Math.min(100, Math.round(progress)));
 
   return (
-    <div className="flex flex-col border border-gray-200 rounded-[12px] p-4 mt-5">
-      <div className="flex flex-col items-center pt-1.5 gap-2">
+    <div className="flex flex-col">
+      <p className="text-heading4-20SB mb-6">김나은 (나)</p>
+      <div className="flex flex-col items-center pt-1.5 gap-5">
         <Image
           src="/character/tomato.svg"
           alt="캐릭터"
           width={135}
           height={135}
         />
-        <p className="text-body1-16SB text-red-500">Lv2.부끄뽀모</p>
-      </div>
-      <p className="text-center mt-[27px]">다음 캐릭터 획득까지</p>
-      <div className="flex items-center gap-2 mt-1">
-        <div className="flex-1">
-          <RoundedLinearProgress
-            variant="determinate"
-            value={v}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={v}
-          />
-        </div>
-        <span className="text-red-400 text-body1-16SB">{v}%</span>
+        <p className="text-body1-16SB">Lv2.부끄뽀모</p>
       </div>
     </div>
   );

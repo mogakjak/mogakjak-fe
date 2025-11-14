@@ -54,7 +54,7 @@ export default function RoomMain() {
         </Button>
       </div>
 
-      <div className="h-[380px] overflow-y-auto">
+      <div className="h-[320px] overflow-y-auto">
         <GroupRoom variant="guide" />
         {groups.map((g) => (
           <GroupRoom key={g.id} group={g} />

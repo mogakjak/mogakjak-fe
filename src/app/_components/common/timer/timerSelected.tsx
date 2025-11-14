@@ -2,52 +2,48 @@
 
 import clsx from "clsx";
 import { Button } from "@/components/button";
-import { Icon } from "./Icon";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
 export default function TimerSelected({
   value = "pomodoro",
   onChange,
-  size = "md",
-  className,
+  size = "custom",
+  className = "text-body2-14SB h-8 text-base rounded-lg w-full",
 }: {
   value?: Mode;
   onChange?: (v: Mode) => void;
-  size?: "md" | "sm";
+  size?: "custom";
   className?: string;
 }) {
   return (
-    <div className={clsx("inline-flex items-center gap-2", className)}>
+    <div className={clsx("grid grid-cols-3 gap-1", className)}>
       <Button
         variant={value === "pomodoro" ? "selected" : "muted"}
-        size={size}
-        className="min-w-[181px] justify-start"
         onClick={() => onChange?.("pomodoro")}
-        leftIcon={<Icon name="pomodoro" />}
+        size={size}
         aria-pressed={value === "pomodoro"}
+        className={className}
       >
         뽀모도로
       </Button>
 
       <Button
         variant={value === "stopwatch" ? "selected" : "muted"}
-        size={size}
-        className="min-w-[181px] justify-start"
         onClick={() => onChange?.("stopwatch")}
-        leftIcon={<Icon name="stopwatch" />}
         aria-pressed={value === "stopwatch"}
+        size={size}
+        className={className}
       >
         스톱워치
       </Button>
 
       <Button
         variant={value === "timer" ? "selected" : "muted"}
-        size={size}
-        className="min-w-[181px] justify-start"
         onClick={() => onChange?.("timer")}
-        leftIcon={<Icon name="timer" />}
+        size={size}
         aria-pressed={value === "timer"}
+        className={className}
       >
         타이머
       </Button>

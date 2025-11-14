@@ -4,9 +4,15 @@ import Image from "next/image";
 import clsx from "clsx";
 
 type Variant =
-  | "primary" | "brick" | "salmon" | "slate700" | "neutral700"
-  | "slate600" | "muted" | "selected";
-type Size = "md" | "sm";
+  | "primary"
+  | "brick"
+  | "salmon"
+  | "slate700"
+  | "neutral700"
+  | "slate600"
+  | "muted"
+  | "selected";
+type Size = "md" | "sm" | "custom";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -21,7 +27,8 @@ const VARIANT_CLASS: Record<Variant, string> = {
   brick: "bg-orange-800 text-neutral-50 hover:opacity-95 active:opacity-90",
   salmon: "bg-red-400 text-neutral-50 hover:opacity-95 active:opacity-90",
   slate700: "bg-zinc-700 text-neutral-50 hover:opacity-95 active:opacity-90",
-  neutral700: "bg-neutral-700 text-neutral-50 hover:opacity-95 active:opacity-90",
+  neutral700:
+    "bg-neutral-700 text-neutral-50 hover:opacity-95 active:opacity-90",
   slate600: "bg-zinc-600 text-neutral-50 hover:opacity-95 active:opacity-90",
   muted: "bg-gray-200 text-gray-700 hover:bg-gray-200 active:opacity-95",
   selected:
@@ -31,6 +38,7 @@ const VARIANT_CLASS: Record<Variant, string> = {
 const SIZE_CLASS: Record<Size, string> = {
   md: "h-12 px-6 py-3 text-base rounded-xl",
   sm: "h-10 px-4 py-2 text-sm rounded-lg",
+  custom: "",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
