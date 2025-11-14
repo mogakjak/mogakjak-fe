@@ -18,16 +18,18 @@ import {
   type UpdateTodoCategoryPayload,
 } from "../api/todos/categories/api";
 import { todoCategoryKeys } from "../api/todos/categories/keys";
+import { todoKeys } from "../api/todos/keys";
 import type { TodoCategory, TodoCategoryColor } from "../api/todos/categories/types";
+import type { CategoryColorToken } from "../_types/category";
 
-export const CATEGORY_COLOR_TOKEN_BY_NAME: Record<TodoCategoryColor, string> = {
-  RED: "bg-category-1-red",
-  ORANGE: "bg-category-2-orange",
-  YELLOW: "bg-category-3-yellow",
-  GREEN: "bg-category-4-green",
-  BLUE: "bg-category-5-skyblue",
-  INDIGO: "bg-category-6-blue",
-  PURPLE: "bg-category-7-purple",
+export const CATEGORY_COLOR_TOKEN_BY_NAME: Record<TodoCategoryColor, CategoryColorToken> = {
+  RED: "category-1-red",
+  ORANGE: "category-2-orange",
+  YELLOW: "category-3-yellow",
+  GREEN: "category-4-green",
+  BLUE: "category-5-skyblue",
+  INDIGO: "category-6-blue",
+  PURPLE: "category-7-purple",
 };
 
 export const CATEGORY_COLOR_TOKENS = Object.values(CATEGORY_COLOR_TOKEN_BY_NAME);
@@ -60,6 +62,7 @@ export const useCreateTodoCategory = (
     ...restOptions,
     onSuccess: (data, variables, context, mutation) => {
       qc.invalidateQueries({ queryKey: todoCategoryKeys.list() });
+      qc.invalidateQueries({ queryKey: todoKeys.today() });
       onSuccess?.(data, variables, context, mutation);
     },
     onError: (error, variables, context, mutation) => {
