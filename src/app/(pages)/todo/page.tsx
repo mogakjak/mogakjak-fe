@@ -198,7 +198,7 @@ export default function TodoPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gray-100 flex">
+    <main className="h-full w-full bg-gray-100 flex mt-9 gap-5">
       <div className="shrink-0">
         <CategorySidebar
           filter={filter}
@@ -213,7 +213,7 @@ export default function TodoPage() {
         />
       </div>
 
-      <div className="flex-1 p-10">
+      <div className="flex-1 min-h-0">
         <TodoSection
           filter={filter}
           dateLabel={dateLabel}
