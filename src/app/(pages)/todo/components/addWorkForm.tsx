@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
@@ -42,15 +42,27 @@ export default function AddWorkForm({
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [date, setDate] = useState<Date>(initialValues?.date ?? defaultDate);
   const [target, setTarget] = useState<number>(initialValues?.targetSeconds ?? 0);
+  const prevInitialValuesRef = useRef<string>("");
 
   useEffect(() => {
-    if (initialValues) {
+    if (!initialValues) return;
+    const currentKey = JSON.stringify({
+      categoryId: initialValues.categoryId,
+      title: initialValues.title,
+      date: initialValues.date?.getTime(),
+      targetSeconds: initialValues.targetSeconds,
+    });
+    
+    if (prevInitialValuesRef.current !== currentKey) {
+      prevInitialValuesRef.current = currentKey;
       setCategoryId(initialValues.categoryId ?? "");
       setTitle(initialValues.title ?? "");
-      setDate(initialValues.date ?? defaultDate);
+      if (initialValues.date) {
+        setDate(initialValues.date);
+      }
       setTarget(initialValues.targetSeconds ?? 0);
     }
-  }, [initialValues, defaultDate]);
+  }, [initialValues]);
 
   const isValid =
     categoryId && title.trim().length > 0 && target >= 60 && target <= 86400;
