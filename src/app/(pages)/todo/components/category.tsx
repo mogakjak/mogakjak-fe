@@ -48,6 +48,9 @@ function Category({
         (c) =>
           ({
             ...c,
+            colorToken: c.colorToken?.startsWith("bg-")
+              ? (c.colorToken.slice(3) as Category["colorToken"])
+              : c.colorToken,
             isNew: false,
           }) satisfies Category,
       );
@@ -241,7 +244,11 @@ function Category({
                 id={c.id}
                 index={idx}
                 label={c.name}
-                colorToken={c.colorToken}
+                colorToken={
+                  c.colorToken
+                    ? `bg-${c.colorToken}`
+                    : "bg-category-1-red"
+                }
                 selected={selectedId === c.id}
                 onSelect={() => onSelect?.(c.id)}
                 showHandle
