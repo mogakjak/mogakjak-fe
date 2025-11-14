@@ -30,7 +30,7 @@ export default function TodoSection({
   const isToday = filter === "today";
 
   return (
-    <section className="w-full flex-1 min-h-[856px] bg-white rounded-[20px] p-6 flex flex-col">
+    <section className="w-full h-full bg-white rounded-[20px] p-6 flex flex-col">
       {isToday ? (
         <div className="flex items-baseline gap-3 mb-0">
           <h2 className="text-neutral-900 text-xl font-semibold font-['Pretendard'] leading-7">

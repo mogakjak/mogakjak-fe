@@ -204,7 +204,7 @@ function Category({
   return (
     <section
       className={clsx(
-        "w-[327px] h-[856px] px-6 py-9 rounded-[20px] bg-neutral-50 inline-flex flex-col gap-7",
+        "w-[327px] h-full px-6 py-9 rounded-[20px] bg-neutral-50 inline-flex flex-col gap-7",
         className,
       )}
     >

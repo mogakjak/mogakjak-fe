@@ -78,7 +78,7 @@ export default function TodoPage() {
           title: category.name,
           barColorClass: colorToken,
           colorToken: baseToken,
-          expanded: category.isExpanded ?? true,
+          expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
           items: todos.map((todo) => ({
             id: todo.id,
             date: todo.date,
@@ -198,22 +198,22 @@ export default function TodoPage() {
   );
 
   return (
-    <main className="h-full w-full bg-gray-100 flex mt-9 gap-5">
-      <div className="shrink-0">
+    <div className="w-full max-w-[1440px] h-full pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
+      <section className="flex flex-col gap-5 self-stretch">
         <CategorySidebar
           filter={filter}
           onChangeFilter={setFilter}
           categories={sidebarCategories}
           selectedId={selectedId}
           onSelect={setSelectedId}
-          className="mt-10 ml-10"
+          className="ml-10"
           onCreateCategory={handleCreateCategory}
           onDeleteCategory={handleDeleteCategory}
           onReorderCategories={handleReorderCategories}
         />
-      </div>
+      </section>
 
-      <div className="flex-1 min-h-0">
+      <section className="w-full self-stretch">
         <TodoSection
           filter={filter}
           dateLabel={dateLabel}
@@ -222,9 +222,8 @@ export default function TodoPage() {
           onUpdateTodo={handleUpdateTodo}
           onDeleteTodo={handleDeleteTodo}
           onToggleTodo={handleToggleTodo}
-          className="mb-6"
         />
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
