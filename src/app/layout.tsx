@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="mx-auto w-full flex flex-col min-h-screen items-center bg-gray-100 overflow-x-hidden">
+      <body className="mx-auto w-full min-h-screen flex flex-col items-center bg-gray-100 overflow-x-hidden">
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-T8JCTVV834"
@@ -60,8 +60,8 @@ export default function RootLayout({
           <WithMobileDetection>
             {({ isMobile }) => <ConditionalHeader isMobile={isMobile} />}
           </WithMobileDetection>
-          <div className="flex items-center justify-center bg-gray-100 w-full">
-            <div className="px-9 w-[1440px]">{children}</div>
+          <div className="flex-1 flex justify-center bg-gray-100 w-full ">
+            <div className="px-9 pb-9 w-[1440px]">{children}</div>
           </div>
         </Providers>
       </body>
