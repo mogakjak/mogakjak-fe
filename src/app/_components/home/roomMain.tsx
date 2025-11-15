@@ -22,41 +22,7 @@ export default function RoomMain({ onPage }: RoomMainProps) {
     setGroupOpen(true);
   };
 
-  const groupMembers: GroupMembers[] = [
-    {
-      id: 101,
-      name: "CS 스터디 A조",
-      members: [
-        { id: 1, isActive: true },
-        { id: 2, isActive: false },
-        { id: 3, isActive: false },
-        { id: 4, isActive: true },
-        { id: 5, isActive: true },
-        { id: 6, isActive: true },
-        { id: 7, isActive: true },
-      ],
-    },
-    {
-      id: 102,
-      name: "알고리즘 저녁반",
-      members: [
-        { id: 1, isActive: true },
-        { id: 2, isActive: true },
-        { id: 3, isActive: true },
-      ],
-    },
-    {
-      id: 107,
-      name: "코테 연습",
-      members: [
-        { id: 1, isActive: true },
-        { id: 2, isActive: true },
-        { id: 3, isActive: false },
-        { id: 4, isActive: true },
-        { id: 5, isActive: true },
-      ],
-    },
-  ];
+  const groupMembers: GroupMembers[] = [];
 
   return (
     <div className="w-full p-6 pb-0 bg-white rounded-[20px]">
@@ -70,10 +36,13 @@ export default function RoomMain({ onPage }: RoomMainProps) {
       </div>
 
       <div className="h-[320px] overflow-y-auto">
-        <GroupRoom variant="guide" />
-        {groupMembers.map((g) => (
-          <GroupRoom key={g.id} group={g} />
-        ))}
+        {groupMembers.length > 0 ? (
+          groupMembers.map((g) => <GroupRoom key={g.id} group={g} />)
+        ) : (
+          <div className="flex h-full items-center justify-center text-gray-400">
+            모각작 방이 존재하지 않습니다.
+          </div>
+        )}
       </div>
 
       {groupOpen && (

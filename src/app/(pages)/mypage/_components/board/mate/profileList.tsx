@@ -27,74 +27,7 @@ export default function ProfileList({
   onCountChange,
   search = "",
 }: ProfileListProps) {
-  const profiles = useMemo<Profile[]>(
-    () => [
-      {
-        id: 1,
-        name: "토마토",
-        src: "/character/tomato.svg",
-        active: true,
-        groups: ["그룹이름가나다라", "그룹이름AB"],
-      },
-      {
-        id: 2,
-        name: "당근",
-        src: "/character/tomato.svg",
-        active: false,
-        groups: ["그룹이름가나다라"],
-      },
-      {
-        id: 3,
-        name: "브로콜리",
-        src: "/character/tomato.svg",
-        active: true,
-        groups: ["그룹이름ABCDE"],
-      },
-      {
-        id: 4,
-        name: "양파",
-        src: "/character/tomato.svg",
-        active: false,
-        groups: ["그룹이름AB"],
-      },
-      {
-        id: 5,
-        name: "브로콜리",
-        src: "/character/tomato.svg",
-        active: false,
-        groups: ["그룹이름AB"],
-      },
-      {
-        id: 6,
-        name: "파프리카",
-        src: "/character/tomato.svg",
-        active: true,
-        groups: ["그룹이름ABCDE"],
-      },
-      {
-        id: 7,
-        name: "감자",
-        src: "/character/tomato.svg",
-        active: false,
-        groups: ["그룹이름가나다라"],
-      },
-      {
-        id: 8,
-        name: "가지",
-        src: "/character/tomato.svg",
-        active: false,
-        groups: ["그룹이름AB"],
-      },
-      {
-        id: 9,
-        name: "옥수수",
-        src: "/character/tomato.svg",
-        active: true,
-        groups: ["그룹이름ABCDE"],
-      },
-    ],
-    []
-  );
+  const profiles = useMemo<Profile[]>(() => [], []);
 
   const norm = (s: string) => s.trim().toLowerCase();
   const q = norm(search);
@@ -145,7 +78,7 @@ export default function ProfileList({
       ))}
 
       {filtered.length === 0 && (
-        <p className="text-sm text-gray-400 px-5 py-8">
+        <p className="flex h-full items-center justify-center text-gray-400">
           {q ? (
             <>
               검색어 <span className="font-semibold">“{search}”</span>에
