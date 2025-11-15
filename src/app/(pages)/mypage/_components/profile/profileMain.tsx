@@ -4,23 +4,23 @@ import { useState } from "react";
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
-import { useCharacterBasket } from "@/app/_hooks/mypage";
 import ProfileEditModal from "./profileEditModal";
 
-export default function Profile() {
-  const { data: basket } = useCharacterBasket();
+import type { CharacterBasket } from "@/app/_types/mypage";
+
+export default function Profile({ basket }: { basket: CharacterBasket }) {
   const {
     nickname,
     email,
     totalTaskCount,
     totalFocusTime,
     collectedCharacterCount,
-  } = basket ?? {};
+  } = basket;
+
   const [openEdit, setOpenEdit] = useState(false);
 
-  const handleEditOpen = () => {
-    setOpenEdit(true);
-  };
+  const handleEditOpen = () => setOpenEdit(true);
+
   return (
     <div className="w-[327px] h-full p-6 rounded-[20px] bg-white flex flex-col justify-between">
       <div className="flex justify-between items-center">
@@ -29,6 +29,7 @@ export default function Profile() {
           로그아웃
         </button>
       </div>
+
       <section className="flex flex-col items-center">
         <Image
           src="/profileDefault.svg"
