@@ -1,6 +1,63 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
+const API_BASE_URL = process.env.API_BASE_URL!;
+const secure = process.env.NODE_ENV === "production";
+const cookieOpts = {
+  httpOnly: true,
+  secure,
+  sameSite: "lax" as const,
+  path: "/",
+};
+
+interface RefreshResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    email: string;
+    name: string;
+    userId: string;
+    tokenType: string;
+    expiresIn: number;
+  };
+}
+
+function extractAccessToken(headers: Headers): string | undefined {
+  const auth = headers.get("authorization");
+  if (auth && auth.toLowerCase().startsWith("bearer ")) return auth.slice(7);
+  const alt =
+    headers.get("access-token") ||
+    headers.get("x-access-token") ||
+    headers.get("x-auth-token");
+  return alt ?? undefined;
+}
+
+async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number } | null> {
+  try {
+    const upstream = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+      cache: "no-store",
+    });
+
+    if (!upstream.ok) {
+      return null;
+    }
+
+    const accessToken = extractAccessToken(upstream.headers);
+    const result = (await upstream.json()) as RefreshResponse;
+    const expiresInSec = result?.data?.expiresIn;
+
+    if (!accessToken || typeof expiresInSec !== "number" || expiresInSec <= 0) {
+      return null;
+    }
+
+    return { accessToken, expiresIn: expiresInSec };
+  } catch {
+    return null;
+  }
+}
 
 function buildTargetUrl(path: string[] | undefined, req: NextRequest) {
   const joined = (path ?? []).join("/");
@@ -11,9 +68,11 @@ function buildTargetUrl(path: string[] | undefined, req: NextRequest) {
 async function proxy(
   method: string,
   req: NextRequest,
-  path: string[] | undefined
-) {
+  path: string[] | undefined,
+  retryCount = 0
+): Promise<NextResponse> {
   const token = req.cookies.get("mg_access_token")?.value ?? null;
+  const refreshToken = req.cookies.get("mg_refresh_token")?.value ?? null;
   const url = buildTargetUrl(path, req);
 
   if (url.startsWith(`${req.nextUrl.origin}/api/`)) {
@@ -38,6 +97,45 @@ async function proxy(
     body,
     cache: "no-store",
   });
+  
+  // 401 에러이고 refresh token이 있고 재시도하지 않은 경우에만 재발급 시도
+  // response body를 읽기 전에 status를 먼저 확인
+  if (upstream.status === 401 && refreshToken && retryCount === 0) {
+    const refreshResult = await refreshAccessToken(refreshToken);
+    
+    if (refreshResult) {
+      // 새로운 access token으로 재시도
+      const retryHeaders = new Headers(headers);
+      retryHeaders.set("authorization", `Bearer ${refreshResult.accessToken}`);
+      
+      const retryResponse = await fetch(url, {
+        method,
+        headers: retryHeaders,
+        body,
+        cache: "no-store",
+      });
+      
+      const retryText = await retryResponse.text();
+      const retryContentType =
+        retryResponse.headers.get("content-type") ?? "application/json";
+      const resp = new NextResponse(retryText, {
+        status: retryResponse.status,
+        headers: { "content-type": retryContentType },
+      });
+
+      // 새로운 access token을 쿠키에 저장
+      resp.cookies.set("mg_access_token", refreshResult.accessToken, {
+        ...cookieOpts,
+        maxAge: refreshResult.expiresIn,
+      });
+
+      resp.headers.set("x-proxy-hit", "true");
+      resp.headers.set("x-proxy-url", url);
+      resp.headers.set("x-proxy-auth", "refreshed");
+      return resp;
+    }
+  }
+
   const text = await upstream.text();
   const contentType =
     upstream.headers.get("content-type") ?? "application/json";
