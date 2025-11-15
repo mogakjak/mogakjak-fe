@@ -145,7 +145,7 @@ export default function ProfileList({
       ))}
 
       {filtered.length === 0 && (
-        <p className="text-sm text-gray-400 px-5 py-8">
+        <p className="flex h-full items-center justify-center text-gray-400">
           {q ? (
             <>
               검색어 <span className="font-semibold">“{search}”</span>에

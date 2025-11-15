@@ -38,3 +38,23 @@ export type CharacterBasket = {
   ownedCharacters: CharacterCard[];
   lockedCharacters: CharacterCard[];
 };
+
+// 프로필 관련 타입
+export type Profile = {
+  nickname: string;
+  character: Character;
+  quote: Quote;
+};
+export type Character = {
+  id: string;
+  level: number;
+  name: string;
+  imageUrl: string;
+  isActive: boolean;
+  unlockTimeInSeconds: number;
+};
+
+export type Quote = {
+  id: string;
+  content: string;
+};
