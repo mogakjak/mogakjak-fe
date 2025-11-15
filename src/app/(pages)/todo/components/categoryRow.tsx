@@ -193,7 +193,7 @@ export default function CategoryRow({
               className="w-6 h-6 grid place-items-center"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <Image src="/icons/drag.svg" alt="drag handle" width={24} height={24} className="w-6 h-6" />
+              <Image src="/Icons/drag.svg" alt="drag handle" width={24} height={24} className="w-6 h-6" />
             </button>
 
             {menuOpen &&
@@ -212,7 +212,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/categoryUp.svg" alt="위로" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/categoryUp.svg" alt="위로" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">위로 옮기기</span>
                   </button>
 
@@ -224,7 +224,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/delete.svg" alt="삭제" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/delete.svg" alt="삭제" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">삭제하기</span>
                   </button>
 
@@ -236,7 +236,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/categoryDown.svg" alt="아래로" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/categoryDown.svg" alt="아래로" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">아래로 옮기기</span>
                   </button>
                 </div>,
