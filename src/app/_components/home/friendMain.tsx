@@ -49,7 +49,7 @@ export default function FriendMain() {
         />
       </section>
 
-      <section className="flex flex-col justify-between mt-4 h-[228px] overflow-y-auto">
+      <section className="flex flex-col justify-between mt-4 h-[195px] overflow-y-auto">
         <ProfileList
           groupName={selectedGroup}
           page={page}
