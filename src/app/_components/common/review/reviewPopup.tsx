@@ -13,6 +13,7 @@ interface ReviewBlock {
 }
 interface ReviewPopupProps {
   onClose: () => void;
+  onExitGroup: () => void;
 }
 const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   {
@@ -47,7 +48,10 @@ const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   },
 ];
 
-export default function ReviewPopup({ onClose }: ReviewPopupProps) {
+export default function ReviewPopup({
+  onClose,
+  onExitGroup,
+}: ReviewPopupProps) {
   const emojis: EmojiType[] = ["toobad", "bad", "soso", "good", "sogood"];
 
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiType | null>(null);
@@ -135,8 +139,8 @@ export default function ReviewPopup({ onClose }: ReviewPopupProps) {
           className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300 "
           disabled={!selectedEmoji}
           onClick={() => {
-            console.log("emoji:", selectedEmoji);
-            console.log("tags:", selectedTags);
+            onClose();
+            onExitGroup();
           }}
         >
           종료하고 나가기

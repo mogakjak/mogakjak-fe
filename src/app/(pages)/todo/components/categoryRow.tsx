@@ -14,11 +14,12 @@ type Props = {
   showHandle?: boolean;
   editable?: boolean;
   onSelect?: () => void;
-  onRename?: (newName: string) => void;
+  onRename?: (newName: string, reason: "enter" | "blur") => Promise<boolean | void> | boolean | void;
   onDelete?: (id: string) => void;
   onMoveUp?: (id: string) => void;
   onMoveDown?: (id: string) => void;
   onReorder?: (fromId: string, toId: string) => void;
+  allowEdit?: boolean;
 };
 
 export default function CategoryRow({
@@ -34,10 +35,12 @@ export default function CategoryRow({
   onMoveUp,
   onMoveDown,
   onReorder,
+  allowEdit = true,
 }: Props) {
-  const [isEditing, setIsEditing] = useState<boolean>(editable ?? false);
+  const [isEditing, setIsEditing] = useState<boolean>(allowEdit && (editable ?? false));
   const [value, setValue] = useState(label);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const ignoreBlurOnCommit = useRef(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -48,17 +51,40 @@ export default function CategoryRow({
     if (isEditing) inputRef.current?.focus();
   }, [isEditing]);
 
-  const commitEdit = () => {
-    setIsEditing(false);
+  useEffect(() => {
+    if (editable !== undefined) {
+      setIsEditing(allowEdit && editable);
+      if (editable) {
+        setValue(label);
+      }
+    }
+  }, [editable, label, allowEdit]);
+
+  const commitEdit = async (reason: "enter" | "blur") => {
     const trimmed = value.trim();
-    if (trimmed && trimmed !== label) onRename?.(trimmed);
+    const result = (await onRename?.(trimmed, reason)) ?? true;
+    if (result === false) {
+      setIsEditing(true);
+      if (trimmed !== value) setValue(trimmed);
+      setTimeout(() => inputRef.current?.focus(), 0);
+      return false;
+    }
+
+    setIsEditing(false);
+    if (trimmed) setValue(trimmed);
     else setValue(label);
+    return true;
   };
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      commitEdit();
+      ignoreBlurOnCommit.current = true;
+      void commitEdit("enter").finally(() => {
+        setTimeout(() => {
+          ignoreBlurOnCommit.current = false;
+        }, 0);
+      });
     } else if (e.key === "Escape") {
       e.preventDefault();
       setValue(label);
@@ -122,7 +148,9 @@ export default function CategoryRow({
       <button
         type="button"
         onClick={() => !isEditing && onSelect?.()}
-        onDoubleClick={() => setIsEditing(true)}
+        onDoubleClick={() => {
+          if (allowEdit) setIsEditing(true);
+        }}
         className={clsx(
           "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all outline-1",
           selected ? "outline-red-500" : "outline-gray-200",
@@ -135,7 +163,10 @@ export default function CategoryRow({
               ref={inputRef}
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              onBlur={commitEdit}
+              onBlur={() => {
+                if (ignoreBlurOnCommit.current) return;
+                void commitEdit("blur");
+              }}
               onKeyDown={onKey}
               className="w-full bg-transparent outline-none text-neutral-900 font-medium text-base"
             />
@@ -146,7 +177,7 @@ export default function CategoryRow({
                 selected ? "text-neutral-900 font-semibold" : "text-neutral-700",
               )}
             >
-              {value}
+              {value || "새로운 카테고리"}
             </span>
           )}
         </div>
@@ -162,7 +193,7 @@ export default function CategoryRow({
               className="w-6 h-6 grid place-items-center"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <Image src="/icons/drag.svg" alt="drag handle" width={24} height={24} className="w-6 h-6" />
+              <Image src="/Icons/drag.svg" alt="drag handle" width={24} height={24} className="w-6 h-6" />
             </button>
 
             {menuOpen &&
@@ -181,7 +212,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/categoryUp.svg" alt="위로" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/categoryUp.svg" alt="위로" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">위로 옮기기</span>
                   </button>
 
@@ -193,7 +224,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/delete.svg" alt="삭제" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/delete.svg" alt="삭제" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">삭제하기</span>
                   </button>
 
@@ -205,7 +236,7 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/icons/categoryDown.svg" alt="아래로" width={24} height={24} className="w-6 h-6" />
+                    <Image src="/Icons/categoryDown.svg" alt="아래로" width={24} height={24} className="w-6 h-6" />
                     <span className="text-neutral-700 text-sm leading-tight">아래로 옮기기</span>
                   </button>
                 </div>,

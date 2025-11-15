@@ -35,12 +35,12 @@ export default function BoardMate() {
   };
 
   return (
-    <div className="p-4 ">
+    <div className="p-2">
       <h2 className="text-heading4-20SB text-black">
         내 모각작 메이트({total})
       </h2>
 
-      <section className="flex justify-between items-center mt-7">
+      <section className="flex justify-between items-center mt-3">
         <DropdownList
           items={groupItems}
           defaultLabel={selectedGroup}

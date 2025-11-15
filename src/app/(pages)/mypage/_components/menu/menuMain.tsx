@@ -10,7 +10,7 @@ export default function Menu({ selected, onSelect }: MenuProps) {
 
   return (
     <div className="w-[327px] p-6 rounded-[20px] bg-white">
-      <h2 className="text-heading4-20SB text-black mb-7">MENU</h2>
+      <h2 className="text-heading4-20SB text-black mb-3">MENU</h2>
 
       <div className="flex flex-col gap-3">
         {menuItems.map((item) => (

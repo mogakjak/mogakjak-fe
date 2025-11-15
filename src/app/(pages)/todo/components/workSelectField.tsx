@@ -62,7 +62,7 @@ export default function WorkSelectField({
       <button
         type="button"
         onClick={handleToggle}
-        className="self-stretch h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 inline-flex justify-between items-center"
+        className="self-stretch h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-gray-200 inline-flex justify-between items-center"
       >
         <span
           className={`text-body2-14R ${
@@ -97,7 +97,7 @@ export default function WorkSelectField({
 
             <div className="flex items-center gap-2  border border-gray-200 rounded-lg px-4 py-2">
               <Image
-                src="/icons/plusFilled.svg"
+                src="/Icons/plusFilled.svg"
                 alt="add"
                 width={24}
                 height={24}

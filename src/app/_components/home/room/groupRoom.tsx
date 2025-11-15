@@ -4,6 +4,7 @@ import Members from "./members";
 import StateButton from "./stateButton";
 import HomeButton from "./homeButton";
 import MembersHover from "./membersHover";
+import Image from "next/image";
 
 type Member = { id: number; isActive: boolean };
 type Group = { id: number; name: string; members: Member[] };
@@ -25,7 +26,9 @@ export default function GroupRoom(props: GroupRoomProps) {
 
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
-      <div className="w-[84px] h-[84px] rounded-lg bg-red-200" />
+      <div className="w-[84px] h-[84px] rounded-lg bg-red-200 flex items-center justify-center">
+        <Image src="/favicon.svg" alt="groupDefault" width={40} height={40} />
+      </div>
 
       <div className="flex flex-col gap-2 ml-5">
         <p className="text-heading4-20SB text-black">{title}</p>

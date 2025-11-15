@@ -10,7 +10,7 @@ const meta = {
   argTypes: {
     size: {
       control: "radio",
-      options: ["md", "sm"],
+      options: ["md", "sm", "custom"],
     },
     value: {
       control: "radio",
@@ -34,5 +34,12 @@ export const Small: Story = {
   args: {
     value: "stopwatch",
     size: "sm",
+  },
+};
+
+export const Custom: Story = {
+  args: {
+    value: "stopwatch",
+    size: "custom",
   },
 };

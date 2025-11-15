@@ -10,7 +10,7 @@ import Countdown, { CountdownHandle } from "./timer";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
-const CONTENT_FIXED = "w-[560px] h-[328px]";
+const CONTENT_FIXED = "h-[110px]";
 
 export default function TimerComponent({
   className,
@@ -42,11 +42,11 @@ export default function TimerComponent({
 
   const onStop = () => {
     if (mode === "pomodoro") {
-      pomoRef.current?.reset();     
+      pomoRef.current?.reset();
     } else if (mode === "stopwatch") {
-      swRef.current?.stop();       
+      swRef.current?.stop();
     } else {
-      cdRef.current?.reset();         
+      cdRef.current?.reset();
     }
     setRunning(false);
   };
@@ -92,14 +92,21 @@ export default function TimerComponent({
   }, [mode]);
 
   return (
-    <section className={clsx("w-full max-w-[980px] mx-auto space-y-4", className)}>
-      <div className="mx-auto w-[560px]">
-        <TimerSelected value={mode} onChange={onSwitch} className="w-full" />
+    <section className={clsx("w-full mx-auto space-y-4 mt-5", className)}>
+      <div className="mx-auto">
+        <TimerSelected value={mode} onChange={onSwitch} />
       </div>
-      <div className={clsx("mx-auto rounded-[24px] bg-neutral-50 outline-1 outline-gray-200 overflow-hidden flex items-center justify-center", CONTENT_FIXED)}>
-        <div className="w-full h-full flex items-center justify-center">{body}</div>
+      <div
+        className={clsx(
+          "mx-auto  bg-neutral-50 overflow-hidden flex items-center justify-center",
+          CONTENT_FIXED
+        )}
+      >
+        <div className="w-full h-full flex items-center justify-center">
+          {body}
+        </div>
       </div>
-      <div className="mx-auto w-[560px]">
+      <div className="mx-auto">
         <TimerButtons
           mode={mode}
           running={running}

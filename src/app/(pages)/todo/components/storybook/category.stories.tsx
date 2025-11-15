@@ -6,11 +6,11 @@ import CategoryPanel, {
 } from "@/app/(pages)/todo/components/category";
 
 const sampleCategories: CategoryType[] = [
-  { id: "c1", name: "카테고리 예시 가나다", color: "red-400" },
-  { id: "c2", name: "카테고리 예시 가", color: "red-400" },
-  { id: "c3", name: "카테고리 예시 가나", color: "red-400" },
-  { id: "c4", name: "카테고리 예시 가나다라", color: "red-400" },
-  { id: "c5", name: "카테고리 예시 가나다라마", color: "red-400" },
+  { id: "c1", name: "카테고리 예시 가나다", colorToken: "category-1-red" },
+  { id: "c2", name: "카테고리 예시 가", colorToken: "category-2-orange" },
+  { id: "c3", name: "카테고리 예시 가나", colorToken: "category-3-yellow" },
+  { id: "c4", name: "카테고리 예시 가나다라", colorToken: "category-4-green" },
+  { id: "c5", name: "카테고리 예시 가나다라마", colorToken: "category-5-skyblue" },
 ];
 
 const meta = {

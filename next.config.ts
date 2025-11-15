@@ -3,6 +3,19 @@ import path from "path";
 import type { RuleSetRule } from "webpack";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [
+        {
+          source: "/api/:path*",
+          destination: `${process.env.NEXT_PUBLIC_API_PROXY}/api/:path*`,
+        },
+      ],
+    };
+  },
+
   webpack(config) {
     const assetRule = (config.module.rules as RuleSetRule[]).find(
       (rule) => rule?.test instanceof RegExp && rule.test.test(".svg")
@@ -15,7 +28,6 @@ const nextConfig: NextConfig = {
       test: /\.svg$/i,
       oneOf: [
         { resourceQuery: /url/, type: "asset/resource" },
-
         {
           issuer: /\.[jt]sx?$/,
           use: [

@@ -36,7 +36,7 @@ export default function FriendMain() {
     <div className="px-10 pt-9 bg-white rounded-[20px] self-stretch">
       <h2 className="text-heading4-20SB text-black">메이트들의 집중 현황</h2>
 
-      <section className="flex justify-between items-center mt-7">
+      <section className="flex justify-between items-center mt-4">
         <DropdownList
           items={groupItems}
           defaultLabel={selectedGroup}
@@ -49,7 +49,7 @@ export default function FriendMain() {
         />
       </section>
 
-      <section className="flex flex-col justify-between mt-4 h-[228px] overflow-y-auto">
+      <section className="flex flex-col justify-between mt-4 h-[195px] overflow-y-auto">
         <ProfileList
           groupName={selectedGroup}
           page={page}

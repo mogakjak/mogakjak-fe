@@ -16,6 +16,9 @@ jobs:
     name: build-and-test
     runs-on: ubuntu-latest
 
+    env:
+      NEXT_PUBLIC_API_PROXY: ${{ secrets.NEXT_PUBLIC_API_PROXY }}
+
     steps:
       - uses: actions/checkout@v4
 

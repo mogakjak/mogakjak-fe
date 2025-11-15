@@ -34,7 +34,7 @@ export default function PageNation({
 
   return (
     <nav
-      className={`flex items-center justify-center gap-2 text-body2-14SB`}
+      className={`flex items-center justify-center gap-2 text-body2-14SB `}
       aria-label="페이지네이션"
     >
       <button

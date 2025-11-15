@@ -45,6 +45,7 @@ export default function DateField({
   const [open, setOpen] = useState(false);
   const [view, setView] = useState(new Date(value));
   const boxRef = useRef<HTMLDivElement | null>(null);
+  const valueTimestampRef = useRef<number>(value.getTime());
 
   useEffect(() => {
     if (!open) return;
@@ -56,7 +57,13 @@ export default function DateField({
     return () => document.removeEventListener("mousedown", onDoc);
   }, [open]);
 
-  useEffect(() => setView(new Date(value)), [value]);
+  useEffect(() => {
+    const newTimestamp = value.getTime();
+    if (valueTimestampRef.current !== newTimestamp) {
+      valueTimestampRef.current = newTimestamp;
+      setView(new Date(value));
+    }
+  }, [value]);
 
   const cells = useMemo(() => monthMatrix(view), [view]);
 
@@ -65,7 +72,7 @@ export default function DateField({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 inline-flex justify-between items-center"
+        className="h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-gray-200 inline-flex justify-between items-center"
       >
         <span className="text-sm text-neutral-900 leading-tight">
           {fmtKoreanDate(value)}
@@ -81,7 +88,7 @@ export default function DateField({
 
       {open && (
         <div className="absolute z-50 w-[384px] left-0 mt-2 px-2">
-          <div className="w-full p-1 bg-neutral-50 rounded-xl shadow-[0_0_4px_0_rgba(0,0,0,0.10)] outline-1 outline-offset-[-1px] outline-gray-100">
+          <div className="w-full p-1 bg-neutral-50 rounded-xl shadow-[0_0_4px_0_rgba(0,0,0,0.10)] outline-1 outline-gray-100">
             <div className="h-11 px-8 py-4 flex items-center gap-2.5">
               <button
                 type="button"

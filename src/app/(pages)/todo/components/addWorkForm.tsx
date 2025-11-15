@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
@@ -20,6 +20,7 @@ export default function AddWorkForm({
   type,
   categories,
   defaultDate = new Date(),
+  initialValues,
   onSubmit,
   onClose,
   className,
@@ -27,14 +28,41 @@ export default function AddWorkForm({
   type: string;
   categories: CategoryOption[];
   defaultDate?: Date;
+  initialValues?: {
+    categoryId?: string;
+    title?: string;
+    date?: Date;
+    targetSeconds?: number;
+  };
   onSubmit?: (payload: AddWorkPayload) => void;
   onClose?: () => void;
   className?: string;
 }) {
-  const [categoryId, setCategoryId] = useState<string>("");
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState<Date>(defaultDate);
-  const [target, setTarget] = useState<number>(0);
+  const [categoryId, setCategoryId] = useState<string>(initialValues?.categoryId ?? "");
+  const [title, setTitle] = useState(initialValues?.title ?? "");
+  const [date, setDate] = useState<Date>(initialValues?.date ?? defaultDate);
+  const [target, setTarget] = useState<number>(initialValues?.targetSeconds ?? 0);
+  const prevInitialValuesRef = useRef<string>("");
+
+  useEffect(() => {
+    if (!initialValues) return;
+    const currentKey = JSON.stringify({
+      categoryId: initialValues.categoryId,
+      title: initialValues.title,
+      date: initialValues.date?.getTime(),
+      targetSeconds: initialValues.targetSeconds,
+    });
+    
+    if (prevInitialValuesRef.current !== currentKey) {
+      prevInitialValuesRef.current = currentKey;
+      setCategoryId(initialValues.categoryId ?? "");
+      setTitle(initialValues.title ?? "");
+      if (initialValues.date) {
+        setDate(initialValues.date);
+      }
+      setTarget(initialValues.targetSeconds ?? 0);
+    }
+  }, [initialValues]);
 
   const isValid =
     categoryId && title.trim().length > 0 && target >= 60 && target <= 86400;
@@ -64,8 +92,10 @@ export default function AddWorkForm({
       <div className="self-stretch p-5 flex flex-col items-center gap-7">
         <div className="self-stretch text-center text-neutral-900 text-xl font-semibold leading-7">
           {type == "select"
-            ? "할 일을 등록해 보세요!"
-            : "몰입할 일을 선택해 보세요!"}
+            ? "몰입할 일을 선택해 보세요!"
+            : type == "edit"
+            ? "할 일을 수정해 보세요!"
+            : "할 일을 등록해 보세요!"}
         </div>
 
         <div className="self-stretch flex flex-col gap-5">
@@ -151,7 +181,7 @@ export default function AddWorkForm({
                 : "bg-gray-200 text-gray-400"
             )}
           >
-            할 일 추가
+            {type == "edit" ? "할 일 수정" : "할 일 추가"}
           </button>
         )}
       </div>
