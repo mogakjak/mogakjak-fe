@@ -55,8 +55,7 @@ export default function TimerButtons({
       <Button
         variant="slate600"
         className={clsx(
-          " text-body2-14SB h-8 text-base rounded-lg w-full",
-          isPomodoro ? "flex-1" : "flex-1"
+          " text-body2-14SB h-8 text-base rounded-lg w-full flex-1"
         )}
         size="custom"
         onClick={onPause}
@@ -76,8 +75,7 @@ export default function TimerButtons({
       <Button
         variant="primary"
         className={clsx(
-          " text-body2-14SB h-8 text-base rounded-lg w-full",
-          isPomodoro ? "flex-1" : "flex-1"
+          " text-body2-14SB h-8 text-base rounded-lg w-full flex-1"
         )}
         size="custom"
         onClick={onStop}
