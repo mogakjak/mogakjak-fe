@@ -1,5 +1,6 @@
 "use client";
 
+import { useProfile } from "@/app/_hooks/mypage";
 import TimerComponent from "../common/timer/timerComponent";
 import GroupMySidebar from "../group/sidebar/groupMySidebar";
 import PreviewCharacter from "./preview/previewCharacter";
@@ -10,10 +11,16 @@ type PreviewMainProps = {
 };
 
 export default function PreviewMain({ state }: PreviewMainProps) {
+  const { data: profile } = useProfile();
+  console.log("profile", profile);
   return (
     <div className="h-full w-[327px] min-w-[327px] flex flex-col justify-between px-6 py-6 rounded-[20px] bg-white">
-      <PreviewCharacter state={state} />
-      {state ? <GroupMySidebar /> : <Quotes />}
+      <PreviewCharacter
+        state={state}
+        nickname={profile.nickname}
+        character={profile.character}
+      />
+      {state ? <GroupMySidebar /> : <Quotes Quotes={profile.quote} />}
       <TimerComponent></TimerComponent>
     </div>
   );

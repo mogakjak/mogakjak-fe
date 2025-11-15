@@ -3,6 +3,7 @@ import type {
   CharacterUpdate,
   CharacterGuideItem,
   CharacterBasket,
+  Profile,
 } from "../../_types/mypage";
 
 const MYPAGE_BASE = "/api/mypage";
@@ -59,3 +60,5 @@ export const getCharactersGuide = () =>
 
 export const getCharacterBasket = () =>
   request<CharacterBasket>("/character-basket", { method: "GET" });
+
+export const getProfile = () => request<Profile>("/profile", { method: "GET" });

@@ -8,11 +8,23 @@ import {
 import {
   getCharacterBasket,
   getCharactersGuide,
+  getProfile,
   patchCharacter,
   patchProfile,
 } from "../api/mypage/api";
 import { mypageKeys } from "../api/mypage/keys";
-import type { CharacterBasket, CharacterGuideItem } from "../_types/mypage";
+import type {
+  CharacterBasket,
+  CharacterGuideItem,
+  Profile,
+} from "../_types/mypage";
+
+export const useProfile = () =>
+  useSuspenseQuery<Profile>({
+    queryKey: mypageKeys.profile(),
+    queryFn: getProfile,
+    staleTime: 5 * 60 * 1000,
+  });
 
 export const useCharactersGuide = () =>
   useSuspenseQuery<CharacterGuideItem[]>({
