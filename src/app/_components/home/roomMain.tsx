@@ -22,7 +22,41 @@ export default function RoomMain({ onPage }: RoomMainProps) {
     setGroupOpen(true);
   };
 
-  const groupMembers: GroupMembers[] = [];
+  const groupMembers: GroupMembers[] = [
+    {
+      id: 101,
+      name: "CS 스터디 A조",
+      members: [
+        { id: 1, isActive: true },
+        { id: 2, isActive: false },
+        { id: 3, isActive: false },
+        { id: 4, isActive: true },
+        { id: 5, isActive: true },
+        { id: 6, isActive: true },
+        { id: 7, isActive: true },
+      ],
+    },
+    {
+      id: 102,
+      name: "알고리즘 저녁반",
+      members: [
+        { id: 1, isActive: true },
+        { id: 2, isActive: true },
+        { id: 3, isActive: true },
+      ],
+    },
+    {
+      id: 107,
+      name: "코테 연습",
+      members: [
+        { id: 1, isActive: true },
+        { id: 2, isActive: true },
+        { id: 3, isActive: false },
+        { id: 4, isActive: true },
+        { id: 5, isActive: true },
+      ],
+    },
+  ];
 
   return (
     <div className="w-full p-6 pb-0 bg-white rounded-[20px]">
