@@ -19,7 +19,7 @@ import {
 } from "../api/todos/categories/api";
 import { todoCategoryKeys } from "../api/todos/categories/keys";
 import { todoKeys } from "../api/todos/keys";
-import type { TodoCategory, TodoCategoryColor } from "../api/todos/categories/types";
+import type { TodoCategory, TodoCategoryColor } from "../_types/todoCategory";
 import type { CategoryColorToken } from "../_types/category";
 
 export const CATEGORY_COLOR_TOKEN_BY_NAME: Record<TodoCategoryColor, CategoryColorToken> = {

@@ -17,7 +17,7 @@ import {
   type UpdateTodoPayload,
 } from "../api/todos/api";
 import { todoKeys } from "../api/todos/keys";
-import type { Todo, TodoCategoryWithTodos } from "../api/todos/types";
+import type { Todo, TodoCategoryWithTodos } from "../_types/todo";
 
 export const useTodayTodos = (
   options?: Omit<UseQueryOptions<TodoCategoryWithTodos[], Error>, "queryKey" | "queryFn">

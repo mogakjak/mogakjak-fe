@@ -1,4 +1,4 @@
-import type { TodoCategoryColor } from "./categories/types";
+import type { TodoCategoryColor } from "./todoCategory";
 
 export type Todo = {
   id: string;

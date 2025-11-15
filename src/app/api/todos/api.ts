@@ -1,4 +1,4 @@
-import type { Todo, TodoCategoryWithTodos } from "./types";
+import type { Todo, TodoCategoryWithTodos } from "../../_types/todo";
 
 const TODO_BASE = "/api/todos";
 
