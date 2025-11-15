@@ -3,18 +3,12 @@
 import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import type { CategoryColorToken } from "@/app/_types/category";
 
 export type CategoryOption = {
   id: string;
   name: string;
-  colorToken:
-    | "category-1-red"
-    | "category-2-orange"
-    | "category-3-yellow"
-    | "category-4-green"
-    | "category-5-skyblue"
-    | "category-6-blue"
-    | "category-7-purple";
+  colorToken: CategoryColorToken;
 };
 
 export default function CategorySelect({
@@ -50,7 +44,7 @@ export default function CategorySelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="self-stretch h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 inline-flex justify-between items-center"
+        className="self-stretch h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-gray-200 inline-flex justify-between items-center"
       >
         <span
           className={clsx(
@@ -71,7 +65,7 @@ export default function CategorySelect({
 
       {open && (
         <div className="absolute z-50 left-0 right-0 mt-2 px-2">
-          <div className="w-full p-2 bg-neutral-50 rounded-[10px] shadow-[0_0_4px_0_rgba(0,0,0,0.10)] outline-1 outline-offset-[-1px] outline-gray-100 flex flex-col gap-1">
+          <div className="w-full p-2 bg-neutral-50 rounded-[10px] shadow-[0_0_4px_0_rgba(0,0,0,0.10)] outline-1  outline-gray-100 flex flex-col gap-1">
             {options.map((o) => {
               const active = o.id === value;
               return (
