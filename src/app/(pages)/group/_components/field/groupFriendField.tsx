@@ -53,9 +53,7 @@ export default function GroupFriendField({
       </div>
 
       <div
-        className={` rounded-b-xl px-3 py-2 border-2 border-gray-200 border-t-0 ${
-          isActive ? "bg-gray-200" : "bg-red-50"
-        }`}
+        className={`w-[224px] rounded-b-xl px-3 py-2 border-2 border-gray-200 border-t-0 bg-gray-50`}
       >
         <GroupMemberState
           status={status}

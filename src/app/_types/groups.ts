@@ -1,6 +1,7 @@
 export type MyGroup = {
   groupId: string;
   groupName: string;
+  profileUrl?: string;
 };
 
 export type Mate = {
@@ -50,9 +51,11 @@ export type GroupDetail = {
   groupId: string;
   name: string;
   description: string;
-  members: {
-    userId: string;
-    nickname: string;
-    profileUrl: string;
-  }[];
+  members: GroupMembers;
 };
+
+export type GroupMembers = {
+  userId: string;
+  nickname: string;
+  profileUrl: string;
+}[];

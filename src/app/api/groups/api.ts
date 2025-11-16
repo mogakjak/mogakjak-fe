@@ -73,3 +73,14 @@ export const createGroup = (body: CreateGroupBody) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+
+export const updateGroup = (groupId: string, body: CreateGroupBody) =>
+  request<GroupDetail>(`/${groupId}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+
+export const getGroupDetail = (groupId: string) =>
+  request<GroupDetail>(`/${groupId}`, {
+    method: "GET",
+  });

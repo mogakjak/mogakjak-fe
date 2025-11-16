@@ -4,12 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
 import { ImageSelector } from "./ImageSelector"; // 경로는 폴더 구조에 맞게 수정!
-import { useCreateGroup } from "@/app/_hooks/groups";
+import { useCreateGroup, useUpdateGroup } from "@/app/_hooks/groups";
 
 interface RoomModalProps {
   onClose: () => void;
   mode: "create" | "edit";
-
+  //수정용
+  groupId?: string;
   initialName?: string;
   initialImageUrl?: string | null;
 }
@@ -17,6 +18,7 @@ interface RoomModalProps {
 export default function RoomModal({
   onClose,
   mode,
+  groupId,
   initialName = "",
   initialImageUrl = null,
 }: RoomModalProps) {
@@ -25,8 +27,10 @@ export default function RoomModal({
   const [imagePreview, setImagePreview] = useState<string | null>(
     initialImageUrl
   );
-  const { mutate: createGroup, isPending } = useCreateGroup();
+  const { mutate: createGroup, isPending: isCreating } = useCreateGroup();
+  const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroup();
   const isEdit = mode === "edit";
+  const isPending = isEdit ? isUpdating : isCreating;
   const title = isEdit ? "그룹 수정하기" : "그룹 생성하기";
   const buttonLabel = isEdit ? "수정하기" : "생성하기";
 
@@ -42,19 +46,41 @@ export default function RoomModal({
     };
 
     console.log("📌 Submit Payload:", {
+      mode,
+      groupId,
       payload,
       imageFile,
       imagePreview,
     });
 
-    createGroup(payload, {
-      onSuccess: () => {
-        onClose();
-      },
-      onError: () => {
-        alert("그룹 생성에 실패했습니다.");
-      },
-    });
+    if (isEdit) {
+      if (!groupId) {
+        console.error(" groupId가 없습니다.");
+
+        return;
+      }
+
+      updateGroup(
+        { groupId, body: payload },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+          onError: () => {
+            alert("그룹 수정에 실패했습니다.");
+          },
+        }
+      );
+    } else {
+      createGroup(payload, {
+        onSuccess: () => {
+          onClose();
+        },
+        onError: () => {
+          alert("그룹 생성에 실패했습니다.");
+        },
+      });
+    }
   };
 
   return (

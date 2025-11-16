@@ -7,20 +7,21 @@ import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
 
 import ReviewPopup from "../../../_components/common/review/reviewPopup";
-import { mockGroupFriends } from "@/app/_utils/mockData";
 import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 
 import Add from "/Icons/add.svg";
+import { GroupMembers } from "@/app/_types/groups";
 
 type GroupPageProps = {
   onExitGroup: () => void;
-  groupId: string;
+  groupData: GroupMembers;
 };
 
-export default function GroupPage({ onExitGroup, groupId }: GroupPageProps) {
+export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -47,7 +48,7 @@ export default function GroupPage({ onExitGroup, groupId }: GroupPageProps) {
       <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px]">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
-            <b className="text-black">그룹원</b> 3/8
+            <b className="text-black">그룹원</b> {groupData.length}/8
           </p>
           <SidebarButton className="px-5 ">
             <Icon Svg={Add} size={24} className="text-black" />
@@ -55,7 +56,7 @@ export default function GroupPage({ onExitGroup, groupId }: GroupPageProps) {
           </SidebarButton>
         </div>
         <div className="flex flex-col items-center justify-center">
-          {mockGroupFriends.length === 0 ? (
+          {groupData.length === 0 ? (
             <div className="text-gray-400 text-heading3-24SB font-semibold flex flex-col justify-center items-center h-[420px] text-center">
               <p>아직 그룹원이 없어요.</p>
               <p>
@@ -64,15 +65,15 @@ export default function GroupPage({ onExitGroup, groupId }: GroupPageProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-x-5 gap-y-3">
-              {mockGroupFriends.map((f) => (
+            <div className="grid grid-cols-4 gap-x-5 gap-y-3 h-[420px]">
+              {groupData.map((f) => (
                 <GroupFriendField
-                  key={f.id}
-                  status={f.status}
-                  friendName={f.friendName}
-                  level={f.level}
-                  isPublic={f.isPublic}
-                  activeTime={f.activeTime}
+                  key={f.userId}
+                  status={"active"}
+                  friendName={f.nickname}
+                  level={1}
+                  isPublic={true}
+                  activeTime={0}
                 />
               ))}
             </div>

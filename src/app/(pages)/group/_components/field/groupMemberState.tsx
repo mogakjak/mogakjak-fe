@@ -91,23 +91,13 @@ export default function GroupMemberState({
       </div>
       <p
         className={`flex items-center gap-2 ${
-          status == "active"
-            ? "text-red-500"
-            : status == "rest"
-            ? "text-red-300 "
-            : "text-gray-400"
+          status == "active" ? "text-black" : "text-gray-400"
         }`}
       >
         <Icon
           Svg={StopWatch}
           size={20}
-          className={`${
-            status == "active"
-              ? "text-red-500"
-              : status == "rest"
-              ? "text-red-300 "
-              : "text-gray-400"
-          }`}
+          className={`${status == "active" ? "text-black" : "text-gray-400"}`}
         />
         {line2}
       </p>
