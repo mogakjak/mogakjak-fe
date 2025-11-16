@@ -39,7 +39,7 @@ export default function DurationField({
 
   return (
     <div className={clsx("w-full", className)}>
-      <div className="px-10 py-5 bg-gray-100 rounded-xl outline-1 outline-offset-[-1px] outline-gray-200 flex items-center justify-center gap-2">
+      <div className="px-10 py-5 bg-gray-100 rounded-xl outline-1 outline-gray-200 flex items-center justify-center gap-2">
         <input
           type="number"
           value={String(h).padStart(2, "0")}

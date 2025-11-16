@@ -21,7 +21,6 @@ export function middleware(req: NextRequest) {
   const accessValid = !!access && accessExp !== null && accessExp > nowSec;
   const refreshValid = !!refresh && refreshExp !== null && refreshExp > nowSec;
 
-  // API/정적 리소스 pass
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
@@ -36,7 +35,7 @@ export function middleware(req: NextRequest) {
   }
 
   if (pathname === "/login") {
-    if (accessValid) {
+    if (accessValid || refreshValid) {
       const url = nextUrl.clone();
       url.pathname = "/";
       url.search = "";
@@ -44,18 +43,10 @@ export function middleware(req: NextRequest) {
     }
 
     const res = NextResponse.next();
-    if (!refreshValid) {
-      clearAuthCookies(res);
-    }
+    clearAuthCookies(res);
     return res;
   }
 
-  // 유효할 시에
-  if (accessValid) {
-    return NextResponse.next();
-  }
-
-  // 리프레쉬도 만료 시에는 둘 다 삭제 후 로그인
   if (!refreshValid) {
     const loginUrl = nextUrl.clone();
     loginUrl.pathname = "/login";
@@ -65,10 +56,7 @@ export function middleware(req: NextRequest) {
     return res;
   }
 
-  // refresh는 만료가 안되었으면 리프레쉬 시도
-  const refreshUrl = nextUrl.clone();
-  refreshUrl.pathname = "/auth/refresh";
-  return NextResponse.redirect(refreshUrl);
+  return NextResponse.next();
 }
 
 export const config = {

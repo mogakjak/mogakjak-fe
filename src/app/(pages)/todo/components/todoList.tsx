@@ -1,18 +1,33 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useEffect, useMemo, useState, Fragment } from "react";
 import clsx from "clsx";
 import WorkItem from "./workItem";
 import Image from "next/image";
 import AddWorkForm, { AddWorkPayload } from "./addWorkForm";
-import { CategoryOption } from "./categorySelect";
-import { Category } from "@/app/_types/category";
+import type { CategoryOption } from "./categorySelect";
+import type { Category } from "@/app/_types/category";
 
 export type TodoListProps = {
   dateLabel?: string;
   categories: Category[];
   onAddWork?: (categoryId: Category["id"]) => void;
   onToggleCategory?: (categoryId: Category["id"], expanded: boolean) => void;
+  onCreateTodo?: (payload: {
+    categoryId: string;
+    title: string;
+    date: Date;
+    targetSeconds: number;
+  }) => Promise<void> | void;
+  onUpdateTodo?: (payload: {
+    todoId: string;
+    categoryId: string;
+    title: string;
+    date: Date;
+    targetSeconds: number;
+  }) => Promise<void> | void;
+  onDeleteTodo?: (todoId: string) => Promise<void> | void;
+  onToggleTodo?: (todoId: string, next: boolean) => Promise<void> | void;
   className?: string;
 };
 
@@ -29,7 +44,7 @@ function CategoryHeader({
 }) {
   return (
     <div className="self-stretch inline-flex justify-start items-center gap-1">
-      <div className="flex-1 h-11 rounded-lg outline-1 outline-offset-[-1px] outline-gray-200 flex justify-start items-center overflow-hidden">
+      <div className="flex-1 h-11 rounded-lg outline-1 outline-gray-200 flex justify-start items-center overflow-hidden">
         <div className={clsx("w-3 self-stretch", category.barColorClass)} />
         <div className="flex-1 self-stretch px-4 py-2.5 bg-gray-100 flex justify-between items-center overflow-hidden">
           <div className="text-neutral-900 text-base font-semibold leading-snug">
@@ -73,22 +88,48 @@ function CategoryHeader({
 }
 
 export default function TodoList({
-  categories: initialCategories,
+  categories,
   onToggleCategory,
+  onCreateTodo,
+  onUpdateTodo,
+  onDeleteTodo,
+  onToggleTodo,
   className,
 }: TodoListProps) {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
-
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
-    initialCategories.reduce((acc, c) => {
-      acc[c.id] = c.expanded ?? true;
+    categories.reduce((acc, c) => {
+      // 할일이 있으면 expanded ?? true, 없으면 false
+      acc[c.id] = c.items.length > 0 ? (c.expanded ?? true) : false;
       return acc;
     }, {} as Record<string | number, boolean>)
   );
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"add" | "edit">("add");
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | number | null
   >(null);
+  const [editingTodo, setEditingTodo] = useState<{
+    id: string;
+    categoryId: string;
+    title: string;
+    date: Date | string;
+    targetSeconds: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setOpenMap((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      categories.forEach((cat) => {
+        const shouldBeOpen = cat.items.length > 0 ? (cat.expanded ?? true) : false;
+        if (!(cat.id in next) || next[cat.id] !== shouldBeOpen) {
+          next[cat.id] = shouldBeOpen;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [categories]);
 
   const toggle = (id: Category["id"]) => {
     setOpenMap((m) => {
@@ -98,51 +139,67 @@ export default function TodoList({
     });
   };
 
-  const toggleItemCompleted = (
-    catId: Category["id"],
-    idx: number,
-    next: boolean
-  ) => {
-    setCategories((prev) =>
-      prev.map((c) =>
-        c.id === catId
-          ? {
-              ...c,
-              items: c.items.map((it, i) =>
-                i === idx ? { ...it, completed: next } : it
-              ),
-            }
-          : c
-      )
-    );
-  };
   const handleAddClick = (catId: Category["id"]) => {
     setSelectedCategoryId(catId);
+    setModalType("add");
+    setEditingTodo(null);
     setModalOpen(true);
   };
-  const handleAddWork = (payload: AddWorkPayload) => {
-    if (!selectedCategoryId) return;
-    setCategories((prev) =>
-      prev.map((c) =>
-        c.id === selectedCategoryId
-          ? {
-              ...c,
-              items: [
-                ...c.items,
-                {
-                  date: payload.date,
-                  title: payload.title,
-                  targetSeconds: payload.targetSeconds,
-                  currentSeconds: 0,
-                  completed: false,
-                },
-              ],
-            }
-          : c
-      )
-    );
-    setModalOpen(false);
+
+  const handleEditClick = (todo: {
+    id: string;
+    categoryId: string;
+    title: string;
+    date: Date | string;
+    targetSeconds: number;
+  }) => {
+    let todoDate: Date;
+    if (typeof todo.date === "string") {
+      const [year, month, day] = todo.date.split("-").map(Number);
+      todoDate = new Date(year, month - 1, day);
+    } else {
+      todoDate = todo.date;
+    }
+    setEditingTodo({
+      ...todo,
+      date: todoDate,
+    });
+    setSelectedCategoryId(todo.categoryId);
+    setModalType("edit");
+    setModalOpen(true);
   };
+
+  const handleSubmit = async (payload: AddWorkPayload) => {
+    if (modalType === "edit" && editingTodo) {
+      await onUpdateTodo?.({
+        todoId: editingTodo.id,
+        categoryId: payload.categoryId,
+        title: payload.title,
+        date: payload.date,
+        targetSeconds: payload.targetSeconds,
+      });
+    } else {
+      if (!selectedCategoryId) return;
+      await onCreateTodo?.({
+        categoryId: String(selectedCategoryId),
+        title: payload.title,
+        date: payload.date,
+        targetSeconds: payload.targetSeconds,
+      });
+    }
+    setModalOpen(false);
+    setEditingTodo(null);
+  };
+
+  const categoryOptions = useMemo<CategoryOption[]>(
+    () =>
+      categories.map((c) => ({
+        id: String(c.id),
+        name: c.title,
+        colorToken: c.colorToken ?? "category-1-red",
+      })),
+    [categories]
+  );
 
   return (
     <>
@@ -154,7 +211,8 @@ export default function TodoList({
       >
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           {categories.map((cat) => {
-            const expanded = openMap[cat.id] ?? true;
+            // 할일이 있으면 openMap 값 사용, 없으면 false
+            const expanded = cat.items.length > 0 ? (openMap[cat.id] ?? true) : false;
             return (
               <Fragment key={cat.id}>
                 <CategoryHeader
@@ -167,11 +225,27 @@ export default function TodoList({
                   <div className="self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2">
                     {cat.items.map((w, idx) => (
                       <WorkItem
-                        key={`${cat.id}-${idx}`}
+                        key={w.id ?? `${cat.id}-${idx}`}
                         {...w}
                         onToggleCompleted={(next) =>
-                          toggleItemCompleted(cat.id, idx, next)
+                          w.id ? onToggleTodo?.(w.id, next) : undefined
                         }
+                        onEdit={() => {
+                          if (w.id) {
+                            handleEditClick({
+                              id: w.id,
+                              categoryId: String(cat.id),
+                              title: w.title,
+                              date: w.date,
+                              targetSeconds: w.targetSeconds,
+                            });
+                          }
+                        }}
+                        onDelete={() => {
+                          if (w.id) {
+                            onDeleteTodo?.(w.id);
+                          }
+                        }}
                         className="self-stretch w-full"
                       />
                     ))}
@@ -186,14 +260,27 @@ export default function TodoList({
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <AddWorkForm
-            type="add"
-            categories={categories.map((c) => ({
-              id: String(c.id),
-              name: c.title,
-              colorToken: "category-1-red" as CategoryOption["colorToken"],
-            }))}
-            onSubmit={handleAddWork}
-            onClose={() => setModalOpen(false)}
+            type={modalType}
+            categories={categoryOptions}
+            initialValues={
+              editingTodo
+                ? {
+                    categoryId: editingTodo.categoryId,
+                    title: editingTodo.title,
+                    date: editingTodo.date instanceof Date ? editingTodo.date : new Date(editingTodo.date),
+                    targetSeconds: editingTodo.targetSeconds,
+                  }
+                : selectedCategoryId
+                ? {
+                    categoryId: String(selectedCategoryId),
+                  }
+                : undefined
+            }
+            onSubmit={handleSubmit}
+            onClose={() => {
+              setModalOpen(false);
+              setEditingTodo(null);
+            }}
           />
         </div>
       )}
