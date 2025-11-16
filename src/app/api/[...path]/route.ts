@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
-const API_BASE_URL = process.env.API_BASE_URL!;
+export const runtime = "nodejs";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY!;
 const secure = process.env.NODE_ENV === "production";
 const cookieOpts = {
   httpOnly: true,
@@ -22,6 +23,11 @@ interface RefreshResponse {
   };
 }
 
+function clearAll(res: NextResponse) {
+  res.cookies.set("mg_access_token", "", { ...cookieOpts, maxAge: 0 });
+  res.cookies.set("mg_refresh_token", "", { ...cookieOpts, maxAge: 0 });
+}
+
 function extractAccessToken(headers: Headers): string | undefined {
   const auth = headers.get("authorization");
   if (auth && auth.toLowerCase().startsWith("bearer ")) return auth.slice(7);
@@ -32,9 +38,11 @@ function extractAccessToken(headers: Headers): string | undefined {
   return alt ?? undefined;
 }
 
-async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number } | null> {
+async function refreshAccessToken(
+  refreshToken: string
+): Promise<{ accessToken: string; expiresIn: number } | null> {
   try {
-    const upstream = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const upstream = await fetch(`${API_BASE}/auth/refresh`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ refreshToken }),
@@ -97,24 +105,21 @@ async function proxy(
     body,
     cache: "no-store",
   });
-  
-  // 401 에러이고 refresh token이 있고 재시도하지 않은 경우에만 재발급 시도
-  // response body를 읽기 전에 status를 먼저 확인
+
   if (upstream.status === 401 && refreshToken && retryCount === 0) {
     const refreshResult = await refreshAccessToken(refreshToken);
-    
+
     if (refreshResult) {
-      // 새로운 access token으로 재시도
       const retryHeaders = new Headers(headers);
       retryHeaders.set("authorization", `Bearer ${refreshResult.accessToken}`);
-      
+
       const retryResponse = await fetch(url, {
         method,
         headers: retryHeaders,
         body,
         cache: "no-store",
       });
-      
+
       const retryText = await retryResponse.text();
       const retryContentType =
         retryResponse.headers.get("content-type") ?? "application/json";
@@ -123,7 +128,6 @@ async function proxy(
         headers: { "content-type": retryContentType },
       });
 
-      // 새로운 access token을 쿠키에 저장
       resp.cookies.set("mg_access_token", refreshResult.accessToken, {
         ...cookieOpts,
         maxAge: refreshResult.expiresIn,
@@ -132,6 +136,19 @@ async function proxy(
       resp.headers.set("x-proxy-hit", "true");
       resp.headers.set("x-proxy-url", url);
       resp.headers.set("x-proxy-auth", "refreshed");
+      return resp;
+    } else {
+      const text = await upstream.text();
+      const contentType =
+        upstream.headers.get("content-type") ?? "application/json";
+      const resp = new NextResponse(text, {
+        status: upstream.status,
+        headers: { "content-type": contentType },
+      });
+      clearAll(resp);
+      resp.headers.set("x-proxy-hit", "true");
+      resp.headers.set("x-proxy-url", url);
+      resp.headers.set("x-proxy-auth", "refresh_failed");
       return resp;
     }
   }
@@ -147,6 +164,11 @@ async function proxy(
   resp.headers.set("x-proxy-hit", "true");
   resp.headers.set("x-proxy-url", url);
   resp.headers.set("x-proxy-auth", token ? "present" : "missing");
+
+  if (upstream.status === 401) {
+    clearAll(resp);
+  }
+
   return resp;
 }
 
@@ -156,18 +178,22 @@ export async function GET(req: NextRequest, ctx: Ctx) {
   const { path } = await ctx.params;
   return proxy("GET", req, path);
 }
+
 export async function POST(req: NextRequest, ctx: Ctx) {
   const { path } = await ctx.params;
   return proxy("POST", req, path);
 }
+
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { path } = await ctx.params;
   return proxy("PATCH", req, path);
 }
+
 export async function PUT(req: NextRequest, ctx: Ctx) {
   const { path } = await ctx.params;
   return proxy("PUT", req, path);
 }
+
 export async function DELETE(req: NextRequest, ctx: Ctx) {
   const { path } = await ctx.params;
   return proxy("DELETE", req, path);
