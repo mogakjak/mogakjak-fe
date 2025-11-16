@@ -41,7 +41,10 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: patchProfile,
     onSuccess: () => {
-      return qc.invalidateQueries({ queryKey: mypageKeys.basket() });
+      return Promise.all([
+        qc.invalidateQueries({ queryKey: mypageKeys.basket() }),
+        qc.invalidateQueries({ queryKey: mypageKeys.profile() }),
+      ]);
     },
     onError: (error) => {
       console.error("프로필 업데이트에 실패했습니다.", error);
@@ -57,6 +60,7 @@ export const useUpdateCharacter = () => {
       return Promise.all([
         qc.invalidateQueries({ queryKey: mypageKeys.basket() }),
         qc.invalidateQueries({ queryKey: mypageKeys.guide() }),
+        qc.invalidateQueries({ queryKey: mypageKeys.profile() }),
       ]);
     },
     onError: (error) => {

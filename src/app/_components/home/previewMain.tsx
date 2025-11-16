@@ -11,13 +11,9 @@ type PreviewMainProps = {
 };
 
 export default function PreviewMain({ state }: PreviewMainProps) {
-  const { data: profile, isLoading, isError, error } = useProfile();
+  const { data: profile, isLoading } = useProfile();
 
   const isPending = isLoading || !profile;
-
-  if (isError) {
-    console.error("프로필 로딩 실패:", error);
-  }
 
   return (
     <div className="h-full w-[327px] min-w-[327px] flex flex-col justify-between px-6 py-6 rounded-[20px] bg-white">
