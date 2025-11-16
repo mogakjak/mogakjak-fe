@@ -52,7 +52,7 @@ export default function TimerComponent({
   };
 
   const onSwitch = (m: Mode) => {
-    onStop();
+    onStop(); // 모드 변경 시 타이머 리셋
     setMode(m);
   };
 
@@ -96,9 +96,10 @@ export default function TimerComponent({
       <div className="mx-auto">
         <TimerSelected value={mode} onChange={onSwitch} />
       </div>
+
       <div
         className={clsx(
-          "mx-auto  bg-neutral-50 overflow-hidden flex items-center justify-center",
+          "mx-auto bg-neutral-50 overflow-hidden flex items-center justify-center",
           CONTENT_FIXED
         )}
       >
@@ -106,9 +107,9 @@ export default function TimerComponent({
           {body}
         </div>
       </div>
+
       <div className="mx-auto">
         <TimerButtons
-          mode={mode}
           running={running}
           onStart={onStart}
           onPause={onPause}

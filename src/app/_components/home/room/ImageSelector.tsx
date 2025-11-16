@@ -43,9 +43,11 @@ export function ImageSelector({
   `}
       >
         {preview ? (
-          <img
+          <Image
             src={preview}
             alt="그룹 이미지 미리보기"
+            width={36}
+            height={36}
             className="w-full h-full object-cover"
           />
         ) : (

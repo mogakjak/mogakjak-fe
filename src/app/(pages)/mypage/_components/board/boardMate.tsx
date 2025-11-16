@@ -1,38 +1,58 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DropdownList from "./mate/dropdownList";
 import SearchBar from "./mate/searchBar";
 import ProfileList from "./mate/profileList";
 import PageNation from "./mate/pageNation";
+import { useMyGroups, useMates } from "@/app/_hooks/groups";
 
 export default function BoardMate() {
-  const [selectedGroup, setSelectedGroup] = useState("전체 그룹");
+  const [selectedGroupName, setSelectedGroupName] = useState("전체 그룹");
+  const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(
+    undefined
+  );
   const [total, setTotal] = useState(0);
   const pageSize = 6;
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState(""); // 입력 중인 검색어
-  const [submittedSearch, setSubmittedSearch] = useState(""); // 실제 검색된 이름
+  const [search, setSearch] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
 
-  const groupItems = [
-    "전체 그룹",
-    "그룹이름가나다라",
-    "그룹이름마바사아",
-    "그룹이름자차카타파하",
-    "그룹이름ABCDE",
-    "그룹이름ABDE",
-    "그룹이름ACDE",
-    "그룹이름AB",
-    "그룹이름CDE",
-  ];
+  const { data: groups = [] } = useMyGroups();
 
   useEffect(() => {
     setPage(1);
-  }, [selectedGroup, submittedSearch]);
+  }, [selectedGroupId, submittedSearch]);
+
+  const groupItems = useMemo(
+    () => ["전체 그룹", ...groups.map((g) => g.groupName)],
+    [groups]
+  );
+
+  const handleGroupChange = (value: string) => {
+    setSelectedGroupName(value);
+
+    if (value === "전체 그룹") {
+      setSelectedGroupId(undefined);
+    } else {
+      const found = groups.find((g) => g.groupName === value);
+      setSelectedGroupId(found?.groupId);
+    }
+  };
 
   const handleSearchSubmit = (value: string) => {
-    setSubmittedSearch(value);
+    setSubmittedSearch(value.trim());
   };
+
+  const { data: matesData, isLoading: matesLoading } = useMates({
+    page: page - 1,
+    size: pageSize,
+    groupId: selectedGroupId,
+    search: submittedSearch || undefined,
+  });
+
+  const profiles = matesData?.content ?? [];
+  const totalCount = matesData?.totalElements ?? 0;
 
   return (
     <div className="p-2">
@@ -43,8 +63,8 @@ export default function BoardMate() {
       <section className="flex justify-between items-center mt-3">
         <DropdownList
           items={groupItems}
-          defaultLabel={selectedGroup}
-          onChange={(value) => setSelectedGroup(value)}
+          defaultLabel={selectedGroupName}
+          onChange={handleGroupChange}
         />
         <SearchBar
           value={search}
@@ -55,11 +75,13 @@ export default function BoardMate() {
 
       <section className="flex flex-col justify-between mt-4">
         <ProfileList
-          groupName={selectedGroup}
+          profiles={profiles}
+          totalCount={totalCount}
           page={page}
           pageSize={pageSize}
           onCountChange={setTotal}
           search={submittedSearch}
+          isLoading={matesLoading}
         />
         <PageNation
           page={page}

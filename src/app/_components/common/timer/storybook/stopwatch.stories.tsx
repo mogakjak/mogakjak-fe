@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import { useRef, useState } from "react";
-import Stopwatch, { StopwatchHandle } from "@/app/_components/common/timer/stopwatch";
-import TimerButtons from "@/app/_components/common/timer/timerButton";  
+import Stopwatch, {
+  StopwatchHandle,
+} from "@/app/_components/common/timer/stopwatch";
+import TimerButtons from "@/app/_components/common/timer/timerButton";
 
 const meta = {
   title: "UI/Timer/Stopwatch",
@@ -22,7 +24,6 @@ function StopwatchWrapper() {
     <div className="w-[920px] p-8 bg-neutral-50 rounded-2xl flex flex-col items-center gap-8">
       <Stopwatch ref={ref} />
       <TimerButtons
-        mode="stopwatch"
         running={running}
         onStart={() => {
           ref.current?.start();

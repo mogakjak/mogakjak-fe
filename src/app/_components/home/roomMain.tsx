@@ -3,8 +3,7 @@
 import { useState } from "react";
 import GroupRoom from "./room/groupRoom";
 import { Button } from "@/components/button";
-import GroupModal from "../group/groupModal";
-import { categoriesData, mates, groups } from "@/app/_utils/mockData";
+import { categoriesData } from "@/app/_utils/mockData";
 import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";

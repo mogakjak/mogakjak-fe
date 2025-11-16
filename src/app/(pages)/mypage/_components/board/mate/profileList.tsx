@@ -12,6 +12,7 @@ interface MateProfile {
 interface ProfileListProps {
   profiles: MateProfile[];
   totalCount: number;
+  groupName?: string;
   page?: number;
   pageSize?: number;
   onCountChange?: (n: number) => void;
@@ -27,6 +28,7 @@ export default function ProfileList({
   onCountChange,
   search = "",
   isLoading = false,
+  groupName,
 }: ProfileListProps) {
   useEffect(() => {
     onCountChange?.(totalCount);
@@ -86,7 +88,7 @@ export default function ProfileList({
 
           <div className="w-px h-5 bg-black m-2" />
           <div className="text-gray-500 text-body1-16R flex gap-2">
-            <p>그룹 정보 미제공</p>
+            <p>{groupName}</p>
             <p>·</p>
             <p>상태 정보 미제공</p>
           </div>

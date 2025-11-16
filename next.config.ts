@@ -15,7 +15,9 @@ const nextConfig: NextConfig = {
       ],
     };
   },
-
+  images: {
+    domains: ["kr.object.ncloudstorage.com"],
+  },
   webpack(config) {
     const assetRule = (config.module.rules as RuleSetRule[]).find(
       (rule) => rule?.test instanceof RegExp && rule.test.test(".svg")

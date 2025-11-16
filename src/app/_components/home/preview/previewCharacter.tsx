@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import CheerUp from "../../../(pages)/group/_components/field/cheerUp";
 import type { Character } from "@/app/_types/mypage";
 type PreviewCharacterProps = {
@@ -20,7 +21,7 @@ export default function PreviewCharacter({
         {state && <CheerUp />}
       </div>
       <div className="flex flex-col items-center pt-1.5 gap-5">
-        <img src={character.imageUrl} alt="캐릭터" width={135} height={135} />
+        <Image src={character.imageUrl} alt="캐릭터" width={135} height={135} />
         <p className="text-body1-16SB">
           Lv{character.level}.{character.name}
         </p>
