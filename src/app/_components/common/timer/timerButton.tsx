@@ -7,7 +7,6 @@ import { Button } from "@/components/button";
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
 export type TimerButtonsProps = {
-  mode?: Mode;
   running: boolean;
   className?: string;
   onStart?: () => void;
@@ -16,7 +15,6 @@ export type TimerButtonsProps = {
 };
 
 export default function TimerButtons({
-  mode = "pomodoro",
   running,
   className,
   onStart,
@@ -47,8 +45,6 @@ export default function TimerButtons({
       </div>
     );
   }
-
-  const isPomodoro = mode === "pomodoro";
 
   return (
     <div className={clsx("w-full flex items-center gap-3", className)}>

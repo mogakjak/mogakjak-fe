@@ -1,32 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import FriendMain from "./friendMain";
 import PreviewMain from "./previewMain";
+import FriendMain from "./friendMain";
 import RoomMain from "./roomMain";
-import GroupPage from "../group/groupPage";
 
 export default function HomePage() {
-  const [state, setState] = useState(false);
-  const handlePage = () => {
-    setState(true);
-  };
-  const handleExitGroup = () => {
-    setState(false);
-  };
   return (
-    <main className="w-full h-full max-w-[1440px] pt-9 mx-auto flex gap-5 overflow-x-hidden">
-      <div className="self-stretch ">
-        <PreviewMain state={state} />
+    <main className="w-full h-full max-w-[1440px] mx-auto flex gap-5 overflow-x-hidden pt-9">
+      <div className="self-stretch">
+        <PreviewMain state={false} />
       </div>
-      {state ? (
-        <GroupPage onExitGroup={handleExitGroup} />
-      ) : (
-        <section className="w-full flex-1 flex flex-col justify-between">
-          <RoomMain onPage={handlePage} />
-          <FriendMain />
-        </section>
-      )}
+
+      <section className="w-full flex-1 flex flex-col justify-between">
+        <RoomMain />
+        <FriendMain />
+      </section>
     </main>
   );
 }

@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import { useState } from "react";
-import TimerButtons, { TimerButtonsProps } from "@/app/_components/common/timer/timerButton";
+import TimerButtons, {
+  TimerButtonsProps,
+} from "@/app/_components/common/timer/timerButton";
 
 const meta = {
   title: "UI/Timer/TimerButtons",
@@ -9,10 +11,6 @@ const meta = {
     layout: "centered",
   },
   argTypes: {
-    mode: {
-      control: "select",
-      options: ["pomodoro", "stopwatch", "timer"],
-    },
     running: {
       control: "boolean",
     },
@@ -38,22 +36,12 @@ function Wrapper(args: TimerButtonsProps) {
   );
 }
 
-export const Pomodoro_Idle: Story = {
-  args: { mode: "pomodoro", running: false },
+export const Idle: Story = {
+  args: { running: false },
   render: (args) => <Wrapper {...args} />,
 };
 
-export const Pomodoro_Running: Story = {
-  args: { mode: "pomodoro", running: true },
-  render: (args) => <Wrapper {...args} />,
-};
-
-export const Timer_Idle: Story = {
-  args: { mode: "timer", running: false },
-  render: (args) => <Wrapper {...args} />,
-};
-
-export const Timer_Running: Story = {
-  args: { mode: "timer", running: true },
+export const Running: Story = {
+  args: { running: true },
   render: (args) => <Wrapper {...args} />,
 };

@@ -61,7 +61,7 @@ export default function DropdownList({
           ref={panelRef}
           role="listbox"
           className="absolute mt-3 w-[340px] rounded-2xl border border-gray-200 bg-white shadow-md p-2
-                     max-h-[240px] overflow-y-auto
+                     max-h-[190px] overflow-y-auto
                      [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2
                      [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full"
         >

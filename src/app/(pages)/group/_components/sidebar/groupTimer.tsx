@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useStopwatch } from "react-timer-hook";
-import Icon from "../../common/Icons";
+import Icon from "../../../../_components/common/Icons";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -41,7 +41,7 @@ export default function GroupTimer() {
 
   return (
     <div className="w-full flex items-center gap-5">
-      <div className="w-[346px] flex flex-col justify-center items-center rounded-2xl py-[10px] bg-gray-100">
+      <div className="w-[346px] flex flex-col justify-center items-center rounded-2xl py-2 bg-gray-100">
         <p
           className={`text-heading1-32B whitespace-nowrap ${
             status === "running" ? "text-gray-800" : "text-gray-400"
