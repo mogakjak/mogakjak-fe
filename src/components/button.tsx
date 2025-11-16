@@ -5,9 +5,7 @@ import clsx from "clsx";
 
 type Variant =
   | "primary"
-  | "brick"
-  | "salmon"
-  | "slate700"
+  | "secondary"
   | "neutral700"
   | "slate600"
   | "muted"
@@ -23,10 +21,9 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const VARIANT_CLASS: Record<Variant, string> = {
-  primary: "bg-red-500 text-neutral-50 hover:opacity-95 active:opacity-90",
-  brick: "bg-orange-800 text-neutral-50 hover:opacity-95 active:opacity-90",
-  salmon: "bg-red-400 text-neutral-50 hover:opacity-95 active:opacity-90",
-  slate700: "bg-zinc-700 text-neutral-50 hover:opacity-95 active:opacity-90",
+  primary: "bg-red-500 text-neutral-50 hover:bg-red-700 active:opacity-90",
+  secondary:
+    "bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200 hover:border-gray-300 active:opacity-90",
   neutral700:
     "bg-neutral-700 text-neutral-50 hover:opacity-95 active:opacity-90",
   slate600: "bg-zinc-600 text-neutral-50 hover:opacity-95 active:opacity-90",
@@ -36,8 +33,8 @@ const VARIANT_CLASS: Record<Variant, string> = {
 };
 
 const SIZE_CLASS: Record<Size, string> = {
-  md: "h-12 px-6 py-3 text-base rounded-xl",
-  sm: "h-10 px-4 py-2 text-sm rounded-lg",
+  md: "h-12 px-6 py-3 text-base rounded-[16px]",
+  sm: "h-10 px-4 py-2 text-sm rounded-[12px]",
   custom: "",
 };
 

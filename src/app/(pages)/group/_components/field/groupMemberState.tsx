@@ -1,7 +1,7 @@
 "use client";
 
 import { formatTime } from "@/app/_utils/formatTime";
-import Icon from "../../common/Icons";
+import Icon from "../../../../_components/common/Icons";
 
 // 아이콘
 import Book from "/Icons/book.svg";

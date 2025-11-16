@@ -1,8 +1,18 @@
 "use client";
 
-import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
-import { getMates, GetMatesParams, getMyGroups } from "../api/groups/api";
-import { MatesPage, MyGroup } from "../_types/groups";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
+import {
+  createGroup,
+  getMates,
+  GetMatesParams,
+  getMyGroups,
+} from "../api/groups/api";
+import { CreateGroupBody, MatesPage, MyGroup } from "../_types/groups";
 import { groupKeys } from "../api/groups/keys";
 
 export const useMyGroups = (
@@ -26,3 +36,14 @@ export const useMates = (
     gcTime: 5 * 60 * 1000,
     ...options,
   });
+
+export const useCreateGroup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: CreateGroupBody) => createGroup(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+    },
+  });
+};

@@ -2,7 +2,7 @@
 
 import { useProfile } from "@/app/_hooks/mypage";
 import TimerComponent from "../common/timer/timerComponent";
-import GroupMySidebar from "../group/sidebar/groupMySidebar";
+import GroupMySidebar from "../../(pages)/group/_components/sidebar/groupMySidebar";
 import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
 
@@ -33,12 +33,13 @@ export default function PreviewMain({ state }: PreviewMainProps) {
         />
       )}
 
-      {state ? (
-        <GroupMySidebar />
-      ) : isPending ? (
+      {isPending ? (
         <div className="mt-4 w-full h-[60px] rounded-lg bg-gray-100 animate-pulse" />
       ) : (
-        <Quotes Quotes={profile.quote} />
+        <>
+          {!state && <Quotes Quotes={profile.quote} />}
+          <GroupMySidebar state={state} />
+        </>
       )}
 
       <TimerComponent />

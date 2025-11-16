@@ -40,3 +40,19 @@ export type PageResponse<T> = {
 };
 
 export type MatesPage = PageResponse<Mate>;
+
+export type CreateGroupBody = {
+  name: string;
+  description: string;
+};
+
+export type GroupDetail = {
+  groupId: string;
+  name: string;
+  description: string;
+  members: {
+    userId: string;
+    nickname: string;
+    profileUrl: string;
+  }[];
+};

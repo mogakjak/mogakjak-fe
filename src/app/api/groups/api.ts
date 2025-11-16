@@ -1,4 +1,9 @@
-import type { MyGroup, MatesPage } from "@/app/_types/groups";
+import type {
+  MyGroup,
+  MatesPage,
+  GroupDetail,
+  CreateGroupBody,
+} from "@/app/_types/groups";
 
 const GROUPS_BASE = "/api/groups";
 
@@ -62,3 +67,9 @@ export const getMates = (params?: GetMatesParams) => {
 
   return request<MatesPage>(endpoint, { method: "GET" });
 };
+
+export const createGroup = (body: CreateGroupBody) =>
+  request<GroupDetail>("", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });

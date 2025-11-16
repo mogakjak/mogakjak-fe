@@ -53,7 +53,7 @@ export default function ProfileList({
   if (totalCount === 0) {
     return (
       <div className="flex flex-col h-[552px] mb-1">
-        <p className="flex h-full items-center justify-center text-gray-400 text-body1-16R">
+        <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
           {search ? (
             <>
               검색어 <span className="font-semibold">“{search}”</span>에

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Icon from "../../common/Icons";
+import Icon from "../../../../_components/common/Icons";
 
 import SidebarButton from "./sidebarButton";
 import Notification from "/Icons/notification.svg";
-import NotiModal from "../modal/notiModal";
+import NotiModal from "../../../../_components/group/modal/notiModal";
 
 export default function GroupGoal() {
   const [openNoti, setOpenNoti] = useState(false);

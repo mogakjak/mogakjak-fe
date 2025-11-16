@@ -1,6 +1,6 @@
 "use client";
 
-import CheerUp from "../../group/field/cheerUp";
+import CheerUp from "../../../(pages)/group/_components/field/cheerUp";
 import type { Character } from "@/app/_types/mypage";
 type PreviewCharacterProps = {
   state: boolean;
