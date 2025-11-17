@@ -60,6 +60,8 @@ export default function TodoPage() {
   }, [categories]);
 
   const todoListCategories = useMemo<ListCategory[]>(() => {
+    let allCategories: ListCategory[] = [];
+    
     if (filter === "all") {
       // 전체 투두리스트
       const todosByCategoryId = new Map<string, Todo[]>();
@@ -68,7 +70,7 @@ export default function TodoPage() {
         todosByCategoryId.set(todo.categoryId, [...existing, todo]);
       });
 
-      return categories
+      allCategories = categories
         .sort((a, b) => a.displayOrder - b.displayOrder)
         .map((category) => {
           const todos = todosByCategoryId.get(category.id) ?? [];
@@ -100,7 +102,7 @@ export default function TodoPage() {
       const todosByCategoryId = new Map(
         todayTodos.map((cat) => [cat.id, cat])
       );
-      return categories
+      allCategories = categories
         .sort((a, b) => a.displayOrder - b.displayOrder)
         .map((category) => {
           const categoryWithTodos = todosByCategoryId.get(category.id);
@@ -129,7 +131,12 @@ export default function TodoPage() {
           };
         });
     }
-  }, [categories, todayTodos, myTodos, filter]);
+    if (selectedId !== "all") {
+      return allCategories.filter((cat) => cat.id === selectedId);
+    }
+    
+    return allCategories;
+  }, [categories, todayTodos, myTodos, filter, selectedId]);
 
   const handleCreateCategory = useCallback(
     async ({ name, colorToken }: { name: string; colorToken: string }) => {
@@ -270,6 +277,7 @@ export default function TodoPage() {
           onUpdateTodo={handleUpdateTodo}
           onDeleteTodo={handleDeleteTodo}
           onToggleTodo={handleToggleTodo}
+          onCategorySelect={setSelectedId}
         />
       </section>
     </div>

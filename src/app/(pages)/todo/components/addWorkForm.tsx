@@ -23,6 +23,7 @@ export default function AddWorkForm({
   initialValues,
   onSubmit,
   onClose,
+  onCategorySelect,
   className,
 }: {
   type: string;
@@ -36,6 +37,7 @@ export default function AddWorkForm({
   };
   onSubmit?: (payload: AddWorkPayload) => void;
   onClose?: () => void;
+  onCategorySelect?: (categoryId: string) => void;
   className?: string;
 }) {
   const [categoryId, setCategoryId] = useState<string>(initialValues?.categoryId ?? "");
@@ -106,7 +108,10 @@ export default function AddWorkForm({
             <CategorySelect
               value={categoryId || null}
               options={categories}
-              onChange={setCategoryId}
+              onChange={(id) => {
+                setCategoryId(id);
+                onCategorySelect?.(id);
+              }}
             />
           </div>
 
