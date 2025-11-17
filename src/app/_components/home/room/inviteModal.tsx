@@ -23,6 +23,7 @@ export default function InviteModal({
 }: InviteModalProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const { data: matesData, isLoading: matesLoading } = useMates({
     page: 0,
@@ -51,17 +52,39 @@ export default function InviteModal({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteUrl);
-      alert("링크가 복사되었습니다.");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 2000);
     } catch {
       alert("링크 복사에 실패했습니다.");
     }
   };
 
   return (
-    <div className="w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0px_0px_28px_0px_rgba(0,0,0,0.15)]">
-      <button className="flex ml-auto mb-2" onClick={onClose}>
-        <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
-      </button>
+    <>
+      {showToast && (
+        <div className="fixed inset-0 flex items-center justify-center z-60 pointer-events-none">
+          <div className="w-96 h-9 px-4 py-1.5 bg-zinc-600/80 rounded shadow-[0px_0px_12px_0px_rgba(0,0,0,0.15)] backdrop-blur-sm inline-flex justify-start items-center gap-2 overflow-hidden">
+            <div className="w-6 h-6 relative overflow-hidden">
+              <Image
+                src="/Icons/checkGreen.svg"
+                alt="체크"
+                width={24}
+                height={24}
+                className="w-full h-full"
+              />
+            </div>
+            <div className="text-neutral-50 text-sm font-normal leading-5">
+              초대링크가 복사되었어요.
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0px_0px_28px_0px_rgba(0,0,0,0.15)]">
+        <button className="flex ml-auto mb-2" onClick={onClose}>
+          <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
+        </button>
       <div className="p-5 flex flex-col items-center gap-7">
         <h2 className="text-center text-neutral-900 text-xl font-semibold leading-7">
           함께 할 메이트를 초대하세요!
@@ -198,5 +221,6 @@ export default function InviteModal({
         </Button>
       </div>
     </div>
+    </>
   );
 }
