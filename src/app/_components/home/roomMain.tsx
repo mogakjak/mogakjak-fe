@@ -8,6 +8,7 @@ import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";
 import { MyGroup } from "@/app/_types/groups";
+import InviteModal from "./room/inviteModal";
 
 type RoomMainProps = {
   groups: MyGroup[];
@@ -17,8 +18,19 @@ type RoomMainProps = {
 export default function RoomMain({ groups, isPending }: RoomMainProps) {
   const [groupOpen, setGroupOpen] = useState(false);
   const [personalOpen, setPersonalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [createdGroupId, setCreatedGroupId] = useState<string | undefined>(
+    undefined
+  );
 
-  const openGroupFlow = () => setGroupOpen(true);
+  const openGroupFlow = () => {
+    setGroupOpen(true);
+  };
+
+  const handleGroupCreateSuccess = (groupId: string) => {
+    setCreatedGroupId(groupId);
+    setInviteModalOpen(true);
+  };
 
   return (
     <div className="w-full p-9 pb-0 bg-white rounded-[20px]">
@@ -64,13 +76,29 @@ export default function RoomMain({ groups, isPending }: RoomMainProps) {
       </div>
 
       {groupOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[1000]">
-          <RoomModal mode="create" onClose={() => setGroupOpen(false)} />
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <RoomModal
+            mode="create"
+            onClose={() => setGroupOpen(false)}
+            onCreateSuccess={handleGroupCreateSuccess}
+          />
+        </div>
+      )}
+
+      {inviteModalOpen && createdGroupId && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <InviteModal
+            groupId={createdGroupId}
+            onClose={() => {
+              setInviteModalOpen(false);
+              setCreatedGroupId(undefined);
+            }}
+          />
         </div>
       )}
 
       {personalOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[1000]">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <AddWorkForm
             type="select"
             categories={categoriesData.map((c) => ({
