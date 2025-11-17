@@ -84,3 +84,8 @@ export const getGroupDetail = (groupId: string) =>
   request<GroupDetail>(`/${groupId}`, {
     method: "GET",
   });
+
+export const getGroupInviteLink = (groupId: string) =>
+  request<{ inviteId: string }>(`/${groupId}/invitations/link`, {
+    method: "GET",
+  });

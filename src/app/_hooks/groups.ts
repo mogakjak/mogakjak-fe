@@ -9,6 +9,7 @@ import {
 import {
   createGroup,
   getGroupDetail,
+  getGroupInviteLink,
   getMates,
   GetMatesParams,
   getMyGroups,
@@ -80,6 +81,24 @@ export const useGroupDetail = (
   useQuery<GroupDetail, Error>({
     queryKey: groupKeys.detail(groupId),
     queryFn: () => getGroupDetail(groupId),
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+
+export const useGroupInviteLink = (
+  groupId: string | undefined,
+  options?: Omit<
+    UseQueryOptions<{ inviteId: string }, Error>,
+    "queryKey" | "queryFn"
+  >
+) =>
+  useQuery<{ inviteId: string }, Error>({
+    queryKey: [...groupKeys.all(), "inviteLink", groupId ?? ""],
+    queryFn: () => {
+      if (!groupId) throw new Error("groupId is required");
+      return getGroupInviteLink(groupId);
+    },
+    enabled: !!groupId,
     staleTime: 5 * 60 * 1000,
     ...options,
   });
