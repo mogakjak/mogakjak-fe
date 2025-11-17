@@ -13,6 +13,7 @@ interface RoomModalProps {
   groupId?: string;
   initialName?: string;
   initialImageUrl?: string | null;
+  onCreateSuccess?: (groupId: string) => void;
 }
 
 export default function RoomModal({
@@ -21,6 +22,7 @@ export default function RoomModal({
   groupId,
   initialName = "",
   initialImageUrl = null,
+  onCreateSuccess,
 }: RoomModalProps) {
   const [name, setName] = useState(initialName);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -32,7 +34,7 @@ export default function RoomModal({
   const isEdit = mode === "edit";
   const isPending = isEdit ? isUpdating : isCreating;
   const title = isEdit ? "그룹 수정하기" : "그룹 생성하기";
-  const buttonLabel = isEdit ? "수정하기" : "생성하기";
+  const buttonLabel = "생성하기";
 
   const handleSubmit = () => {
     if (!name.trim()) {
@@ -73,8 +75,11 @@ export default function RoomModal({
       );
     } else {
       createGroup(payload, {
-        onSuccess: () => {
+        onSuccess: (data) => {
           onClose();
+          if (data?.groupId && onCreateSuccess) {
+            onCreateSuccess(data.groupId);
+          }
         },
         onError: () => {
           alert("그룹 생성에 실패했습니다.");

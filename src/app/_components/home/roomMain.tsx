@@ -7,6 +7,7 @@ import { categoriesData } from "@/app/_utils/mockData";
 import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";
+import InviteModal from "./room/inviteModal";
 
 type Member = { id: number; isActive: boolean };
 type GroupMembers = { id: number; name: string; members: Member[] };
@@ -14,9 +15,18 @@ type GroupMembers = { id: number; name: string; members: Member[] };
 export default function RoomMain() {
   const [groupOpen, setGroupOpen] = useState(false);
   const [personalOpen, setPersonalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [createdGroupId, setCreatedGroupId] = useState<string | undefined>(
+    undefined
+  );
 
   const openGroupFlow = () => {
     setGroupOpen(true);
+  };
+
+  const handleGroupCreateSuccess = (groupId: string) => {
+    setCreatedGroupId(groupId);
+    setInviteModalOpen(true);
   };
 
   const groupMembers: GroupMembers[] = [];
@@ -48,13 +58,29 @@ export default function RoomMain() {
       </div>
 
       {groupOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <RoomModal mode="create" onClose={() => setGroupOpen(false)} />
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <RoomModal
+            mode="create"
+            onClose={() => setGroupOpen(false)}
+            onCreateSuccess={handleGroupCreateSuccess}
+          />
+        </div>
+      )}
+
+      {inviteModalOpen && createdGroupId && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <InviteModal
+            groupId={createdGroupId}
+            onClose={() => {
+              setInviteModalOpen(false);
+              setCreatedGroupId(undefined);
+            }}
+          />
         </div>
       )}
 
       {personalOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <AddWorkForm
             type="select"
             categories={categoriesData.map((c) => ({
