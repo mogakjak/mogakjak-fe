@@ -10,10 +10,12 @@ export type HourlyFocus = {
   totalSeconds: number;
 };
 
+import type { CategoryColorToken } from "./category";
+
 export type CategoryFocus = {
   categoryId: string;
   categoryName: string;
-  color: string;
+  color: CategoryColorToken | string;
   totalSeconds: number;
   completedTodoCount: number;
   totalTodoCount: number;

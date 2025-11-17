@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { categoryTime } from "../../../_utils/categoryTime";
+import React from "react";
 import { formatHMS } from "../../../_utils/formatHMS";
 
 interface BaseItem {
   category: string;
+  color?: string;
 }
 type TimeItem = BaseItem & { seconds: number };
 type CountItem = BaseItem & { currentCount: number; totalCount: number };
@@ -29,30 +29,19 @@ const FALLBACK_PALETTE = [
   "#a27bf0",
 ];
 
+function resolveColor(color: string | undefined, idx: number) {
+  const trimmed = color?.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  return FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+}
+
 export default function CategoryStats({ type, items }: CategoryStatsProps) {
-  const coloredItems = useMemo(() => {
-    const base = items.map((item) => ({
-      category: item.category,
-      seconds: isTimeItem(item) ? item.seconds : 0,
-    }));
-
-    const withColor = categoryTime(base);
-
-    return withColor.map((c, idx) => {
-      const raw = (c.color || "").trim();
-      const safeColor =
-        raw.length > 0 ? raw : FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
-
-      return { ...c, color: safeColor };
-    });
-  }, [items]);
-
   return (
     <div className="category-scroll h-[274px] overflow-y-auto space-y-4 pr-2">
       {items.map((item, idx) => {
-        const color =
-          coloredItems[idx]?.color ||
-          FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+        const color = resolveColor(item.color, idx);
 
         return (
           <div key={item.category + "_" + idx} className="flex items-center">

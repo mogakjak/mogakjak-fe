@@ -10,6 +10,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { formatHMS } from "../../../_utils/formatHMS";
+import { toCssColor, resolveCanvasColor } from "../../../_utils/categoryTime";
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
@@ -30,6 +31,11 @@ export default function DonutGraph({
   categories,
   cutout = "60%",
 }: DonutGraphProps) {
+  const normalizedColors = categories.map((c, idx) => toCssColor(c.color, idx));
+  const backgroundColors = normalizedColors.map((color) =>
+    resolveCanvasColor(color)
+  );
+
   const safeTotal = Math.max(0, totalSeconds);
 
   const percents =
@@ -44,7 +50,7 @@ export default function DonutGraph({
     datasets: [
       {
         data: datasetData,
-        backgroundColor: categories.map((c) => c.color),
+        backgroundColor: backgroundColors,
         borderWidth: 0,
         spacing: 0,
       },

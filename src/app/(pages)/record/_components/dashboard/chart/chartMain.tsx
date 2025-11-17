@@ -20,22 +20,28 @@ export default function ChartMain({ data, isPending }: ChartMainProps) {
     });
   }
 
-  const timeItems = dataReady
+  const baseCategories = dataReady
     ? data.categoryFocus.map((cat) => ({
         category: cat.categoryName,
         seconds: cat.totalSeconds,
+        color: cat.color,
       }))
     : [];
 
+  const resolvedCategories = dataReady ? categoryTime(baseCategories) : [];
+
+  const timeItems = dataReady ? resolvedCategories : [];
+
   const countItems = dataReady
-    ? data.categoryFocus.map((cat) => ({
+    ? data.categoryFocus.map((cat, idx) => ({
         category: cat.categoryName,
         currentCount: cat.completedTodoCount,
         totalCount: cat.totalTodoCount,
+        color: resolvedCategories[idx]?.color ?? String(cat.color ?? ""),
       }))
     : [];
 
-  const categories = categoryTime(timeItems);
+  const categories = resolvedCategories;
   return (
     <div className="mt-[100px]">
       <div className="flex items-center gap-5 mb-5">
