@@ -9,6 +9,7 @@ import {
 import {
   createGroup,
   getGroupDetail,
+  getGroupInviteLink,
   getMates,
   GetMatesParams,
   getMyGroups,
