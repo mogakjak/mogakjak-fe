@@ -8,9 +8,7 @@ import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
-
-type Member = { id: number; isActive: boolean };
-type GroupMembers = { id: number; name: string; members: Member[] };
+import { useMyGroups } from "@/app/_hooks/groups";
 
 export default function RoomMain() {
   const [groupOpen, setGroupOpen] = useState(false);
@@ -29,7 +27,7 @@ export default function RoomMain() {
     setInviteModalOpen(true);
   };
 
-  const groupMembers: GroupMembers[] = [];
+  const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
 
   return (
     <div className="w-full p-6 pb-0 bg-white rounded-[20px]">
@@ -48,8 +46,18 @@ export default function RoomMain() {
       </div>
 
       <div className="h-[320px] overflow-y-auto">
-        {groupMembers.length > 0 ? (
-          groupMembers.map((g) => <GroupRoom key={g.id} group={g} />)
+        {groupsLoading ? (
+          <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
+            그룹을 불러오는 중...
+          </p>
+        ) : myGroups.length > 0 ? (
+          myGroups.map((g) => (
+            <GroupRoom
+              key={g.groupId}
+              groupId={g.groupId}
+              groupName={g.groupName}
+            />
+          ))
         ) : (
           <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
             새로운 그룹을 만들고 모각작에 참여해 보세요!
