@@ -2,12 +2,12 @@
 
 import React, { useMemo } from "react";
 import { categoryTime } from "../../../_utils/categoryTime";
-import { formatHM } from "../../../_utils/formatHM";
+import { formatHMS } from "../../../_utils/formatHMS";
 
 interface BaseItem {
   category: string;
 }
-type TimeItem = BaseItem & { minutes: number };
+type TimeItem = BaseItem & { seconds: number };
 type CountItem = BaseItem & { currentCount: number; totalCount: number };
 
 interface CategoryStatsProps {
@@ -16,7 +16,7 @@ interface CategoryStatsProps {
 }
 
 function isTimeItem(item: TimeItem | CountItem): item is TimeItem {
-  return typeof (item as TimeItem).minutes === "number";
+  return typeof (item as TimeItem).seconds === "number";
 }
 
 const FALLBACK_PALETTE = [
@@ -33,7 +33,7 @@ export default function CategoryStats({ type, items }: CategoryStatsProps) {
   const coloredItems = useMemo(() => {
     const base = items.map((item) => ({
       category: item.category,
-      minutes: isTimeItem(item) ? item.minutes : 0,
+      seconds: isTimeItem(item) ? item.seconds : 0,
     }));
 
     const withColor = categoryTime(base);
@@ -41,15 +41,14 @@ export default function CategoryStats({ type, items }: CategoryStatsProps) {
     return withColor.map((c, idx) => {
       const raw = (c.color || "").trim();
       const safeColor =
-        raw && raw.length > 0
-          ? raw
-          : FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+        raw.length > 0 ? raw : FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+
       return { ...c, color: safeColor };
     });
   }, [items]);
 
   return (
-    <div className="category-scroll  h-[274px] overflow-y-auto space-y-4 pr-2">
+    <div className="category-scroll h-[274px] overflow-y-auto space-y-4 pr-2">
       {items.map((item, idx) => {
         const color =
           coloredItems[idx]?.color ||
@@ -62,14 +61,14 @@ export default function CategoryStats({ type, items }: CategoryStatsProps) {
                 className="inline-block w-4 h-4 rounded-sm shrink-0"
                 style={{ backgroundColor: color }}
               />
-              <span className="max-w-[150px] text-gray-600 text-body1-16R truncate">
+              <span className="w-[150px] max-w-[150px] text-gray-600 text-body1-16R truncate">
                 {item.category}
               </span>
             </div>
 
             {type === "time" && isTimeItem(item) ? (
               <span className="text-gray-800 text-body1-16SB ml-auto mr-[100px]">
-                {formatHM(item.minutes)}
+                {formatHMS(item.seconds)}
               </span>
             ) : (
               <div className="flex items-center gap-1 text-gray-800 text-body1-16SB mr-[100px] ml-auto">

@@ -1,6 +1,6 @@
 export interface CategoryItem {
   category: string;
-  minutes: number;
+  seconds: number;
   color: string;
 }
 
@@ -13,13 +13,16 @@ export function categoryTime(
       colorIndex
     )}`;
 
+    let fromVar = "";
     if (typeof window !== "undefined") {
       return getComputedStyle(document.documentElement)
         .getPropertyValue(colorVarName)
         .trim();
     }
 
-    return defaultColor(colorIndex);
+    if (!fromVar) return defaultColor(colorIndex);
+
+    return fromVar;
   }
 
   function getColorName(i: number): string {

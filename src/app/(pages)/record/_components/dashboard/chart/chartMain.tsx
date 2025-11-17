@@ -1,42 +1,39 @@
+import { RecordDashboard } from "@/app/_types/records";
 import { categoryTime } from "../../../_utils/categoryTime";
 import CategoryStats from "./categoryStats";
 
 import DonutGraph from "./donutGraph";
 import StickGraphs from "./stickGraphs";
 
-export default function ChartMain() {
-  const totalMinutes = 600;
-  const focusData = [
-    60, 40, 0, 0, 0, 0, 0, 0, 0, 40, 60, 30, 0, 0, 8, 12, 45, 60, 30, 45, 60,
-    25, 35, 50,
-  ];
+interface ChartMainProps {
+  data?: RecordDashboard;
+  isPending: boolean;
+}
 
-  const timeItems = [
-    { category: "공부공부공부공부공부공부공부", minutes: 180 },
-    { category: "운동", minutes: 75 },
-    { category: "독서", minutes: 60 },
-    { category: "개발", minutes: 200 },
-    { category: "휴식", minutes: 120 },
-    { category: "기타", minutes: 40 },
-    { category: "기타", minutes: 40 },
-    { category: "기타", minutes: 40 },
-    { category: "기타", minutes: 40 },
-  ];
+export default function ChartMain({ data, isPending }: ChartMainProps) {
+  const hourly = Array(24).fill(0);
+  const dataReady = !!data && !isPending;
 
-  const countItems = [
-    {
-      category: "공부공부공부공부공부공부공부",
-      currentCount: 5,
-      totalCount: 8,
-    },
-    { category: "운동", currentCount: 3, totalCount: 5 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-    { category: "독서", currentCount: 7, totalCount: 10 },
-  ];
+  if (dataReady) {
+    data.hourlyFocus.forEach((h) => {
+      hourly[h.hour] = h.totalSeconds;
+    });
+  }
+
+  const timeItems = dataReady
+    ? data.categoryFocus.map((cat) => ({
+        category: cat.categoryName,
+        seconds: cat.totalSeconds,
+      }))
+    : [];
+
+  const countItems = dataReady
+    ? data.categoryFocus.map((cat) => ({
+        category: cat.categoryName,
+        currentCount: cat.completedTodoCount,
+        totalCount: cat.totalTodoCount,
+      }))
+    : [];
 
   const categories = categoryTime(timeItems);
   return (
@@ -47,15 +44,38 @@ export default function ChartMain() {
           막대에 마우스를 올리면 상세 시간을 볼 수 있어요.
         </p>
       </div>
-      <StickGraphs data={focusData} />
+      {!dataReady ? (
+        <div className="w-full h-[200px] bg-gray-100 rounded-[20px] animate-pulse" />
+      ) : (
+        <StickGraphs data={hourly} />
+      )}
       <div className="flex mt-[100px]  gap-[140px]">
-        <section>
+        <section className={categories.length === 0 ? "w-xl" : ""}>
           <p className="text-heading4-20SB text-black mb-10">
             카테고리별 집중시간
           </p>
           <div className="flex gap-[60px] w-full">
-            <DonutGraph totalMinutes={totalMinutes} categories={categories} />
-            <CategoryStats type="time" items={timeItems} />
+            {!dataReady ? (
+              <>
+                <div className="w-[240px] h-[240px] bg-gray-100 rounded-full animate-pulse" />
+                <div className="flex flex-col gap-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-[200px] h-[20px] bg-gray-100 rounded-md animate-pulse"
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <DonutGraph
+                  totalSeconds={data!.summary.totalSeconds}
+                  categories={categories}
+                />
+                <CategoryStats type="time" items={timeItems} />
+              </>
+            )}
           </div>
         </section>
         <section>
@@ -67,7 +87,18 @@ export default function ChartMain() {
               (달성 개수 / 목표 개수)
             </p>
           </div>
-          <CategoryStats type="count" items={countItems} />
+          {!dataReady ? (
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-[250px] h-[20px] bg-gray-100 rounded-md animate-pulse"
+                />
+              ))}
+            </div>
+          ) : (
+            <CategoryStats type="count" items={countItems} />
+          )}
         </section>
       </div>
     </div>

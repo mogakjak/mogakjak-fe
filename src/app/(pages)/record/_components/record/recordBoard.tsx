@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import RecordDot, { RecordLevel } from "./recordDot";
 import RecordLegend from "./recordLegend";
 import RecordToolTip from "./recordToolTip";
-import { formatHM } from "../../_utils/formatHM";
+import { formatHMS } from "../../_utils/formatHMS";
 import { useDailyRecords } from "@/app/_hooks/records";
 
 export function secondsToLevel(seconds = 0): RecordLevel {
@@ -104,7 +104,7 @@ export default function RecordBoard() {
                           className="flex items-center justify-center"
                         >
                           <RecordToolTip
-                            label={formatHM(Math.floor(seconds / 60))}
+                            label={formatHMS(Math.floor(seconds / 60))}
                           >
                             <RecordDot level={level} />
                           </RecordToolTip>

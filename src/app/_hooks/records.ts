@@ -9,7 +9,9 @@ export const useRecordDashboard = (rangeType: string = "TODAY") =>
   useQuery<RecordDashboard>({
     queryKey: recordKeys.dashboard(rangeType),
     queryFn: () => getRecordDashboard(rangeType),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
   });
 
 export const useDailyRecords = () =>
