@@ -11,8 +11,9 @@ import {
   CATEGORY_COLOR_TOKEN_BY_NAME,
   useTodoCategoryController,
 } from "@/app/_hooks/todoCategory";
-import { useTodoController } from "@/app/_hooks/todo";
+import { useTodoController, useMyTodos } from "@/app/_hooks/todo";
 import type { Category as ListCategory } from "@/app/_types/category";
+import type { Todo } from "@/app/_types/todo";
 
 function getKoreanDateLabel(d = new Date()) {
   const days = ["일", "월", "화", "수", "목", "금", "토"] as const;
@@ -39,6 +40,8 @@ export default function TodoPage() {
     deleteTodo,
     toggleTodoComplete,
   } = useTodoController();
+  
+  const { data: myTodos = [] } = useMyTodos();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
   const sidebarCategories = useMemo<CatType[]>(() => {
@@ -57,39 +60,76 @@ export default function TodoPage() {
   }, [categories]);
 
   const todoListCategories = useMemo<ListCategory[]>(() => {
-    // todayTodos를 카테고리 ID로 매핑
-    const todosByCategoryId = new Map(
-      todayTodos.map((cat) => [cat.id, cat])
-    );
-    return categories
-      .sort((a, b) => a.displayOrder - b.displayOrder)
-      .map((category) => {
-        const categoryWithTodos = todosByCategoryId.get(category.id);
-        const todos = categoryWithTodos?.todos ?? [];
-        
-        const baseToken =
-          CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
-          ] ?? "category-1-red";
-        const colorToken = `bg-${baseToken}`;
-        
-        return {
-          id: category.id,
-          title: category.name,
-          barColorClass: colorToken,
-          colorToken: baseToken,
-          expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
-          items: todos.map((todo) => ({
-            id: todo.id,
-            date: todo.date,
-            title: todo.task,
-            targetSeconds: todo.targetTimeInSeconds,
-            currentSeconds: todo.actualTimeInSeconds,
-            completed: todo.isCompleted,
-          })),
-        };
+    if (filter === "all") {
+      // 전체 투두리스트
+      const todosByCategoryId = new Map<string, Todo[]>();
+      myTodos.forEach((todo) => {
+        const existing = todosByCategoryId.get(todo.categoryId) ?? [];
+        todosByCategoryId.set(todo.categoryId, [...existing, todo]);
       });
-  }, [categories, todayTodos]);
+
+      return categories
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .map((category) => {
+          const todos = todosByCategoryId.get(category.id) ?? [];
+          
+          const baseToken =
+            CATEGORY_COLOR_TOKEN_BY_NAME[
+              category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+            ] ?? "category-1-red";
+          const colorToken = `bg-${baseToken}`;
+          
+          return {
+            id: category.id,
+            title: category.name,
+            barColorClass: colorToken,
+            colorToken: baseToken,
+            expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
+            items: todos.map((todo) => ({
+              id: todo.id,
+              date: todo.date,
+              title: todo.task,
+              targetSeconds: todo.targetTimeInSeconds,
+              currentSeconds: todo.actualTimeInSeconds,
+              completed: todo.isCompleted,
+            })),
+          };
+        });
+    } else {
+      // 오늘의 투두리스트
+      const todosByCategoryId = new Map(
+        todayTodos.map((cat) => [cat.id, cat])
+      );
+      return categories
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .map((category) => {
+          const categoryWithTodos = todosByCategoryId.get(category.id);
+          const todos = categoryWithTodos?.todos ?? [];
+          
+          const baseToken =
+            CATEGORY_COLOR_TOKEN_BY_NAME[
+              category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+            ] ?? "category-1-red";
+          const colorToken = `bg-${baseToken}`;
+          
+          return {
+            id: category.id,
+            title: category.name,
+            barColorClass: colorToken,
+            colorToken: baseToken,
+            expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
+            items: todos.map((todo) => ({
+              id: todo.id,
+              date: todo.date,
+              title: todo.task,
+              targetSeconds: todo.targetTimeInSeconds,
+              currentSeconds: todo.actualTimeInSeconds,
+              completed: todo.isCompleted,
+            })),
+          };
+        });
+    }
+  }, [categories, todayTodos, myTodos, filter]);
 
   const handleCreateCategory = useCallback(
     async ({ name, colorToken }: { name: string; colorToken: string }) => {
@@ -187,14 +227,22 @@ export default function TodoPage() {
   const handleToggleTodo = useCallback(
     async (todoId: string, next: boolean) => {
       if (!todoId) return;
-      const category = todayTodos.find((cat) =>
-        cat.todos.some((todo) => todo.id === todoId),
-      );
-      const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
-      if (current === next) return;
+      
+      if (filter === "all") {
+        const todo = myTodos.find((t) => t.id === todoId);
+        const current = todo?.isCompleted;
+        if (current === next) return;
+      } else {
+        const category = todayTodos.find((cat) =>
+          cat.todos.some((todo) => todo.id === todoId),
+        );
+        const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
+        if (current === next) return;
+      }
+      
       await toggleTodoComplete(todoId);
     },
-    [todayTodos, toggleTodoComplete],
+    [todayTodos, myTodos, filter, toggleTodoComplete],
   );
 
   return (
