@@ -33,7 +33,7 @@ export default function GroupRoomPage() {
           <PreviewMain state={true} />
         </div>
 
-        {isPending ? (
+        {isPending || !data ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full h-[560px] bg-gray-100 animate-pulse rounded-2xl" />
           </div>

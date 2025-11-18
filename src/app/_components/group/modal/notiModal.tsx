@@ -17,8 +17,7 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
   const [hours, setHours] = useState(1);
   const [message, setMessage] = useState("");
 
-  const { mutateAsync: updateNoti, isPending } =
-    useUpdateGroupNotifications(groupId);
+  const { mutateAsync: updateNoti } = useUpdateGroupNotifications(groupId);
 
   const increase = () => {
     if (!isAgreed) return;
