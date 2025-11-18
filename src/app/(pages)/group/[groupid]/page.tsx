@@ -38,10 +38,7 @@ export default function GroupRoomPage() {
             <div className="w-full h-[560px] bg-gray-100 animate-pulse rounded-2xl" />
           </div>
         ) : (
-          <GroupPage
-            onExitGroup={handleExitGroup}
-            groupData={data?.members ?? []}
-          />
+          <GroupPage onExitGroup={handleExitGroup} groupData={data} />
         )}
       </div>
 

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import ReviewEmoji from "./reviewEmoji";
 import ReviewTag from "./reviewTag";
+import { useFeedbackTags } from "@/app/_hooks/feedback";
 
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
@@ -12,6 +13,7 @@ interface ReviewBlock {
   options: string[];
 }
 interface ReviewPopupProps {
+  groupName: string;
   onClose: () => void;
   onExitGroup: () => void;
 }
@@ -49,6 +51,7 @@ const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
 ];
 
 export default function ReviewPopup({
+  groupName,
   onClose,
   onExitGroup,
 }: ReviewPopupProps) {
@@ -81,9 +84,9 @@ export default function ReviewPopup({
   return (
     <div className="flex flex-col w-[340px]">
       <div className="flex flex-col p-7 pt-8 bg-white rounded-t-xl shadow-md text-center">
-        <h2 className="text-body1-16SB">팀이름</h2>
+        <h2 className="text-body1-16SB">{groupName}</h2>
         <p className="text-body2-14R text-gray-600 mt-2 pb-4">
-          부연설명 팀이름 부연설명
+          언제든 다시 참여하실 수 있어요
         </p>
 
         <p className="text-body2-14SB text-gray-800 pt-4 border-t border-gray-200">
@@ -137,7 +140,6 @@ export default function ReviewPopup({
         </button>
         <button
           className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300 "
-          disabled={!selectedEmoji}
           onClick={() => {
             onClose();
             onExitGroup();
