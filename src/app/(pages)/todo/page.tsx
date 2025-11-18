@@ -148,14 +148,14 @@ export default function TodoPage() {
         colorToken: CATEGORY_COLOR_TOKEN_BY_NAME[created.color] ?? colorToken,
       };
     },
-    [createCategory],
+    [createCategory]
   );
 
   const handleDeleteCategory = useCallback(
     async (categoryId: string) => {
       await deleteCategory(categoryId);
     },
-    [deleteCategory],
+    [deleteCategory]
   );
 
   const handleReorderCategories = useCallback(
@@ -163,7 +163,7 @@ export default function TodoPage() {
       if (categoryIds.length === 0) return;
       await reorderCategories({ categoryIds });
     },
-    [reorderCategories],
+    [reorderCategories]
   );
 
   const handleCreateTodo = useCallback(
@@ -189,7 +189,7 @@ export default function TodoPage() {
         targetTimeInSeconds: targetSeconds,
       });
     },
-    [createTodo],
+    [createTodo]
   );
 
   const handleUpdateTodo = useCallback(
@@ -220,7 +220,7 @@ export default function TodoPage() {
         },
       });
     },
-    [updateTodo],
+    [updateTodo]
   );
 
   const handleDeleteTodo = useCallback(
@@ -228,7 +228,7 @@ export default function TodoPage() {
       if (!todoId) return;
       await deleteTodo(todoId);
     },
-    [deleteTodo],
+    [deleteTodo]
   );
 
   const handleToggleTodo = useCallback(
@@ -261,7 +261,6 @@ export default function TodoPage() {
           categories={sidebarCategories}
           selectedId={selectedId}
           onSelect={setSelectedId}
-          className="ml-10"
           onCreateCategory={handleCreateCategory}
           onDeleteCategory={handleDeleteCategory}
           onReorderCategories={handleReorderCategories}
