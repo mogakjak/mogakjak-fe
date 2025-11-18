@@ -103,9 +103,7 @@ export default function RecordBoard() {
                           key={rowIdx}
                           className="flex items-center justify-center"
                         >
-                          <RecordToolTip
-                            label={formatHMS(Math.floor(seconds / 60))}
-                          >
+                          <RecordToolTip label={formatHMS(seconds)}>
                             <RecordDot level={level} />
                           </RecordToolTip>
                         </div>

@@ -37,7 +37,7 @@ export default function ChartMain({ data, isPending }: ChartMainProps) {
         category: cat.categoryName,
         currentCount: cat.completedTodoCount,
         totalCount: cat.totalTodoCount,
-        color: resolvedCategories[idx]?.color ?? String(cat.color ?? ""),
+        color: resolvedCategories[idx].color,
       }))
     : [];
 

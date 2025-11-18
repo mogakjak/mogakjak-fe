@@ -15,8 +15,7 @@ const NAMED_TO_TOKEN = {
   ORANGE: "category-2-orange",
   YELLOW: "category-3-yellow",
   GREEN: "category-4-green",
-  SKYBLUE: "category-5-skyblue",
-  BLUE: "category-6-blue",
+  BLUE: "category-6-skyblue",
   INDIGO: "category-6-blue",
   PURPLE: "category-7-purple",
 } as const;
