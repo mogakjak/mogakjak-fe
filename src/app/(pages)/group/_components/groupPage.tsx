@@ -83,7 +83,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <div className="flex mt-3">
           <Button
             onClick={() => setOpenReview(true)}
-            leftIcon={null}
+            leftIconSrc={"/Icons/timerout.svg"}
             size="custom"
             className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
           >
@@ -100,7 +100,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ReviewPopup
               groupName={groupData.name}
-              groupId={groupData.groupId}
+              sessionId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
             />
