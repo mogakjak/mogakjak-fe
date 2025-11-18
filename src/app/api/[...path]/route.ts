@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getJwtExp } from "@/app/_lib/getJwtExp";
 
 export const runtime = "nodejs";
 
@@ -26,6 +27,20 @@ interface RefreshResponse {
 function clearAll(res: NextResponse) {
   res.cookies.set("mg_access_token", "", { ...cookieOpts, maxAge: 0 });
   res.cookies.set("mg_refresh_token", "", { ...cookieOpts, maxAge: 0 });
+}
+
+function redirectToLogin(
+  req: NextRequest,
+  targetUrl: string,
+  reason: "refresh_expired" | "unauthorized"
+) {
+  const loginUrl = new URL("/login", req.url);
+  const res = NextResponse.redirect(loginUrl);
+  clearAll(res);
+  res.headers.set("x-proxy-hit", "true");
+  res.headers.set("x-proxy-url", targetUrl);
+  res.headers.set("x-proxy-auth", reason);
+  return res;
 }
 
 function extractAccessToken(headers: Headers): string | undefined {
@@ -82,6 +97,10 @@ async function proxy(
   const token = req.cookies.get("mg_access_token")?.value ?? null;
   const refreshToken = req.cookies.get("mg_refresh_token")?.value ?? null;
   const url = buildTargetUrl(path, req);
+  const nowSec = Math.floor(Date.now() / 1000);
+  const refreshExp = getJwtExp(refreshToken);
+  const refreshExpired =
+    !refreshToken || refreshExp === null || refreshExp <= nowSec;
 
   if (url.startsWith(`${req.nextUrl.origin}/api/`)) {
     return NextResponse.json({ message: "Bad proxy config" }, { status: 500 });
@@ -137,6 +156,8 @@ async function proxy(
       resp.headers.set("x-proxy-url", url);
       resp.headers.set("x-proxy-auth", "refreshed");
       return resp;
+    } else if (refreshExpired) {
+      return redirectToLogin(req, url, "refresh_expired");
     } else {
       const text = await upstream.text();
       const contentType =
@@ -167,6 +188,9 @@ async function proxy(
 
   if (upstream.status === 401) {
     clearAll(resp);
+    if (refreshExpired) {
+      return redirectToLogin(req, url, "unauthorized");
+    }
   }
 
   return resp;
