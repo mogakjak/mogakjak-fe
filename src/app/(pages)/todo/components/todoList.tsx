@@ -28,6 +28,7 @@ export type TodoListProps = {
   }) => Promise<void> | void;
   onDeleteTodo?: (todoId: string) => Promise<void> | void;
   onToggleTodo?: (todoId: string, next: boolean) => Promise<void> | void;
+  onCategorySelect?: (categoryId: string) => void;
   className?: string;
 };
 
@@ -94,6 +95,7 @@ export default function TodoList({
   onUpdateTodo,
   onDeleteTodo,
   onToggleTodo,
+  onCategorySelect,
   className,
 }: TodoListProps) {
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
@@ -277,6 +279,7 @@ export default function TodoList({
                 : undefined
             }
             onSubmit={handleSubmit}
+            onCategorySelect={onCategorySelect}
             onClose={() => {
               setModalOpen(false);
               setEditingTodo(null);
