@@ -26,19 +26,10 @@ function getKoreanDateLabel(d = new Date()) {
 export default function TodoPage() {
   const [filter, setFilter] = useState<DayFilter>("today");
   const [selectedId, setSelectedId] = useState<string>("all");
-  const {
-    categories,
-    createCategory,
-    deleteCategory,
-    reorderCategories,
-  } = useTodoCategoryController();
-  const {
-    todayTodos,
-    createTodo,
-    updateTodo,
-    deleteTodo,
-    toggleTodoComplete,
-  } = useTodoController();
+  const { categories, createCategory, deleteCategory, reorderCategories } =
+    useTodoCategoryController();
+  const { todayTodos, createTodo, updateTodo, deleteTodo, toggleTodoComplete } =
+    useTodoController();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
   const sidebarCategories = useMemo<CatType[]>(() => {
@@ -58,27 +49,25 @@ export default function TodoPage() {
 
   const todoListCategories = useMemo<ListCategory[]>(() => {
     // todayTodos를 카테고리 ID로 매핑
-    const todosByCategoryId = new Map(
-      todayTodos.map((cat) => [cat.id, cat])
-    );
+    const todosByCategoryId = new Map(todayTodos.map((cat) => [cat.id, cat]));
     return categories
       .sort((a, b) => a.displayOrder - b.displayOrder)
       .map((category) => {
         const categoryWithTodos = todosByCategoryId.get(category.id);
         const todos = categoryWithTodos?.todos ?? [];
-        
+
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
             category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         const colorToken = `bg-${baseToken}`;
-        
+
         return {
           id: category.id,
           title: category.name,
           barColorClass: colorToken,
           colorToken: baseToken,
-          expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
+          expanded: todos.length > 0 ? category.isExpanded ?? true : false,
           items: todos.map((todo) => ({
             id: todo.id,
             date: todo.date,
@@ -101,14 +90,14 @@ export default function TodoPage() {
         colorToken: CATEGORY_COLOR_TOKEN_BY_NAME[created.color] ?? colorToken,
       };
     },
-    [createCategory],
+    [createCategory]
   );
 
   const handleDeleteCategory = useCallback(
     async (categoryId: string) => {
       await deleteCategory(categoryId);
     },
-    [deleteCategory],
+    [deleteCategory]
   );
 
   const handleReorderCategories = useCallback(
@@ -116,7 +105,7 @@ export default function TodoPage() {
       if (categoryIds.length === 0) return;
       await reorderCategories({ categoryIds });
     },
-    [reorderCategories],
+    [reorderCategories]
   );
 
   const handleCreateTodo = useCallback(
@@ -142,7 +131,7 @@ export default function TodoPage() {
         targetTimeInSeconds: targetSeconds,
       });
     },
-    [createTodo],
+    [createTodo]
   );
 
   const handleUpdateTodo = useCallback(
@@ -173,7 +162,7 @@ export default function TodoPage() {
         },
       });
     },
-    [updateTodo],
+    [updateTodo]
   );
 
   const handleDeleteTodo = useCallback(
@@ -181,20 +170,22 @@ export default function TodoPage() {
       if (!todoId) return;
       await deleteTodo(todoId);
     },
-    [deleteTodo],
+    [deleteTodo]
   );
 
   const handleToggleTodo = useCallback(
     async (todoId: string, next: boolean) => {
       if (!todoId) return;
       const category = todayTodos.find((cat) =>
-        cat.todos.some((todo) => todo.id === todoId),
+        cat.todos.some((todo) => todo.id === todoId)
       );
-      const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
+      const current = category?.todos.find(
+        (todo) => todo.id === todoId
+      )?.isCompleted;
       if (current === next) return;
       await toggleTodoComplete(todoId);
     },
-    [todayTodos, toggleTodoComplete],
+    [todayTodos, toggleTodoComplete]
   );
 
   return (
@@ -206,7 +197,6 @@ export default function TodoPage() {
           categories={sidebarCategories}
           selectedId={selectedId}
           onSelect={setSelectedId}
-          className="ml-10"
           onCreateCategory={handleCreateCategory}
           onDeleteCategory={handleDeleteCategory}
           onReorderCategories={handleReorderCategories}
