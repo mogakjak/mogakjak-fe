@@ -60,82 +60,55 @@ export default function TodoPage() {
   }, [categories]);
 
   const todoListCategories = useMemo<ListCategory[]>(() => {
-    let allCategories: ListCategory[] = [];
+    const todosByCat = new Map<string, Todo[]>();
     
     if (filter === "all") {
-      // 전체 투두리스트
-      const todosByCategoryId = new Map<string, Todo[]>();
       myTodos.forEach((todo) => {
-        const existing = todosByCategoryId.get(todo.categoryId) ?? [];
-        todosByCategoryId.set(todo.categoryId, [...existing, todo]);
+        if (!todosByCat.has(todo.categoryId)) {
+          todosByCat.set(todo.categoryId, []);
+        }
+        todosByCat.get(todo.categoryId)!.push(todo);
+      });
+    } else {
+      // 'today' filter
+      todayTodos.forEach((cat) => {
+        todosByCat.set(cat.id, cat.todos);
+      });
+    }
+
+    const allMappedCategories = categories
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((category) => {
+        const todos = todosByCat.get(category.id) ?? [];
+        
+        const baseToken =
+          CATEGORY_COLOR_TOKEN_BY_NAME[
+            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          ] ?? "category-1-red";
+        const colorToken = `bg-${baseToken}`;
+
+        return {
+          id: category.id,
+          title: category.name,
+          barColorClass: colorToken,
+          colorToken: baseToken,
+          expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
+          items: todos.map((todo) => ({
+            id: todo.id,
+            date: todo.date,
+            title: todo.task,
+            targetSeconds: todo.targetTimeInSeconds,
+            currentSeconds: todo.actualTimeInSeconds,
+            completed: todo.isCompleted,
+          })),
+        };
       });
 
-      allCategories = categories
-        .sort((a, b) => a.displayOrder - b.displayOrder)
-        .map((category) => {
-          const todos = todosByCategoryId.get(category.id) ?? [];
-          
-          const baseToken =
-            CATEGORY_COLOR_TOKEN_BY_NAME[
-              category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
-            ] ?? "category-1-red";
-          const colorToken = `bg-${baseToken}`;
-          
-          return {
-            id: category.id,
-            title: category.name,
-            barColorClass: colorToken,
-            colorToken: baseToken,
-            expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
-            items: todos.map((todo) => ({
-              id: todo.id,
-              date: todo.date,
-              title: todo.task,
-              targetSeconds: todo.targetTimeInSeconds,
-              currentSeconds: todo.actualTimeInSeconds,
-              completed: todo.isCompleted,
-            })),
-          };
-        });
-    } else {
-      // 오늘의 투두리스트
-      const todosByCategoryId = new Map(
-        todayTodos.map((cat) => [cat.id, cat])
-      );
-      allCategories = categories
-        .sort((a, b) => a.displayOrder - b.displayOrder)
-        .map((category) => {
-          const categoryWithTodos = todosByCategoryId.get(category.id);
-          const todos = categoryWithTodos?.todos ?? [];
-          
-          const baseToken =
-            CATEGORY_COLOR_TOKEN_BY_NAME[
-              category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
-            ] ?? "category-1-red";
-          const colorToken = `bg-${baseToken}`;
-          
-          return {
-            id: category.id,
-            title: category.name,
-            barColorClass: colorToken,
-            colorToken: baseToken,
-            expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
-            items: todos.map((todo) => ({
-              id: todo.id,
-              date: todo.date,
-              title: todo.task,
-              targetSeconds: todo.targetTimeInSeconds,
-              currentSeconds: todo.actualTimeInSeconds,
-              completed: todo.isCompleted,
-            })),
-          };
-        });
-    }
     if (selectedId !== "all") {
-      return allCategories.filter((cat) => cat.id === selectedId);
+      return allMappedCategories.filter((cat) => cat.id === selectedId);
     }
     
-    return allCategories;
+    return allMappedCategories;
   }, [categories, todayTodos, myTodos, filter, selectedId]);
 
   const handleCreateCategory = useCallback(
