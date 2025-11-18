@@ -76,3 +76,15 @@ export type NotiRes = {
   notificationCycle: number;
   notificationMessage: string;
 };
+
+//  목표시간
+export interface GroupGoalReq {
+  hour: number;
+  minute: number;
+}
+
+export interface GroupGoalRes {
+  groupId: string;
+  goalHours: number;
+  goalMinutes: number;
+}

@@ -8,4 +8,5 @@ export const groupKeys = {
   detail: (groupId: string) => [...groupKeys.all(), "detail", groupId] as const,
   notifications: (groupId: string) =>
     [...groupKeys.all(), "notifications", groupId] as const,
+  goal: (groupId: string) => [...groupKeys.all(), "goal", groupId] as const,
 };

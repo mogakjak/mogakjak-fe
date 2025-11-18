@@ -12,12 +12,15 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  putGroupGoal,
   putGroupNoti,
   updateGroup,
 } from "../api/groups/api";
 import {
   CreateGroupBody,
   GroupDetail,
+  GroupGoalReq,
+  GroupGoalRes,
   MatesPage,
   MyGroup,
   NotiReq,
@@ -97,6 +100,29 @@ export const useUpdateGroupNotifications = (groupId: string) => {
       queryClient.setQueryData<NotiRes | undefined>(
         groupKeys.detail(groupId),
         (prev) => (prev ? { ...prev, ...data } : data)
+      );
+    },
+  });
+};
+
+export const useUpdateGroupGoal = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: GroupGoalReq) => putGroupGoal(groupId, payload),
+
+    onSuccess: (data: GroupGoalRes) => {
+      queryClient.setQueryData(groupKeys.goal(groupId), data);
+      queryClient.setQueryData<GroupDetail | undefined>(
+        groupKeys.detail(groupId),
+        (prev) =>
+          prev
+            ? {
+                ...prev,
+                goalHours: data.goalHours,
+                goalMinutes: data.goalMinutes,
+              }
+            : prev
       );
     },
   });
