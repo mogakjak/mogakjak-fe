@@ -100,6 +100,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ReviewPopup
               groupName={groupData.name}
+              groupId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
             />

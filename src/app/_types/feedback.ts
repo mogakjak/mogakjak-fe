@@ -5,3 +5,10 @@ export interface FeedbackTag {
   displayName: string;
   type: FeedbackTagType;
 }
+
+export interface FeedbackSubmit {
+  sessionId: string;
+  score: number;
+  tagCodes: string[];
+  content: string;
+}
