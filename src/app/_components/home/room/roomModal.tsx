@@ -117,7 +117,7 @@ export default function RoomModal({
           onClick={handleSubmit}
           disabled={isPending}
         >
-          {isPending ? `${buttonLabel.replace("하기", "")} 중...` : buttonLabel}
+          {buttonLabel}
         </Button>
       </div>
     </div>

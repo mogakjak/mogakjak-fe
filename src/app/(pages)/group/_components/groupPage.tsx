@@ -42,7 +42,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer />
         </div>
-        <GroupGoal></GroupGoal>
+        <GroupGoal data={groupData}></GroupGoal>
       </div>
 
       <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px]">

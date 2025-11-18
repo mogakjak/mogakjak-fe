@@ -47,6 +47,7 @@ export type CreateGroupBody = {
   description: string;
 };
 
+// 그룹 상세
 export type GroupDetail = {
   groupId: string;
   name: string;
@@ -54,8 +55,24 @@ export type GroupDetail = {
   members: GroupMembers;
 };
 
+// 그룹 멤버
 export type GroupMembers = {
   userId: string;
   nickname: string;
   profileUrl: string;
 }[];
+
+// 알림
+export type NotiReq = {
+  isNotificationAgreed: boolean;
+  notificationCycle: number;
+  notificationMessage: string;
+};
+
+export type NotiRes = {
+  groupId: string;
+  groupName: string;
+  isNotificationAgreed: boolean;
+  notificationCycle: number;
+  notificationMessage: string;
+};

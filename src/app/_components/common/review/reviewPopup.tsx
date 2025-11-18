@@ -193,7 +193,7 @@ export default function ReviewPopup({
           onClick={handleSubmit}
           disabled={!selectedEmoji || isSubmitting}
         >
-          {isSubmitting ? "제출 중..." : "종료하고 나가기"}
+          종료하고 나가기
         </button>
       </div>
     </div>

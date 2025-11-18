@@ -6,8 +6,13 @@ import Icon from "../../../../_components/common/Icons";
 import SidebarButton from "./sidebarButton";
 import Notification from "/Icons/notification.svg";
 import NotiModal from "../../../../_components/group/modal/notiModal";
+import { GroupDetail } from "@/app/_types/groups";
 
-export default function GroupGoal() {
+type GroupGoalProps = {
+  data: GroupDetail;
+};
+
+export default function GroupGoal({ data }: GroupGoalProps) {
   const [openNoti, setOpenNoti] = useState(false);
 
   return (
@@ -39,7 +44,10 @@ export default function GroupGoal() {
           onClick={() => setOpenNoti(false)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <NotiModal onClose={() => setOpenNoti(false)} />
+            <NotiModal
+              onClose={() => setOpenNoti(false)}
+              groupId={data.groupId}
+            />
           </div>
         </div>
       )}

@@ -12,6 +12,7 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  putGroupNoti,
   updateGroup,
 } from "../api/groups/api";
 import {
@@ -19,6 +20,8 @@ import {
   GroupDetail,
   MatesPage,
   MyGroup,
+  NotiReq,
+  NotiRes,
 } from "../_types/groups";
 import { groupKeys } from "../api/groups/keys";
 
@@ -83,3 +86,18 @@ export const useGroupDetail = (
     staleTime: 5 * 60 * 1000,
     ...options,
   });
+
+export const useUpdateGroupNotifications = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: NotiReq) => putGroupNoti(groupId, payload),
+    onSuccess: (data: NotiRes) => {
+      queryClient.setQueryData(groupKeys.notifications(groupId), data);
+      queryClient.setQueryData<NotiRes | undefined>(
+        groupKeys.detail(groupId),
+        (prev) => (prev ? { ...prev, ...data } : data)
+      );
+    },
+  });
+};
