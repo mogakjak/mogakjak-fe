@@ -38,9 +38,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {};
-export const Brick: Story = { args: { variant: "brick" } };
-export const Salmon: Story = { args: { variant: "salmon" } };
-export const Slate700: Story = { args: { variant: "slate700" } };
 export const Neutral700: Story = { args: { variant: "neutral700" } };
 export const Slate600: Story = { args: { variant: "slate600" } };
 export const Muted: Story = { args: { variant: "muted" } };

@@ -1,64 +1,87 @@
 export interface CategoryItem {
   category: string;
-  minutes: number;
+  seconds: number;
   color: string;
 }
 
-export function categoryTime(
-  categories: Omit<CategoryItem, "color">[]
-): CategoryItem[] {
-  function getCategoryColor(index: number): string {
-    const colorIndex = index % 7 || 7;
-    const colorVarName = `--color-category-${colorIndex}-${getColorName(
-      colorIndex
-    )}`;
+type CategoryInput = {
+  category: string;
+  seconds: number;
+  color?: string | null;
+};
 
-    if (typeof window !== "undefined") {
-      return getComputedStyle(document.documentElement)
-        .getPropertyValue(colorVarName)
-        .trim();
-    }
+const NAMED_TO_TOKEN = {
+  RED: "category-1-red",
+  ORANGE: "category-2-orange",
+  YELLOW: "category-3-yellow",
+  GREEN: "category-4-green",
+  BLUE: "category-6-skyblue",
+  INDIGO: "category-6-blue",
+  PURPLE: "category-7-purple",
+} as const;
 
-    return defaultColor(colorIndex);
+const FALLBACK_PALETTE = [
+  "#f86e64",
+  "#ffa569",
+  "#fbda55",
+  "#73e07a",
+  "#69e3f6",
+  "#6297f3",
+  "#a27bf0",
+];
+
+export function toCssColor(name: string | null | undefined, idx: number = 0) {
+  const fallback = FALLBACK_PALETTE[idx % FALLBACK_PALETTE.length];
+  const trimmed = name?.trim();
+  if (!trimmed) return fallback;
+
+  const token =
+    NAMED_TO_TOKEN[trimmed.toUpperCase() as keyof typeof NAMED_TO_TOKEN];
+  if (token) {
+    return `var(--color-${token}, ${fallback})`;
   }
 
-  function getColorName(i: number): string {
-    switch (i) {
-      case 1:
-        return "red";
-      case 2:
-        return "orange";
-      case 3:
-        return "yellow";
-      case 4:
-        return "green";
-      case 5:
-        return "skyblue";
-      case 6:
-        return "blue";
-      case 7:
-        return "purple";
-      default:
-        return "red";
-    }
+  const lower = trimmed.toLowerCase();
+  if (
+    trimmed.startsWith("#") ||
+    lower.startsWith("rgb") ||
+    lower.startsWith("hsl") ||
+    lower.startsWith("var(")
+  ) {
+    return trimmed;
   }
 
-  function defaultColor(i: number): string {
-    const map = [
-      "#f86e64",
-      "#ffa569",
-      "#fbda55",
-      "#73e07a",
-      "#69e3f6",
-      "#6297f3",
-      "#a27bf0",
-    ];
-    return map[(i - 1) % map.length];
-  }
+  return trimmed;
+}
 
-  // 색상 순환
+export function categoryTime(categories: CategoryInput[]): CategoryItem[] {
   return categories.map((item, idx) => ({
-    ...item,
-    color: getCategoryColor(idx + 1),
+    category: item.category,
+    seconds: item.seconds,
+    color: toCssColor(item.color, idx),
   }));
+}
+
+export function resolveCanvasColor(color: string, fallback = "#f86e64") {
+  if (!color) return fallback;
+  const trimmed = color.trim();
+  if (!trimmed) return fallback;
+
+  if (trimmed.startsWith("var(")) {
+    const match = /var\((--[^,\s)]+)(?:,\s*([^)]+))?\)/.exec(trimmed);
+    if (match) {
+      const cssVarName = match[1];
+      const varFallback = match[2]?.trim().replace(/^['"]|['"]$/g, "");
+      if (typeof window !== "undefined") {
+        const value = getComputedStyle(document.documentElement)
+          .getPropertyValue(cssVarName)
+          .trim();
+        if (value) return value;
+      }
+      if (varFallback) return varFallback;
+    }
+    return fallback;
+  }
+
+  return trimmed;
 }
