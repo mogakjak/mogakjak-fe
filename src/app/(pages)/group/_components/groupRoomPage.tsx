@@ -17,8 +17,11 @@ export default function GroupRoomPage({ groupId }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
 
-  const { data, isPending } = useGroupDetail(groupId, {
-    enabled: !!groupId,
+  // groupId가 유효한지 확인
+  const validGroupId = groupId && groupId !== "undefined" ? groupId : "";
+
+  const { data, isPending } = useGroupDetail(validGroupId, {
+    enabled: !!validGroupId,
   });
 
   const handleExitGroup = () => {
