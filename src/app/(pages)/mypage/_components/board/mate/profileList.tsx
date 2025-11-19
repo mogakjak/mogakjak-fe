@@ -19,6 +19,7 @@ interface ProfileListProps {
 export default function ProfileList({
   profiles,
   totalCount,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   page = 1,
   pageSize = 6,
   onCountChange,

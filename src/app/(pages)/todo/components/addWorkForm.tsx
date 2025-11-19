@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
@@ -8,6 +8,7 @@ import DateField from "./dateField";
 import DurationField from "./durationField";
 import clsx from "clsx";
 import WorkSelectField from "./workSelectField";
+import type { Todo } from "@/app/_types/todo";
 
 export type AddWorkPayload = {
   categoryId: string;
@@ -24,6 +25,7 @@ export default function AddWorkForm({
   onSubmit,
   onClose,
   onCategorySelect,
+  todayTodos,
   className,
 }: {
   type: string;
@@ -38,6 +40,7 @@ export default function AddWorkForm({
   onSubmit?: (payload: AddWorkPayload) => void;
   onClose?: () => void;
   onCategorySelect?: (categoryId: string) => void;
+  todayTodos?: Todo[];
   className?: string;
 }) {
   const [categoryId, setCategoryId] = useState<string>(initialValues?.categoryId ?? "");
@@ -45,6 +48,11 @@ export default function AddWorkForm({
   const [date, setDate] = useState<Date>(initialValues?.date ?? defaultDate);
   const [target, setTarget] = useState<number>(initialValues?.targetSeconds ?? 0);
   const prevInitialValuesRef = useRef<string>("");
+
+  const filteredTodayTodos = useMemo(() => {
+    if (!categoryId || !todayTodos) return todayTodos ?? [];
+    return todayTodos.filter((todo) => todo.categoryId === categoryId);
+  }, [categoryId, todayTodos]);
 
   useEffect(() => {
     if (!initialValues) return;
@@ -120,7 +128,26 @@ export default function AddWorkForm({
               할 일
             </div>
             {type == "select" ? (
-              <WorkSelectField value={title} onChange={setTitle} />
+              <WorkSelectField
+                value={title}
+                onChange={(selectedTask) => {
+                  setTitle(selectedTask);
+                  // 선택된 할일이 filteredTodayTodos에 있으면 해당 정보로 폼 채우기
+                  if (filteredTodayTodos && selectedTask) {
+                    const selectedTodo = filteredTodayTodos.find(
+                      (todo) => todo.task === selectedTask
+                    );
+                    if (selectedTodo) {
+                      setCategoryId(selectedTodo.categoryId);
+                      onCategorySelect?.(selectedTodo.categoryId);
+                      const [year, month, day] = selectedTodo.date.split("-").map(Number);
+                      setDate(new Date(year, month - 1, day));
+                      setTarget(selectedTodo.targetTimeInSeconds);
+                    }
+                  }
+                }}
+                todayTodos={filteredTodayTodos}
+              />
             ) : (
               <WorkTitleField value={title} onChange={setTitle} />
             )}

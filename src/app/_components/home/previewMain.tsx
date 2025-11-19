@@ -1,10 +1,16 @@
 "use client";
 
 import { useProfile } from "@/app/_hooks/mypage";
+import { useQueryClient } from "@tanstack/react-query";
 import TimerComponent from "../common/timer/timerComponent";
 import GroupMySidebar from "../../(pages)/group/_components/sidebar/groupMySidebar";
 import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
+import { timerKeys } from "@/app/api/timers/keys";
+import type { PomodoroSession } from "@/app/api/timers/api";
+import { useTodayTodos } from "@/app/_hooks/todo";
+import { useMemo, useEffect } from "react";
+import { useTimer } from "@/app/_contexts/TimerContext";
 
 type PreviewMainProps = {
   state: boolean;
@@ -12,6 +18,35 @@ type PreviewMainProps = {
 
 export default function PreviewMain({ state }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
+  const queryClient = useQueryClient();
+  const { data: todayTodos = [] } = useTodayTodos();
+  const { setHasSelectedTodo } = useTimer();
+  
+  const savedTodoId = typeof window !== "undefined" 
+    ? localStorage.getItem("groupMySidebar_selectedTodoId")
+    : null;
+  
+  const validTodoId = useMemo(() => {
+    if (!savedTodoId) return null;
+    for (const category of todayTodos) {
+      const found = category.todos.find((todo) => todo.id === savedTodoId);
+      if (found) return savedTodoId;
+    }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("groupMySidebar_selectedTodoId");
+    }
+    return null;
+  }, [savedTodoId, todayTodos]);
+  
+  const currentSession = validTodoId 
+    ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId))
+    : queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  
+  const todoId = currentSession?.todo?.id ?? validTodoId;
+
+  useEffect(() => {
+    setHasSelectedTodo(!!todoId);
+  }, [todoId, setHasSelectedTodo]);
 
   const isPending = isLoading || !profile;
 
@@ -38,7 +73,7 @@ export default function PreviewMain({ state }: PreviewMainProps) {
         </>
       )}
 
-      <TimerComponent />
+      <TimerComponent todoId={todoId} />
     </div>
   );
 }

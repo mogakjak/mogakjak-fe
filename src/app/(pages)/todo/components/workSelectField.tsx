@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
+import type { Todo } from "@/app/_types/todo";
 
 interface WorkSelectFieldProps {
   value: string;
   onChange: (value: string) => void;
+  todayTodos?: Todo[];
 }
 
 const initialCategories = ["공부", "운동", "업무", "독서"];
@@ -13,10 +15,22 @@ const initialCategories = ["공부", "운동", "업무", "독서"];
 export default function WorkSelectField({
   value,
   onChange,
+  todayTodos = [],
 }: WorkSelectFieldProps) {
-  const [categories, setCategories] = useState(initialCategories);
+  const todayTodoTasks = useMemo(() => {
+    return todayTodos.map((todo) => todo.task);
+  }, [todayTodos]);
+  const allOptions = useMemo(() => {
+    const combined = [...initialCategories, ...todayTodoTasks];
+    return Array.from(new Set(combined));
+  }, [todayTodoTasks]);
+
+  const [categories, setCategories] = useState(allOptions);
   const [isOpen, setIsOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  useEffect(() => {
+    setCategories(allOptions);
+  }, [allOptions]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
