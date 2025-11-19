@@ -30,7 +30,7 @@ export default function TimerButtons({
 }: TimerButtonsProps) {
   if (!running) {
     return (
-      <div className={clsx("w-full flex items-center gap-3", className)}>
+      <div className={clsx("w-full flex flex-col gap-1", className)}>
         <Button
           variant="slate600"
           size="custom"
@@ -50,6 +50,25 @@ export default function TimerButtons({
             시작할래요
           </span>
         </Button>
+        {onPipToggle && !isInPip && (
+          <button
+            onClick={onPipToggle}
+            className="self-stretch h-8 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
+          >
+            <div className="w-6 h-6 relative overflow-hidden">
+              <Image
+                src="/Icons/pip.svg"
+                alt="PIP"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
+            </div>
+            <div className="justify-start text-neutral-50 text-sm font-semibold font-['Pretendard'] leading-5">
+              PIP 열기
+            </div>
+          </button>
+        )}
       </div>
     );
   }
@@ -59,7 +78,7 @@ export default function TimerButtons({
   const pauseButtonIcon = isBreakPhase ? "/Icons/startWhite.svg" : "/Icons/pauseWhite.svg";
 
   return (
-    <div className={clsx("w-full flex flex-col gap-3", className)}>
+    <div className={clsx("w-full flex flex-col gap-1", className)}>
       <div className="w-full flex items-center gap-3">
       <Button
         variant="slate600"
@@ -107,17 +126,23 @@ export default function TimerButtons({
       </Button>
       </div>
       {onPipToggle && !isInPip && (
-        <Button
-          variant="slate600"
-          className="text-body2-14SB h-8 text-base rounded-lg w-full"
-          size="custom"
+        <button
           onClick={onPipToggle}
-          leftIcon={null}
+          className="self-stretch h-8 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
         >
-          <span className="inline-flex items-center gap-2 justify-center">
+          <div className="w-6 h-6 relative overflow-hidden">
+            <Image
+              src="/Icons/pip.svg"
+              alt="PIP"
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
+          </div>
+          <div className="justify-start text-neutral-50 text-sm font-semibold font-['Pretendard'] leading-5">
             PIP 열기
-          </span>
-        </Button>
+          </div>
+        </button>
       )}
     </div>
   );
