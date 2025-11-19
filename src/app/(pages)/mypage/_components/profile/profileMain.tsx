@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
@@ -18,14 +19,31 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
   } = basket;
 
   const [openEdit, setOpenEdit] = useState(false);
+  const router = useRouter();
 
   const handleEditOpen = () => setOpenEdit(true);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("로그아웃 중 오류 발생:", error);
+      window.location.href = "/login";
+    }
+  };
 
   return (
     <div className="w-[327px] h-full p-6 rounded-[20px] bg-white flex flex-col justify-between">
       <div className="flex justify-between items-center">
         <h2 className="text-heading4-20SB text-black">내 프로필</h2>
-        <button className="text-body2-14R text-gray-500 underline">
+        <button
+          className="text-body2-14R text-gray-500 underline"
+          onClick={handleLogout}
+        >
           로그아웃
         </button>
       </div>

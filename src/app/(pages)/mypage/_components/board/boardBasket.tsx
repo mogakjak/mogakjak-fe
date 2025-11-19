@@ -25,7 +25,6 @@ export default function BoardBasket({
   const [openCharacter, setOpenCharacter] = useState(false);
   const unlockedCount = characters.filter((c) => !c.locked).length;
   const totalCount = characters.length;
-  console.log(totalHours);
   return (
     <div className="w-full h-full min-h-0 flex flex-col">
       <div className="flex justify-between items-center  mb-3.5">
