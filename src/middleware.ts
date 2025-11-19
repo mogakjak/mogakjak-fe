@@ -34,6 +34,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname === "/landing") {
+    return NextResponse.next();
+  }
+
   if (pathname === "/login") {
     if (accessValid || refreshValid) {
       const url = nextUrl.clone();
@@ -62,6 +66,7 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/login",
+    "/landing",
     "/auth/callback/:path*",
     "/",
     "/dashboard/:path*",
