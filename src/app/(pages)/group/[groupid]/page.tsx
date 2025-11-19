@@ -2,16 +2,30 @@ import GroupRoomPage from "../_components/groupRoomPage";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params: Promise<{ groupId: string }>;
+  params:
+    | Promise<{ groupId: string | string[] }>
+    | { groupId: string | string[] };
 };
 
 export default async function Page({ params }: PageProps) {
-  const { groupId } = await params;
+  try {
+    const resolvedParams = params instanceof Promise ? await params : params;
 
-  // groupId가 없거나 유효하지 않으면 404
-  if (!groupId || groupId === "undefined") {
+    if (!resolvedParams || !resolvedParams.groupId) {
+      notFound();
+    }
+
+    const groupId = Array.isArray(resolvedParams.groupId)
+      ? resolvedParams.groupId[0]
+      : resolvedParams.groupId;
+
+    if (!groupId || groupId === "undefined" || typeof groupId !== "string") {
+      notFound();
+    }
+
+    return <GroupRoomPage groupId={groupId} />;
+  } catch (error) {
+    console.error("Error parsing params:", error);
     notFound();
   }
-
-  return <GroupRoomPage groupId={groupId} />;
 }
