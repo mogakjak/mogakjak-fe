@@ -16,9 +16,11 @@ type GroupRoomPageProps = {
 export default function GroupRoomPage({ groupId }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
+  console.log(groupId);
+  const validGroupId = groupId && groupId !== "undefined" ? groupId : "";
 
-  const { data, isPending } = useGroupDetail(groupId, {
-    enabled: !!groupId,
+  const { data, isPending } = useGroupDetail(validGroupId, {
+    enabled: !!validGroupId,
   });
 
   const handleExitGroup = () => {
