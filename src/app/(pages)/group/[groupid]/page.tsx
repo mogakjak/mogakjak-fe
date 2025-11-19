@@ -2,14 +2,12 @@ import GroupRoomPage from "../_components/groupRoomPage";
 import { notFound } from "next/navigation";
 
 type PageProps = {
-  params:
-    | Promise<{ groupId: string | string[] }>
-    | { groupId: string | string[] };
+  params: Promise<{ groupId: string | string[] }>;
 };
 
 export default async function Page({ params }: PageProps) {
   try {
-    const resolvedParams = params instanceof Promise ? await params : params;
+    const resolvedParams = await params;
 
     if (!resolvedParams || !resolvedParams.groupId) {
       notFound();
