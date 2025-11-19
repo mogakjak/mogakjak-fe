@@ -19,7 +19,7 @@ type PreviewMainProps = {
 export default function PreviewMain({ state }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
   const queryClient = useQueryClient();
-  const { data: todayTodos = [] } = useTodayTodos();
+  const { data: todayTodos = [], isFetched: isTodayTodosFetched } = useTodayTodos();
   const { setHasSelectedTodo } = useTimer();
   
   const savedTodoId = typeof window !== "undefined" 
@@ -28,15 +28,17 @@ export default function PreviewMain({ state }: PreviewMainProps) {
   
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
+    if (!isTodayTodosFetched) return savedTodoId;
     for (const category of todayTodos) {
       const found = category.todos.find((todo) => todo.id === savedTodoId);
       if (found) return savedTodoId;
     }
+    
     if (typeof window !== "undefined") {
       localStorage.removeItem("groupMySidebar_selectedTodoId");
     }
     return null;
-  }, [savedTodoId, todayTodos]);
+  }, [savedTodoId, todayTodos, isTodayTodosFetched]);
   
   const currentSession = validTodoId 
     ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId))
