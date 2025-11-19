@@ -84,24 +84,34 @@ export default function ProfileEditModal({
           프로필 수정
         </h2>
 
-        <label className="w-[120px] h-[120px] rounded-full bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden mb-5 relative">
-          {profileImage ? (
-            <Image
-              src={profileImage}
-              alt="프로필 이미지"
-              fill
-              className="object-cover"
+        <div className="relative mb-5">
+          <label className="w-[120px] h-[120px] rounded-full border-2 border-gray-300 bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden">
+            {profileImage ? (
+              <Image
+                src={profileImage}
+                alt="프로필 이미지"
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <span className="text-gray-600">사진 선택</span>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
             />
-          ) : (
-            <span className="text-gray-600">사진 선택</span>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
-        </label>
+          </label>
+          <div className="absolute bottom-0 right-0 bg-gray-200 rounded-full p-2">
+            <Image
+              src="/Icons/camera.svg"
+              alt="카메라"
+              width={25}
+              height={25}
+            />
+          </div>
+        </div>
 
         <div className="flex flex-col gap-2 mb-5 w-full">
           <p>이름</p>
@@ -118,7 +128,7 @@ export default function ProfileEditModal({
           <p>이메일</p>
           <input
             placeholder="이메일"
-            type="text"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="rounded-lg py-2 px-3 bg-gray-100 border border-gray-200"
