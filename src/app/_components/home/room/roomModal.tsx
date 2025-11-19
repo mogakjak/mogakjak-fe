@@ -29,7 +29,8 @@ export default function RoomModal({
   const [currentImageUrl, setCurrentImageUrl] =
     useState<string | null>(initialImageUrl);
 
-  const { mutate: createGroup, isPending: isCreating } = useCreateGroup();
+  const { mutateAsync: createGroupAsync, isPending: isCreating } =
+    useCreateGroup();
   const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroup();
   const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage();
 
@@ -78,17 +79,20 @@ export default function RoomModal({
           }
         );
       } else {
-        createGroup(payload, {
-          onSuccess: (data) => {
-            onClose();
-            if (data?.groupId && onCreateSuccess) {
-              onCreateSuccess(data.groupId);
-            }
-          },
-          onError: () => {
-            alert("그룹 생성에 실패했습니다.");
-          },
-        });
+        const created = await createGroupAsync(payload);
+        const newGroupId = created?.groupId;
+
+        if (!newGroupId) {
+          console.error("생성된 groupId가 없습니다.");
+          alert("그룹 생성에 실패했습니다.");
+          return;
+        }
+
+        if (onCreateSuccess) {
+          onCreateSuccess(newGroupId);
+        }
+
+        onClose();
       }
     } catch (error) {
       console.error("처리 중 오류 발생:", error);
