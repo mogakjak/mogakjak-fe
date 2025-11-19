@@ -43,11 +43,12 @@ export default function GroupRoomPage() {
       </div>
 
       {groupEditOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center">
           <RoomModal
             mode="edit"
             groupId={data?.groupId}
             initialName={data?.name}
+            initialImageUrl={data?.imageUrl}
             onClose={() => setGroupEditOpen(false)}
           />
         </div>

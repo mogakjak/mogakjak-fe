@@ -47,14 +47,14 @@ export type MatesPage = PageResponse<Mate>;
 
 export type CreateGroupBody = {
   name: string;
-  description: string;
+  imageUrl: string;
 };
 
 // 그룹 상세
 export type GroupDetail = {
   groupId: string;
   name: string;
-  description: string;
+  imageUrl: string;
   members: GroupMembers;
 };
 

@@ -25,13 +25,19 @@ export default function GroupRoom({ group }: GroupRoomProps) {
 
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
-      <div className="w-[84px] h-[84px] rounded-lg bg-red-200 flex items-center justify-center">
-        <Image
-          src={imageUrl || "/favicon.svg"}
-          alt="groupImage"
-          width={40}
-          height={40}
-        />
+      <div className="relative w-[84px] h-[84px] rounded-lg bg-red-200 overflow-hidden">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt="groupImage"
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full">
+            <Image src="/favicon.svg" alt="groupImage" width={40} height={40} />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 ml-5">

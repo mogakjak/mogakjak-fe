@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
-import { ImageSelector } from "./ImageSelector"; // 경로는 폴더 구조에 맞게 수정!
+import { ImageSelector } from "./ImageSelector";
 import { useCreateGroup, useUpdateGroup } from "@/app/_hooks/groups";
 
 interface RoomModalProps {
   onClose: () => void;
   mode: "create" | "edit";
-  //수정용
   groupId?: string;
   initialName?: string;
   initialImageUrl?: string | null;
@@ -23,12 +22,11 @@ export default function RoomModal({
   initialImageUrl = null,
 }: RoomModalProps) {
   const [name, setName] = useState(initialName);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    initialImageUrl
-  );
+  const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl);
+
   const { mutate: createGroup, isPending: isCreating } = useCreateGroup();
   const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroup();
+
   const isEdit = mode === "edit";
   const isPending = isEdit ? isUpdating : isCreating;
   const title = isEdit ? "그룹 수정하기" : "그룹 생성하기";
@@ -42,21 +40,12 @@ export default function RoomModal({
 
     const payload = {
       name,
-      description: "",
+      imageUrl: imageUrl ?? "",
     };
-
-    console.log("📌 Submit Payload:", {
-      mode,
-      groupId,
-      payload,
-      imageFile,
-      imagePreview,
-    });
 
     if (isEdit) {
       if (!groupId) {
-        console.error(" groupId가 없습니다.");
-
+        console.error("groupId가 없습니다.");
         return;
       }
 
@@ -94,9 +83,8 @@ export default function RoomModal({
 
         <ImageSelector
           initialImageUrl={initialImageUrl}
-          onChange={(file, previewUrl) => {
-            setImageFile(file);
-            setImagePreview(previewUrl);
+          onChange={(_, previewUrl) => {
+            setImageUrl(previewUrl);
           }}
         />
 
