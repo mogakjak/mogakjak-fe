@@ -1,58 +1,46 @@
-"use client";
+import GroupRoomPage from "../_components/groupRoomPage";
+import { notFound } from "next/navigation";
 
-import { useRouter, useParams } from "next/navigation";
-import PreviewMain from "@/app/_components/home/previewMain";
-import GroupPage from "@/app/(pages)/group/_components/groupPage";
-import Icon from "@/app/_components/common/Icons";
-import Edit from "/Icons/edit.svg";
-import { useGroupDetail } from "@/app/_hooks/groups";
-import { useState } from "react";
-import RoomModal from "@/app/_components/home/room/roomModal";
+type PageProps = {
+  params: Promise<{ groupId: string | string[] }>;
+};
 
-export default function GroupRoomPage() {
-  const [groupEditOpen, setGroupEditOpen] = useState(false);
-  const router = useRouter();
-  const { groupId } = useParams<{ groupId: string }>();
-  const { data, isPending } = useGroupDetail(groupId);
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
-  const handleExitGroup = () => {
-    router.push("/");
-  };
+export default async function Page({ params }: PageProps) {
+  try {
+    const resolvedParams = await params;
 
-  return (
-    <main className="w-full h-full max-w-[1440px] mx-auto flex flex-col gap-1 overflow-x-hidden pt-5">
-      <div className="flex gap-1 px-6 mb-2">
-        <p className="text-heading4-20SB">{data?.name} 팀</p>
-        <button onClick={() => setGroupEditOpen(true)}>
-          <Icon Svg={Edit} size={20} className="text-gray-600" />
-        </button>
-      </div>
+    // 디버깅을 위한 로그 (프로덕션에서도 확인 가능)
+    if (process.env.NODE_ENV === "production") {
+      console.log(
+        "[GroupPage] Resolved params:",
+        JSON.stringify(resolvedParams)
+      );
+    }
 
-      <div className="w-full h-full flex gap-5">
-        <div className="self-stretch">
-          <PreviewMain state={true} />
-        </div>
+    if (!resolvedParams || !resolvedParams.groupId) {
+      console.error("[GroupPage] No groupId in params:", resolvedParams);
+      notFound();
+    }
 
-        {isPending || !data ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-[560px] bg-gray-100 animate-pulse rounded-2xl" />
-          </div>
-        ) : (
-          <GroupPage onExitGroup={handleExitGroup} groupData={data} />
-        )}
-      </div>
+    const groupId = Array.isArray(resolvedParams.groupId)
+      ? resolvedParams.groupId[0]
+      : resolvedParams.groupId;
 
-      {groupEditOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center">
-          <RoomModal
-            mode="edit"
-            groupId={data?.groupId}
-            initialName={data?.name}
-            initialImageUrl={data?.imageUrl}
-            onClose={() => setGroupEditOpen(false)}
-          />
-        </div>
-      )}
-    </main>
-  );
+    if (!groupId || groupId === "undefined" || typeof groupId !== "string") {
+      console.error("[GroupPage] Invalid groupId:", groupId);
+      notFound();
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      console.log("[GroupPage] Final groupId:", groupId);
+    }
+
+    return <GroupRoomPage groupId={groupId} />;
+  } catch (error) {
+    console.error("[GroupPage] Error parsing params:", error);
+    notFound();
+  }
 }
