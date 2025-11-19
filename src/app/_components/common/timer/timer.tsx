@@ -89,6 +89,12 @@ export default forwardRef<CountdownHandle, CountdownProps>(function Countdown(
 
   const pause = useCallback(() => {
     if (!running) return;
+    const endAt = endAtRef.current;
+    if (endAt != null) {
+      const now = performance.now();
+      const ms = Math.max(0, endAt - now);
+      setLeftMs(ms);
+    }
     setRunning(false);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     endAtRef.current = null;

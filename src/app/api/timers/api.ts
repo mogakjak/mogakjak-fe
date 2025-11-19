@@ -92,3 +92,34 @@ export const finishTimer = (sessionId: string) =>
     method: "POST",
   });
 
+export type StartTimerPayload = {
+  todoId: string;
+  targetSeconds: number;
+};
+
+export type StartStopwatchPayload = {
+  todoId: string;
+};
+
+export const startTimer = (payload: StartTimerPayload) =>
+  request<PomodoroSession>("/start/timer", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const startStopwatch = (payload: StartStopwatchPayload) =>
+  request<PomodoroSession>("/start/stopwatch", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const finishActiveTimer = () =>
+  request<PomodoroSession>("/finish/active", {
+    method: "POST",
+  });
+
+export const nextPomodoro = (sessionId: string) =>
+  request<PomodoroSession>(`/next/pomodoro/${sessionId}`, {
+    method: "POST",
+  });
+

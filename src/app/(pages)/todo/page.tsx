@@ -81,28 +81,28 @@ export default function TodoPage() {
       .map((category) => {
         const todos = todosByCat.get(category.id) ?? [];
         
-        const baseToken =
-          CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
-          ] ?? "category-1-red";
-        const colorToken = `bg-${baseToken}`;
+      const baseToken =
+        CATEGORY_COLOR_TOKEN_BY_NAME[
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+        ] ?? "category-1-red";
+      const colorToken = `bg-${baseToken}`;
 
-        return {
-          id: category.id,
-          title: category.name,
-          barColorClass: colorToken,
-          colorToken: baseToken,
+      return {
+        id: category.id,
+        title: category.name,
+        barColorClass: colorToken,
+        colorToken: baseToken,
           expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
           items: todos.map((todo) => ({
-            id: todo.id,
-            date: todo.date,
-            title: todo.task,
-            targetSeconds: todo.targetTimeInSeconds,
-            currentSeconds: todo.actualTimeInSeconds,
-            completed: todo.isCompleted,
-          })),
-        };
-      });
+          id: todo.id,
+          date: todo.date,
+          title: todo.task,
+          targetSeconds: todo.targetTimeInSeconds,
+          currentSeconds: todo.actualTimeInSeconds,
+          completed: todo.isCompleted,
+        })),
+      };
+    });
 
     if (selectedId !== "all") {
       return allMappedCategories.filter((cat) => cat.id === selectedId);
@@ -213,11 +213,11 @@ export default function TodoPage() {
         const current = todo?.isCompleted;
         if (current === next) return;
       } else {
-        const category = todayTodos.find((cat) =>
-          cat.todos.some((todo) => todo.id === todoId),
-        );
-        const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
-        if (current === next) return;
+      const category = todayTodos.find((cat) =>
+        cat.todos.some((todo) => todo.id === todoId),
+      );
+      const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
+      if (current === next) return;
       }
       
       await toggleTodoComplete(todoId);
@@ -241,17 +241,17 @@ export default function TodoPage() {
       </section>
 
       <section className="w-full self-stretch">
-        <TodoSection
-          filter={filter}
-          dateLabel={dateLabel}
-          categories={todoListCategories}
-          onCreateTodo={handleCreateTodo}
+          <TodoSection
+            filter={filter}
+            dateLabel={dateLabel}
+            categories={todoListCategories}
+            onCreateTodo={handleCreateTodo}
           onUpdateTodo={handleUpdateTodo}
           onDeleteTodo={handleDeleteTodo}
-          onToggleTodo={handleToggleTodo}
+            onToggleTodo={handleToggleTodo}
           onCategorySelect={setSelectedId}
-        />
+          />
       </section>
-    </div>
+      </div>
   );
 }

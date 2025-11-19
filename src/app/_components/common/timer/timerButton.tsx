@@ -61,50 +61,50 @@ export default function TimerButtons({
   return (
     <div className={clsx("w-full flex flex-col gap-3", className)}>
       <div className="w-full flex items-center gap-3">
-        <Button
-          variant="slate600"
-          className={clsx(
+      <Button
+        variant="slate600"
+        className={clsx(
             " text-body2-14SB h-8 text-base rounded-lg w-full flex-1",
             isBreakPhase && "bg-gray600 hover:bg-gray600/90"
-          )}
-          size="custom"
-          onClick={onPause}
-          leftIcon={null}
+        )}
+        size="custom"
+        onClick={onPause}
+        leftIcon={null}
           data-pip-action="pause"
           style={isBreakPhase ? { backgroundColor: "#585D63" } : undefined}
-        >
-          <span className="inline-flex items-center gap-2 justify-center">
-            <Image
+      >
+        <span className="inline-flex items-center gap-2 justify-center">
+          <Image
               src={pauseButtonIcon}
               alt={pauseButtonText}
-              width={24}
-              height={24}
-              className="w-6 h-6"
-            />
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
             {pauseButtonText}
-          </span>
-        </Button>
-        <Button
-          variant="primary"
-          className={clsx(
-            " text-body2-14SB h-8 text-base rounded-lg w-full flex-1"
-          )}
-          size="custom"
-          onClick={onStop}
-          leftIcon={null}
+        </span>
+      </Button>
+      <Button
+        variant="primary"
+        className={clsx(
+          " text-body2-14SB h-8 text-base rounded-lg w-full flex-1"
+        )}
+        size="custom"
+        onClick={onStop}
+        leftIcon={null}
           data-pip-action="stop"
-        >
-          <span className="inline-flex items-center gap-2 justify-center">
-            <Image
-              src="/Icons/stopWhite.svg"
-              alt="stop"
-              width={24}
-              height={24}
-              className="w-6 h-6"
-            />
-            종료
-          </span>
-        </Button>
+      >
+        <span className="inline-flex items-center gap-2 justify-center">
+          <Image
+            src="/Icons/stopWhite.svg"
+            alt="stop"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
+          종료
+        </span>
+      </Button>
       </div>
       {onPipToggle && !isInPip && (
         <Button
