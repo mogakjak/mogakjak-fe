@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import type { Todo } from "@/app/_types/todo";
 import type { AddWorkPayload } from "@/app/(pages)/todo/components/addWorkForm";
 import type { TodoCategory } from "@/app/_types/todoCategory";
-
+export const DEFAULT_TODO_TASK = "와이어프레임 완료";
+export const DEFAULT_TODO_TARGET_TIME_IN_SECONDS = 3600;
 interface UseEnsureTodayTodoOptions {
   todayTodo: Todo | null;
   categories: TodoCategory[];
@@ -59,9 +60,9 @@ export function useEnsureTodayTodo({
 
         const createdTodo = await createTodo({
           categoryId: defaultCategory.id,
-          task: "와이어프레임 완료",
+          task: DEFAULT_TODO_TASK,
           date: formatted,
-          targetTimeInSeconds: 3600,
+          targetTimeInSeconds: DEFAULT_TODO_TARGET_TIME_IN_SECONDS,
         });
 
         if (createdTodo) {
