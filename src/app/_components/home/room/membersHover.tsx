@@ -74,7 +74,7 @@ export default function MembersHover({
           <ul className="flex flex-col gap-3">
             {members.map((m) => (
               <li key={m.userId} className="flex items-center">
-                <MemberProfile isActive={true} />
+                <MemberProfile isActive={true} profileUrl={m.profileUrl} />
                 <span className="text-body2-14R text-black ml-2 truncate">
                   {m.nickname}
                 </span>
