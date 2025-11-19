@@ -107,10 +107,8 @@ export default function TimerComponent({
   }, [todoId, startPomodoroMutation, setIsRunning]);
 
   const onStart = useCallback(async () => {
-    console.log('onStart called:', { mode, isPaused, sessionId, running });
     if (mode === "pomodoro") {
       if (isPaused && sessionId) {
-        console.log('Resuming pomodoro with sessionId:', sessionId);
         try {
           await resumeTimerMutation.mutateAsync(sessionId);
           pomoRef.current?.start();
@@ -181,7 +179,7 @@ export default function TimerComponent({
         setTimerModalOpen(true);
       }
     }
-  }, [mode, isPaused, sessionId, running, resumeTimerMutation, startStopwatchMutation, todoId, setIsRunning, pomoRef, swRef, cdRef, timerContainerRef, openPipWindowRef, isInPipRef]);
+  }, [mode, isPaused, sessionId, resumeTimerMutation, startStopwatchMutation, todoId, setIsRunning, pomoRef, swRef, cdRef, timerContainerRef, openPipWindowRef, isInPipRef]);
 
   const onPause = useCallback(async () => {
     if (mode === "pomodoro") {
