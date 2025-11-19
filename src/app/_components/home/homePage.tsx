@@ -3,8 +3,10 @@
 import PreviewMain from "./previewMain";
 import FriendMain from "./friendMain";
 import RoomMain from "./roomMain";
+import { useMyGroups } from "@/app/_hooks/groups";
 
 export default function HomePage() {
+  const { data: groups = [], isPending: isGroupsPending } = useMyGroups();
   return (
     <main className="w-full h-full max-w-[1440px] mx-auto flex gap-5 overflow-x-hidden pt-9">
       <div className="self-stretch">
@@ -12,8 +14,8 @@ export default function HomePage() {
       </div>
 
       <section className="w-full flex-1 flex flex-col justify-between">
-        <RoomMain />
-        <FriendMain />
+        <RoomMain groups={groups} isPending={isGroupsPending} />
+        <FriendMain groups={groups} isPending={isGroupsPending} />
       </section>
     </main>
   );

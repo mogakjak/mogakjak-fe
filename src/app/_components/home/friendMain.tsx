@@ -4,9 +4,15 @@ import { useState, useEffect, useMemo } from "react";
 import DropdownList from "../../(pages)/mypage/_components/board/mate/dropdownList";
 import SearchBar from "../../(pages)/mypage/_components/board/mate/searchBar";
 import ProfileList from "../../(pages)/mypage/_components/board/mate/profileList";
-import { useMyGroups, useMates } from "@/app/_hooks/groups";
+import { useMates } from "@/app/_hooks/groups";
+import { MyGroup } from "@/app/_types/groups";
 
-export default function FriendMain() {
+interface FriendMainProps {
+  groups: MyGroup[];
+  isPending: boolean;
+}
+
+export default function FriendMain({ groups, isPending }: FriendMainProps) {
   const [selectedGroupName, setSelectedGroupName] = useState("전체 그룹");
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(
     undefined
@@ -15,8 +21,6 @@ export default function FriendMain() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
-
-  const { data: groups = [] } = useMyGroups();
 
   useEffect(() => {
     setPage(1);

@@ -1,12 +1,15 @@
 export type MyGroup = {
   groupId: string;
   groupName: string;
-  profileUrl?: string;
+  imageUrl?: string;
+  members: Mate[];
 };
 
 export type Mate = {
   userId: string;
   nickname: string;
+  profileUrl: string;
+  level: number;
 };
 
 export type SortInfo = {
