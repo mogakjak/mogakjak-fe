@@ -69,7 +69,6 @@ export default function RoomModal({
           { groupId, body: payload },
           {
             onSuccess: () => {
-              console.log("그룹 수정 성공");
               onClose();
             },
             onError: () => {
