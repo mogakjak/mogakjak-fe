@@ -12,6 +12,7 @@ export default function TodoSection({
   onUpdateTodo,
   onDeleteTodo,
   onToggleTodo,
+  onCategorySelect,
 }: {
   filter: DayFilter;
   dateLabel?: string;
@@ -25,6 +26,7 @@ export default function TodoSection({
   onUpdateTodo?: Parameters<typeof TodoList>[0]["onUpdateTodo"];
   onDeleteTodo?: Parameters<typeof TodoList>[0]["onDeleteTodo"];
   onToggleTodo?: Parameters<typeof TodoList>[0]["onToggleTodo"];
+  onCategorySelect?: Parameters<typeof TodoList>[0]["onCategorySelect"];
   className?: string;
 }) {
   const isToday = filter === "today";
@@ -56,6 +58,7 @@ export default function TodoSection({
           onUpdateTodo={onUpdateTodo}
           onDeleteTodo={onDeleteTodo}
           onToggleTodo={onToggleTodo}
+          onCategorySelect={onCategorySelect}
         />
       </div>
     </section>

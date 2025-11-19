@@ -9,39 +9,48 @@ import {
   ChartOptions,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import { formatHM } from "../../../_utils/formatHM";
+import { formatHMS } from "../../../_utils/formatHMS";
+import { toCssColor, resolveCanvasColor } from "../../../_utils/categoryTime";
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 export type DonutCategory = {
   category: string;
-  minutes: number;
+  seconds: number;
   color: string;
 };
 
 interface DonutGraphProps {
-  totalMinutes: number;
+  totalSeconds: number;
   categories: DonutCategory[];
   cutout?: string | number;
 }
 
 export default function DonutGraph({
-  totalMinutes,
+  totalSeconds,
   categories,
   cutout = "60%",
 }: DonutGraphProps) {
-  const safeTotal = Math.max(0, totalMinutes);
+  const normalizedColors = categories.map((c, idx) => toCssColor(c.color, idx));
+  const backgroundColors = normalizedColors.map((color) =>
+    resolveCanvasColor(color)
+  );
+
+  const safeTotal = Math.max(0, totalSeconds);
+
   const percents =
     safeTotal > 0
-      ? categories.map((c) => (c.minutes / safeTotal) * 100)
+      ? categories.map((c) => (c.seconds / safeTotal) * 100)
       : categories.map(() => 0);
+
+  const datasetData = safeTotal > 0 ? percents : categories.map(() => 1);
 
   const chartData = {
     labels: categories.map((c) => c.category),
     datasets: [
       {
-        data: percents,
-        backgroundColor: categories.map((c) => c.color),
+        data: datasetData,
+        backgroundColor: backgroundColors,
         borderWidth: 0,
         spacing: 0,
       },
@@ -58,9 +67,9 @@ export default function DonutGraph({
         callbacks: {
           label: (ctx) => {
             const i = ctx.dataIndex;
-            const minutes = categories[i]?.minutes ?? 0;
+            const seconds = categories[i]?.seconds ?? 0;
             const pct = percents[i] ?? 0;
-            return `${ctx.label} — ${Math.round(pct)}% (${formatHM(minutes)})`;
+            return `${ctx.label} — ${Math.round(pct)}% (${formatHMS(seconds)})`;
           },
         },
       },
@@ -70,6 +79,7 @@ export default function DonutGraph({
         formatter: (_value, ctx) => {
           const i = ctx.dataIndex;
           const pct = percents[i] ?? 0;
+          if (safeTotal === 0) return "0%";
           return pct >= 1 ? `${Math.round(pct)}%` : ""; // 1% 미만은 숨김
         },
         clamp: true,

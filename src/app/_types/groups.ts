@@ -1,12 +1,15 @@
 export type MyGroup = {
   groupId: string;
   groupName: string;
-  profileUrl?: string;
+  imageUrl?: string;
+  members: Mate[];
 };
 
 export type Mate = {
   userId: string;
   nickname: string;
+  profileUrl: string;
+  level: number;
 };
 
 export type SortInfo = {
@@ -44,18 +47,47 @@ export type MatesPage = PageResponse<Mate>;
 
 export type CreateGroupBody = {
   name: string;
-  description: string;
+  imageUrl: string;
 };
 
+// 그룹 상세
 export type GroupDetail = {
   groupId: string;
   name: string;
-  description: string;
+  imageUrl: string;
   members: GroupMembers;
 };
 
+// 그룹 멤버
 export type GroupMembers = {
   userId: string;
   nickname: string;
   profileUrl: string;
 }[];
+
+// 알림
+export type NotiReq = {
+  isNotificationAgreed: boolean;
+  notificationCycle: number;
+  notificationMessage: string;
+};
+
+export type NotiRes = {
+  groupId: string;
+  groupName: string;
+  isNotificationAgreed: boolean;
+  notificationCycle: number;
+  notificationMessage: string;
+};
+
+//  목표시간
+export interface GroupGoalReq {
+  hour: number;
+  minute: number;
+}
+
+export interface GroupGoalRes {
+  groupId: string;
+  goalHours: number;
+  goalMinutes: number;
+}

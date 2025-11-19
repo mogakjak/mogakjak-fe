@@ -10,6 +10,7 @@ import {
 import {
   createTodo,
   deleteTodo,
+  getMyTodos,
   getTodayTodos,
   toggleTodoComplete,
   updateTodo,
@@ -30,6 +31,17 @@ export const useTodayTodos = (
     ...options,
   });
 
+export const useMyTodos = (
+  options?: Omit<UseQueryOptions<Todo[], Error>, "queryKey" | "queryFn">
+) =>
+  useQuery<Todo[], Error>({
+    queryKey: todoKeys.my(),
+    queryFn: getMyTodos,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
+    ...options,
+  });
+
 export const useCreateTodo = (
   options?: UseMutationOptions<Todo, Error, CreateTodoPayload>
 ) => {
@@ -40,6 +52,7 @@ export const useCreateTodo = (
     ...restOptions,
     onSuccess: (data, variables, context, mutation) => {
       qc.invalidateQueries({ queryKey: todoKeys.today() });
+      qc.invalidateQueries({ queryKey: todoKeys.my() });
       onSuccess?.(data, variables, context, mutation);
     },
     onError: (error, variables, context, mutation) => {
@@ -59,6 +72,7 @@ export const useUpdateTodo = (
     ...restOptions,
     onSuccess: (data, variables, context, mutation) => {
       qc.invalidateQueries({ queryKey: todoKeys.today() });
+      qc.invalidateQueries({ queryKey: todoKeys.my() });
       onSuccess?.(data, variables, context, mutation);
     },
     onError: (error, variables, context, mutation) => {
@@ -78,6 +92,7 @@ export const useToggleTodoComplete = (
     ...restOptions,
     onSuccess: (data, variables, context, mutation) => {
       qc.invalidateQueries({ queryKey: todoKeys.today() });
+      qc.invalidateQueries({ queryKey: todoKeys.my() });
       onSuccess?.(data, variables, context, mutation);
     },
     onError: (error, variables, context, mutation) => {
@@ -97,6 +112,7 @@ export const useDeleteTodo = (
     ...restOptions,
     onSuccess: (data, variables, context, mutation) => {
       qc.invalidateQueries({ queryKey: todoKeys.today() });
+      qc.invalidateQueries({ queryKey: todoKeys.my() });
       onSuccess?.(data, variables, context, mutation);
     },
     onError: (error, variables, context, mutation) => {

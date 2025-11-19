@@ -5,77 +5,68 @@ import StateButton from "./stateButton";
 import HomeButton from "./homeButton";
 import MembersHover from "./membersHover";
 import Image from "next/image";
-import { useGroupDetail } from "@/app/_hooks/groups";
+import { MyGroup } from "@/app/_types/groups";
+import { useRouter } from "next/navigation";
 
-type Member = { id: number; isActive: boolean };
-type Group = { id: number; name: string; members: Member[] };
+type GroupRoomProps = {
+  group: MyGroup;
+};
 
-type GroupRoomProps =
-  | { variant?: "data"; group: Group }
-  | { variant: "guide" }
-  | { variant?: "data"; groupId: string; groupName: string };
+export default function GroupRoom({ group }: GroupRoomProps) {
+  const router = useRouter();
+  const { groupId, groupName, imageUrl, members } = group;
 
-export default function GroupRoom(props: GroupRoomProps) {
-  const isGuide = props.variant === "guide";
-  const isApiGroup = "groupId" in props && !("group" in props);
+  const activeCount = members.length;
+  const totalCount = members.length;
 
-  const { data: groupDetail } = useGroupDetail(
-    isApiGroup ? props.groupId : "",
-    { enabled: isApiGroup }
-  );
-
-  const title = isGuide
-    ? "[가이드] 모각작 그룹을 둘러보세요!"
-    : isApiGroup
-    ? props.groupName
-    : props.group.name;
-
-  let members: Member[] = [];
-  if (isGuide) {
-    members = [];
-  } else if (isApiGroup && groupDetail) {
-    // GroupDetail의 members를 Member 타입으로 변환
-    members = groupDetail.members.map((m, index) => ({
-      id: index + 1,
-      isActive: false, 
-    }));
-  } else if (!isApiGroup) {
-    members = props.group.members;
-  }
-
-  const activeCount = isGuide ? 0 : members.filter((m) => m.isActive).length;
-  const totalCount = isGuide ? 0 : members.length;
-  const buttonText = isGuide ? "가이드 보기" : "참여하기";
-  const stateOn = isGuide ? true : activeCount > 0;
+  const handleEnter = () => {
+    router.push(`/group/${groupId}`);
+  };
 
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
-      <div className="w-[84px] h-[84px] rounded-lg bg-red-200 flex items-center justify-center">
-        <Image src="/favicon.svg" alt="groupDefault" width={40} height={40} />
+      <div className="relative w-[84px] h-[84px] rounded-lg bg-red-200 overflow-hidden">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt="groupImage"
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full">
+            <Image src="/favicon.svg" alt="groupImage" width={40} height={40} />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 ml-5">
-        <p className="text-heading4-20SB text-black">{title}</p>
-        <StateButton state={stateOn} />
+        <p className="text-heading4-20SB text-black">{groupName}</p>
+        <StateButton state={true} />
       </div>
 
       <div className="flex items-center ml-auto gap-9">
         <div className="flex items-center gap-4">
-          {isGuide ? (
-            <Members members={members} size="default" isGuide />
-          ) : (
-            <MembersHover
-              members={members}
-              activeCount={activeCount}
-              trigger={<Members members={members} size="default" />}
-            />
-          )}
+          <MembersHover
+            members={members}
+            activeCount={activeCount}
+            trigger={
+              <Members
+                members={members.map((m) => ({
+                  id: m.userId,
+                  isActive: true,
+                  profileUrl: m.profileUrl,
+                }))}
+                size="default"
+              />
+            }
+          />
           <span className="text-body1-16R text-gray-700">
-            {isGuide ? "n/n" : `${activeCount}/${totalCount}`} 명
+            {activeCount}/{totalCount} 명
           </span>
         </div>
-        <HomeButton variant={isGuide ? "secondary" : "primary"}>
-          {buttonText}
+        <HomeButton variant="primary" onClick={handleEnter}>
+          참여하기
         </HomeButton>
       </div>
     </div>

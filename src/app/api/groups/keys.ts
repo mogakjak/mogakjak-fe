@@ -6,4 +6,7 @@ export const groupKeys = {
   mates: (params?: GetMatesParams) =>
     [...groupKeys.all(), "mates", params ?? {}] as const,
   detail: (groupId: string) => [...groupKeys.all(), "detail", groupId] as const,
+  notifications: (groupId: string) =>
+    [...groupKeys.all(), "notifications", groupId] as const,
+  goal: (groupId: string) => [...groupKeys.all(), "goal", groupId] as const,
 };

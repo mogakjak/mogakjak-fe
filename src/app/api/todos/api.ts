@@ -57,6 +57,8 @@ export type UpdateTodoPayload = {
 
 export const getTodayTodos = () => request<TodoCategoryWithTodos[]>("/today", { method: "GET" });
 
+export const getMyTodos = () => request<Todo[]>("/my", { method: "GET" });
+
 export const createTodo = (payload: CreateTodoPayload) =>
   request<Todo>("/", { method: "POST", body: JSON.stringify(payload) });
 

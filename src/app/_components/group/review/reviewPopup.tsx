@@ -3,52 +3,66 @@
 import { useMemo, useState } from "react";
 import ReviewEmoji from "./reviewEmoji";
 import ReviewTag from "./reviewTag";
+import { useCreateFeedback, useFeedbackTags } from "@/app/_hooks/feedback";
+import { FeedbackTagType } from "@/app/_types/feedback";
 
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
 interface ReviewBlock {
   types: EmojiType[];
   question: string;
-  options: string[];
 }
+
 interface ReviewPopupProps {
+  groupName: string;
+  sessionId: string;
   onClose: () => void;
   onExitGroup: () => void;
 }
+
 const REVIEW_OPTIONS: ReadonlyArray<ReviewBlock> = [
   {
     types: ["toobad", "bad"],
     question: "어떤 점이 아쉬우셨나요?",
-    options: [
-      "타이머/기록 기능에 오류가 있었어요",
-      "UI가 복잡하거나 불편했어요",
-      "집중을 방해하는 알림/요소가 있었어요",
-      "원하는 기능이 없었어요",
-    ],
   },
   {
     types: ["soso"],
     question: "어떤 점을 더 개선하면 좋을까요?",
-    options: [
-      "작업 통계를 더 자세히 보고 싶어요",
-      "목표 설정 기능이 더 강력했으면 좋겠어요",
-      "디자인/사용성이 개선되면 좋겠어요",
-      "새로운 기능이 추가되면 좋겠어요",
-    ],
   },
   {
     types: ["good", "sogood"],
     question: "어떤 점이 좋았나요?",
-    options: [
-      "스스로 시간을 관리하는 데 도움이 됐어요",
-      "타이머와 목표 관리가 유용했어요",
-      "디자인이 깔끔하고 직관적이에요",
-      "방해 없이 몰입할 수 있었어요",
-    ],
   },
 ];
 
+// 타입 매핑
+const emojiToFeedbackType = (emoji: EmojiType): FeedbackTagType => {
+  if (emoji === "toobad" || emoji === "bad") return "NEGATIVE";
+  if (emoji === "soso") return "NEUTRAL";
+  return "POSITIVE"; // good, sogood
+};
+
+// 점수 매핑
+const emojiToScore = (emoji: EmojiType): number => {
+  switch (emoji) {
+    case "toobad":
+      return 1;
+    case "bad":
+      return 2;
+    case "soso":
+      return 3;
+    case "good":
+      return 4;
+    case "sogood":
+      return 5;
+    default:
+      return 3;
+  }
+};
+
 export default function ReviewPopup({
+  groupName,
+  sessionId,
   onClose,
   onExitGroup,
 }: ReviewPopupProps) {
@@ -56,11 +70,20 @@ export default function ReviewPopup({
 
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiType | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [etcText, setEtcText] = useState("");
 
   const block = useMemo(() => {
     if (!selectedEmoji) return null;
     return REVIEW_OPTIONS.find((b) => b.types.includes(selectedEmoji)) ?? null;
   }, [selectedEmoji]);
+
+  const feedbackType: FeedbackTagType | undefined = useMemo(() => {
+    return selectedEmoji ? emojiToFeedbackType(selectedEmoji) : undefined;
+  }, [selectedEmoji]);
+
+  const { data: feedbackTags = [], isPending } = useFeedbackTags(feedbackType);
+  const { mutateAsync: createFeedback, isPending: isSubmitting } =
+    useCreateFeedback();
 
   const handleEmojiClick = (e: EmojiType) => {
     if (selectedEmoji === e) {
@@ -72,18 +95,38 @@ export default function ReviewPopup({
     }
   };
 
-  const toggleTag = (text: string) => {
+  const toggleTag = (code: string) => {
     setSelectedTags((prev) =>
-      prev.includes(text) ? prev.filter((t) => t !== text) : [...prev, text]
+      prev.includes(code) ? prev.filter((t) => t !== code) : [...prev, code]
     );
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedEmoji) return;
+
+    try {
+      const score = emojiToScore(selectedEmoji);
+
+      await createFeedback({
+        sessionId,
+        score,
+        tagCodes: selectedTags,
+        content: etcText.trim(),
+      });
+
+      onClose();
+      onExitGroup();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
     <div className="flex flex-col w-[340px]">
       <div className="flex flex-col p-7 pt-8 bg-white rounded-t-xl shadow-md text-center">
-        <h2 className="text-body1-16SB">팀이름</h2>
+        <h2 className="text-body1-16SB">{groupName}</h2>
         <p className="text-body2-14R text-gray-600 mt-2 pb-4">
-          부연설명 팀이름 부연설명
+          언제든 다시 참여하실 수 있어요
         </p>
 
         <p className="text-body2-14SB text-gray-800 pt-4 border-t border-gray-200">
@@ -106,15 +149,23 @@ export default function ReviewPopup({
           {block && (
             <div className="flex flex-col items-center justify-center">
               <p className="text-caption-12R text-gray-600">{block.question}</p>
-              <div className="flex flex-wrap justify-center gap-1 mt-3">
-                {block.options.map((opt) => (
-                  <ReviewTag
-                    key={opt}
-                    text={opt}
-                    selected={selectedTags.includes(opt)}
-                    onClick={() => toggleTag(opt)}
-                  />
-                ))}
+
+              <div className="flex flex-wrap justify-center gap-1 mt-3 min-h-[40px] w-full">
+                {isPending && (
+                  <div className="flex flex-wrap justify-center gap-2 w-full">
+                    <div className="h-8 px-8 rounded-full bg-gray-200 animate-pulse" />
+                  </div>
+                )}
+
+                {!isPending &&
+                  feedbackTags.map((tag) => (
+                    <ReviewTag
+                      key={tag.code}
+                      text={tag.displayName}
+                      selected={selectedTags.includes(tag.code)}
+                      onClick={() => toggleTag(tag.code)}
+                    />
+                  ))}
               </div>
 
               <textarea
@@ -122,6 +173,8 @@ export default function ReviewPopup({
                 id="etc"
                 className="w-full h-[112px] px-5 py-3 mt-3 text-caption-12R text-black border border-gray-200 rounded-lg resize-none outline-none"
                 placeholder="모각작이 더 좋은 서비스가 될 수 있도록 의견을 공유해 주세요"
+                value={etcText}
+                onChange={(e) => setEtcText(e.target.value)}
               />
             </div>
           )}
@@ -136,12 +189,9 @@ export default function ReviewPopup({
           취소
         </button>
         <button
-          className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300 "
-          disabled={!selectedEmoji}
-          onClick={() => {
-            onClose();
-            onExitGroup();
-          }}
+          className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300"
+          onClick={handleSubmit}
+          disabled={!selectedEmoji || isSubmitting}
         >
           종료하고 나가기
         </button>

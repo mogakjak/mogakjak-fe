@@ -3,6 +3,10 @@ import type {
   MatesPage,
   GroupDetail,
   CreateGroupBody,
+  NotiRes,
+  NotiReq,
+  GroupGoalRes,
+  GroupGoalReq,
 } from "@/app/_types/groups";
 
 const GROUPS_BASE = "/api/groups";
@@ -88,4 +92,17 @@ export const getGroupDetail = (groupId: string) =>
 export const getGroupInviteLink = (groupId: string) =>
   request<{ inviteId: string }>(`/${groupId}/invitations/link`, {
     method: "GET",
+  });
+
+// 그룹 알림 설정
+export const putGroupNoti = (groupId: string, payload: NotiReq) =>
+  request<NotiRes>(`/${groupId}/notifications`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+
+export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
+  request<GroupGoalRes>(`/${groupId}/goals`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
   });

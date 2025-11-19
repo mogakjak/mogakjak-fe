@@ -1,15 +1,8 @@
+"use client";
+
 import RecordBoard from "./recordBoard";
 
-type DataMap = Record<string, number>;
-
 export default function RecordMain() {
-  const data: DataMap = {
-    "2025-01-01": 100,
-    "2025-01-02": 200,
-    "2025-01-03": 300,
-    "2025-01-04": 400,
-    "2025-01-05": 500,
-  };
   return (
     <div className="w-full mt-[60px]">
       <div className="flex items-center gap-5 mb-5">
@@ -18,7 +11,7 @@ export default function RecordMain() {
           모든 몰입 여정을 하나의 캘린더에서 확인해 보세요.
         </p>
       </div>
-      <RecordBoard data={data} />
+      <RecordBoard />
     </div>
   );
 }

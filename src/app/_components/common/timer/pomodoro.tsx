@@ -59,8 +59,9 @@ export default forwardRef<
     minutes?: number;
     className?: string;
     onComplete?: () => void;
+    isBreak?: boolean;
   }
->(function PomodoroDial({ minutes = 60, className, onComplete }, ref) {
+>(function PomodoroDial({ minutes = 60, className, onComplete, isBreak = false }, ref) {
   const [targetSec, setTargetSec] = useState(Math.max(0, (minutes ?? 0) * 60));
   const [leftSec, setLeftSec] = useState(targetSec);
   const [running, setRunning] = useState(false);
@@ -184,7 +185,7 @@ export default forwardRef<
         >
           <path
             d={sectorPathFromTo(cx, cy, rFill, liveStart, liveEnd)}
-            fill="#fa5332"
+            fill={isBreak ? "#FC9B88" : "#fa5332"}
           />
           {all12.map((deg) => {
             if (deg % 90 === 0) return null;
