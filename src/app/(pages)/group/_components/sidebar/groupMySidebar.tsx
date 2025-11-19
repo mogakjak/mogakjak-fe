@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Icon from "../../../../_components/common/Icons";
 import Edit from "/Icons/edit.svg";
@@ -20,6 +20,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
+import { useTodayTodoSync } from "./useTodayTodoSync";
+import { useEnsureTodayTodo } from "./useEnsureTodayTodo";
 
 export default function GroupMySidebar({ state }: { state: boolean }) {
   const [isTaskOpen, setIsTaskOpen] = useState(true);
@@ -33,6 +35,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     }
     return null;
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isCreating, setIsCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -69,63 +72,24 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     return todos;
   }, [todayTodos]);
 
-  useEffect(() => {
-    if (todayTodo) {
-      if (!selectedTodoId || todayTodo.id === selectedTodoId) {
-        setCurrentTodo(todayTodo);
-        const [year, month, day] = todayTodo.date.split("-").map(Number);
-        setSelectedWork({
-          categoryId: todayTodo.categoryId,
-          title: todayTodo.task,
-          date: new Date(year, month - 1, day),
-          targetSeconds: todayTodo.targetTimeInSeconds,
-        });
-        if (!selectedTodoId) {
-          if (typeof window !== "undefined") {
-            localStorage.setItem("groupMySidebar_selectedTodoId", todayTodo.id);
-          }
-          setSelectedTodoId(todayTodo.id); 
-          queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
-            todo: {
-              id: todayTodo.id,
-              task: todayTodo.task,
-              targetTimeInSeconds: todayTodo.targetTimeInSeconds,
-            },
-          });
-        }
-      }
-      setIsCreating(false);
-    } else if (!todayTodo && categories.length > 0 && !isCreating) {
-      setIsCreating(true);
-      const ensureTodayTodo = async () => {
-        const defaultCategory = categories[0];
-        const d = new Date();
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        const formatted = `${yyyy}-${mm}-${dd}`;
-        
-        const createdTodo = await createTodo({
-          categoryId: defaultCategory.id,
-          task: "와이어프레임 완료",
-          date: formatted,
-          targetTimeInSeconds: 3600, 
-        });
-        if (createdTodo) {
-          setCurrentTodo(createdTodo);
-          const [year, month, day] = createdTodo.date.split("-").map(Number);
-          setSelectedWork({
-            categoryId: createdTodo.categoryId,
-            title: createdTodo.task,
-            date: new Date(year, month - 1, day),
-            targetSeconds: createdTodo.targetTimeInSeconds,
-          });
-        }
-        setIsCreating(false);
-      };
-      ensureTodayTodo();
-    }
-  }, [todayTodo, categories, createTodo, isCreating, selectedTodoId, queryClient]);
+  // 오늘의 할 일이 있을 때 할일 가져오기
+  useTodayTodoSync({
+    todayTodo,
+    selectedTodoId,
+    setCurrentTodo,
+    setSelectedWork,
+    setSelectedTodoId,
+  });
+
+  // 오늘의 할 일이 없을 때 
+  useEnsureTodayTodo({
+    todayTodo,
+    categories,
+    createTodo,
+    setCurrentTodo,
+    setSelectedWork,
+    setIsCreating,
+  });
 
   const formatSeconds = (seconds: number) => {
     const safeSeconds = Math.max(0, seconds);
