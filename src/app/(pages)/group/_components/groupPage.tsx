@@ -5,13 +5,14 @@ import { Button } from "@/components/button";
 import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
 
-import ReviewPopup from "../../../_components/common/review/reviewPopup";
+import ReviewPopup from "../../../_components/group/review/reviewPopup";
 import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
+import TimerEndModal from "@/app/_components/common/timerEndModal";
 
 type GroupPageProps = {
   onExitGroup: () => void;
