@@ -3,14 +3,10 @@
 import { useEffect } from "react";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
-
-interface MateProfile {
-  userId: string;
-  nickname: string;
-}
+import { Mate } from "@/app/_types/groups";
 
 interface ProfileListProps {
-  profiles: MateProfile[];
+  profiles: Mate[];
   totalCount: number;
   groupName?: string;
   page?: number;
@@ -33,7 +29,6 @@ export default function ProfileList({
   useEffect(() => {
     onCountChange?.(totalCount);
   }, [totalCount, onCountChange]);
-
   if (isLoading) {
     return (
       <div className="flex flex-col h-[552px] mb-1">
@@ -77,7 +72,7 @@ export default function ProfileList({
           className="flex items-center border-b border-gray-200 px-5 py-3"
         >
           <ProfileActive
-            src="/character/tomato.svg"
+            src={profile.profileUrl}
             name={profile.nickname}
             active={false}
           />
@@ -90,7 +85,7 @@ export default function ProfileList({
           <div className="text-gray-500 text-body1-16R flex gap-2">
             <p>{groupName}</p>
             <p>·</p>
-            <p>상태 정보 미제공</p>
+            <p>1일 전</p>
           </div>
 
           <div className="ml-auto">
