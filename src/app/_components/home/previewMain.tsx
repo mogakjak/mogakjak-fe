@@ -1,10 +1,13 @@
 "use client";
 
 import { useProfile } from "@/app/_hooks/mypage";
+import { useQueryClient } from "@tanstack/react-query";
 import TimerComponent from "../common/timer/timerComponent";
 import GroupMySidebar from "../../(pages)/group/_components/sidebar/groupMySidebar";
 import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
+import { timerKeys } from "@/app/api/timers/keys";
+import type { PomodoroSession } from "@/app/api/timers/api";
 
 type PreviewMainProps = {
   state: boolean;
@@ -12,6 +15,19 @@ type PreviewMainProps = {
 
 export default function PreviewMain({ state }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
+  const queryClient = useQueryClient();
+  
+  // localStorage에서 선택된 todoId 가져오기
+  const savedTodoId = typeof window !== "undefined" 
+    ? localStorage.getItem("groupMySidebar_selectedTodoId")
+    : null;
+  
+  // React Query에서 현재 세션 가져옴
+  const currentSession = savedTodoId 
+    ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(savedTodoId))
+    : queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  
+  const todoId = currentSession?.todo?.id ?? savedTodoId;
 
   const isPending = isLoading || !profile;
 
@@ -38,7 +54,7 @@ export default function PreviewMain({ state }: PreviewMainProps) {
         </>
       )}
 
-      <TimerComponent />
+      <TimerComponent todoId={todoId} />
     </div>
   );
 }

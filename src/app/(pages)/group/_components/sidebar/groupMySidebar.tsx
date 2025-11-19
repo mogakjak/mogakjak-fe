@@ -18,6 +18,7 @@ import {
 import { useTodoController, useTodayTodos } from "@/app/_hooks/todo";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
+import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
 
 export default function GroupMySidebar({ state }: { state: boolean }) {
@@ -68,11 +69,8 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     return todos;
   }, [todayTodos]);
 
-  // 오늘의 할일이 있으면 표시, 없으면 생성
   useEffect(() => {
     if (todayTodo) {
-      // selectedTodoId가 없거나 todayTodo의 ID가 selectedTodoId와 다를 때만 업데이트
-      // (사용자가 직접 선택한 할일이 아닐 때만 자동 업데이트)
       if (!selectedTodoId || todayTodo.id === selectedTodoId) {
         setCurrentTodo(todayTodo);
         const [year, month, day] = todayTodo.date.split("-").map(Number);
@@ -83,20 +81,24 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           targetSeconds: todayTodo.targetTimeInSeconds,
         });
         if (!selectedTodoId) {
-          // localStorage에 저장
           if (typeof window !== "undefined") {
             localStorage.setItem("groupMySidebar_selectedTodoId", todayTodo.id);
           }
-          setSelectedTodoId(todayTodo.id); // 첫 로드 시 selectedTodoId 설정
+          setSelectedTodoId(todayTodo.id); 
+          queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
+            todo: {
+              id: todayTodo.id,
+              task: todayTodo.task,
+              targetTimeInSeconds: todayTodo.targetTimeInSeconds,
+            },
+          });
         }
       }
       setIsCreating(false);
     } else if (!todayTodo && categories.length > 0 && !isCreating) {
-      // 오늘의 할일이 없고, 카테고리가 있고, 아직 생성하지 않은 경우에만 생성
       setIsCreating(true);
       const ensureTodayTodo = async () => {
         const defaultCategory = categories[0];
-        // 오늘 날짜 문자열 생성
         const d = new Date();
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -107,7 +109,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           categoryId: defaultCategory.id,
           task: "와이어프레임 완료",
           date: formatted,
-          targetTimeInSeconds: 3600, // 기본 1시간
+          targetTimeInSeconds: 3600, 
         });
         if (createdTodo) {
           setCurrentTodo(createdTodo);
@@ -123,7 +125,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
       };
       ensureTodayTodo();
     }
-  }, [todayTodo, categories, createTodo, isCreating, selectedTodoId]);
+  }, [todayTodo, categories, createTodo, isCreating, selectedTodoId, queryClient]);
 
   const formatSeconds = (seconds: number) => {
     const safeSeconds = Math.max(0, seconds);
@@ -158,8 +160,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
       const mm = String(payload.date.getMonth() + 1).padStart(2, "0");
       const dd = String(payload.date.getDate()).padStart(2, "0");
       const formatted = `${yyyy}-${mm}-${dd}`;
-      
-      // 선택된 할일이 이미 todayTodos에 있는지 확인
+    
       const existingTodo = todayTodosList.find(
         (todo) => todo.task === payload.title
       );
@@ -167,7 +168,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
       let resultTodo: Todo | null = null;
 
       if (existingTodo) {
-        // 기존 할일이 있으면 업데이트
         resultTodo = await updateTodo({
           todoId: existingTodo.id,
           payload: {
@@ -178,7 +178,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           },
         });
       } else {
-        // 새 할일 생성
         resultTodo = await createTodo({
           categoryId: payload.categoryId,
           task: payload.title,
@@ -186,14 +185,12 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           targetTimeInSeconds: payload.targetSeconds,
         });
       }
-      
-      // 결과 할일 데이터를 selectedWork와 currentTodo에 설정
+    
       if (resultTodo) {
-        // localStorage에 선택된 할일 ID 저장
         if (typeof window !== "undefined") {
           localStorage.setItem("groupMySidebar_selectedTodoId", resultTodo.id);
         }
-        setSelectedTodoId(resultTodo.id); // 선택된 할일 ID 저장
+        setSelectedTodoId(resultTodo.id); 
         setCurrentTodo(resultTodo);
         const [year, month, day] = resultTodo.date.split("-").map(Number);
         setSelectedWork({
@@ -201,6 +198,14 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           title: resultTodo.task,
           date: new Date(year, month - 1, day),
           targetSeconds: resultTodo.targetTimeInSeconds,
+        });
+        
+        queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
+          todo: {
+            id: resultTodo.id,
+            task: resultTodo.task,
+            targetTimeInSeconds: resultTodo.targetTimeInSeconds,
+          },
         });
       }
       
