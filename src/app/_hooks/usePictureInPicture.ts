@@ -28,14 +28,20 @@ export function usePictureInPicture({
   const pipWindowRef = useRef<Window | null>(null);
   const [isInPip, setIsInPip] = useState(false);
   const pipPermissionGrantedRef = useRef(false);
-
-  // PIP 창 열기
+  const originalStyleRef = useRef<{
+    margin: string;
+    padding: string;
+    maxWidth: string;
+    width: string;
+  } | null>(null);
+  const originalParentRef = useRef<HTMLElement | null>(null);
+  const originalNextSiblingRef = useRef<Node | null>(null);
   const openPipWindow = useCallback(async () => {
     if (typeof window === "undefined") return false;
     
     const isPipSupported = "documentPictureInPicture" in window;
     if (!isPipSupported) {
-      console.warn("Document Picture-in-Picture API is not supported in this browser");
+      console.warn("Document Picture-in-Picture API 불가능한 브라우저입니다. ");
       return false;
     }
 
@@ -110,7 +116,17 @@ export function usePictureInPicture({
         }
       `;
       pipWindow.document.head.appendChild(baseStyle);
-
+      originalParentRef.current = timerContainer.parentElement;
+      originalNextSiblingRef.current = timerContainer.nextSibling;
+      originalStyleRef.current = {
+        margin: timerContainer.style.margin,
+        padding: timerContainer.style.padding,
+        maxWidth: timerContainer.style.maxWidth,
+        width: timerContainer.style.width,
+      };
+      if (originalParentRef.current) {
+        originalParentRef.current.setAttribute('data-timer-container-parent', 'true');
+      }
       timerContainer.style.margin = "0";
       timerContainer.style.padding = "20px";
       timerContainer.style.maxWidth = "100%";
@@ -152,9 +168,22 @@ export function usePictureInPicture({
           pipWindow.document.removeEventListener('click', pipWindow.__pipClickHandler, true);
         }
         
-        const originalParent = document.querySelector('[data-timer-container-parent]') as HTMLElement;
-        if (originalParent && timerContainer) {
-          originalParent.appendChild(timerContainer);
+        // 원래 상태 유지하도록 체크 
+        const originalParent = originalParentRef.current || document.querySelector('[data-timer-container-parent]') as HTMLElement;
+        if (originalParent && timerContainer && originalStyleRef.current) {
+          timerContainer.style.margin = originalStyleRef.current.margin || "";
+          timerContainer.style.padding = originalStyleRef.current.padding || "";
+          timerContainer.style.maxWidth = originalStyleRef.current.maxWidth || "";
+          timerContainer.style.width = originalStyleRef.current.width || "";
+          if (originalNextSiblingRef.current && originalNextSiblingRef.current.parentNode === originalParent) {
+            originalParent.insertBefore(timerContainer, originalNextSiblingRef.current);
+          } else {
+            originalParent.appendChild(timerContainer);
+          }
+          originalParent.removeAttribute('data-timer-container-parent');
+          originalStyleRef.current = null;
+          originalParentRef.current = null;
+          originalNextSiblingRef.current = null;
         }
         
         onPipClose?.();
