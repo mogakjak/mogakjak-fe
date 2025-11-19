@@ -497,7 +497,7 @@ export default function TimerComponent({
           onStart={onStart}
           onPause={onPause}
           onStop={onStop}
-          onPipToggle={running ? handlePipToggle : undefined}
+          onPipToggle={handlePipToggle}
           isInPip={isInPip}
           currentPhase={mode === "pomodoro" ? currentPhase : "FOCUS"}
           className="w-full"
