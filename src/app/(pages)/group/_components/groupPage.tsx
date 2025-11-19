@@ -12,7 +12,6 @@ import SidebarButton from "./sidebar/sidebarButton";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
-import TimerEndModal from "@/app/_components/common/timerEndModal";
 
 type GroupPageProps = {
   onExitGroup: () => void;
