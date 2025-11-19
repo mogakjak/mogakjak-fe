@@ -10,6 +10,7 @@ import Countdown, { CountdownHandle } from "./timer";
 import PomodoroModal from "./pomodoroModal";
 import TimerModal from "./timerModal";
 import TimerEndModal from "../timerEndModal";
+import TodoRequiredModal from "./todoRequiredModal";
 import {
   useStartPomodoro,
   usePauseTimer,
@@ -39,6 +40,7 @@ export default function TimerComponent({
   const [pomodoroModalOpen, setPomodoroModalOpen] = useState(false);
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
+  const [todoRequiredModalOpen, setTodoRequiredModalOpen] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
   const [pomodoroConfig, setPomodoroConfig] = useState<{
     focusSeconds: number;
@@ -70,16 +72,16 @@ export default function TimerComponent({
     breakSeconds: number,
     repeatCount: number
   ) => {
-    if (!todoId) {
-      console.error("todoId가 없어 뽀모도로를 시작할 수 없습니다.");
-      return;
-    }
-
     setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
     setCurrentPhase("FOCUS");
     setCurrentRound(1);
     setIsPaused(false);
     
+    if (!todoId) {
+      setTodoRequiredModalOpen(true);
+      return;
+    }
+
     try {
       const session = await startPomodoroMutation.mutateAsync({
         todoId,
@@ -107,6 +109,11 @@ export default function TimerComponent({
   }, [todoId, startPomodoroMutation, setIsRunning]);
 
   const onStart = useCallback(async () => {
+    if (!todoId) {
+      setTodoRequiredModalOpen(true);
+      return;
+    }
+
     if (mode === "pomodoro") {
       if (isPaused && sessionId) {
         try {
@@ -141,10 +148,6 @@ export default function TimerComponent({
         }
       } else {
         // 새로 시작
-        if (!todoId) {
-          console.error("todoId가 없어 스톱워치를 시작할 수 없습니다.");
-          return;
-        }
         try {
           const session = await startStopwatchMutation.mutateAsync({ todoId });
           setSessionId(session.sessionId);
@@ -257,7 +260,7 @@ export default function TimerComponent({
           console.error("타이머 종료 실패:", error);
         }
       } else {
-        // sessionId가 없으면 그냥 상태만 초기화 (에러 없이)
+        // sessionId가 없으면 그냥 상태만 초기화
         pomoRef.current?.stop();
         setPomodoroConfig(null);
         setCurrentPhase("FOCUS");
@@ -388,13 +391,10 @@ export default function TimerComponent({
   }, [mode, running, currentPhase, currentRound, pomodoroConfig]);
 
   const onSwitch = (m: Mode) => {
-    if (sessionId) {
-      // sessionId가 있으면 확인 모달 띄우기
+    if (sessionId) {  
       setTimerEndModalOpen(true);
-      // 모달에서 확인하면 실제로 모드 변경
       setPendingMode(m);
     } else {
-      // sessionId가 없으면 바로 모드 변경
       onStop();
       setMode(m);
     }
@@ -519,7 +519,8 @@ export default function TimerComponent({
             onClose={() => setTimerModalOpen(false)}
             onStart={async (targetSeconds: number) => {
               if (!todoId) {
-                console.error("todoId가 없어 타이머를 시작할 수 없습니다.");
+                setTimerModalOpen(false);
+                setTodoRequiredModalOpen(true);
                 return;
               }
               try {
@@ -556,6 +557,10 @@ export default function TimerComponent({
               />
             </div>
           )}
+          <TodoRequiredModal
+            isOpen={todoRequiredModalOpen}
+            onClose={() => setTodoRequiredModalOpen(false)}
+          />
         </>
       )}
     </>

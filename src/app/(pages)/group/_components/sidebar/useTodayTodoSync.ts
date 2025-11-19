@@ -14,23 +14,20 @@ interface UseTodayTodoSyncOptions {
   setSelectedTodoId: (id: string | null) => void;
 }
 
-/**
- * 오늘의 할 일이 있을 때 상태를 동기화하는 훅
- */
 export function useTodayTodoSync({
   todayTodo,
   selectedTodoId,
   setCurrentTodo,
   setSelectedWork,
-  setSelectedTodoId,
 }: UseTodayTodoSyncOptions) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!todayTodo) return;
+    // selectedTodoId가 있고 todayTodo가 존재할 때만 동기화
+    if (!selectedTodoId || !todayTodo) return;
 
-    // selectedTodoId가 없거나 현재 todayTodo와 일치하는 경우에만 동기화
-    if (!selectedTodoId || todayTodo.id === selectedTodoId) {
+    // selectedTodoId와 todayTodo.id가 일치하는 경우에만 동기화
+    if (todayTodo.id === selectedTodoId) {
       setCurrentTodo(todayTodo);
 
       const [year, month, day] = todayTodo.date.split("-").map(Number);
@@ -41,23 +38,15 @@ export function useTodayTodoSync({
         targetSeconds: todayTodo.targetTimeInSeconds,
       });
 
-      // selectedTodoId가 없으면 초기 설정
-      if (!selectedTodoId) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem("groupMySidebar_selectedTodoId", todayTodo.id);
-        }
-        setSelectedTodoId(todayTodo.id);
-
-        // React Query에 타이머용 데이터 저장
-        queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
-          todo: {
-            id: todayTodo.id,
-            task: todayTodo.task,
-            targetTimeInSeconds: todayTodo.targetTimeInSeconds,
-          },
-        });
-      }
+      // React Query에 타이머용 데이터 저장
+      queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
+        todo: {
+          id: todayTodo.id,
+          task: todayTodo.task,
+          targetTimeInSeconds: todayTodo.targetTimeInSeconds,
+        },
+      });
     }
-  }, [todayTodo, selectedTodoId, setCurrentTodo, setSelectedWork, setSelectedTodoId, queryClient]);
+  }, [todayTodo, selectedTodoId, setCurrentTodo, setSelectedWork, queryClient]);
 }
 

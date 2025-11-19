@@ -21,7 +21,6 @@ import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
 import { useTodayTodoSync } from "./useTodayTodoSync";
-import { useEnsureTodayTodo } from "./useEnsureTodayTodo";
 
 export default function GroupMySidebar({ state }: { state: boolean }) {
   const [isTaskOpen, setIsTaskOpen] = useState(true);
@@ -35,8 +34,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     }
     return null;
   });
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isCreating, setIsCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
@@ -45,8 +42,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
   const queryClient = useQueryClient();
 
-  // 오늘의 할일 찾기 (todayTodos는 이미 오늘 날짜의 할일만 반환)
-  // selectedTodoId가 있으면 해당 할일을, 없으면 첫 번째 할일을 사용
   const todayTodo = useMemo<Todo | null>(() => {
     if (selectedTodoId) {
       for (const category of todayTodos) {
@@ -54,16 +49,9 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
         if (found) return found;
       }
     }
-    // selectedTodoId가 없으면 첫 번째 할일 사용
-    for (const category of todayTodos) {
-      if (category.todos.length > 0) {
-        return category.todos[0];
-      }
-    }
     return null;
   }, [todayTodos, selectedTodoId]);
 
-  // 오늘의 모든 할일 목록 (모달에서 사용)
   const todayTodosList = useMemo<Todo[]>(() => {
     const todos: Todo[] = [];
     for (const category of todayTodos) {
@@ -71,8 +59,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     }
     return todos;
   }, [todayTodos]);
-
-  // 오늘의 할 일이 있을 때 할일 가져오기
   useTodayTodoSync({
     todayTodo,
     selectedTodoId,
@@ -80,17 +66,6 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     setSelectedWork,
     setSelectedTodoId,
   });
-
-  // 오늘의 할 일이 없을 때 
-  useEnsureTodayTodo({
-    todayTodo,
-    categories,
-    createTodo,
-    setCurrentTodo,
-    setSelectedWork,
-    setIsCreating,
-  });
-
   const formatSeconds = (seconds: number) => {
     const safeSeconds = Math.max(0, seconds);
     const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, "0");
@@ -184,39 +159,68 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     [createTodo, updateTodo, todayTodosList, queryClient, refetchTodayTodos]
   );
 
+  const hasTodo = todayTodo || currentTodo || selectedWork;
   return (
     <div className=" bg-white rounded-2xl">
       <div className="border rounded-lg border-gray-200 p-3">
-        <div className="flex items-center">
-          <Icon Svg={Book} size={24} className={"text-gray-400"} />
-          <p className="text-body2-14SB ml-1">
-            {todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title ?? "와이어프레임 완료"}
-          </p>
+        {hasTodo ? (
+          <>
+            <div className="flex items-center">
+              <Icon Svg={Book} size={24} className={"text-gray-400"} />
+              <p className="text-body2-14SB ml-1">
+                {todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title}
+              </p>
 
-          <button className="ml-auto" onClick={() => setModalOpen(true)}>
-            <Icon Svg={Edit} size={24} className="text-gray-600" />
-          </button>
-        </div>
-        {state && (
-          <VisibilityToggle
-            isTaskOpen={isTaskOpen}
-            setIsTaskOpen={setIsTaskOpen}
-          />
-        )}
-        <div className="flex flex-col gap-1 mt-2">
-          <div className="flex items-center">
-            <Icon Svg={Clock} size={24} className={"text-gray-400"} />
-            <h3 className="text-body2-14SB ml-1">
-              {formatSeconds(todayTodo?.actualTimeInSeconds ?? currentTodo?.actualTimeInSeconds ?? 0)}
-            </h3>
+              <button className="ml-auto" onClick={() => setModalOpen(true)}>
+                <Icon Svg={Edit} size={24} className="text-gray-600" />
+              </button>
+            </div>
+            {state && (
+              <VisibilityToggle
+                isTaskOpen={isTaskOpen}
+                setIsTaskOpen={setIsTaskOpen}
+              />
+            )}
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="flex items-center">
+                <Icon Svg={Clock} size={24} className={"text-gray-400"} />
+                <h3 className="text-body2-14SB ml-1">
+                  {formatSeconds(todayTodo?.actualTimeInSeconds ?? currentTodo?.actualTimeInSeconds ?? 0)}
+                </h3>
+              </div>
+              {state && (
+                <VisibilityToggle
+                  isTaskOpen={isTimeOpen}
+                  setIsTaskOpen={setIsTimeOpen}
+                />
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <Icon Svg={Book} size={24} className="text-gray-400" />
+                  <p className="text-body2-14SB ml-1 text-gray-400">
+                    할 일을 설정해 주세요!
+                  </p>
+                </div>
+                <button onClick={() => setModalOpen(true)}>
+                  <Icon Svg={Edit} size={24} className="text-gray-600" />
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center">
+                <Icon Svg={Clock} size={24} className="text-gray-400" />
+                <h3 className="text-body2-14SB ml-1 text-gray-400">
+                  00 : 00 : 00
+                </h3>
+              </div>
+            </div>
           </div>
-          {state && (
-            <VisibilityToggle
-              isTaskOpen={isTimeOpen}
-              setIsTaskOpen={setIsTimeOpen}
-            />
-          )}
-        </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-1 mt-2 bg-gray-100 rounded-lg px-4 py-3">
