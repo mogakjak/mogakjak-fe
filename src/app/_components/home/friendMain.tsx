@@ -9,10 +9,9 @@ import { MyGroup } from "@/app/_types/groups";
 
 interface FriendMainProps {
   groups: MyGroup[];
-  isPending: boolean;
 }
 
-export default function FriendMain({ groups, isPending }: FriendMainProps) {
+export default function FriendMain({ groups }: FriendMainProps) {
   const [selectedGroupName, setSelectedGroupName] = useState("전체 그룹");
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(
     undefined
@@ -57,7 +56,7 @@ export default function FriendMain({ groups, isPending }: FriendMainProps) {
   const totalCount = matesData?.totalElements ?? 0;
 
   return (
-    <div className="px-10 pt-9 bg-white rounded-[20px] self-stretch ">
+    <div className="px-10 pt-10 bg-white rounded-[20px] self-stretch ">
       <h2 className="text-heading4-20SB text-black">메이트들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-4">
