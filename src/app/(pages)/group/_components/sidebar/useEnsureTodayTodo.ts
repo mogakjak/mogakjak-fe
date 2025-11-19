@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import type { Todo } from "@/app/_types/todo";
 import type { AddWorkPayload } from "@/app/(pages)/todo/components/addWorkForm";
-import type { Category } from "@/app/api/todos/categories/types";
+import type { TodoCategory } from "@/app/_types/todoCategory";
 
 interface UseEnsureTodayTodoOptions {
   todayTodo: Todo | null;
-  categories: Category[];
+  categories: TodoCategory[];
   createTodo: (payload: {
     categoryId: string;
     task: string;
