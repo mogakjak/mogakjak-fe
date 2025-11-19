@@ -12,6 +12,7 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  leaveGroup,
   putGroupGoal,
   putGroupNoti,
   updateGroup,
@@ -129,6 +130,17 @@ export const useUpdateGroupGoal = (groupId: string) => {
               }
             : prev
       );
+    },
+  });
+};
+
+export const useLeaveGroup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string>({
+    mutationFn: (groupId: string) => leaveGroup(groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
     },
   });
 };

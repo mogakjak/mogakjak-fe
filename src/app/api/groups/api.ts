@@ -101,3 +101,8 @@ export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
     method: "PUT",
     body: JSON.stringify(payload),
   });
+
+export const leaveGroup = (groupId: string) =>
+  request<unknown>(`/${groupId}/members/me`, {
+    method: "DELETE",
+  });
