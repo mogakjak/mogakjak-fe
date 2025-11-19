@@ -7,23 +7,15 @@ interface UsePictureInPictureOptions {
   isRunning: boolean;
   onPipOpen?: () => void;
   onPipClose?: () => void;
-  onStart?: () => void;
-  onPause?: () => void;
-  onStop?: () => void;
 }
 
-interface PipWindow extends Window {
-  __pipClickHandler?: (e: MouseEvent) => void;
-}
+type PipWindow = Window;
 
 export function usePictureInPicture({
   containerRef,
   isRunning,
   onPipOpen,
   onPipClose,
-  onStart,
-  onPause,
-  onStop,
 }: UsePictureInPictureOptions) {
   const pipWindowRef = useRef<Window | null>(null);
   const [isInPip, setIsInPip] = useState(false);
@@ -139,34 +131,9 @@ export function usePictureInPicture({
       
       pipWindow.document.body.appendChild(timerContainer);
 
-      const handlePipClick = (e: MouseEvent) => {
-        const button = (e.target as HTMLElement).closest('button');
-        if (!button) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const action = button.getAttribute('data-pip-action');
-        const buttonText = button.textContent?.trim();
-
-        if (action === 'start' || buttonText === '시작할래요' || buttonText === '재개') {
-          onStart?.();
-        } else if (action === 'pause' || buttonText === '휴식') {
-          onPause?.();
-        } else if (action === 'stop' || buttonText === '종료') {
-          onStop?.();
-        }
-      };
-
-      pipWindow.document.addEventListener('click', handlePipClick, true);
-      pipWindow.__pipClickHandler = handlePipClick;
       pipWindow.addEventListener("pagehide", () => {
         setIsInPip(false);
         pipWindowRef.current = null;
-        
-        if (pipWindow.__pipClickHandler) {
-          pipWindow.document.removeEventListener('click', pipWindow.__pipClickHandler, true);
-        }
         
         // 원래 상태 유지하도록 체크 
         const originalParent = originalParentRef.current || document.querySelector('[data-timer-container-parent]') as HTMLElement;
@@ -195,7 +162,7 @@ export function usePictureInPicture({
       console.error("Failed to open Picture-in-Picture window:", error);
       return false;
     }
-  }, [isRunning, isInPip, containerRef, onPipOpen, onPipClose, onStart, onPause, onStop]);
+  }, [isRunning, isInPip, containerRef, onPipOpen, onPipClose]);
   const closePipWindow = useCallback(() => {
     if (pipWindowRef.current) {
       pipWindowRef.current.close();

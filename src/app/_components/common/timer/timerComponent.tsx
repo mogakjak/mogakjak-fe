@@ -188,9 +188,6 @@ export default function TimerComponent({
   const { isInPip, openPipWindow, closePipWindow } = usePictureInPicture({
     containerRef: timerContainerRef,
     isRunning: running,
-    onStart: onStart,
-    onPause: onPause,
-    onStop: onStop,
   });
 
   openPipWindowRef.current = openPipWindow;
