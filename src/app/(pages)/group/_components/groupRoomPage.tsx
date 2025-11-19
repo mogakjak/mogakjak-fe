@@ -10,14 +10,14 @@ import { useState } from "react";
 import RoomModal from "@/app/_components/home/room/roomModal";
 
 type GroupRoomPageProps = {
-  groupId: string;
+  groupid: string;
 };
 
-export default function GroupRoomPage({ groupId }: GroupRoomPageProps) {
+export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
-  console.log(groupId);
-  const validGroupId = groupId && groupId !== "undefined" ? groupId : "";
+  console.log(groupid);
+  const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
 
   const { data, isPending } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,

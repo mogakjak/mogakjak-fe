@@ -4,29 +4,73 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
 import { useUpdateProfile } from "@/app/_hooks/mypage";
+import { useUploadImage } from "@/app/_hooks/images";
+import type { ProfileUpdate } from "@/app/_types/mypage";
 
 interface ProfileEditModalProps {
   onClose: () => void;
+  initialNickname?: string;
+  initialEmail?: string;
 }
 
-export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+export default function ProfileEditModal({
+  onClose,
+  initialNickname = "",
+  initialEmail = "",
+}: ProfileEditModalProps) {
+  const [name, setName] = useState(initialNickname);
+  const [email, setEmail] = useState(initialEmail);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const { mutateAsync: uploadImage } = useUploadImage();
 
-  const isActive = name.trim() !== "";
+  const handleSubmit = async () => {
+    if (isPending) return;
 
-  const handleSubmit = () => {
-    if (!isActive || isPending) return;
-    updateProfile(
-      { nickname: name },
-      {
+    try {
+      let finalImageUrl = profileImage;
+
+      if (imageFile) {
+        finalImageUrl = await uploadImage({
+          prefix: "profiles",
+          file: imageFile,
+        });
+      }
+
+      const payload: ProfileUpdate = {};
+
+      if (name.trim()) {
+        payload.nickname = name.trim();
+      }
+      if (email.trim()) {
+        payload.email = email.trim();
+      }
+      if (finalImageUrl) {
+        payload.imageUrl = finalImageUrl;
+      }
+
+      if (Object.keys(payload).length === 0) return;
+
+      updateProfile(payload, {
         onSuccess: () => {
           onClose();
         },
-      }
-    );
+      });
+    } catch (error) {
+      console.error(error);
+      alert("이미지 업로드 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    setProfileImage(url);
+    setImageFile(file);
   };
 
   return (
@@ -40,9 +84,24 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
           프로필 수정
         </h2>
 
-        <button className="w-[120px] h-[120px] rounded-full bg-gray-200 p-0 mb-5">
-          버튼
-        </button>
+        <label className="w-[120px] h-[120px] rounded-full bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden mb-5 relative">
+          {profileImage ? (
+            <Image
+              src={profileImage}
+              alt="프로필 이미지"
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <span className="text-gray-600">사진 선택</span>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+        </label>
 
         <div className="flex flex-col gap-2 mb-5 w-full">
           <p>이름</p>
@@ -70,8 +129,8 @@ export default function ProfileEditModal({ onClose }: ProfileEditModalProps) {
           onClick={handleSubmit}
           className="px-10 mt-7"
           leftIcon={null}
-          disabled={!isActive || isPending}
-          variant={!isActive || isPending ? "muted" : "primary"}
+          disabled={isPending}
+          variant={isPending ? "muted" : "primary"}
         >
           {isPending ? "수정 중..." : "수정하기"}
         </Button>

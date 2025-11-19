@@ -59,7 +59,11 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
           onClick={() => setOpenEdit(false)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <ProfileEditModal onClose={() => setOpenEdit(false)} />
+            <ProfileEditModal
+              onClose={() => setOpenEdit(false)}
+              initialNickname={nickname}
+              initialEmail={email}
+            />
           </div>
         </div>
       )}

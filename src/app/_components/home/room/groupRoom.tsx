@@ -52,7 +52,11 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             activeCount={activeCount}
             trigger={
               <Members
-                members={members.map((m) => ({ id: m.userId, isActive: true }))}
+                members={members.map((m) => ({
+                  id: m.userId,
+                  isActive: true,
+                  profileUrl: m.profileUrl,
+                }))}
                 size="default"
               />
             }

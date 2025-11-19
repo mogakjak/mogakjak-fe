@@ -5,7 +5,9 @@ export type ApiResponse<T> = {
 };
 
 export type ProfileUpdate = {
-  nickname: string;
+  nickname?: string;
+  email?: string;
+  imageUrl?: string;
 };
 
 export type CharacterUpdate = {
