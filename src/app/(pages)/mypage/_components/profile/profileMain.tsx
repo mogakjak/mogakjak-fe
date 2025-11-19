@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
@@ -19,7 +18,6 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
   } = basket;
 
   const [openEdit, setOpenEdit] = useState(false);
-  const router = useRouter();
 
   const handleEditOpen = () => setOpenEdit(true);
 
