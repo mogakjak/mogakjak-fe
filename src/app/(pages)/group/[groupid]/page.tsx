@@ -8,7 +8,7 @@ type PageProps = {
 export default async function Page({ params }: PageProps) {
   try {
     const resolvedParams = await params;
-
+    console.log(resolvedParams);
     if (!resolvedParams || !resolvedParams.groupId) {
       notFound();
     }
