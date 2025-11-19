@@ -1,4 +1,10 @@
-export default function TimerEndModal({ onClose }: { onClose: () => void }) {
+export default function TimerEndModal({ 
+  onClose, 
+  onConfirm 
+}: { 
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   return (
     <div className="flex flex-col w-[340px]">
       <div className="flex flex-col p-7 pt-8 bg-white rounded-t-xl shadow-md text-center">
@@ -21,7 +27,7 @@ export default function TimerEndModal({ onClose }: { onClose: () => void }) {
         </button>
         <button
           className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300"
-          onClick={onClose}
+          onClick={onConfirm}
         >
           종료 및 초기화
         </button>

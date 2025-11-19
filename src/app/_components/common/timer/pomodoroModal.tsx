@@ -36,8 +36,8 @@ export default function PomodoroModal({
   onClose,
   onStart,
 }: PomodoroModalProps) {
-  const [focusTime, setFocusTime] = useState<TimeInput>({ hours: 0, minutes: 20, seconds: 0 });
-  const [breakTime, setBreakTime] = useState<TimeInput>({ hours: 0, minutes: 10, seconds: 0 });
+  const [focusTime, setFocusTime] = useState<TimeInput>({ hours: 0, minutes: 0, seconds: 0 });
+  const [breakTime, setBreakTime] = useState<TimeInput>({ hours: 0, minutes: 0, seconds: 0 });
   const [repeatCount, setRepeatCount] = useState(1);
 
   const updateTime = useCallback(
@@ -116,50 +116,56 @@ export default function PomodoroModal({
               <div className="self-stretch px-10 py-5 bg-gray-100 rounded-xl outline-1 -outline-offset-1 outline-gray-200 inline-flex justify-center items-center gap-2 overflow-hidden w-full">
                 <div className="flex items-center justify-center gap-2">
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={focusTime.hours}
-                    onChange={(e) =>
-                      updateTime(
-                        setFocusTime,
-                        Number(e.target.value) || 0,
-                        focusTime.minutes,
-                        focusTime.seconds
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(focusTime.hours).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setFocusTime, num, focusTime.minutes, focusTime.seconds);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setFocusTime, 0, focusTime.minutes, focusTime.seconds);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                   <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={focusTime.minutes}
-                    onChange={(e) =>
-                      updateTime(
-                        setFocusTime,
-                        focusTime.hours,
-                        Number(e.target.value) || 0,
-                        focusTime.seconds
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(focusTime.minutes).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setFocusTime, focusTime.hours, num, focusTime.seconds);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setFocusTime, focusTime.hours, 0, focusTime.seconds);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                   <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={focusTime.seconds}
-                    onChange={(e) =>
-                      updateTime(
-                        setFocusTime,
-                        focusTime.hours,
-                        focusTime.minutes,
-                        Number(e.target.value) || 0
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(focusTime.seconds).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setFocusTime, focusTime.hours, focusTime.minutes, num);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setFocusTime, focusTime.hours, focusTime.minutes, 0);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                 </div>
@@ -173,50 +179,56 @@ export default function PomodoroModal({
               <div className="self-stretch px-10 py-5 bg-gray-100 rounded-xl outline-1 -outline-offset-1 outline-gray-200 inline-flex justify-center items-center gap-2 overflow-hidden w-full">
                 <div className="flex items-center justify-center gap-2">
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={breakTime.hours}
-                    onChange={(e) =>
-                      updateTime(
-                        setBreakTime,
-                        Number(e.target.value) || 0,
-                        breakTime.minutes,
-                        breakTime.seconds
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(breakTime.hours).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setBreakTime, num, breakTime.minutes, breakTime.seconds);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setBreakTime, 0, breakTime.minutes, breakTime.seconds);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                   <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={breakTime.minutes}
-                    onChange={(e) =>
-                      updateTime(
-                        setBreakTime,
-                        breakTime.hours,
-                        Number(e.target.value) || 0,
-                        breakTime.seconds
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(breakTime.minutes).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setBreakTime, breakTime.hours, num, breakTime.seconds);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setBreakTime, breakTime.hours, 0, breakTime.seconds);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                   <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
                   <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={breakTime.seconds}
-                    onChange={(e) =>
-                      updateTime(
-                        setBreakTime,
-                        breakTime.hours,
-                        breakTime.minutes,
-                        Number(e.target.value) || 0
-                      )
-                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={String(breakTime.seconds).padStart(2, "0")}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
+                      updateTime(setBreakTime, breakTime.hours, breakTime.minutes, num);
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        updateTime(setBreakTime, breakTime.hours, breakTime.minutes, 0);
+                      }
+                    }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
                   />
                 </div>
