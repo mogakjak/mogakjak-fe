@@ -85,7 +85,12 @@ export const useGroupDetail = (
 ) =>
   useQuery<GroupDetail, Error>({
     queryKey: groupKeys.detail(groupId),
-    queryFn: () => getGroupDetail(groupId),
+    queryFn: () => {
+      if (!groupId || groupId === "undefined") {
+        throw new Error("groupId is required");
+      }
+      return getGroupDetail(groupId);
+    },
     staleTime: 5 * 60 * 1000,
     ...options,
   });

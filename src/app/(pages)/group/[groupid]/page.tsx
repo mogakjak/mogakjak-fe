@@ -12,8 +12,15 @@ import RoomModal from "@/app/_components/home/room/roomModal";
 export default function GroupRoomPage() {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
-  const { groupId } = useParams<{ groupId: string }>();
-  const { data, isPending } = useGroupDetail(groupId);
+  const params = useParams<{ groupId: string | string[] }>();
+
+  const groupId = Array.isArray(params.groupId)
+    ? params.groupId[0]
+    : (params.groupId as string | undefined);
+
+  const { data, isPending } = useGroupDetail(groupId || "", {
+    enabled: !!groupId,
+  });
 
   const handleExitGroup = () => {
     router.push("/");
