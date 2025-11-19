@@ -5,21 +5,22 @@ import { Button } from "@/components/button";
 import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
 
-import ReviewPopup from "../../../_components/common/review/reviewPopup";
+import ReviewPopup from "../../../_components/group/review/reviewPopup";
 import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 
 import Add from "/Icons/add.svg";
-import { GroupMembers } from "@/app/_types/groups";
+import { GroupDetail } from "@/app/_types/groups";
 
 type GroupPageProps = {
   onExitGroup: () => void;
-  groupData: GroupMembers;
+  groupData: GroupDetail;
 };
 
 export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
+  const groupMembers = groupData.members;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -41,13 +42,13 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer />
         </div>
-        <GroupGoal></GroupGoal>
+        <GroupGoal data={groupData}></GroupGoal>
       </div>
 
       <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px]">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
-            <b className="text-black">그룹원</b> {groupData.length}/8
+            <b className="text-black">그룹원</b> {groupMembers.length}/8
           </p>
           <SidebarButton className="px-5 ">
             <Icon Svg={Add} size={24} className="text-black" />
@@ -55,7 +56,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           </SidebarButton>
         </div>
         <div className="flex flex-col items-center justify-center">
-          {groupData.length === 0 ? (
+          {groupMembers.length === 0 ? (
             <div className="text-gray-400 text-heading3-24SB font-semibold flex flex-col justify-center items-center h-[420px] text-center">
               <p>아직 그룹원이 없어요.</p>
               <p>
@@ -65,7 +66,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-x-5 gap-y-3 h-[420px]">
-              {groupData.map((f) => (
+              {groupMembers.map((f) => (
                 <GroupFriendField
                   key={f.userId}
                   status={"active"}
@@ -82,7 +83,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <div className="flex mt-3">
           <Button
             onClick={() => setOpenReview(true)}
-            leftIcon={null}
+            leftIconSrc={"/Icons/timerout.svg"}
             size="custom"
             className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
           >
@@ -98,6 +99,8 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ReviewPopup
+              groupName={groupData.name}
+              sessionId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
             />

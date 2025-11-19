@@ -4,9 +4,14 @@ import { useState, useEffect, useMemo } from "react";
 import DropdownList from "../../(pages)/mypage/_components/board/mate/dropdownList";
 import SearchBar from "../../(pages)/mypage/_components/board/mate/searchBar";
 import ProfileList from "../../(pages)/mypage/_components/board/mate/profileList";
-import { useMyGroups, useMates } from "@/app/_hooks/groups";
+import { useMates } from "@/app/_hooks/groups";
+import { MyGroup } from "@/app/_types/groups";
 
-export default function FriendMain() {
+interface FriendMainProps {
+  groups: MyGroup[];
+}
+
+export default function FriendMain({ groups }: FriendMainProps) {
   const [selectedGroupName, setSelectedGroupName] = useState("전체 그룹");
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(
     undefined
@@ -15,8 +20,6 @@ export default function FriendMain() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
-
-  const { data: groups = [] } = useMyGroups();
 
   useEffect(() => {
     setPage(1);
@@ -53,7 +56,7 @@ export default function FriendMain() {
   const totalCount = matesData?.totalElements ?? 0;
 
   return (
-    <div className="px-10 pt-9 bg-white rounded-[20px] self-stretch ">
+    <div className="px-10 pt-10 bg-white rounded-[20px] self-stretch ">
       <h2 className="text-heading4-20SB text-black">메이트들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-4">
