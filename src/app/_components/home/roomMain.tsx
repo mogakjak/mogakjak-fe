@@ -9,32 +9,23 @@ import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
 import { useMyGroups } from "@/app/_hooks/groups";
-import { MyGroup } from "@/app/_types/groups";
 
 type RoomMainProps = {
-  groups: MyGroup[];
   isPending: boolean;
 };
 
-export default function RoomMain({ groups, isPending }: RoomMainProps) {
+export default function RoomMain({ isPending }: RoomMainProps) {
   const [groupOpen, setGroupOpen] = useState(false);
   const [personalOpen, setPersonalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-  const [createdGroupId, setCreatedGroupId] = useState<string | undefined>(
-    undefined
-  );
+  const [createdGroupId, setCreatedGroupId] = useState<string | undefined>();
 
-  const openGroupFlow = () => {
-    setGroupOpen(true);
-  };
+  const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
 
   const handleGroupCreateSuccess = (groupId: string) => {
     setCreatedGroupId(groupId);
     setInviteModalOpen(true);
   };
-
-  const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
-  const openGroupFlow = () => setGroupOpen(true);
 
   return (
     <div className="w-full p-9 pb-0 bg-white rounded-[20px]">
@@ -45,7 +36,7 @@ export default function RoomMain({ groups, isPending }: RoomMainProps) {
         <Button
           variant="secondary"
           size="sm"
-          onClick={openGroupFlow}
+          onClick={() => setGroupOpen(true)}
           leftIconSrc="/Icons/plusDefault.svg"
           disabled={isPending}
         >
@@ -54,24 +45,12 @@ export default function RoomMain({ groups, isPending }: RoomMainProps) {
       </div>
 
       <div className="h-[320px] overflow-y-auto">
-        {groupsLoading ? (
-          <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
-            그룹을 불러오는 중...
-          </p>
-        ) : myGroups.length > 0 ? (
-          myGroups.map((g) => (
-            <GroupRoom
-              key={g.groupId}
-              groupId={g.groupId}
-              groupName={g.groupName}
-            />
-          ))
-        {isPending ? (
+        {groupsLoading || isPending ? (
           <div className="flex flex-col gap-4 animate-pulse mt-2">
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="w-full h-[100px] border-b border-gray-200  p-4 flex items-center gap-4 bg-gray-50"
+                className="w-full h-[100px] border-b border-gray-200 p-4 flex items-center gap-4 bg-gray-50"
               >
                 <div className="w-[60px] h-[60px] bg-gray-200 rounded-lg" />
                 <div className="flex-1 flex flex-col gap-3">
@@ -82,8 +61,8 @@ export default function RoomMain({ groups, isPending }: RoomMainProps) {
               </div>
             ))}
           </div>
-        ) : groups.length > 0 ? (
-          groups.map((g) => <GroupRoom key={g.groupId} group={g} />)
+        ) : myGroups.length > 0 ? (
+          myGroups.map((g) => <GroupRoom key={g.groupId} group={g} />)
         ) : (
           <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
             새로운 그룹을 만들고 모각작에 참여해 보세요!
@@ -110,8 +89,6 @@ export default function RoomMain({ groups, isPending }: RoomMainProps) {
               setCreatedGroupId(undefined);
             }}
           />
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[1000]">
-          <RoomModal mode="create" onClose={() => setGroupOpen(false)} />
         </div>
       )}
 
