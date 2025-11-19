@@ -33,24 +33,22 @@ export default function GroupRoomPage() {
           <PreviewMain state={true} />
         </div>
 
-        {isPending ? (
+        {isPending || !data ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full h-[560px] bg-gray-100 animate-pulse rounded-2xl" />
           </div>
         ) : (
-          <GroupPage
-            onExitGroup={handleExitGroup}
-            groupData={data?.members ?? []}
-          />
+          <GroupPage onExitGroup={handleExitGroup} groupData={data} />
         )}
       </div>
 
       {groupEditOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center">
           <RoomModal
             mode="edit"
             groupId={data?.groupId}
             initialName={data?.name}
+            initialImageUrl={data?.imageUrl}
             onClose={() => setGroupEditOpen(false)}
           />
         </div>

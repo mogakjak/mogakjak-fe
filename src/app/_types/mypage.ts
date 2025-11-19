@@ -42,6 +42,7 @@ export type CharacterBasket = {
 // 프로필 관련 타입
 export type Profile = {
   nickname: string;
+  imageUrl: string;
   character: Character;
   quote: Quote;
 };
@@ -49,7 +50,7 @@ export type Character = {
   id: string;
   level: number;
   name: string;
-  imageUrl: string;
+  mainCharacterImage: string;
   isActive: boolean;
   unlockTimeInSeconds: number;
 };
@@ -57,4 +58,5 @@ export type Character = {
 export type Quote = {
   id: string;
   content: string;
+  author: string;
 };

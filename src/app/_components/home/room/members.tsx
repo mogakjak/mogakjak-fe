@@ -9,14 +9,12 @@ interface MembersProps {
   members: MemberItem[];
   size?: Size;
   max?: number;
-  isGuide?: boolean;
 }
 
 export default function Members({
   members,
   size = "default",
   max = 5,
-  isGuide = false,
 }: MembersProps) {
   const shown = members.slice(0, max);
   const rest = members.length - shown.length;
@@ -25,25 +23,6 @@ export default function Members({
     size === "small" ? "w-7 h-7 text-[12px]" : "w-9 h-9 text-[14px]";
   const overlapClass = size === "small" ? "-ml-2" : "-ml-3";
   const ringClass = "rounded-full";
-
-  if (isGuide) {
-    return (
-      <div className="relative flex items-center">
-        <div className={`absolute right-0 z-10 ${overlapClass}`}>
-          <div
-            className={`${ringClass} ${sizeClass} bg-gray-400 text-white flex items-center justify-center font-semibold`}
-          >
-            +n
-          </div>
-        </div>
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className={i === 0 ? "" : overlapClass}>
-            <MemberProfile isActive={true} size={size} />
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="relative flex items-center">
@@ -58,6 +37,7 @@ export default function Members({
           </div>
         </div>
       )}
+
       <div className={`${rest > 0 ? "mr-5" : ""} flex items-center`}>
         {shown.map((m, idx) => (
           <div key={m.id} className={idx === 0 ? "" : overlapClass}>

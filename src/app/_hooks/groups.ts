@@ -12,13 +12,19 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  putGroupGoal,
+  putGroupNoti,
   updateGroup,
 } from "../api/groups/api";
 import {
   CreateGroupBody,
   GroupDetail,
+  GroupGoalReq,
+  GroupGoalRes,
   MatesPage,
   MyGroup,
+  NotiReq,
+  NotiRes,
 } from "../_types/groups";
 import { groupKeys } from "../api/groups/keys";
 
@@ -83,3 +89,41 @@ export const useGroupDetail = (
     staleTime: 5 * 60 * 1000,
     ...options,
   });
+
+export const useUpdateGroupNotifications = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: NotiReq) => putGroupNoti(groupId, payload),
+    onSuccess: (data: NotiRes) => {
+      queryClient.setQueryData(groupKeys.notifications(groupId), data);
+      queryClient.setQueryData<NotiRes | undefined>(
+        groupKeys.detail(groupId),
+        (prev) => (prev ? { ...prev, ...data } : data)
+      );
+    },
+  });
+};
+
+export const useUpdateGroupGoal = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: GroupGoalReq) => putGroupGoal(groupId, payload),
+
+    onSuccess: (data: GroupGoalRes) => {
+      queryClient.setQueryData(groupKeys.goal(groupId), data);
+      queryClient.setQueryData<GroupDetail | undefined>(
+        groupKeys.detail(groupId),
+        (prev) =>
+          prev
+            ? {
+                ...prev,
+                goalHours: data.goalHours,
+                goalMinutes: data.goalMinutes,
+              }
+            : prev
+      );
+    },
+  });
+};

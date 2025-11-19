@@ -14,12 +14,11 @@ import clsx from "clsx";
 import { useState } from "react";
 import MemberProfile from "./memberProfile";
 import StateButton from "./stateButton";
-
-type MemberItem = { id: number | string; isActive: boolean };
+import { Mate } from "@/app/_types/groups";
 
 interface MembersHoverProps {
   trigger: React.ReactNode;
-  members: MemberItem[];
+  members: Mate[];
   activeCount: number;
   className?: string;
 }
@@ -74,13 +73,13 @@ export default function MembersHover({
 
           <ul className="flex flex-col gap-3">
             {members.map((m) => (
-              <li key={m.id} className="flex items-center">
-                <MemberProfile isActive={m.isActive} />
+              <li key={m.userId} className="flex items-center">
+                <MemberProfile isActive={true} />
                 <span className="text-body2-14R text-black ml-2 truncate">
-                  {m.id}번
+                  {m.nickname}
                 </span>
                 <div className="ml-auto">
-                  <StateButton state={m.isActive} />
+                  <StateButton state={true} />
                 </div>
               </li>
             ))}

@@ -1,14 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "../../../../_components/common/Icons";
 
 import SidebarButton from "./sidebarButton";
 import Notification from "/Icons/notification.svg";
 import NotiModal from "../../../../_components/group/modal/notiModal";
+import { GroupDetail } from "@/app/_types/groups";
+import { useUpdateGroupGoal } from "@/app/_hooks/groups";
 
-export default function GroupGoal() {
+type GroupGoalProps = {
+  data: GroupDetail;
+};
+
+export default function GroupGoal({ data }: GroupGoalProps) {
   const [openNoti, setOpenNoti] = useState(false);
+  const [goalHour, setGoalHour] = useState("");
+  const [goalMin, setGoalMin] = useState("");
+  const { mutateAsync: updateGoal } = useUpdateGroupGoal(data.groupId);
+
+  const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, "");
+    v = v.slice(0, 2);
+    setGoalHour(v);
+  };
+
+  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, "");
+    v = v.slice(0, 2);
+    setGoalMin(v);
+  };
+
+  const lastSavedRef = useRef<{ hour: number; minute: number } | null>(null);
+
+  useEffect(() => {
+    if (goalHour === "" && goalMin === "") return;
+
+    const timer = setTimeout(() => {
+      const hour = goalHour === "" ? 0 : Number(goalHour);
+      const minute = goalMin === "" ? 0 : Number(goalMin);
+
+      if (minute < 0 || minute > 59) return;
+
+      const payload = { hour, minute };
+
+      const last = lastSavedRef.current;
+      if (
+        last &&
+        last.hour === payload.hour &&
+        last.minute === payload.minute
+      ) {
+        return;
+      }
+
+      updateGoal(payload)
+        .then(() => {
+          lastSavedRef.current = payload;
+        })
+        .catch((err) => {
+          console.error("그룹 목표 저장 실패:", err);
+        });
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [goalHour, goalMin, updateGoal]);
 
   return (
     <>
@@ -24,7 +79,50 @@ export default function GroupGoal() {
         <div className="flex gap-10 items-center justify-center mt-4">
           <div className="flex flex-col items-center">
             <p className="text-body2-14R text-gray-600">목표 시간</p>
-            <p className="text-heading3-24SB text-gray-800">0h 00m</p>
+
+            <div className="flex gap-1 items-baseline">
+              <input
+                type="text"
+                value={goalHour}
+                onChange={handleHourChange}
+                placeholder="0"
+                className="
+                        w-8
+                        text-heading3-24SB
+                        text-right
+                        text-gray-800
+                        bg-transparent 
+                        border-none 
+                        outline-none
+                        p-0
+                        [appearance:textfield]
+                        [&::-webkit-outer-spin-button]:appearance-none
+                        [&::-webkit-inner-spin-button]:appearance-none
+                      "
+              />
+              <span className="text-heading3-24SB text-gray-800">h</span>
+
+              <input
+                type="text"
+                value={goalMin}
+                onChange={handleMinChange}
+                placeholder="00"
+                className="
+                            w-8
+                            text-heading3-24SB
+                          text-gray-800
+                            bg-transparent 
+                            border-none 
+                            outline-none
+                            p-0
+                            ml-0.5
+                            [appearance:textfield]
+                            [&::-webkit-outer-spin-button]:appearance-none
+                            [&::-webkit-inner-spin-button]:appearance-none  
+                            "
+              />
+              <span className="text-heading3-24SB text-gray-800">m</span>
+            </div>
           </div>
           <div className="flex flex-col items-center">
             <p className="text-body2-14R text-gray-600">달성률</p>
@@ -39,7 +137,10 @@ export default function GroupGoal() {
           onClick={() => setOpenNoti(false)}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <NotiModal onClose={() => setOpenNoti(false)} />
+            <NotiModal
+              onClose={() => setOpenNoti(false)}
+              groupId={data.groupId}
+            />
           </div>
         </div>
       )}
