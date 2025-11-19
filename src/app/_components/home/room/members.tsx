@@ -3,7 +3,11 @@
 import MemberProfile from "./memberProfile";
 
 type Size = "default" | "small";
-type MemberItem = { id: number | string; isActive: boolean };
+type MemberItem = {
+  id: number | string;
+  isActive: boolean;
+  profileUrl?: string;
+};
 
 interface MembersProps {
   members: MemberItem[];
@@ -41,7 +45,11 @@ export default function Members({
       <div className={`${rest > 0 ? "mr-5" : ""} flex items-center`}>
         {shown.map((m, idx) => (
           <div key={m.id} className={idx === 0 ? "" : overlapClass}>
-            <MemberProfile isActive={m.isActive} size={size} />
+            <MemberProfile
+              isActive={m.isActive}
+              size={size}
+              profileUrl={m.profileUrl}
+            />
           </div>
         ))}
       </div>
