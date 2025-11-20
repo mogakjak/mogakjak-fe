@@ -8,22 +8,24 @@ import { useAuthState } from "@/app/api/auth/useAuthState";
 import type { FocusNotificationMessage } from "./useFocusNotification";
 
 function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-
-  if (!apiBase) {
-    if (typeof window !== "undefined") {
-      const protocol = window.location.protocol === "https:" ? "https:" : "http:";
-      return `${protocol}//mogakjak.site/connect`;
-    }
-    return "https://mogakjak.site/connect";
-  }
+  const apiBase = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
+  const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
   if (apiBase.startsWith("//")) {
-    if (typeof window !== "undefined") {
-      return `${window.location.protocol}${apiBase}/connect`;
-    }
-    return `https:${apiBase}/connect`;
+    return isHttps ? `https:${apiBase}/connect` : `http:${apiBase}/connect`;
   }
-  return `${apiBase}/connect`;
+
+  if (apiBase.startsWith("http://")) {
+    if (isHttps) {
+      return apiBase.replace("http://", "https://") + "/connect";
+    }
+    return `${apiBase}/connect`;
+  }
+  if (apiBase.startsWith("https://")) {
+    return `${apiBase}/connect`;
+  }
+
+  const protocol = isHttps ? "https://" : "http://";
+  return `${protocol}${apiBase}/connect`;
 }
 export function useGlobalFocusNotifications(
   onNotification?: (message: FocusNotificationMessage) => void
@@ -81,6 +83,8 @@ export function useGlobalFocusNotifications(
     }
 
     const wsUrl = getWebSocketUrl();
+    console.log("[WebSocket] WebSocket URL:", wsUrl);
+    console.log("[WebSocket] Current page protocol:", typeof window !== "undefined" ? window.location.protocol : "unknown");
 
     const client = new Client({
       webSocketFactory: () => { 
