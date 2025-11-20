@@ -36,14 +36,11 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const sortedMembers = useMemo(() => {
     if (!currentUserId) return groupData.members;
 
-    const currentUser = groupData.members.find(
-      (m) => m.userId === currentUserId
-    );
-    const otherMembers = groupData.members.filter(
-      (m) => m.userId !== currentUserId
-    );
-
-    return currentUser ? [currentUser, ...otherMembers] : groupData.members;
+    return [...groupData.members].sort((a, b) => {
+      if (a.userId === currentUserId) return -1;
+      if (b.userId === currentUserId) return 1;
+      return 0;
+    });
   }, [groupData.members, currentUserId]);
 
   const groupMembers = sortedMembers;

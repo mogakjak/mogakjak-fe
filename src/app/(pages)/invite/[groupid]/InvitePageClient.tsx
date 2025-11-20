@@ -43,16 +43,18 @@ export default function InvitePageClient({ groupid }: { groupid: string }) {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: groupKeys.my() });
         queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupid) });
-
-        if (!isMobile) {
-          router.push("/");
-        }
       },
       onError: (err) => {
         console.error("그룹 가입 실패:", err);
       },
     });
-  }, [groupid, joinGroup, queryClient, router, isMobile]);
+  }, [groupid, joinGroup, queryClient]);
+
+  useEffect(() => {
+    if (isSuccess && !isMobile) {
+      router.push("/");
+    }
+  }, [isSuccess, isMobile, router]);
 
   if (isPending) {
     return (
