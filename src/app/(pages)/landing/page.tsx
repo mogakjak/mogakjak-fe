@@ -16,15 +16,15 @@ export default function Landing() {
           <Image
             src="/Icons/logoSlogan.svg"
             alt="slogan"
-            width={257}
-            height={224}
+            width={188}
+            height={182}
           />
         </div>
         <p className="text-center text-zinc-600 text-sm font-normal font-['Pretendard'] leading-5">
           함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!
         </p>
       </div>
-      <div className="w-full px-6 py-8 bg-gray-100 rounded-2xl flex flex-col justify-start items-center gap-10">
+      <div className="mx-4 px-6 py-8 bg-gray-100 rounded-2xl flex flex-col justify-start items-center gap-10">
         <div className="flex flex-col justify-start items-center gap-2">
           <p className="text-center text-zinc-700 text-base font-semibold font-['Pretendard'] leading-6">
             모각작에 오신 것을 환영합니다!
