@@ -7,6 +7,8 @@ import type {
   NotiReq,
   GroupGoalRes,
   GroupGoalReq,
+  InviteResponse,
+  InviteRequest,
 } from "@/app/_types/groups";
 
 const GROUPS_BASE = "/api/groups";
@@ -105,4 +107,11 @@ export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
 export const leaveGroup = (groupId: string) =>
   request<unknown>(`/${groupId}/members/me`, {
     method: "DELETE",
+  });
+
+//초대
+export const postGroupInvitation = (groupId: string, body: InviteRequest) =>
+  request<InviteResponse>(`/groups/${groupId}/invitations`, {
+    method: "POST",
+    body: JSON.stringify(body),
   });
