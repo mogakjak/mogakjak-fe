@@ -4,58 +4,41 @@ import { useEffect, useRef, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useMyGroups } from "./groups";
+import { useAuthState } from "@/app/api/auth/useAuthState";
 import type { FocusNotificationMessage } from "./useFocusNotification";
 
 function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
 
-  // 환경 변수가 없으면 프로덕션 URL 사용
   if (!apiBase) {
     return "https://mogakjak.site/connect";
   }
 
-  // SockJS는 http/https를 사용하므로 변환하지 않음
   return `${apiBase}/connect`;
 }
-
-// 서버에서 토큰 가져오기 (httpOnly 쿠키는 JavaScript로 읽을 수 없음)
-async function getTokenFromServer(): Promise<string | null> {
-  try {
-    const response = await fetch("/api/auth/token", {
-      method: "GET",
-      credentials: "include", // 쿠키 포함
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.token || null;
-  } catch (error) {
-    console.error("[WebSocket] 토큰 가져오기 실패:", error);
-    return null;
-  }
-}
-
-/**
- * 사용자가 속한 모든 그룹의 집중 체크 알림을 전역적으로 구독하는 훅
- */
 export function useGlobalFocusNotifications(
   onNotification?: (message: FocusNotificationMessage) => void
 ) {
   const { data: groups = [] } = useMyGroups();
+  const { token } = useAuthState();
   const clientRef = useRef<Client | null>(null);
-  // STOMP subscription 타입은 라이브러리에서 제공하지 않으므로 unknown 사용
   const subscriptionsRef = useRef<Map<string, unknown>>(new Map());
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleNotification = useCallback(
     (message: IMessage, groupId: string) => {
       try {
+        console.log("[WebSocket] handleNotification called:", { body: message.body, groupId });
         const notification: FocusNotificationMessage = JSON.parse(message.body);
-        // groupId가 일치하는지 확인
+        console.log("[WebSocket] Parsed notification:", notification);
         if (notification.groupId === groupId) {
+          console.log("[WebSocket] Calling onNotification callback:", notification);
           onNotification?.(notification);
+        } else {
+          console.warn("[WebSocket] GroupId mismatch:", { 
+            notificationGroupId: notification.groupId, 
+            expectedGroupId: groupId 
+          });
         }
       } catch (error) {
         console.error("Failed to parse notification message:", error);
@@ -64,9 +47,11 @@ export function useGlobalFocusNotifications(
     [onNotification]
   );
 
-  const connect = useCallback(async () => {
-    // 그룹이 없으면 연결하지 않음
+  const connect = useCallback(() => {
     console.log("[WebSocket Debug] Groups:", groups.length);
+    console.log("[WebSocket Debug] Group IDs:", groups.map(g => g.groupId));
+    console.log("[WebSocket Debug] Token:", token ? "Present" : "Missing");
+
     if (groups.length === 0) {
       console.warn(
         "[WebSocket] 연결하지 않음 - 그룹이 없습니다:",
@@ -75,46 +60,29 @@ export function useGlobalFocusNotifications(
       return;
     }
 
-    // 기존 연결이 있으면 정리
+    if (!token) {
+      console.warn("[WebSocket] 연결하지 않음 - 토큰이 없습니다");
+      return;
+    }
+
     if (clientRef.current) {
       clientRef.current.deactivate();
       clientRef.current = null;
       subscriptionsRef.current.clear();
     }
 
-    // 서버에서 토큰 가져오기 (httpOnly 쿠키는 JavaScript로 읽을 수 없음)
-    const token = await getTokenFromServer();
-
-    if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
-      console.error("[WebSocket] 웹소켓 연결을 중단합니다.");
-      return;
-    }
-
-    console.log("[WebSocket] 토큰 발견, 길이:", token.length);
-
-    // STOMP CONNECT 헤더에 토큰 포함
-    const connectHeaders: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    console.log("[WebSocket] CONNECT 헤더 설정:", {
-      Authorization: `Bearer ${token.substring(0, 20)}...`,
-    });
-
     const wsUrl = getWebSocketUrl();
 
     const client = new Client({
-      webSocketFactory: () => {
-        // SockJS는 WebSocket-like 인터페이스를 제공하므로 타입 단언 필요
+      webSocketFactory: () => { 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sock = new SockJS(wsUrl) as any;
         console.log("[WebSocket] SockJS 생성 완료, URL:", wsUrl);
         return sock;
       },
-      // STOMP CONNECT 프레임에 Authorization 헤더 포함
-      // @stomp/stompjs는 connectHeaders를 STOMP CONNECT 프레임의 헤더로 변환
-      connectHeaders,
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
       debug: (str) => {
         if (process.env.NODE_ENV === "development") {
           console.log("[STOMP]", str);
@@ -125,19 +93,66 @@ export function useGlobalFocusNotifications(
       heartbeatOutgoing: 4000,
       onConnect: () => {
         console.log("[WebSocket] Connected globally");
-
-        // 모든 그룹에 대해 알림 구독
-        groups.forEach((group) => {
-          const destination = `/topic/group/${group.groupId}/notification`;
-          const subscription = client.subscribe(destination, (message) =>
-            handleNotification(message, group.groupId)
-          );
-          subscriptionsRef.current.set(group.groupId, subscription);
-          console.log(`[WebSocket] Subscribed to ${destination}`);
-        });
+        console.log("[WebSocket] Groups to subscribe:", groups.map(g => ({ groupId: g.groupId, groupName: g.groupName })));
+        setTimeout(() => {
+          if (!clientRef.current || !clientRef.current.connected) {
+            console.warn("[WebSocket] Client disconnected before subscription");
+            return;
+          }
+          groups.forEach((group, index) => {
+            try {
+              if (!group.groupId || group.groupId === "undefined" || group.groupId === "") {
+                console.error(`[WebSocket] Invalid group ID at index ${index}:`, group);
+                return;
+              }
+              
+              const destination = `/topic/group/${group.groupId}/notification`;
+              console.log(`[WebSocket] [${index + 1}/${groups.length}] Subscribing to: ${destination}`, {
+                groupId: group.groupId,
+                groupName: group.groupName,
+              });
+              
+              const subscription = client.subscribe(
+                destination,
+                (message) => {
+                  console.log(`[WebSocket] Received message for group ${group.groupId}:`, message.body);
+                  console.log(`[WebSocket] Calling handleNotification for group ${group.groupId}`);
+                  handleNotification(message, group.groupId);
+                },
+                {
+                  id: `sub-${group.groupId}-${Date.now()}`,
+                }
+              );
+              
+              subscriptionsRef.current.set(group.groupId, subscription);
+              console.log(`[WebSocket] ✓ Successfully subscribed to ${destination}`);
+            } catch (error) {
+              console.error(`[WebSocket] ✗ Failed to subscribe to group ${group.groupId}:`, error, {
+                group: group,
+              });
+            }
+          });
+        }, 100); 
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP error:", frame);
+        subscriptionsRef.current.clear();
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (groups.length > 0) {
+            console.log("[WebSocket] Attempting to reconnect after STOMP error...");
+            if (clientRef.current) {
+              try {
+                clientRef.current.deactivate();
+              } catch {
+              }
+              clientRef.current = null;
+            }
+            connect();
+          }
+        }, 10000); 
       },
       onWebSocketClose: () => {
         console.log("[WebSocket] Connection closed");
@@ -151,18 +166,25 @@ export function useGlobalFocusNotifications(
 
     clientRef.current = client;
     client.activate();
-  }, [groups, handleNotification]);
+  }, [groups, handleNotification, token]);
 
   const disconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    
     if (clientRef.current) {
-      clientRef.current.deactivate();
+      try {
+        clientRef.current.deactivate();
+      } catch {
+      }
       clientRef.current = null;
     }
     subscriptionsRef.current.clear();
   }, []);
 
   useEffect(() => {
-    // 그룹 목록이 변경되면 재연결
     if (groups.length > 0) {
       connect();
     } else {
@@ -174,14 +196,12 @@ export function useGlobalFocusNotifications(
     };
   }, [groups.length, connect, disconnect]);
 
-  // 그룹이 추가/제거될 때마다 구독 업데이트
   useEffect(() => {
     const client = clientRef.current;
     if (!client) {
       return;
     }
 
-    // STOMP 클라이언트의 연결 상태 확인
     const isConnected = client.connected || false;
     if (!isConnected) {
       return;
@@ -190,7 +210,6 @@ export function useGlobalFocusNotifications(
     const currentGroupIds = new Set(groups.map((g) => g.groupId));
     const subscribedGroupIds = new Set(subscriptionsRef.current.keys());
 
-    // 새로 추가된 그룹 구독
     groups.forEach((group) => {
       if (!subscribedGroupIds.has(group.groupId)) {
         const destination = `/topic/group/${group.groupId}/notification`;
@@ -202,7 +221,6 @@ export function useGlobalFocusNotifications(
       }
     });
 
-    // 제거된 그룹 구독 해제
     subscribedGroupIds.forEach((groupId) => {
       if (!currentGroupIds.has(groupId)) {
         const subscription = subscriptionsRef.current.get(groupId);
