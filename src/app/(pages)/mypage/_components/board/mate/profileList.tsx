@@ -167,10 +167,6 @@ export default function ProfileList({
               userName={selectedUser.profile.nickname}
               groups={forkGroups}
               onJoin={handleJoin}
-              onClose={() => {
-                setOpenForkPopup(false);
-                setSelectedUserId(null);
-              }}
             />
           </div>
         </div>

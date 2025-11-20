@@ -20,14 +20,12 @@ export default function ForkPopup({
   groups,
   defaultSelectedId,
   onJoin,
-  onClose,
   className,
 }: {
   userName?: string;
   groups: ForkGroup[];
   defaultSelectedId?: string;
   onJoin?: (groupId: string) => void;
-  onClose?: () => void;
   className?: string;
 }) {
   const [selectedId, setSelectedId] = useState<string | undefined>(
