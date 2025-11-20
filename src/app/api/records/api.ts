@@ -18,10 +18,19 @@ async function request<T>(
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try {
-      const err = await res.json();
-      msg = err?.message || err?.error || msg;
-    } catch {
-      console.error("Failed to parse error response body");
+      const contentType = res.headers.get("content-type");
+      const contentLength = res.headers.get("content-length");
+      
+      // 응답 본문이 있고 JSON 형식인 경우에만 파싱 시도
+      if (contentType?.includes("application/json") && contentLength !== "0") {
+        const text = await res.clone().text();
+        if (text && text.trim().length > 0) {
+          const err = JSON.parse(text);
+          msg = err?.message || err?.error || msg;
+        }
+      }
+    } catch (error) {
+      // 응답 본문 파싱 실패 시 기본 메시지 사용 (에러 로그 제거)
     }
     throw new Error(msg);
   }
