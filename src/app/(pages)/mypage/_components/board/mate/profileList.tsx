@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
 import { Mate, MyGroup } from "@/app/_types/groups";
 import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
+import ForkPopup, { ForkGroup } from "@/app/_components/common/forkPopup";
+import { useMyGroups } from "@/app/_hooks/groups";
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -27,7 +30,15 @@ export default function ProfileList({
   onCountChange,
   search = "",
   isLoading = false,
+  groups: propsGroups,
 }: ProfileListProps) {
+  const [openForkPopup, setOpenForkPopup] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const { data: myGroups = [] } = useMyGroups();
+  const groups = propsGroups || myGroups;
+
   useEffect(() => {
     onCountChange?.(totalCount);
   }, [totalCount, onCountChange]);
@@ -35,6 +46,35 @@ export default function ProfileList({
   const uniqueProfiles = useMemo(() => {
     return getUniqueProfiles(profiles);
   }, [profiles]);
+
+  // 내 그룹 목록을 ForkGroup 타입으로 변환
+  const forkGroups: ForkGroup[] = useMemo(() => {
+    return groups.map((group) => ({
+      id: group.groupId,
+      name: group.groupName,
+      members: group.members.length,
+      capacity: 8, // 기본 용량
+      status: "active" as const, // 기본값, 실제로는 그룹 상태에 따라 결정
+      avatarUrl: group.imageUrl,
+    }));
+  }, [groups]);
+
+  // 선택된 사용자 정보
+  const selectedUser = useMemo(() => {
+    if (!selectedUserId) return null;
+    return uniqueProfiles.find((p) => p.profile.userId === selectedUserId);
+  }, [selectedUserId, uniqueProfiles]);
+
+  const handleForkClick = (userId: string) => {
+    setSelectedUserId(userId);
+    setOpenForkPopup(true);
+  };
+
+  const handleJoin = (groupId: string) => {
+    setOpenForkPopup(false);
+    setSelectedUserId(null);
+    router.push(`/group/${groupId}`);
+  };
 
   if (isLoading) {
     return (
@@ -106,10 +146,35 @@ export default function ProfileList({
           </div>
 
           <div className="ml-auto">
-            <ForkButton active={true} />
+            <ForkButton
+              active={true}
+              onClick={() => handleForkClick(profile.userId)}
+            />
           </div>
         </div>
       ))}
+
+      {openForkPopup && selectedUser && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => {
+            setOpenForkPopup(false);
+            setSelectedUserId(null);
+          }}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <ForkPopup
+              userName={selectedUser.profile.nickname}
+              groups={forkGroups}
+              onJoin={handleJoin}
+              onClose={() => {
+                setOpenForkPopup(false);
+                setSelectedUserId(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
