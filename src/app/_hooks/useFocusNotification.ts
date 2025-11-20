@@ -19,17 +19,33 @@ type UseFocusNotificationOptions = {
 function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
 
-  // 개발 환경에서 기본값 설정
+  // 환경 변수가 없으면 프로덕션 URL 사용
   if (!apiBase) {
-    if (process.env.NODE_ENV === "development") {
-      return "http://localhost:8080/connect";
-    }
-    throw new Error("NEXT_PUBLIC_API_PROXY is not defined");
+    return "https://mogakjak.site/connect";
   }
 
-  // API_BASE에서 http:// 또는 https://를 ws:// 또는 wss://로 변환
   // SockJS는 http/https를 사용하므로 변환하지 않음
   return `${apiBase}/connect`;
+}
+
+// 서버에서 토큰 가져오기 (httpOnly 쿠키는 JavaScript로 읽을 수 없음)
+async function getTokenFromServer(): Promise<string | null> {
+  try {
+    const response = await fetch("/api/auth/token", {
+      method: "GET",
+      credentials: "include", // 쿠키 포함
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.token || null;
+  } catch (error) {
+    console.error("[WebSocket] 토큰 가져오기 실패:", error);
+    return null;
+  }
 }
 
 export function useFocusNotification({
@@ -56,7 +72,7 @@ export function useFocusNotification({
     [onNotification]
   );
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (!enabled || !groupId) return;
 
     // 기존 연결이 있으면 정리
@@ -65,16 +81,39 @@ export function useFocusNotification({
       clientRef.current = null;
     }
 
+    // 서버에서 토큰 가져오기 (httpOnly 쿠키는 JavaScript로 읽을 수 없음)
+    const token = await getTokenFromServer();
+
+    if (!token) {
+      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
+      console.error("[WebSocket] 웹소켓 연결을 중단합니다.");
+      return;
+    }
+
+    console.log("[WebSocket] 토큰 발견, 길이:", token.length);
+
+    // STOMP CONNECT 헤더에 토큰 포함
+    const connectHeaders: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    console.log("[WebSocket] CONNECT 헤더 설정:", {
+      Authorization: `Bearer ${token.substring(0, 20)}...`,
+    });
+
     const wsUrl = getWebSocketUrl();
 
     const client = new Client({
       webSocketFactory: () => {
         // SockJS는 WebSocket-like 인터페이스를 제공하므로 타입 단언 필요
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return new SockJS(wsUrl) as any;
+        const sock = new SockJS(wsUrl) as any;
+        console.log("[WebSocket] SockJS 생성 완료, URL:", wsUrl);
+        return sock;
       },
-      // 쿠키가 자동으로 전달되므로 헤더에 토큰을 포함시킬 필요 없음
-      connectHeaders: {},
+      // STOMP CONNECT 프레임에 Authorization 헤더 포함
+      // @stomp/stompjs는 connectHeaders를 STOMP CONNECT 프레임의 헤더로 변환
+      connectHeaders,
       debug: (str) => {
         if (process.env.NODE_ENV === "development") {
           console.log("[STOMP]", str);

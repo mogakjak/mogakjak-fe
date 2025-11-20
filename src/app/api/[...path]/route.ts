@@ -3,7 +3,7 @@ import { getJwtExp } from "@/app/_lib/getJwtExp";
 
 export const runtime = "nodejs";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY!;
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
 const secure = process.env.NODE_ENV === "production";
 const cookieOpts = {
   httpOnly: true,
