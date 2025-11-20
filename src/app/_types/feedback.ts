@@ -7,7 +7,7 @@ export interface FeedbackTag {
 }
 
 export interface FeedbackSubmit {
-  sessionId: string;
+  sessionId?: string;
   score: number;
   tagCodes: string[];
   content: string;

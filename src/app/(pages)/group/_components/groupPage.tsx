@@ -20,6 +20,7 @@ type GroupPageProps = {
 
 export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const groupMembers = groupData.members;
 
   useEffect(() => {
@@ -34,13 +35,15 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       document.body.classList.remove("overflow-hidden");
     };
   }, [openReview]);
-
   return (
     <div className="flex flex-col items-center w-full justify-between">
       <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
-          <GroupTimer />
+          <GroupTimer
+            groupId={groupData.groupId}
+            onSessionIdChange={setSessionId}
+          />
         </div>
         <GroupGoal data={groupData}></GroupGoal>
       </div>
@@ -83,7 +86,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <div className="flex mt-3">
           <Button
             onClick={() => setOpenReview(true)}
-            leftIconSrc={"/Icons/timerout.svg"}
+            leftIconSrc={"/Icons/timerOut.svg"}
             size="custom"
             className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
           >
@@ -100,7 +103,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ReviewPopup
               groupName={groupData.name}
-              sessionId={groupData.groupId}
+              sessionId={sessionId || ""}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
             />
