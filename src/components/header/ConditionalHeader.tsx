@@ -16,6 +16,7 @@ export default function ConditionalHeader({
 
   if (!ready || !isLoggedIn) return null;
   if (pathname === "/" && isMobile) return null;
+  if (pathname === "/landing") return null;
 
   return <Header />;
 }
