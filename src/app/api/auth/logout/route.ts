@@ -12,3 +12,9 @@ export function clearAll(res: NextResponse) {
   res.cookies.set("mg_access_token", "", { ...cookieOpts, maxAge: 0 });
   res.cookies.set("mg_refresh_token", "", { ...cookieOpts, maxAge: 0 });
 }
+
+export async function POST() {
+  const res = NextResponse.json({ success: true });
+  clearAll(res);
+  return res;
+}
