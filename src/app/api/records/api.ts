@@ -29,7 +29,7 @@ async function request<T>(
           msg = err?.message || err?.error || msg;
         }
       }
-    } catch (error) {
+    } catch {
       // 응답 본문 파싱 실패 시 기본 메시지 사용 (에러 로그 제거)
     }
     throw new Error(msg);
