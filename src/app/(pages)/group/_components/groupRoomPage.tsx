@@ -16,8 +16,9 @@ type GroupRoomPageProps = {
 export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
-  const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
 
+  // 그룹 아이디 확인
+  const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
   const { data, isPending } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,
   });
@@ -29,10 +30,19 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   return (
     <main className="w-full h-full max-w-[1440px] mx-auto flex flex-col gap-1 overflow-x-hidden pt-5">
       <div className="flex gap-1 px-6 mb-2">
-        <p className="text-heading4-20SB">{data?.name} 팀</p>
-        <button onClick={() => setGroupEditOpen(true)}>
-          <Icon Svg={Edit} size={20} className="text-gray-600" />
-        </button>
+        {isPending ? (
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-40 bg-gray-200 rounded-md animate-pulse" />
+            <div className="h-5 w-5 bg-gray-200 rounded-md animate-pulse" />
+          </div>
+        ) : (
+          <>
+            <p className="text-heading4-20SB">{data?.name} 팀</p>
+            <button onClick={() => setGroupEditOpen(true)}>
+              <Icon Svg={Edit} size={20} className="text-gray-600" />
+            </button>
+          </>
+        )}
       </div>
 
       <div className="w-full h-full flex gap-5">
@@ -41,9 +51,7 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
         </div>
 
         {isPending || !data ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full h-[560px] bg-gray-100 animate-pulse rounded-2xl" />
-          </div>
+          <div className="w-full h-full bg-white animate-pulse rounded-2xl" />
         ) : (
           <GroupPage onExitGroup={handleExitGroup} groupData={data} />
         )}

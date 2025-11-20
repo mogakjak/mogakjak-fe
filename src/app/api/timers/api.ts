@@ -1,6 +1,9 @@
 const TIMER_BASE = "/api/timers";
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
   const res = await fetch(`${TIMER_BASE}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
@@ -21,9 +24,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     throw new Error(message);
   }
 
-  const json = await res
-    .json()
-    .catch(() => undefined) as
+  const json = (await res.json().catch(() => undefined)) as
     | { statusCode?: number; message?: string; data?: unknown }
     | undefined;
 
@@ -123,3 +124,32 @@ export const nextPomodoro = (sessionId: string) =>
     method: "POST",
   });
 
+//// 그룹 타이머
+
+export type StartGroupTimerPayload = {
+  targetSeconds: number;
+};
+
+export const startGroupTimer = (
+  groupId: string,
+  payload: StartGroupTimerPayload
+) =>
+  request<PomodoroSession>(`/groups/${groupId}/start/timer`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const resumeGroupTimer = (groupId: string, sessionId: string) =>
+  request<PomodoroSession>(`/groups/${groupId}/resume/${sessionId}`, {
+    method: "POST",
+  });
+
+export const pauseGroupTimer = (groupId: string, sessionId: string) =>
+  request<PomodoroSession>(`/groups/${groupId}/pause/${sessionId}`, {
+    method: "POST",
+  });
+
+export const finishGroupTimer = (groupId: string, sessionId: string) =>
+  request<PomodoroSession>(`/groups/${groupId}/finish/${sessionId}`, {
+    method: "POST",
+  });
