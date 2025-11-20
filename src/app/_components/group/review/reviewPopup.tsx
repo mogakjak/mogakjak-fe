@@ -62,12 +62,10 @@ const emojiToScore = (emoji: EmojiType): number => {
 
 export default function ReviewPopup({
   groupName,
-  sessionId,
   onClose,
   onExitGroup,
 }: ReviewPopupProps) {
   const emojis: EmojiType[] = ["toobad", "bad", "soso", "good", "sogood"];
-
   const [selectedEmoji, setSelectedEmoji] = useState<EmojiType | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [etcText, setEtcText] = useState("");
@@ -108,7 +106,6 @@ export default function ReviewPopup({
       const score = emojiToScore(selectedEmoji);
 
       await createFeedback({
-        sessionId,
         score,
         tagCodes: selectedTags,
         content: etcText.trim(),

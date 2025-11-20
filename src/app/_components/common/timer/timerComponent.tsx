@@ -51,7 +51,7 @@ export default function TimerComponent({
   const [currentRound, setCurrentRound] = useState<number>(1);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  
+
   const { setIsRunning } = useTimer();
   const startPomodoroMutation = useStartPomodoro();
   const pauseTimerMutation = usePauseTimer();
@@ -67,46 +67,45 @@ export default function TimerComponent({
   const openPipWindowRef = useRef<(() => Promise<boolean>) | null>(null);
   const isInPipRef = useRef<boolean>(false);
 
-  const handlePomodoroStart = useCallback(async (
-    focusSeconds: number,
-    breakSeconds: number,
-    repeatCount: number
-  ) => {
-    setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
-    setCurrentPhase("FOCUS");
-    setCurrentRound(1);
-    setIsPaused(false);
-    
-    if (!todoId) {
-      setTodoRequiredModalOpen(true);
-      return;
-    }
+  const handlePomodoroStart = useCallback(
+    async (focusSeconds: number, breakSeconds: number, repeatCount: number) => {
+      setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
+      setCurrentPhase("FOCUS");
+      setCurrentRound(1);
+      setIsPaused(false);
 
-    try {
-      const session = await startPomodoroMutation.mutateAsync({
-        todoId,
-        focusSeconds,
-        breakSeconds,
-        repeatCount,
-      });
-      setSessionId(session.sessionId);
-      pomoRef.current?.reset(focusSeconds / 60);
-      pomoRef.current?.start();
-      setRunning(true);
-      setIsPaused(false);
-      setIsRunning(true);
-      if (timerContainerRef.current && openPipWindowRef.current) {
-        openPipWindowRef.current();
+      if (!todoId) {
+        setTodoRequiredModalOpen(true);
+        return;
       }
-    } catch (error) {
-      console.error("뽀모도로 시작 실패:", error);
-      setPomodoroConfig(null);
-      setSessionId(null);
-      setIsPaused(false);
-      setRunning(false);
-      setIsRunning(false);
-    }
-  }, [todoId, startPomodoroMutation, setIsRunning]);
+
+      try {
+        const session = await startPomodoroMutation.mutateAsync({
+          todoId,
+          focusSeconds,
+          breakSeconds,
+          repeatCount,
+        });
+        setSessionId(session.sessionId);
+        pomoRef.current?.reset(focusSeconds / 60);
+        pomoRef.current?.start();
+        setRunning(true);
+        setIsPaused(false);
+        setIsRunning(true);
+        if (timerContainerRef.current && openPipWindowRef.current) {
+          openPipWindowRef.current();
+        }
+      } catch (error) {
+        console.error("뽀모도로 시작 실패:", error);
+        setPomodoroConfig(null);
+        setSessionId(null);
+        setIsPaused(false);
+        setRunning(false);
+        setIsRunning(false);
+      }
+    },
+    [todoId, startPomodoroMutation, setIsRunning]
+  );
 
   const onStart = useCallback(async () => {
     if (!todoId) {
@@ -122,7 +121,11 @@ export default function TimerComponent({
           setRunning(true);
           setIsPaused(false);
           setIsRunning(true);
-          if (timerContainerRef.current && openPipWindowRef.current && !isInPipRef.current) {
+          if (
+            timerContainerRef.current &&
+            openPipWindowRef.current &&
+            !isInPipRef.current
+          ) {
             openPipWindowRef.current();
           }
         } catch (error) {
@@ -140,7 +143,11 @@ export default function TimerComponent({
           setRunning(true);
           setIsPaused(false);
           setIsRunning(true);
-          if (timerContainerRef.current && openPipWindowRef.current && !isInPipRef.current) {
+          if (
+            timerContainerRef.current &&
+            openPipWindowRef.current &&
+            !isInPipRef.current
+          ) {
             openPipWindowRef.current();
           }
         } catch (error) {
@@ -171,7 +178,11 @@ export default function TimerComponent({
           setRunning(true);
           setIsPaused(false);
           setIsRunning(true);
-          if (timerContainerRef.current && openPipWindowRef.current && !isInPipRef.current) {
+          if (
+            timerContainerRef.current &&
+            openPipWindowRef.current &&
+            !isInPipRef.current
+          ) {
             openPipWindowRef.current();
           }
         } catch (error) {
@@ -182,7 +193,21 @@ export default function TimerComponent({
         setTimerModalOpen(true);
       }
     }
-  }, [mode, isPaused, sessionId, resumeTimerMutation, startStopwatchMutation, todoId, setIsRunning, pomoRef, swRef, cdRef, timerContainerRef, openPipWindowRef, isInPipRef]);
+  }, [
+    mode,
+    isPaused,
+    sessionId,
+    resumeTimerMutation,
+    startStopwatchMutation,
+    todoId,
+    setIsRunning,
+    pomoRef,
+    swRef,
+    cdRef,
+    timerContainerRef,
+    openPipWindowRef,
+    isInPipRef,
+  ]);
 
   const onPause = useCallback(async () => {
     if (mode === "pomodoro") {
@@ -330,7 +355,7 @@ export default function TimerComponent({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (running && !isInPip) {
         e.preventDefault();
@@ -372,12 +397,16 @@ export default function TimerComponent({
   useEffect(() => {
     if (mode === "pomodoro" && running && pomodoroConfig && pomoRef.current) {
       const phaseKey = `${currentPhase}-${currentRound}`;
-      if (phaseChangeRef.current !== phaseKey && phaseChangeRef.current !== null) {
+      if (
+        phaseChangeRef.current !== phaseKey &&
+        phaseChangeRef.current !== null
+      ) {
         const timer = setTimeout(() => {
           if (pomoRef.current && pomodoroConfig) {
-            const minutes = currentPhase === "FOCUS"
-              ? pomodoroConfig.focusSeconds / 60
-              : pomodoroConfig.breakSeconds / 60;
+            const minutes =
+              currentPhase === "FOCUS"
+                ? pomodoroConfig.focusSeconds / 60
+                : pomodoroConfig.breakSeconds / 60;
             pomoRef.current.reset(minutes);
             pomoRef.current.start();
           }
@@ -391,7 +420,7 @@ export default function TimerComponent({
   }, [mode, running, currentPhase, currentRound, pomodoroConfig]);
 
   const onSwitch = (m: Mode) => {
-    if (sessionId) {  
+    if (sessionId) {
       setTimerEndModalOpen(true);
       setPendingMode(m);
     } else {
@@ -446,7 +475,14 @@ export default function TimerComponent({
         />
       </div>
     );
-  }, [mode, pomodoroConfig, currentPhase, currentRound, handlePomodoroComplete, setIsRunning]);
+  }, [
+    mode,
+    pomodoroConfig,
+    currentPhase,
+    currentRound,
+    handlePomodoroComplete,
+    setIsRunning,
+  ]);
 
   const handleTimerEndModalClose = useCallback(() => {
     setTimerEndModalOpen(false);
@@ -465,46 +501,48 @@ export default function TimerComponent({
   return (
     <>
       <div data-timer-container-parent>
-        <section 
+        <section
           ref={(el) => {
             if (el) {
-              (timerContainerRef as React.MutableRefObject<HTMLElement | null>).current = el;
+              (
+                timerContainerRef as React.MutableRefObject<HTMLElement | null>
+              ).current = el;
             }
           }}
           className={clsx("w-full mx-auto space-y-4 mt-5", className)}
         >
-      {!isInPip && (
-        <div className="mx-auto">
-          <TimerSelected value={mode} onChange={onSwitch} />
-        </div>
-      )}
+          {!isInPip && (
+            <div className="mx-auto">
+              <TimerSelected value={mode} onChange={onSwitch} />
+            </div>
+          )}
 
-      <div
-        className={clsx(
-          "mx-auto overflow-hidden flex items-center justify-center",
-          CONTENT_FIXED
-        )}
-      >
-        <div className="w-full h-full flex items-center justify-center">
-          {body}
-        </div>
-      </div>
+          <div
+            className={clsx(
+              "mx-auto overflow-hidden flex items-center justify-center",
+              CONTENT_FIXED
+            )}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              {body}
+            </div>
+          </div>
 
-      {!isInPip && (
-      <div className="mx-auto">
-        <TimerButtons
-          running={running}
-          onStart={onStart}
-          onPause={onPause}
-          onStop={onStop}
-          onPipToggle={handlePipToggle}
-          isInPip={isInPip}
-          currentPhase={mode === "pomodoro" ? currentPhase : "FOCUS"}
-          className="w-full"
-        />
-      </div>
-      )}
-    </section>
+          {!isInPip && (
+            <div className="mx-auto">
+              <TimerButtons
+                running={running}
+                onStart={onStart}
+                onPause={onPause}
+                onStop={onStop}
+                onPipToggle={handlePipToggle}
+                isInPip={isInPip}
+                currentPhase={mode === "pomodoro" ? currentPhase : "FOCUS"}
+                className="w-full"
+              />
+            </div>
+          )}
+        </section>
       </div>
 
       {!isInPip && (
@@ -551,7 +589,7 @@ export default function TimerComponent({
           />
           {timerEndModalOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <TimerEndModal 
+              <TimerEndModal
                 onClose={handleTimerEndModalClose}
                 onConfirm={handleTimerEndModalConfirm}
               />

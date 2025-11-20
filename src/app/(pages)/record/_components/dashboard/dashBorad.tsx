@@ -12,7 +12,6 @@ export default function DashBorad() {
   const rangeType = TabType(selectedTab);
 
   const { data, isPending } = useRecordDashboard(rangeType);
-
   return (
     <div className="w-full bg-white rounded-[20px] px-10 py-7">
       <Tabs onChange={setSelectedTab} defaultValue="오늘" />

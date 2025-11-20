@@ -14,7 +14,7 @@ export default function HomePage() {
       </div>
 
       <section className="w-full flex-1 flex flex-col justify-between">
-        <RoomMain groups={groups} isPending={isGroupsPending} />
+        <RoomMain isPending={isGroupsPending} />
         <FriendMain groups={groups} />
       </section>
     </main>
