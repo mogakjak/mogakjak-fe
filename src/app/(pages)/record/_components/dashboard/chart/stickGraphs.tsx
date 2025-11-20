@@ -23,9 +23,9 @@ const labels24 = Array.from(
   (_, i) => `${String(i).padStart(2, "0")}시`
 );
 
-function formatTime(minutes: number) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
+function formatTime(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
   if (hours > 0 && mins > 0) {
     return `${hours}h ${mins}m`;
   } else if (hours > 0) {
@@ -37,7 +37,12 @@ function formatTime(minutes: number) {
 
 export default function StickGraphs({ data }: StickGraphsProps) {
   const chartData = useMemo(() => {
-    const processed = (data ?? []).map((v) => (v && v > 0 ? v : null));
+    const processed = (data ?? []).map((v) => {
+      if (v && v > 0) {
+        return v / 60;
+      }
+      return null;
+    });
     return {
       labels: labels24,
       datasets: [
@@ -93,8 +98,11 @@ export default function StickGraphs({ data }: StickGraphsProps) {
           bodyFont: { size: 13, weight: 600 },
           callbacks: {
             title: () => "",
-            label: (ctx: TooltipItem<"bar">) =>
-              `${formatTime(ctx.parsed.y ?? 0)}`,
+            label: (ctx: TooltipItem<"bar">) => {
+              const minutes = ctx.parsed.y ?? 0;
+              const seconds = minutes * 60;
+              return `${formatTime(seconds)}`;
+            },
           },
         },
         datalabels: { display: false },
