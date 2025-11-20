@@ -18,7 +18,7 @@ type UseFocusNotificationOptions = {
 
 function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-  
+
   // 개발 환경에서 기본값 설정
   if (!apiBase) {
     if (process.env.NODE_ENV === "development") {
@@ -30,20 +30,6 @@ function getWebSocketUrl(): string {
   // API_BASE에서 http:// 또는 https://를 ws:// 또는 wss://로 변환
   // SockJS는 http/https를 사용하므로 변환하지 않음
   return `${apiBase}/connect`;
-}
-
-function getAuthToken(): string | null {
-  if (typeof document === "undefined") return null;
-  
-  // 쿠키에서 토큰 가져오기
-  const cookies = document.cookie.split(";");
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-    if (name === "mg_access_token") {
-      return decodeURIComponent(value);
-    }
-  }
-  return null;
 }
 
 export function useFocusNotification({
@@ -83,6 +69,8 @@ export function useFocusNotification({
 
     const client = new Client({
       webSocketFactory: () => {
+        // SockJS는 WebSocket-like 인터페이스를 제공하므로 타입 단언 필요
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return new SockJS(wsUrl) as any;
       },
       // 쿠키가 자동으로 전달되므로 헤더에 토큰을 포함시킬 필요 없음
@@ -153,4 +141,3 @@ export function useFocusNotification({
     disconnect,
   };
 }
-

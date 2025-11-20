@@ -8,7 +8,7 @@ import type { FocusNotificationMessage } from "./useFocusNotification";
 
 function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-  
+
   // 개발 환경에서 기본값 설정
   if (!apiBase) {
     if (process.env.NODE_ENV === "development") {
@@ -21,20 +21,6 @@ function getWebSocketUrl(): string {
   return `${apiBase}/connect`;
 }
 
-function getAuthToken(): string | null {
-  if (typeof document === "undefined") return null;
-  
-  // 쿠키에서 토큰 가져오기
-  const cookies = document.cookie.split(";");
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=");
-    if (name === "mg_access_token") {
-      return decodeURIComponent(value);
-    }
-  }
-  return null;
-}
-
 /**
  * 사용자가 속한 모든 그룹의 집중 체크 알림을 전역적으로 구독하는 훅
  */
@@ -43,7 +29,8 @@ export function useGlobalFocusNotifications(
 ) {
   const { data: groups = [] } = useMyGroups();
   const clientRef = useRef<Client | null>(null);
-  const subscriptionsRef = useRef<Map<string, any>>(new Map());
+  // STOMP subscription 타입은 라이브러리에서 제공하지 않으므로 unknown 사용
+  const subscriptionsRef = useRef<Map<string, unknown>>(new Map());
 
   const handleNotification = useCallback(
     (message: IMessage, groupId: string) => {
@@ -64,7 +51,10 @@ export function useGlobalFocusNotifications(
     // 그룹이 없으면 연결하지 않음 (토큰은 쿠키에서 자동으로 전달됨)
     console.log("[WebSocket Debug] Groups:", groups.length);
     if (groups.length === 0) {
-      console.warn("[WebSocket] 연결하지 않음 - 그룹이 없습니다:", groups.length);
+      console.warn(
+        "[WebSocket] 연결하지 않음 - 그룹이 없습니다:",
+        groups.length
+      );
       return;
     }
 
@@ -79,6 +69,8 @@ export function useGlobalFocusNotifications(
 
     const client = new Client({
       webSocketFactory: () => {
+        // SockJS는 WebSocket-like 인터페이스를 제공하므로 타입 단언 필요
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return new SockJS(wsUrl) as any;
       },
       // 쿠키가 자동으로 전달되므로 헤더에 토큰을 포함시킬 필요 없음
@@ -97,9 +89,8 @@ export function useGlobalFocusNotifications(
         // 모든 그룹에 대해 알림 구독
         groups.forEach((group) => {
           const destination = `/topic/group/${group.groupId}/notification`;
-          const subscription = client.subscribe(
-            destination,
-            (message) => handleNotification(message, group.groupId)
+          const subscription = client.subscribe(destination, (message) =>
+            handleNotification(message, group.groupId)
           );
           subscriptionsRef.current.set(group.groupId, subscription);
           console.log(`[WebSocket] Subscribed to ${destination}`);
@@ -163,9 +154,8 @@ export function useGlobalFocusNotifications(
     groups.forEach((group) => {
       if (!subscribedGroupIds.has(group.groupId)) {
         const destination = `/topic/group/${group.groupId}/notification`;
-        const subscription = client.subscribe(
-          destination,
-          (message) => handleNotification(message, group.groupId)
+        const subscription = client.subscribe(destination, (message) =>
+          handleNotification(message, group.groupId)
         );
         subscriptionsRef.current.set(group.groupId, subscription);
         console.log(`[WebSocket] Subscribed to ${destination}`);
@@ -176,13 +166,18 @@ export function useGlobalFocusNotifications(
     subscribedGroupIds.forEach((groupId) => {
       if (!currentGroupIds.has(groupId)) {
         const subscription = subscriptionsRef.current.get(groupId);
-        if (subscription) {
-          subscription.unsubscribe();
+        if (
+          subscription &&
+          typeof subscription === "object" &&
+          "unsubscribe" in subscription
+        ) {
+          (subscription as { unsubscribe: () => void }).unsubscribe();
           subscriptionsRef.current.delete(groupId);
-          console.log(`[WebSocket] Unsubscribed from /topic/group/${groupId}/notification`);
+          console.log(
+            `[WebSocket] Unsubscribed from /topic/group/${groupId}/notification`
+          );
         }
       }
     });
   }, [groups, handleNotification]);
 }
-
