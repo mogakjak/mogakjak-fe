@@ -84,7 +84,7 @@ export default function ProfileList({
             active={true}
           />
 
-          <p className="text-heading4-20SB text-black ml-7">
+          <p className="text-heading4-20SB text-black ml-7 max-w-[100px] truncate">
             {profile.nickname}
           </p>
 

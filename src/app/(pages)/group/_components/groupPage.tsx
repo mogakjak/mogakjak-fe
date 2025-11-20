@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/button";
 import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
@@ -10,6 +10,8 @@ import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 import InviteModal from "@/app/_components/home/room/inviteModal";
+import { useAuthState } from "@/app/api/auth/useAuthState";
+import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
@@ -23,8 +25,28 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const groupMembers = groupData.members;
-  console.log(groupMembers);
+  const { token } = useAuthState();
+
+  // 현재 사용자 ID 가져오기
+  const currentUserId = useMemo(() => {
+    return getUserIdFromToken(token);
+  }, [token]);
+
+  // 현재 사용자를 맨 앞으로 정렬
+  const sortedMembers = useMemo(() => {
+    if (!currentUserId) return groupData.members;
+
+    const currentUser = groupData.members.find(
+      (m) => m.userId === currentUserId
+    );
+    const otherMembers = groupData.members.filter(
+      (m) => m.userId !== currentUserId
+    );
+
+    return currentUser ? [currentUser, ...otherMembers] : groupData.members;
+  }, [groupData.members, currentUserId]);
+
+  const groupMembers = sortedMembers;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -74,17 +96,21 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-x-5 gap-y-3 h-[420px]">
-              {groupMembers.map((f) => (
-                <GroupFriendField
-                  key={f.userId}
-                  status={"active"}
-                  friendName={f.nickname}
-                  profileUrl={f.profileUrl}
-                  level={1}
-                  isPublic={true}
-                  activeTime={0}
-                />
-              ))}
+              {groupMembers.map((f) => {
+                const isCurrentUser = f.userId === currentUserId;
+                return (
+                  <GroupFriendField
+                    key={f.userId}
+                    status={"active"}
+                    friendName={f.nickname}
+                    profileUrl={f.profileUrl}
+                    level={1}
+                    isPublic={true}
+                    activeTime={0}
+                    isCurrentUser={isCurrentUser}
+                  />
+                );
+              })}
             </div>
           )}
         </div>

@@ -63,7 +63,9 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
           />
         </div>
         <div className="flex flex-col gap-1 text-center mt-5 mb-2">
-          <p className="text-heading3-24SB text-black">{nickname}</p>
+          <p className="text-heading3-24SB text-black max-w-[150px] truncate">
+            {nickname}
+          </p>
           <p className="text-body1-16R text-gray-500">{email}</p>
         </div>
         <ProfileEditButton openEdit={handleEditOpen} />

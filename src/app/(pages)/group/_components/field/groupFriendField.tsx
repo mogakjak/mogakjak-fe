@@ -16,6 +16,7 @@ export interface GroupFriendFieldProps {
   isPublic?: boolean;
   activeTime?: number;
   profileUrl?: string;
+  isCurrentUser?: boolean;
 }
 
 export default function GroupFriendField({
@@ -25,6 +26,7 @@ export default function GroupFriendField({
   isPublic = true,
   activeTime = 0,
   profileUrl,
+  isCurrentUser = false,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
 
@@ -42,9 +44,22 @@ export default function GroupFriendField({
         >
           <div className="flex items-center gap-1">
             <MemberProfile isActive size="small" profileUrl={profileUrl} />
-            <p className={`text-body2-14SB ${isActive && "text-gray-500"}`}>
-              {friendName}
-            </p>
+            <div className="flex items-center gap-1">
+              <p
+                className={`text-body2-14SB ${
+                  isActive && "text-gray-500"
+                } max-w-[70px] truncate`}
+              >
+                {friendName}
+              </p>
+              {isCurrentUser && (
+                <span
+                  className={`text-body2-14SB ${isActive && "text-gray-500"}`}
+                >
+                  (나)
+                </span>
+              )}
+            </div>
           </div>
           {!isActive && <CheerUp />}
         </section>
