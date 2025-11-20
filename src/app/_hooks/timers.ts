@@ -18,6 +18,11 @@ import {
   type StartPomodoroPayload,
   type StartTimerPayload,
   type StartStopwatchPayload,
+  StartGroupTimerPayload,
+  startGroupTimer,
+  pauseGroupTimer,
+  resumeGroupTimer,
+  finishGroupTimer,
 } from "../api/timers/api";
 import { timerKeys } from "../api/timers/keys";
 
@@ -175,3 +180,58 @@ export const useNextPomodoro = (
   });
 };
 
+// 그룹 타이머
+export const useStartGroupTimer = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: StartGroupTimerPayload) =>
+      startGroupTimer(groupId, payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
+    },
+  });
+};
+
+export const usePauseGroupTimer = (groupId: string, sessionId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => pauseGroupTimer(groupId, sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
+      queryClient.invalidateQueries({
+        queryKey: timerKeys.groupSession(groupId, sessionId),
+      });
+    },
+  });
+};
+
+export const useResumeGroupTimer = (groupId: string, sessionId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => resumeGroupTimer(groupId, sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
+      queryClient.invalidateQueries({
+        queryKey: timerKeys.groupSession(groupId, sessionId),
+      });
+    },
+  });
+};
+
+export const useFinishGroupTimer = (groupId: string, sessionId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => finishGroupTimer(groupId, sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
+      queryClient.invalidateQueries({
+        queryKey: timerKeys.groupSession(groupId, sessionId),
+      });
+    },
+  });
+};
