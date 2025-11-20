@@ -1,125 +1,72 @@
-"use client";
+import type { Metadata } from "next";
+import { getGroupDetail } from "@/app/api/groups/api";
+import InvitePageClient from "./InvitePageClient";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { useJoinGroup, useGroupDetail } from "@/app/_hooks/groups";
-import { groupKeys } from "@/app/api/groups/keys";
-import MobileHomePage from "@/app/_components/home/mobileHomePage";
+type InvitePageProps = {
+  params: Promise<{ groupid: string }>;
+};
 
-export default function InvitePage() {
-  const params = useParams();
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [isMobile, setIsMobile] = useState(false);
+export async function generateMetadata({
+  params,
+}: InvitePageProps): Promise<Metadata> {
+  const { groupid } = await params;
 
-  const groupid = params?.groupid as string;
-
-  const {
-    mutate: joinGroup,
-    isPending,
-    isSuccess,
-    isError,
-    error,
-  } = useJoinGroup();
-
-  const { data: groupData, isLoading: isLoadingGroup } = useGroupDetail(
-    groupid || "",
-    {
-      enabled: !!groupid && isSuccess && isMobile,
-    }
-  );
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const ua = navigator.userAgent;
-      const isMobileDevice =
-        /iPhone|iPad|iPod|Android|Mobile|Windows Phone/i.test(ua);
-      setIsMobile(isMobileDevice);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!groupid) return;
-
-    joinGroup(groupid, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: groupKeys.my() });
-        queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupid) });
-
-        if (!isMobile) {
-          router.push("/");
-        }
-      },
-      onError: (err) => {
-        console.error("그룹 가입 실패:", err);
-      },
-    });
-  }, [groupid, joinGroup, queryClient, router, isMobile]);
-
-  if (isPending) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">그룹에 가입하는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isSuccess) {
-    if (!isMobile) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">가입 완료 중...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (isLoadingGroup || !groupData) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">그룹 정보를 불러오는 중...</p>
-          </div>
-        </div>
-      );
-    }
+  try {
+    const groupData = await getGroupDetail(groupid);
 
     const inviter = groupData.members?.[0];
+    const inviterName = inviter?.nickname || "모각작 멤버";
+    const groupName = groupData.name || "모각작";
 
-    return (
-      <MobileHomePage
-        inviterNickname={inviter?.nickname}
-        groupName={groupData.name}
-      />
-    );
+    return {
+      title: `${inviterName}님이 "${groupName}"으로 초대했어요!`,
+      description: "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
+      openGraph: {
+        title: `${inviterName}님이 "${groupName}"으로 초대했어요!`,
+        description:
+          "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
+        url: `https://mogakjak-fe.vercel.app/invite/${groupid}`,
+        siteName: "모각작",
+        images: [
+          {
+            url:
+              groupData.imageUrl ||
+              "https://mogakjak-fe.vercel.app/thumbnail.png",
+            width: 1200,
+            height: 630,
+            alt: `${groupName} 초대`,
+          },
+        ],
+        locale: "ko_KR",
+        type: "website",
+      },
+    };
+  } catch (error) {
+    return {
+      title: "모각작 초대",
+      description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
+      openGraph: {
+        title: "모각작 초대",
+        description:
+          "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
+        url: `https://mogakjak-fe.vercel.app/invite/${groupid}`,
+        siteName: "모각작",
+        images: [
+          {
+            url: "https://mogakjak-fe.vercel.app/thumbnail.png",
+            width: 1200,
+            height: 630,
+            alt: "모각작 초대",
+          },
+        ],
+        locale: "ko_KR",
+        type: "website",
+      },
+    };
   }
+}
 
-  if (isError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="mb-4 text-4xl">✗</div>
-          <h1 className="text-2xl font-bold mb-2">가입 실패</h1>
-          <p className="text-gray-600 mb-4">
-            {error?.message || "그룹 가입에 실패했습니다."}
-          </p>
-          <button
-            onClick={() => router.push("/")}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-          >
-            홈으로 돌아가기
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+export default async function InvitePage({ params }: InvitePageProps) {
+  const { groupid } = await params;
+  return <InvitePageClient groupid={groupid} />;
 }
