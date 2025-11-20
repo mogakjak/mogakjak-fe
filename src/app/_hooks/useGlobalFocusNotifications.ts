@@ -11,9 +11,18 @@ function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
 
   if (!apiBase) {
+    if (typeof window !== "undefined") {
+      const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+      return `${protocol}//mogakjak.site/connect`;
+    }
     return "https://mogakjak.site/connect";
   }
-
+  if (apiBase.startsWith("//")) {
+    if (typeof window !== "undefined") {
+      return `${window.location.protocol}${apiBase}/connect`;
+    }
+    return `https:${apiBase}/connect`;
+  }
   return `${apiBase}/connect`;
 }
 export function useGlobalFocusNotifications(
