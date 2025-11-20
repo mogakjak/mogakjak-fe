@@ -15,6 +15,7 @@ export interface GroupFriendFieldProps {
   friendName?: string;
   isPublic?: boolean;
   activeTime?: number;
+  profileUrl?: string;
 }
 
 export default function GroupFriendField({
@@ -23,6 +24,7 @@ export default function GroupFriendField({
   friendName = "가나디",
   isPublic = true,
   activeTime = 0,
+  profileUrl,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
 
@@ -39,7 +41,7 @@ export default function GroupFriendField({
           }`}
         >
           <div className="flex items-center gap-1">
-            <MemberProfile isActive size="small" />
+            <MemberProfile isActive size="small" profileUrl={profileUrl} />
             <p className={`text-body2-14SB ${isActive && "text-gray-500"}`}>
               {friendName}
             </p>

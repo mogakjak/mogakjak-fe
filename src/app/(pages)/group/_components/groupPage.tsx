@@ -9,6 +9,7 @@ import ReviewPopup from "../../../_components/group/review/reviewPopup";
 import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
+import InviteModal from "@/app/_components/home/room/inviteModal";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
@@ -20,9 +21,10 @@ type GroupPageProps = {
 
 export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const groupMembers = groupData.members;
-
+  console.log(groupMembers);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -53,7 +55,10 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {groupMembers.length}/8
           </p>
-          <SidebarButton className="px-5 ">
+          <SidebarButton
+            className="px-5 cursor-pointer"
+            onClick={() => setOpenInviteModal(true)}
+          >
             <Icon Svg={Add} size={24} className="text-black" />
             그룹원 추가하기
           </SidebarButton>
@@ -74,6 +79,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                   key={f.userId}
                   status={"active"}
                   friendName={f.nickname}
+                  profileUrl={f.profileUrl}
                   level={1}
                   isPublic={true}
                   activeTime={0}
@@ -106,6 +112,20 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
               sessionId={sessionId || ""}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
+            />
+          </div>
+        </div>
+      )}
+
+      {openInviteModal && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenInviteModal(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <InviteModal
+              groupId={groupData.groupId}
+              onClose={() => setOpenInviteModal(false)}
             />
           </div>
         </div>

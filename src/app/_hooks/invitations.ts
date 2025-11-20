@@ -5,13 +5,9 @@ import {
   getMyInvitations,
   postAcceptInvitation,
   postDeclineInvitation,
-  postInvitationUrl,
 } from "@/app/api/invitations/api";
 import { invitationKeys } from "@/app/api/invitations/keys";
-import type {
-  PendingInvitation,
-  InvitationUrl,
-} from "@/app/_types/invitations";
+import type { PendingInvitation } from "@/app/_types/invitations";
 
 export const useMyInvitations = () =>
   useQuery<PendingInvitation[]>({
@@ -41,8 +37,3 @@ export const useDeclineInvitation = () => {
     },
   });
 };
-
-export const useInvitationUrl = () =>
-  useMutation<InvitationUrl, Error, string>({
-    mutationFn: (groupId) => postInvitationUrl(groupId),
-  });

@@ -12,6 +12,7 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  joinGroup,
   leaveGroup,
   postGroupInvitation,
   putGroupGoal,
@@ -147,7 +148,7 @@ export const useLeaveGroup = () => {
   });
 };
 
-// 초대대
+// 초대
 export const useInviteMate = (groupId: string) => {
   const queryClient = useQueryClient();
 
@@ -162,3 +163,8 @@ export const useInviteMate = (groupId: string) => {
     },
   });
 };
+
+export const useJoinGroup = () =>
+  useMutation<void, Error, string>({
+    mutationFn: (groupId: string) => joinGroup(groupId),
+  });

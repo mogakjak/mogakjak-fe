@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
-import { Mate } from "@/app/_types/groups";
+import { Mate, MyGroup } from "@/app/_types/groups";
+import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -14,6 +15,7 @@ interface ProfileListProps {
   onCountChange?: (n: number) => void;
   search?: string;
   isLoading?: boolean;
+  groups?: MyGroup[];
 }
 
 export default function ProfileList({
@@ -25,11 +27,15 @@ export default function ProfileList({
   onCountChange,
   search = "",
   isLoading = false,
-  groupName,
 }: ProfileListProps) {
   useEffect(() => {
     onCountChange?.(totalCount);
   }, [totalCount, onCountChange]);
+
+  const uniqueProfiles = useMemo(() => {
+    return getUniqueProfiles(profiles);
+  }, [profiles]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col h-[552px] mb-1">
@@ -67,7 +73,7 @@ export default function ProfileList({
 
   return (
     <div className="flex flex-col h-[552px] mb-1">
-      {profiles.map((profile) => (
+      {uniqueProfiles.map(({ profile, groupNames }) => (
         <div
           key={profile.userId}
           className="flex items-center border-b border-gray-200 px-5 py-3"
@@ -75,7 +81,7 @@ export default function ProfileList({
           <ProfileActive
             src={profile.profileUrl}
             name={profile.nickname}
-            active={false}
+            active={true}
           />
 
           <p className="text-heading4-20SB text-black ml-7">
@@ -83,14 +89,24 @@ export default function ProfileList({
           </p>
 
           <div className="w-px h-5 bg-black m-2" />
-          <div className="text-gray-500 text-body1-16R flex gap-2">
-            <p>{groupName}</p>
+
+          <div className="text-gray-500 text-body1-16R flex gap-2 flex-wrap">
+            {groupNames.length > 0 ? (
+              groupNames.map((name, idx) => (
+                <span key={`${profile.userId}-${name}`}>
+                  {idx > 0 && <span>,</span>}
+                  <p className="inline">{name}</p>
+                </span>
+              ))
+            ) : (
+              <p>-</p>
+            )}
             <p>·</p>
             <p>1일 전</p>
           </div>
 
           <div className="ml-auto">
-            <ForkButton active={false} />
+            <ForkButton active={true} />
           </div>
         </div>
       ))}
