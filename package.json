@@ -36,6 +36,7 @@
     "react-is": "^17.0.2",
     "react-timer-hook": "^4.0.5",
     "sockjs-client": "^1.6.1",
+    "stomp": "^0.1.1",
     "tailwind-scrollbar": "^4.0.2",
     "tailwind-scrollbar-hide": "^4.0.0"
   },
