@@ -43,7 +43,9 @@ interface KakaoShareButtonProps {
 export default function KakaoShareButton({
   title = "모각작",
   description = "함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
-  imageUrl = "https://mogakjak-fe.vercel.app/thumbnail.png",//수정 예정
+  imageUrl = process.env.NEXT_PUBLIC_REDIRECT_URI 
+    ? `${process.env.NEXT_PUBLIC_REDIRECT_URI}/thumbnail.png`
+    : "https://mogakjak-fe.vercel.app/thumbnail.png",
 }: KakaoShareButtonProps) {
   useEffect(() => {
     if (typeof window !== "undefined" && window.Kakao && !window.Kakao.isInitialized()) {
@@ -68,7 +70,7 @@ export default function KakaoShareButton({
       }
       window.Kakao.init(kakaoKey);
     }
-    const currentUrl = "https://mogakjak-fe.vercel.app";
+    const currentUrl = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://mogakjak-fe.vercel.app";
 
     window.Kakao.Share.sendDefault({
       objectType: "feed",
