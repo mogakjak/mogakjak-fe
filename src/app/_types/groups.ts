@@ -91,3 +91,14 @@ export interface GroupGoalRes {
   goalHours: number;
   goalMinutes: number;
 }
+
+//초대
+export type InviteRequest = {
+  inviteeId: string;
+};
+
+export type InviteResponse = {
+  statusCode: number;
+  message: string;
+  data: Record<string, never>; // 빈 객체
+};
