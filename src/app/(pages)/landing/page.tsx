@@ -9,8 +9,9 @@ export default function Landing() {
   };
 
   return (
-    <div className="w-full max-w-[384px] mx-auto min-h-screen bg-neutral-50 flex flex-col justify-between items-center overflow-hidden px-4">
-      <div className="flex flex-col justify-start items-center gap-4 pt-20">
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+      <main className="w-full py-7 min-h-screen bg-white flex flex-col items-center justify-evenly">
+      <div className="flex flex-col justify-start items-center gap-4">
         <div className="flex flex-col justify-start items-center gap-2">
           <Image
             src="/Icons/logoSlogan.svg"
@@ -23,7 +24,7 @@ export default function Landing() {
           함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!
         </p>
       </div>
-      <div className="self-stretch px-6 py-8 bg-gray-100 rounded-2xl flex flex-col justify-start items-center gap-10 overflow-hidden mb-20">
+      <div className="w-full px-6 py-8 bg-gray-100 rounded-2xl flex flex-col justify-start items-center gap-10">
         <div className="flex flex-col justify-start items-center gap-2">
           <p className="text-center text-zinc-700 text-base font-semibold font-['Pretendard'] leading-6">
             모각작에 오신 것을 환영합니다!
@@ -52,7 +53,7 @@ export default function Landing() {
 
           <button
             onClick={handleInstagramClick}
-            className="self-stretch h-12 px-10 py-4 bg-neutral-50 rounded-2xl border border-gray-200 inline-flex justify-center items-center gap-2 transition active:scale-[0.99]"
+            className="self-stretch h-12 px-10 py-4 bg-white rounded-2xl border border-gray-200 inline-flex justify-center items-center gap-2 transition active:scale-[0.99]"
           >
             <div className="w-6 h-6 relative">
               <Image
@@ -69,6 +70,7 @@ export default function Landing() {
           </button>
         </div>
       </div>
+    </main>
     </div>
   );
 }
