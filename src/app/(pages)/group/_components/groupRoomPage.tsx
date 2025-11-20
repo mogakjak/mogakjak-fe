@@ -16,7 +16,6 @@ type GroupRoomPageProps = {
 export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
-  console.log(groupid);
   const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
 
   const { data, isPending } = useGroupDetail(validGroupId, {
@@ -51,7 +50,7 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
       </div>
 
       {groupEditOpen && (
-        <div className="z-[1000] fixed inset-0 bg-black/30 flex items-center justify-center">
+        <div className="z-50 fixed inset-0 bg-black/30 flex items-center justify-center">
           <RoomModal
             mode="edit"
             groupId={data?.groupId}
