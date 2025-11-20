@@ -194,17 +194,26 @@ export const useStartGroupTimer = (groupId: string) => {
   });
 };
 
+// 그룹 타이머 공통 onSuccess 핸들러 생성 함수
+function createGroupTimerOnSuccess(
+  queryClient: ReturnType<typeof useQueryClient>,
+  groupId: string,
+  sessionId: string
+) {
+  return () => {
+    queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
+    queryClient.invalidateQueries({
+      queryKey: timerKeys.groupSession(groupId, sessionId),
+    });
+  };
+}
+
 export const usePauseGroupTimer = (groupId: string, sessionId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => pauseGroupTimer(groupId, sessionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
-      queryClient.invalidateQueries({
-        queryKey: timerKeys.groupSession(groupId, sessionId),
-      });
-    },
+    onSuccess: createGroupTimerOnSuccess(queryClient, groupId, sessionId),
   });
 };
 
@@ -213,12 +222,7 @@ export const useResumeGroupTimer = (groupId: string, sessionId: string) => {
 
   return useMutation({
     mutationFn: () => resumeGroupTimer(groupId, sessionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
-      queryClient.invalidateQueries({
-        queryKey: timerKeys.groupSession(groupId, sessionId),
-      });
-    },
+    onSuccess: createGroupTimerOnSuccess(queryClient, groupId, sessionId),
   });
 };
 
@@ -227,11 +231,6 @@ export const useFinishGroupTimer = (groupId: string, sessionId: string) => {
 
   return useMutation({
     mutationFn: () => finishGroupTimer(groupId, sessionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: timerKeys.group(groupId) });
-      queryClient.invalidateQueries({
-        queryKey: timerKeys.groupSession(groupId, sessionId),
-      });
-    },
+    onSuccess: createGroupTimerOnSuccess(queryClient, groupId, sessionId),
   });
 };

@@ -50,15 +50,11 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
           <PreviewMain state={true} />
         </div>
 
-        <>
-          {isPending && (
-            <div className="w-full h-full bg-white animate-pulse rounded-2xl" />
-          )}
-
-          {!isPending && data && (
-            <GroupPage onExitGroup={handleExitGroup} groupData={data} />
-          )}
-        </>
+        {isPending || !data ? (
+          <div className="w-full h-full bg-white animate-pulse rounded-2xl" />
+        ) : (
+          <GroupPage onExitGroup={handleExitGroup} groupData={data} />
+        )}
       </div>
 
       {groupEditOpen && (
