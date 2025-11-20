@@ -23,6 +23,8 @@ export const useAcceptInvitation = () => {
     mutationFn: (invitationId) => postAcceptInvitation(invitationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invitationKeys.my() });
+      // 그룹 목록도 갱신
+      queryClient.invalidateQueries({ queryKey: ["groups", "my"] });
     },
   });
 };

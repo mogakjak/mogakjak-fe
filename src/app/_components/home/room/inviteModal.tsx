@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/button";
-import { useMates } from "@/app/_hooks/groups";
+import { useMates, useInviteMate } from "@/app/_hooks/groups";
 import { Mate } from "@/app/_types/groups";
 import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
@@ -25,12 +25,15 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     search: submittedSearch || undefined,
   });
 
+  const { mutate: inviteMate, isPending: isInviting } = useInviteMate(groupId);
+
   // 중복 제거된 프로필 목록
   const uniqueProfiles = useMemo(() => {
     const rawProfiles: Mate[] = matesData?.content ?? [];
     return getUniqueProfiles(rawProfiles);
   }, [matesData?.content]);
 
+  // 초대링크크
   const inviteUrl = useMemo(() => {
     if (!groupId) return "";
     const baseUrl =
@@ -44,9 +47,20 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     setSubmittedSearch(value.trim());
   };
 
+  // 초대 로직
   const handleInvite = (userId: string) => {
-    console.log("Invite user:", userId);
-    // TODO: 이후 메이트 초대 API 연동
+    inviteMate(
+      { inviteeId: userId },
+      {
+        onSuccess: () => {
+          // 초대 성공 처리 (선택사항)
+        },
+        onError: (error) => {
+          console.error("초대 실패:", error);
+          alert("초대에 실패했습니다. 다시 시도해주세요.");
+        },
+      }
+    );
   };
 
   const handleCopyLink = async () => {
@@ -173,10 +187,11 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                         </div>
                         <button
                           onClick={() => handleInvite(profile.userId)}
-                          className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center"
+                          disabled={isInviting}
+                          className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <span className="text-zinc-500 text-xs font-semibold leading-4">
-                            초대하기
+                            {isInviting ? "초대 중..." : "초대하기"}
                           </span>
                         </button>
                       </div>
