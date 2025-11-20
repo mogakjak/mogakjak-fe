@@ -91,6 +91,11 @@ export const getGroupDetail = (groupId: string) =>
     method: "GET",
   });
 
+export const getGroupInviteLink = (groupId: string) =>
+  request<{ inviteId: string }>(`/${groupId}/invitations/link`, {
+    method: "GET",
+  });
+
 // 그룹 알림 설정
 export const putGroupNoti = (groupId: string, payload: NotiReq) =>
   request<NotiRes>(`/${groupId}/notifications`, {
