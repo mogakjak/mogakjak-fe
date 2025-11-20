@@ -8,7 +8,7 @@ const cookieOpts = {
   path: "/",
 };
 
-export function clearAll(res: NextResponse) {
+function clearAll(res: NextResponse) {
   res.cookies.set("mg_access_token", "", { ...cookieOpts, maxAge: 0 });
   res.cookies.set("mg_refresh_token", "", { ...cookieOpts, maxAge: 0 });
 }
