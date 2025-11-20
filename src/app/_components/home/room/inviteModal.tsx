@@ -183,7 +183,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                             </div>
                             <div className="w-5 h-px bg-neutral-900 rotate-90" />
                             <div className="text-zinc-500 text-sm font-normal leading-5">
-                              {profile.teamNames || "팀이름예시1, 팀이름예시2"}
+                              {profile.teamNames}
                             </div>
                           </div>
                         </div>
