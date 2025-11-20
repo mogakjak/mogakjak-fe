@@ -4,13 +4,14 @@ import type { RuleSetRule } from "webpack";
 
 const nextConfig: NextConfig = {
   async rewrites() {
+    const apiProxy = process.env.NEXT_PUBLIC_API_PROXY || "http://localhost:8080";
     return {
       beforeFiles: [],
       afterFiles: [],
       fallback: [
         {
           source: "/api/:path*",
-          destination: `${process.env.NEXT_PUBLIC_API_PROXY}/api/:path*`,
+          destination: `${apiProxy}/api/:path*`,
         },
       ],
     };
