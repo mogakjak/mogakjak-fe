@@ -9,4 +9,6 @@ export const groupKeys = {
   notifications: (groupId: string) =>
     [...groupKeys.all(), "notifications", groupId] as const,
   goal: (groupId: string) => [...groupKeys.all(), "goal", groupId] as const,
+  invitations: (groupId: string) =>
+    [...groupKeys.all(), "invitations", groupId] as const,
 };
