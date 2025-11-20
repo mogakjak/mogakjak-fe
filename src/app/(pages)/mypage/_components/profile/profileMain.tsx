@@ -12,12 +12,17 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
   const {
     nickname,
     email,
+    imageUrl,
     totalTaskCount,
     totalFocusTime,
     collectedCharacterCount,
   } = basket;
 
   const [openEdit, setOpenEdit] = useState(false);
+
+  const [profileImage, setProfileImage] = useState<string>(
+    imageUrl || "/profileDefault.svg"
+  );
 
   const handleEditOpen = () => setOpenEdit(true);
 
@@ -47,14 +52,20 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
       </div>
 
       <section className="flex flex-col items-center">
-        <Image
-          src="/profileDefault.svg"
-          alt="프로필 기본"
-          width={130}
-          height={130}
-        />
+        <div className="w-[130px] h-[130px] border-2 border-gray-300 rounded-full overflow-hidden mt-4">
+          <Image
+            src={profileImage}
+            alt="프로필"
+            width={130}
+            height={130}
+            className="rounded-full object-cover"
+            onError={() => setProfileImage("/profileDefault.svg")}
+          />
+        </div>
         <div className="flex flex-col gap-1 text-center mt-5 mb-2">
-          <p className="text-heading3-24SB text-black">{nickname}</p>
+          <p className="text-heading3-24SB text-black max-w-[150px] truncate">
+            {nickname}
+          </p>
           <p className="text-body1-16R text-gray-500">{email}</p>
         </div>
         <ProfileEditButton openEdit={handleEditOpen} />
@@ -79,6 +90,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
               onClose={() => setOpenEdit(false)}
               initialNickname={nickname}
               initialEmail={email}
+              initialImageUrl={profileImage}
             />
           </div>
         </div>

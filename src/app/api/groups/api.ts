@@ -51,7 +51,10 @@ async function request<T>(
   return json as T;
 }
 
-export const getMyGroups = () => request<MyGroup[]>("/my", { method: "GET" });
+export const getMyGroups = async () => {
+  const result = await request<MyGroup[]>("/my", { method: "GET" });
+  return result ?? [];
+};
 
 export type GetMatesParams = {
   page?: number;
@@ -116,7 +119,12 @@ export const leaveGroup = (groupId: string) =>
 
 //초대
 export const postGroupInvitation = (groupId: string, body: InviteRequest) =>
-  request<InviteResponse>(`/groups/${groupId}/invitations`, {
+  request<InviteResponse>(`/${groupId}/invitations`, {
     method: "POST",
     body: JSON.stringify(body),
+  });
+// 자동 가입
+export const joinGroup = (groupId: string) =>
+  request<void>(`/${groupId}/join`, {
+    method: "POST",
   });

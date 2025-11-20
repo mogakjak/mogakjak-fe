@@ -1,28 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/button";
-import { useMates } from "@/app/_hooks/groups";
-import { useInvitationUrl } from "@/app/_hooks/invitations";
+import { useMates, useInviteMate } from "@/app/_hooks/groups";
+import { Mate } from "@/app/_types/groups";
+import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
+import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 
 interface InviteModalProps {
   onClose: () => void;
   groupId: string;
 }
 
-interface MateItem {
-  userId: string;
-  nickname: string;
-  isActive?: boolean;
-  teamNames?: string;
-}
-
 export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const [inviteUrl, setInviteUrl] = useState<string>("");
 
   const { data: matesData, isLoading: matesLoading } = useMates({
     page: 0,
@@ -31,36 +25,46 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     search: submittedSearch || undefined,
   });
 
-  const profiles: MateItem[] = matesData?.content ?? [];
+  const { mutate: inviteMate, isPending: isInviting } = useInviteMate(groupId);
 
-  const { mutate: createInvitationUrl, isPending: isCreatingInviteUrl } =
-    useInvitationUrl();
+  // 중복 제거된 프로필 목록
+  const uniqueProfiles = useMemo(() => {
+    const rawProfiles: Mate[] = matesData?.content ?? [];
+    return getUniqueProfiles(rawProfiles);
+  }, [matesData?.content]);
 
-  useEffect(() => {
-    if (!groupId) return;
-
-    createInvitationUrl(groupId, {
-      onSuccess: (data) => {
-        setInviteUrl(data.invitationUrl);
-      },
-      onError: (error) => {
-        console.error("초대 링크 생성 실패:", error);
-        setInviteUrl("");
-      },
-    });
-  }, [groupId, createInvitationUrl]);
+  // 초대링크크
+  const inviteUrl = useMemo(() => {
+    if (!groupId) return "";
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL || "https://mogakjak-fe.vercel.app";
+    return `${baseUrl}/invite/${groupId}`;
+  }, [groupId]);
 
   const handleSearchSubmit = (value: string) => {
     setSubmittedSearch(value.trim());
   };
 
+  // 초대 로직
   const handleInvite = (userId: string) => {
-    console.log("Invite user:", userId);
-    // TODO: 이후 메이트 초대 API 연동
+    inviteMate(
+      { inviteeId: userId },
+      {
+        onSuccess: () => {
+          // 초대 성공 처리 (선택사항)
+        },
+        onError: (error) => {
+          console.error("초대 실패:", error);
+          alert("초대에 실패했습니다. 다시 시도해주세요.");
+        },
+      }
+    );
   };
 
   const handleCopyLink = async () => {
-    if (!inviteUrl || isCreatingInviteUrl) return;
+    if (!inviteUrl) return;
 
     try {
       await navigator.clipboard.writeText(inviteUrl);
@@ -103,7 +107,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
           </h2>
 
           <div className="w-full flex flex-col gap-4">
-            <div className="inline-flex justify-start items-start gap-4">
+            <div className="inline-flex justify-center items-center gap-4">
               <div className="text-neutral-900 text-base font-semibold leading-6">
                 목록에서 메이트 초대하기
               </div>
@@ -148,7 +152,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                     <div className="flex items-center justify-center py-8">
                       <p className="text-gray-500">로딩 중...</p>
                     </div>
-                  ) : profiles.length === 0 ? (
+                  ) : uniqueProfiles.length === 0 ? (
                     <div className="flex items-center justify-center py-8">
                       <p className="text-gray-500 text-sm">
                         {submittedSearch
@@ -157,42 +161,37 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                       </p>
                     </div>
                   ) : (
-                    profiles.map((profile) => (
+                    uniqueProfiles.map(({ profile, groupNames }) => (
                       <div
                         key={profile.userId}
                         className="h-16 px-4 py-2 bg-neutral-50 rounded-[10px] flex justify-between items-center"
                       >
                         <div className="flex justify-start items-center gap-3">
-                          <div className="w-12 h-12 relative rounded-[32px] border border-gray-200">
-                            <div className="w-full h-full rounded-full bg-gray-100 flex items-center justify-center">
-                              <span className="text-gray-400 text-xs">
-                                {profile.nickname[0]}
-                              </span>
-                            </div>
-                            <div
-                              className={`w-4 h-4 absolute bottom-0 right-0 rounded-full border-2 border-neutral-50 ${
-                                profile.isActive
-                                  ? "bg-green-800"
-                                  : "bg-gray-400"
-                              }`}
-                            />
-                          </div>
-                          <div className="flex justify-start items-center gap-3">
+                          <ProfileActive
+                            src={profile.profileUrl}
+                            name={profile.nickname}
+                            active={true}
+                            size="sm"
+                          />
+                          <div className="flex justify-start items-center">
                             <div className="text-neutral-900 text-base font-semibold leading-6">
                               {profile.nickname}
                             </div>
                             <div className="w-5 h-px bg-neutral-900 rotate-90" />
-                            <div className="text-zinc-500 text-sm font-normal leading-5">
-                              {profile.teamNames}
+                            <div className="text-zinc-500 text-sm font-normal leading-5 truncate w-[170px]">
+                              {groupNames.length > 0
+                                ? groupNames.join(", ")
+                                : "-"}
                             </div>
                           </div>
                         </div>
                         <button
                           onClick={() => handleInvite(profile.userId)}
-                          className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center"
+                          disabled={isInviting}
+                          className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <span className="text-zinc-500 text-xs font-semibold leading-4">
-                            초대하기
+                            {isInviting ? "초대 중..." : "초대하기"}
                           </span>
                         </button>
                       </div>
@@ -215,14 +214,12 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
             <div className="flex flex-col gap-4">
               <div className="w-full h-11 px-5 py-3 bg-white rounded-[100px] border border-gray-200 flex items-center gap-3">
                 <div className="flex-1 text-neutral-700 text-base font-normal leading-6 truncate">
-                  {isCreatingInviteUrl
-                    ? "초대 링크를 생성 중입니다..."
-                    : inviteUrl || "초대 링크를 생성할 수 없습니다."}
+                  {inviteUrl || "초대 링크를 생성할 수 없습니다."}
                 </div>
                 <button
                   onClick={handleCopyLink}
                   aria-label="링크 복사"
-                  disabled={isCreatingInviteUrl || !inviteUrl}
+                  disabled={!inviteUrl}
                   className="shrink-0 p-1 rounded-full transition-all duration-150 hover:opacity-80 focus:outline-none disabled:opacity-40"
                 >
                   <Image

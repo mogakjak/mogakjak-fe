@@ -15,12 +15,17 @@ export default function PreviewCharacter({
   character,
 }: PreviewCharacterProps) {
   return (
-    <div className="flex flex-col mb-2">
-      <div className="flex justify-between mb-2">
-        <p className="text-heading4-20SB ">{nickname} (나)</p>
+    <div className="flex flex-col mb-1">
+      <div className="flex justify-between mb-1">
+        <div className="flex items-center">
+          <p className="text-heading4-20SB max-w-[150px] truncate">
+            {nickname}
+          </p>
+          <span className="text-heading4-20SB">(나)</span>
+        </div>
         {state && <CheerUp />}
       </div>
-      <div className="flex flex-col items-center pt-1.5 gap-5">
+      <div className="flex flex-col items-center gap-2.5">
         <Image
           src={character.mainCharacterImage}
           alt="캐릭터"
