@@ -12,6 +12,8 @@ import {
   getMates,
   GetMatesParams,
   getMyGroups,
+  leaveGroup,
+  postGroupInvitation,
   putGroupGoal,
   putGroupNoti,
   updateGroup,
@@ -21,6 +23,7 @@ import {
   GroupDetail,
   GroupGoalReq,
   GroupGoalRes,
+  InviteRequest,
   MatesPage,
   MyGroup,
   NotiReq,
@@ -129,6 +132,33 @@ export const useUpdateGroupGoal = (groupId: string) => {
               }
             : prev
       );
+    },
+  });
+};
+
+export const useLeaveGroup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string>({
+    mutationFn: (groupId: string) => leaveGroup(groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+    },
+  });
+};
+
+// 초대대
+export const useInviteMate = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: InviteRequest) => postGroupInvitation(groupId, body),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.invitations(groupId),
+      });
     },
   });
 };

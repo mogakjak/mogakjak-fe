@@ -13,6 +13,7 @@ interface RoomModalProps {
   groupId?: string;
   initialName?: string;
   initialImageUrl?: string | null;
+  onCreateSuccess?: (groupId: string) => void;
 }
 
 export default function RoomModal({
@@ -21,12 +22,14 @@ export default function RoomModal({
   groupId,
   initialName = "",
   initialImageUrl = null,
+  onCreateSuccess,
 }: RoomModalProps) {
   const [name, setName] = useState(initialName);
   const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const { mutate: createGroup, isPending: isCreating } = useCreateGroup();
+  const { mutateAsync: createGroupAsync, isPending: isCreating } =
+    useCreateGroup();
   const { mutate: updateGroup, isPending: isUpdating } = useUpdateGroup();
   const { mutateAsync: uploadImage, isPending: isUploading } = useUploadImage();
 
@@ -34,6 +37,7 @@ export default function RoomModal({
   const isPending = isEdit
     ? isUpdating || isUploading
     : isCreating || isUploading;
+
   const title = isEdit ? "그룹 수정하기" : "그룹 생성하기";
   const buttonLabel = isEdit ? "수정하기" : "생성하기";
 
@@ -77,18 +81,24 @@ export default function RoomModal({
           }
         );
       } else {
-        createGroup(payload, {
-          onSuccess: () => {
-            onClose();
-          },
-          onError: () => {
-            alert("그룹 생성에 실패했습니다.");
-          },
-        });
+        const created = await createGroupAsync(payload);
+        const newGroupId = created?.groupId;
+
+        if (!newGroupId) {
+          console.error("생성된 groupId가 없습니다.");
+          alert("그룹 생성에 실패했습니다.");
+          return;
+        }
+
+        if (onCreateSuccess) {
+          onCreateSuccess(newGroupId);
+        }
+
+        onClose();
       }
     } catch (error) {
       console.error(error);
-      alert("이미지 업로드 중 오류가 발생했습니다.");
+      alert("이미지 업로드 또는 그룹 생성 중 오류가 발생했습니다.");
     }
   };
 

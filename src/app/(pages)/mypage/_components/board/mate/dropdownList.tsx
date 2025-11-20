@@ -36,7 +36,7 @@ export default function DropdownList({
   };
 
   return (
-    <div className="relative inline-block z-50">
+    <div className="relative inline-block z-10">
       <button
         type="button"
         aria-haspopup="listbox"
