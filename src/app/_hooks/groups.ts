@@ -100,6 +100,10 @@ export const useGroupDetail = (
       if (!groupId || groupId === "undefined") {
         throw new Error("groupId is required");
       }
+      console.log(
+        "[useGroupDetail] 그룹 상세 정보 조회 시작, groupId:",
+        groupId
+      );
       return getGroupDetail(groupId);
     },
     staleTime: 5 * 60 * 1000,
@@ -144,6 +148,7 @@ export const useUpdateGroupGoal = (groupId: string) => {
   });
 };
 
+// 그룹 탈퇴
 export const useLeaveGroup = () => {
   const queryClient = useQueryClient();
 
@@ -176,20 +181,31 @@ export const useJoinGroup = () =>
     mutationFn: (groupId: string) => joinGroup(groupId),
   });
 
+// 그룹 나가기
 export const useExitGroupSession = () => {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
-    mutationFn: (groupId: string) => exitGroupSession(groupId),
-    onSuccess: async (_, groupId) => {
-      await queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
-      await queryClient.refetchQueries({ queryKey: groupKeys.detail(groupId) });
-      await queryClient.invalidateQueries({ queryKey: groupKeys.my() });
-      
-      console.log("[useExitGroupSession] 쿼리 무효화 및 refetch 완료");
+    mutationFn: exitGroupSession,
+    onSuccess: (_, groupId) => {
+      // 세션을 나간 후에는 그룹 상세 정보를 다시 가져올 필요가 없으므로
+      // 쿼리를 제거하거나 무효화하되 refetch는 하지 않음
+      queryClient.removeQueries({
+        queryKey: groupKeys.detail(groupId),
+      });
+      // 내 그룹 목록은 업데이트 필요
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.my(),
+        refetchType: "none",
+      });
     },
     onError: (error, groupId) => {
-      console.error("[useExitGroupSession] 세션 나가기 실패:", error, "groupId:", groupId);
+      console.error(
+        "[useExitGroupSession] 세션 나가기 실패:",
+        error,
+        "groupId:",
+        groupId
+      );
     },
   });
 };
