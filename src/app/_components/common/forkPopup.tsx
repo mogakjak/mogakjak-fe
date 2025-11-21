@@ -29,12 +29,12 @@ export default function ForkPopup({
   className?: string;
 }) {
   const [selectedId, setSelectedId] = useState<string | undefined>(
-    defaultSelectedId,
+    defaultSelectedId
   );
 
   const selected = useMemo(
     () => groups.find((g) => g.id === selectedId),
-    [groups, selectedId],
+    [groups, selectedId]
   );
 
   const handleSelect = (g: ForkGroup) => setSelectedId(g.id);
@@ -44,19 +44,19 @@ export default function ForkPopup({
     <div
       className={clsx(
         "w-full max-w-[720px] px-8 py-7 bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)]",
-        className,
+        className
       )}
       role="dialog"
       aria-modal="true"
     >
       <header className="flex flex-col items-center text-center gap-4 pt-13">
-          <Image src="/Icons/fork.svg" alt="fork" width={40} height={40} />
+        <Image src="/Icons/fork.svg" alt="fork" width={40} height={40} />
         <div className="space-y-1">
           <h2 className="text-neutral-900 text-2xl font-semibold font-['Pretendard']">
             콕! 찌르기
           </h2>
           <p className="text-neutral-500 leading-relaxed font-['Pretendard']">
-            <span className="text-rose-500 font-semibold">{userName}</span>
+            <span className="text-red-400 font-semibold">{userName}</span>
             님을 참여할 방으로 초대하고,
             <br />
             모각작을 시작해 보세요!
@@ -66,7 +66,7 @@ export default function ForkPopup({
 
       <section className="mt-8 space-y-4">
         <h3 className="text-neutral-900 font-semibold font-['Pretendard']">
-          함께 몰입 중인 그룹 ({groups.length}개)
+          내가 참여 중인 그룹 ({groups.length}개)
         </h3>
 
         <ul className="space-y-3 max-h-[184px] overflow-y-auto pr-1">
@@ -83,11 +83,22 @@ export default function ForkPopup({
                     "bg-gray-100 cursor-pointer transition-colors",
                     "hover:bg-rose-50",
                     isSelected &&
-                      "bg-rose-50 outline-1 outline-offset-[-1px] outline-red-500",
+                      "bg-rose-50 outline-1 outline-offset-[-1px] outline-red-500"
                   )}
                   onClick={() => handleSelect(g)}
                 >
-                  <div className="w-14 h-14 bg-neutral-50 rounded-lg border border-gray-200" />
+                  <div className="relative w-14 h-14 bg-neutral-50 rounded-lg border border-gray-500 overflow-hidden">
+                    {g.avatarUrl ? (
+                      <Image
+                        src={g.avatarUrl}
+                        alt={g.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-neutral-50" />
+                    )}
+                  </div>
                   <div className="flex justify-start items-center gap-2 flex-1">
                     <div className="w-40 h-5 relative">
                       <div className="w-40 left-0 top-0 absolute text-neutral-900 text-base font-medium font-['Pretendard'] leading-6">
@@ -129,7 +140,7 @@ export default function ForkPopup({
             className="h-12 px-6 py-3 bg-red-500 rounded-2xl inline-flex justify-center items-center gap-2 w-full max-w-[380px]"
           >
             <span className="text-neutral-50 text-base font-semibold leading-6">
-              나도 모각작 참여하기
+              모각작 시작하기
             </span>
           </button>
         ) : (
@@ -139,7 +150,7 @@ export default function ForkPopup({
             className="h-12 px-6 py-3 bg-gray-200 rounded-2xl inline-flex justify-center items-center gap-2 w-full max-w-[380px]"
           >
             <span className="text-gray-400 text-base font-semibold leading-6">
-              나도 모각작 참여하기
+              모각작 시작하기
             </span>
           </button>
         )}

@@ -11,16 +11,20 @@ interface ProfileEditModalProps {
   onClose: () => void;
   initialNickname?: string;
   initialEmail?: string;
+  initialImageUrl?: string;
 }
 
 export default function ProfileEditModal({
   onClose,
   initialNickname = "",
   initialEmail = "",
+  initialImageUrl,
 }: ProfileEditModalProps) {
   const [name, setName] = useState(initialNickname);
   const [email, setEmail] = useState(initialEmail);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(
+    initialImageUrl || null
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { mutate: updateProfile, isPending } = useUpdateProfile();
@@ -86,16 +90,12 @@ export default function ProfileEditModal({
 
         <div className="relative mb-5">
           <label className="w-[120px] h-[120px] rounded-full border-2 border-gray-300 bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden">
-            {profileImage ? (
-              <Image
-                src={profileImage}
-                alt="프로필 이미지"
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <span className="text-gray-600">사진 선택</span>
-            )}
+            <Image
+              src={profileImage || "/profileDefault.svg"}
+              alt="기본 이미지"
+              fill
+              className="object-cover rounded-full"
+            />
             <input
               type="file"
               accept="image/*"

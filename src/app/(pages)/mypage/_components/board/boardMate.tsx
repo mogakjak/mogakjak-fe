@@ -82,6 +82,7 @@ export default function BoardMate() {
           onCountChange={setTotal}
           search={submittedSearch}
           isLoading={matesLoading}
+          groups={groups}
         />
         <PageNation
           page={page}

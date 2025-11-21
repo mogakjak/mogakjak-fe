@@ -9,6 +9,9 @@ import ReviewPopup from "../../../_components/group/review/reviewPopup";
 import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
+import InviteModal from "@/app/_components/home/room/inviteModal";
+import { useAuthState } from "@/app/api/auth/useAuthState";
+import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail, GroupMemberStatus } from "@/app/_types/groups";
@@ -21,9 +24,12 @@ type GroupPageProps = {
 
 export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
+  const [openInviteModal, setOpenInviteModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [memberStatuses, setMemberStatuses] = useState<Map<string, GroupMemberStatus>>(new Map());
-  
+  const [memberStatuses, setMemberStatuses] = useState<
+    Map<string, GroupMemberStatus>
+  >(new Map());
+
   // 초기 멤버 상태 설정
   useEffect(() => {
     const initialStatuses = new Map<string, GroupMemberStatus>();
@@ -47,7 +53,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     onUpdate: (update) => {
       setMemberStatuses((prev) => {
         const next = new Map(prev);
-        
+
         if (update.members) {
           // 전체 멤버 목록 업데이트
           update.members.forEach((member) => {
@@ -57,7 +63,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           // 단일 멤버 상태 업데이트
           next.set(update.updatedMember.userId, update.updatedMember);
         }
-        
+
         return next;
       });
     },
@@ -80,7 +86,25 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       };
     });
   }, [groupData.members, memberStatuses, groupData.groupId]);
+  const { token } = useAuthState();
 
+  // 현재 사용자 ID 가져오기
+  const currentUserId = useMemo(() => {
+    return getUserIdFromToken(token);
+  }, [token]);
+
+  // 현재 사용자를 맨 앞으로 정렬
+  const sortedMembers = useMemo(() => {
+    if (!currentUserId) return groupData.members;
+
+    return [...groupData.members].sort((a, b) => {
+      if (a.userId === currentUserId) return -1;
+      if (b.userId === currentUserId) return 1;
+      return 0;
+    });
+  }, [groupData.members, currentUserId]);
+
+  const groupMembers = sortedMembers;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -111,7 +135,10 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {displayMembers.length}/8
           </p>
-          <SidebarButton className="px-5 ">
+          <SidebarButton
+            className="px-5 cursor-pointer"
+            onClick={() => setOpenInviteModal(true)}
+          >
             <Icon Svg={Add} size={24} className="text-black" />
             그룹원 추가하기
           </SidebarButton>
@@ -130,7 +157,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
               {displayMembers.map((member) => {
                 const status = member.status;
                 const participationStatus = status.participationStatus;
-                
+
                 // 상태 매핑: PARTICIPATING -> "active", RESTING -> "rest", NOT_PARTICIPATING -> "end"
                 let displayStatus: "active" | "rest" | "end";
                 if (participationStatus === "PARTICIPATING") {
@@ -148,7 +175,10 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
 
                 // 최근 참여 일수
                 const lastActiveAt = status.daysSinceLastParticipation
-                  ? new Date(Date.now() - status.daysSinceLastParticipation * 24 * 60 * 60 * 1000)
+                  ? new Date(
+                      Date.now() -
+                        status.daysSinceLastParticipation * 24 * 60 * 60 * 1000
+                    )
                   : undefined;
 
                 return (
@@ -161,6 +191,8 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                     activeTime={activeTime}
                     task={status.todoTitle}
                     lastActiveAt={lastActiveAt}
+                    profileUrl={member.profileUrl}
+                    isCurrentUser={member.userId === currentUserId}
                   />
                 );
               })}
@@ -191,6 +223,20 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
               sessionId={sessionId || ""}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
+            />
+          </div>
+        </div>
+      )}
+
+      {openInviteModal && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenInviteModal(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <InviteModal
+              groupId={groupData.groupId}
+              onClose={() => setOpenInviteModal(false)}
             />
           </div>
         </div>

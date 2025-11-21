@@ -35,7 +35,9 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
     return null;
   });
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null
+  );
 
   const { categories } = useTodoCategoryController();
   const { createTodo, updateTodo } = useTodoController();
@@ -99,7 +101,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
       const mm = String(payload.date.getMonth() + 1).padStart(2, "0");
       const dd = String(payload.date.getDate()).padStart(2, "0");
       const formatted = `${yyyy}-${mm}-${dd}`;
-    
+
       const existingTodo = todayTodosList.find(
         (todo) => todo.task === payload.title
       );
@@ -124,12 +126,12 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           targetTimeInSeconds: payload.targetSeconds,
         });
       }
-    
+
       if (resultTodo) {
         if (typeof window !== "undefined") {
           localStorage.setItem("groupMySidebar_selectedTodoId", resultTodo.id);
         }
-        setSelectedTodoId(resultTodo.id); 
+        setSelectedTodoId(resultTodo.id);
         setCurrentTodo(resultTodo);
         const [year, month, day] = resultTodo.date.split("-").map(Number);
         setSelectedWork({
@@ -138,7 +140,7 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           date: new Date(year, month - 1, day),
           targetSeconds: resultTodo.targetTimeInSeconds,
         });
-        
+
         queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
           todo: {
             id: resultTodo.id,
@@ -147,12 +149,12 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           },
         });
       }
-      
+
       // 캐시 무효화 및 강제 refetch
       await queryClient.invalidateQueries({ queryKey: todoKeys.today() });
       await queryClient.invalidateQueries({ queryKey: todoKeys.my() });
       await refetchTodayTodos();
-      
+
       setModalOpen(false);
       setSelectedCategoryId(null);
     },
@@ -181,11 +183,15 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
                 setIsTaskOpen={setIsTaskOpen}
               />
             )}
-            <div className="flex flex-col gap-1 mt-2">
+            <div className="flex flex-col gap-1 mt-1">
               <div className="flex items-center">
                 <Icon Svg={Clock} size={24} className={"text-gray-400"} />
                 <h3 className="text-body2-14SB ml-1">
-                  {formatSeconds(todayTodo?.actualTimeInSeconds ?? currentTodo?.actualTimeInSeconds ?? 0)}
+                  {formatSeconds(
+                    todayTodo?.actualTimeInSeconds ??
+                      currentTodo?.actualTimeInSeconds ??
+                      0
+                  )}
                 </h3>
               </div>
               {state && (
@@ -228,9 +234,9 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
           <b className="text-black mr-2">목표시간</b>{" "}
           {formatSeconds(
             todayTodo?.targetTimeInSeconds ??
-            currentTodo?.targetTimeInSeconds ??
-            selectedWork?.targetSeconds ??
-            0
+              currentTodo?.targetTimeInSeconds ??
+              selectedWork?.targetSeconds ??
+              0
           )}
         </p>
         <p className="text-caption-12SB text-gray-600">

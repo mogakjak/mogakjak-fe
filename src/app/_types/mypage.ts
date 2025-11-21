@@ -33,6 +33,7 @@ export type CharacterCard = {
 export type CharacterBasket = {
   nickname: string;
   email: string;
+  imageUrl: string;
   totalTaskCount: number;
   totalFocusTime: string;
   mainCharacter: CharacterCard;

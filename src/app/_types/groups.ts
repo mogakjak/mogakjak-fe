@@ -10,6 +10,7 @@ export type Mate = {
   nickname: string;
   profileUrl: string;
   level: number;
+  groupName: string;
 };
 
 export type SortInfo = {

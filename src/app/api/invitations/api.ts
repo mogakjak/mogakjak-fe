@@ -1,7 +1,4 @@
-import type {
-  PendingInvitation,
-  InvitationUrl,
-} from "@/app/_types/invitations";
+import type { PendingInvitation } from "@/app/_types/invitations";
 
 const INVITATION_BASE = "/api/invitations";
 
@@ -57,10 +54,5 @@ export const postAcceptInvitation = (invitationId: string) =>
 
 export const postDeclineInvitation = (invitationId: string) =>
   request<unknown>(`/${invitationId}/decline`, {
-    method: "POST",
-  });
-
-export const postInvitationUrl = (groupId: string) =>
-  request<InvitationUrl>(`/invitation/${groupId}/url`, {
     method: "POST",
   });
