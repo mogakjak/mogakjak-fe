@@ -79,6 +79,7 @@ export type GroupMemberStatus = {
   daysSinceLastParticipation?: number;
   personalTimerSeconds?: number;
   todoTitle?: string;
+  cheerCount?: number;
 };
 
 // 알림
@@ -142,4 +143,12 @@ export type PokeNotification = {
   groupId: string;
   groupName: string;
   message: string;
+};
+
+export type CheerNotification = {
+  fromUserId: string;
+  fromUserNickname: string;
+  targetUserId: string;
+  groupId: string;
+  groupName: string;
 };

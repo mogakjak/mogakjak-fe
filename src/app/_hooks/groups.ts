@@ -21,6 +21,8 @@ import {
   updateGroup,
   getCommonGroups,
   sendPokeNotification,
+  sendCheer,
+  CheerRequest,
 } from "../api/groups/api";
 import {
   CreateGroupBody,
@@ -198,5 +200,18 @@ export const useCommonGroups = (targetUserId: string) => {
 export const usePoke = () => {
   return useMutation<unknown, unknown, PokeRequest>({
     mutationFn: (body: PokeRequest) => sendPokeNotification(body),
+  });
+};
+
+// 응원 보내기
+export const useSendCheer = (groupId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, unknown, CheerRequest>({
+    mutationFn: (body: CheerRequest) => sendCheer(groupId, body),
+    onSuccess: () => {
+      // 그룹 상세 정보 캐시 무효화 (응원 수 업데이트 반영)
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+    },
   });
 };
