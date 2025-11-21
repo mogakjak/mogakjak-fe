@@ -115,13 +115,15 @@ export default function ReviewPopup({
         content: etcText.trim(),
       });
 
-      // 그룹 세션에서 나가기
+      console.log("[ReviewPopup] 그룹 세션에서 나가기 시작, groupId:", groupId);
       await exitSession(groupId);
+      console.log("[ReviewPopup] 그룹 세션에서 나가기 완료");
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       onClose();
       onExitGroup();
     } catch (e) {
-      console.error(e);
+      console.error("[ReviewPopup] 세션 나가기 실패:", e);
     }
   };
 

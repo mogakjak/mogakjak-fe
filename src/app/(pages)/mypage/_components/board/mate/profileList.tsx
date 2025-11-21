@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
 import { Mate } from "@/app/_types/groups";
 import ForkPopup from "@/app/_components/common/forkPopup";
 import { useCommonGroups, usePoke } from "@/app/_hooks/groups";
-
-type UniqueProfile = {
-  profile: Mate;
-  groupNames: string[];
-};
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -31,7 +26,6 @@ export default function ProfileList({
 }: ProfileListProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-
   const { data: commonGroups = [], isLoading: isLoadingGroups } =
     useCommonGroups(selectedUserId || "");
   const pokeMutation = usePoke();
@@ -44,29 +38,6 @@ export default function ProfileList({
     setSelectedUserId(userId);
     setShowModal(true);
   };
-
-  // 중복된 userId를 가진 프로필들을 그룹화
-  const uniqueProfiles = useMemo<UniqueProfile[]>(() => {
-    const profileMap = new Map<string, UniqueProfile>();
-
-    profiles.forEach((profile) => {
-      const existing = profileMap.get(profile.userId);
-      if (existing) {
-        // 이미 존재하는 경우 그룹 이름만 추가 (중복 제거)
-        if (!existing.groupNames.includes(profile.groupName)) {
-          existing.groupNames.push(profile.groupName);
-        }
-      } else {
-        // 새로운 프로필인 경우 추가
-        profileMap.set(profile.userId, {
-          profile,
-          groupNames: [profile.groupName],
-        });
-      }
-    });
-
-    return Array.from(profileMap.values());
-  }, [profiles]);
 
   const handleJoinGroup = (groupId: string) => {
     if (!selectedUserId) return;
@@ -124,7 +95,7 @@ export default function ProfileList({
 
   return (
     <div className="flex flex-col h-[552px] mb-1 ">
-      {uniqueProfiles.map(({ profile, groupNames }) => (
+      {profiles.map((profile) => (
         <div
           key={profile.userId}
           className="flex items-center border-b border-gray-200 px-5 py-3"
@@ -142,10 +113,10 @@ export default function ProfileList({
           <div className="w-px h-5 bg-black m-2" />
           <div className="text-gray-500 text-body1-16R flex">
             <div className="w-[200px] truncate">
-              {groupNames.map((name, idx) => (
+              {profile.groupNames.map((name, idx) => (
                 <span key={idx}>
                   {name}
-                  {idx < groupNames.length - 1 && (
+                  {idx < profile.groupNames.length - 1 && (
                     <span className="mx-1">,</span>
                   )}
                 </span>
@@ -180,9 +151,8 @@ export default function ProfileList({
             ) : (
               <ForkPopup
                 userName={
-                  uniqueProfiles.find(
-                    (p) => p.profile.userId === selectedUserId
-                  )?.profile.nickname || ""
+                  profiles.find((p) => p.userId === selectedUserId)?.nickname ||
+                  ""
                 }
                 groups={commonGroups}
                 onJoin={handleJoinGroup}

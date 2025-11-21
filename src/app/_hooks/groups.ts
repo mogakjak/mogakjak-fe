@@ -181,8 +181,15 @@ export const useExitGroupSession = () => {
 
   return useMutation<void, Error, string>({
     mutationFn: (groupId: string) => exitGroupSession(groupId),
-    onSuccess: (_, groupId) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+    onSuccess: async (_, groupId) => {
+      await queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+      await queryClient.refetchQueries({ queryKey: groupKeys.detail(groupId) });
+      await queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+      
+      console.log("[useExitGroupSession] 쿼리 무효화 및 refetch 완료");
+    },
+    onError: (error, groupId) => {
+      console.error("[useExitGroupSession] 세션 나가기 실패:", error, "groupId:", groupId);
     },
   });
 };

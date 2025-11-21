@@ -11,13 +11,13 @@ import { useGlobalFocusNotifications } from "@/app/_hooks/useGlobalFocusNotifica
 import { useTimerCompletionNotification } from "@/app/_hooks/useTimerCompletionNotification";
 import { usePokeNotification } from "@/app/_hooks/usePokeNotification";
 import { useCheerNotification } from "@/app/_hooks/useCheerNotification";
-import type { CheerNotification } from "@/app/_types/groups";
 import { useBrowserNotification } from "@/app/_hooks/useBrowserNotification";
 import TimerCompletionModal from "./timerCompletionModal";
 import PokeNotificationModal from "./pokeNotificationModal";
+import CheerNotificationModal from "./cheerNotificationModal";
 import type { FocusNotificationMessage } from "@/app/_hooks/useFocusNotification";
 import type { TimerCompletionNotification } from "@/app/_hooks/useTimerCompletionNotification";
-import type { PokeNotification } from "@/app/_types/groups";
+import type { PokeNotification, CheerNotification } from "@/app/_types/groups";
 
 type NotificationContextType = {
   showNotification: (message: FocusNotificationMessage) => void;
@@ -50,6 +50,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     useState<TimerCompletionNotification | null>(null);
   const [pokeNotification, setPokeNotification] =
     useState<PokeNotification | null>(null);
+  const [cheerNotification, setCheerNotification] =
+    useState<CheerNotification | null>(null);
 
   const handleFocusNotification = useCallback(
     (message: FocusNotificationMessage) => {
@@ -174,42 +176,41 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleCheerNotification = useCallback(
     (notification: CheerNotification) => {
-      console.log("[NotificationProvider] ===== 응원 알림 수신 ===== ");
-      console.log("[NotificationProvider] 응원 알림 데이터:", notification);
-      console.log("[NotificationProvider] 현재 권한 상태:", permission);
-      console.log("[NotificationProvider] isSupported:", isSupported);
-      
-      const title = `💪🏻 ${notification.fromUserNickname}님이 응원을 보내셨어요!`;
-      console.log("[NotificationProvider] 알림 제목:", title);
+      // 모달 표시
+      setCheerNotification(notification);
+
+      // 브라우저 알림도 표시 (선택사항)
+      const title = `${notification.fromUserNickname}님이 응원을 보냈어요!`;
+      const body = notification.message;
 
       if (permission === "granted") {
-        console.log("[NotificationProvider] 권한 granted - 브라우저 알림 표시 시도");
-        const result = showBrowserNotification(title, {
-          icon: "/chorme/cheerupIcon.png",
-          badge: "/chorme/cheerupIcon.png",
-          tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
+        showBrowserNotification(title, {
+          body: body,
+          icon: "/chorme/notificationIcon.png",
+          badge: "/chorme/notificationIcon.png",
+          tag: `cheer-notification-${notification.groupId}`,
         });
-        console.log("[NotificationProvider] showBrowserNotification 결과:", result);
       } else if (permission === "default") {
-        console.log("[NotificationProvider] 권한 default - 권한 요청 후 알림 표시");
         requestPermission().then((granted) => {
-          console.log("[NotificationProvider] 권한 요청 결과:", granted);
           if (granted) {
-            const result = showBrowserNotification(title, {
-              icon: "/chorme/cheerupIcon.png",
-              badge: "/chorme/cheerupIcon.png",
-              tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
+            showBrowserNotification(title, {
+              body: body,
+              icon: "/chorme/notificationIcon.png",
+              badge: "/chorme/notificationIcon.png",
+              tag: `cheer-notification-${notification.groupId}`,
             });
-            console.log("[NotificationProvider] showBrowserNotification 결과:", result);
           }
         });
-      } else {
-        console.warn("[NotificationProvider] 권한 denied - 알림을 표시할 수 없음");
       }
-      console.log("[NotificationProvider] ===== 응원 알림 처리 완료 ===== ");
     },
-    [permission, requestPermission, showBrowserNotification, isSupported]
+    [permission, requestPermission, showBrowserNotification]
   );
+
+  const handleCloseCheerNotificationModal = useCallback(() => {
+    setCheerNotification(null);
+  }, []);
+
+  // 집중 체크 알림 구독
   useGlobalFocusNotifications(handleFocusNotification);
   useTimerCompletionNotification({
     enabled: true,
@@ -222,13 +223,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   });
 
   // 응원 알림 구독
-  console.log("[NotificationProvider] useCheerNotification 호출 준비");
   useCheerNotification({
     enabled: true,
-    onNotification: (notification) => {
-      console.log("[NotificationProvider] useCheerNotification의 onNotification 콜백 호출됨");
-      handleCheerNotification(notification);
-    },
+    onNotification: handleCheerNotification,
   });
 
   return (
@@ -251,6 +248,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         <PokeNotificationModal
           notification={pokeNotification}
           onClose={handleClosePokeNotificationModal}
+        />
+      )}
+      {cheerNotification && (
+        <CheerNotificationModal
+          notification={cheerNotification}
+          onClose={handleCloseCheerNotificationModal}
         />
       )}
     </NotificationContext.Provider>

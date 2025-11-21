@@ -31,21 +31,42 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     Map<string, GroupMemberStatus>
   >(new Map());
 
-  // 초기 멤버 상태 설정
+  // 초기 멤버 상태 설정 및 groupData 변경 시 업데이트
   useEffect(() => {
-    const initialStatuses = new Map<string, GroupMemberStatus>();
-    groupData.members.forEach((member) => {
-      initialStatuses.set(member.userId, {
-        groupId: groupData.groupId,
-        userId: member.userId,
-        nickname: member.nickname,
-        profileUrl: member.profileUrl,
-        level: member.level || 1,
-        participationStatus: "NOT_PARTICIPATING",
-        cheerCount: 0,
+    console.log("[GroupPage] groupData 변경됨, members:", groupData.members.length);
+    
+    setMemberStatuses((prev) => {
+      const next = new Map(prev);
+      const currentMemberIds = new Set(groupData.members.map(m => m.userId));
+      
+      // groupData의 멤버들을 업데이트 (기존 상태 유지)
+      groupData.members.forEach((member) => {
+        const existingStatus = next.get(member.userId);
+        next.set(member.userId, {
+          groupId: groupData.groupId,
+          userId: member.userId,
+          nickname: member.nickname,
+          profileUrl: member.profileUrl,
+          level: member.level || 1,
+          // 기존 상태가 있으면 유지, 없으면 NOT_PARTICIPATING
+          participationStatus: existingStatus?.participationStatus || "NOT_PARTICIPATING",
+          cheerCount: existingStatus?.cheerCount || 0,
+          enteredAt: existingStatus?.enteredAt,
+          personalTimerSeconds: existingStatus?.personalTimerSeconds,
+          todoTitle: existingStatus?.todoTitle,
+        });
       });
+      
+      // groupData에 없는 멤버는 제거
+      Array.from(next.keys()).forEach((userId) => {
+        if (!currentMemberIds.has(userId)) {
+          next.delete(userId);
+        }
+      });
+      
+      console.log("[GroupPage] memberStatuses 업데이트 완료, 현재 멤버 수:", next.size);
+      return next;
     });
-    setMemberStatuses(initialStatuses);
   }, [groupData.groupId, groupData.members]);
 
   // 웹소켓으로 그룹 멤버 상태 구독
@@ -53,19 +74,23 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     groupId: groupData.groupId,
     enabled: true,
     onUpdate: (update) => {
+      console.log("[GroupPage] 웹소켓 멤버 상태 업데이트 수신:", update);
       setMemberStatuses((prev) => {
         const next = new Map(prev);
 
         if (update.members) {
           // 전체 멤버 목록 업데이트
+          console.log("[GroupPage] 전체 멤버 목록 업데이트:", update.members.length);
           update.members.forEach((member) => {
             next.set(member.userId, member);
           });
         } else if (update.updatedMember) {
           // 단일 멤버 상태 업데이트
+          console.log("[GroupPage] 단일 멤버 상태 업데이트:", update.updatedMember.userId, update.updatedMember.participationStatus);
           next.set(update.updatedMember.userId, update.updatedMember);
         }
 
+        console.log("[GroupPage] 업데이트 후 memberStatuses:", Array.from(next.values()).map(m => ({ userId: m.userId, status: m.participationStatus })));
         return next;
       });
     },
@@ -132,7 +157,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     };
   }, [openReview]);
   return (
-    <div className="flex flex-col items-center w-full justify-between">
+    <div className="flex flex-col items-center w-full justify-between ">
       <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
@@ -144,7 +169,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <GroupGoal data={groupData}></GroupGoal>
       </div>
 
-      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px]">
+      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px] mt-4">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {displayMembers.length}/8
