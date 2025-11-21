@@ -151,4 +151,5 @@ export type CheerNotification = {
   targetUserId: string;
   groupId: string;
   groupName: string;
+  message: string;
 };
