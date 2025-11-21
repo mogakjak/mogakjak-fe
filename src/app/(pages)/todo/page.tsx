@@ -219,7 +219,7 @@ export default function TodoPage() {
   );
 
   return (
-    <div className="w-full max-w-[1440px] min-h-[calc(100vh-97px)] pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
+    <div className="w-full max-w-[1440px] min-h-[calc(100vh-110px)] pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
       <section className="flex flex-col gap-5 self-stretch">
         <CategorySidebar
           filter={filter}
