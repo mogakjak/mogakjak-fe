@@ -17,59 +17,50 @@ export async function generateMetadata({
 }: InvitePageProps): Promise<Metadata> {
   const { groupid } = await params;
 
+  let title = DEFAULT_METADATA.title;
+  let description = DEFAULT_METADATA.description;
+  let imageUrl = DEFAULT_METADATA.imageUrl;
+  let groupName = "모각작";
+  let inviterName = "모각작 멤버";
+
   try {
     const groupData = await getGroupDetailServer(groupid);
-    const inviter = groupData.members?.[0];
-    const inviterName = inviter?.nickname || "모각작 멤버";
-    const groupName = groupData.name || "모각작";
-    const title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
-    const description =
-      "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
-    const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
+    if (groupData) {
+      const inviter = groupData.members?.[0];
+      inviterName = inviter?.nickname || "모각작 멤버";
+      groupName = groupData.name || "모각작";
+      title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
+      description =
+        "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
+      imageUrl = groupData.imageUrl || DEFAULT_METADATA.imageUrl;
+    }
+  } catch (error) {
+    // 에러가 발생해도 기본 메타데이터 사용
+    console.error("그룹 정보 가져오기 실패:", error);
+  }
 
-    return {
+  const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
       title,
       description,
-      openGraph: {
-        title,
-        description,
-        url,
-        siteName: "모각작",
-        images: [
-          {
-            url: groupData.imageUrl || DEFAULT_METADATA.imageUrl,
-            width: 1200,
-            height: 630,
-            alt: `${groupName} 초대`,
-          },
-        ],
-        locale: "ko_KR",
-        type: "website",
-      },
-    };
-  } catch (error) {
-    console.error("그룹 정보 가져오기 실패:", error);
-    return {
-      title: DEFAULT_METADATA.title,
-      description: DEFAULT_METADATA.description,
-      openGraph: {
-        title: DEFAULT_METADATA.title,
-        description: DEFAULT_METADATA.description,
-        url: `https://mogakjak-fe.vercel.app/invite/${groupid}`,
-        siteName: "모각작",
-        images: [
-          {
-            url: DEFAULT_METADATA.imageUrl,
-            width: 1200,
-            height: 630,
-            alt: "모각작 초대",
-          },
-        ],
-        locale: "ko_KR",
-        type: "website",
-      },
-    };
-  }
+      url,
+      siteName: "모각작",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${groupName} 초대`,
+        },
+      ],
+      locale: "ko_KR",
+      type: "website",
+    },
+  };
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
