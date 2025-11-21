@@ -12,7 +12,7 @@ type InvitePageProps = {
 };
 
 const DEFAULT_METADATA = {
-  title: "모각작 초대",
+  title: "몰입이 쉬워지는 곳, 모각작에 초대해요 💌",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
   imageUrl: "https://mogakjak-fe.vercel.app/thumbnailInvite.png",
 };
