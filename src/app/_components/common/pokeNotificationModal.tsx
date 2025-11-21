@@ -37,20 +37,20 @@ export default function PokeNotificationModal({
           <p className="text-body1-16R text-gray-600">{notification.message}</p>
         </div>
 
-        <div className="px-7 pb-7 flex gap-3">
+        <div className="px-7 pb-7 flex gap-2">
           <Button
             onClick={onClose}
             leftIcon={null}
-            className="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300"
+            className="flex-1 bg-gray-200  hover:bg-gray-300"
+            variant="secondary"
           >
             닫기
           </Button>
           <Button onClick={handleJoinGroup} leftIcon={null} className="flex-1">
-            그룹 참여하기
+            참여하기
           </Button>
         </div>
       </div>
     </div>
   );
 }
-

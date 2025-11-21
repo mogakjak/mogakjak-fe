@@ -77,12 +77,10 @@ export default function BoardMate() {
         <ProfileList
           profiles={profiles}
           totalCount={totalCount}
-          page={page}
           pageSize={pageSize}
           onCountChange={setTotal}
           search={submittedSearch}
           isLoading={matesLoading}
-          groups={groups}
         />
         <PageNation
           page={page}

@@ -15,8 +15,6 @@ type UniqueProfile = {
 interface ProfileListProps {
   profiles: Mate[];
   totalCount: number;
-  groupName?: string;
-  page?: number;
   pageSize?: number;
   onCountChange?: (n: number) => void;
   search?: string;
@@ -26,13 +24,10 @@ interface ProfileListProps {
 export default function ProfileList({
   profiles,
   totalCount,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  page = 1,
   pageSize = 6,
   onCountChange,
   search = "",
   isLoading = false,
-  groupName,
 }: ProfileListProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
