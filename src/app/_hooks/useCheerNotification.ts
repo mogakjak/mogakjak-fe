@@ -66,20 +66,24 @@ export function useCheerNotification({
   }, [onNotification]);
 
   const handleNotification = useCallback((message: IMessage) => {
-    console.log("[CheerNotification] 메시지 수신됨:", {
+    console.log("[CheerNotification] ========== 메시지 수신됨! ==========");
+    console.log("[CheerNotification] 메시지 전체:", {
       body: message.body,
       headers: message.headers,
       command: message.command,
     });
     try {
       const notification: CheerNotification = JSON.parse(message.body);
-      console.log("[CheerNotification] 응원 알림 파싱 성공:", notification);
+      console.log("[CheerNotification] ✅ 응원 알림 파싱 성공:", notification);
+      console.log("[CheerNotification] fromUserNickname:", notification.fromUserNickname);
+      console.log("[CheerNotification] onNotificationRef.current 존재:", !!onNotificationRef.current);
       console.log("[CheerNotification] onNotificationRef.current 호출 시도");
       onNotificationRef.current?.(notification);
-      console.log("[CheerNotification] onNotificationRef.current 호출 완료");
+      console.log("[CheerNotification] ✅ onNotificationRef.current 호출 완료");
     } catch (error) {
-      console.error("[CheerNotification] 메시지 파싱 실패:", error, "body:", message.body);
+      console.error("[CheerNotification] ❌ 메시지 파싱 실패:", error, "body:", message.body);
     }
+    console.log("[CheerNotification] =====================================");
   }, []);
 
   const disconnect = useCallback(() => {
@@ -155,13 +159,17 @@ export function useCheerNotification({
 
         const subscription = clientRef.current?.subscribe(
           topic,
-          handleNotification
+          (message) => {
+            console.log("[CheerNotification] 🔔 구독된 핸들러가 호출됨!");
+            handleNotification(message);
+          }
         );
 
         if (subscription) {
-          console.log("[CheerNotification] 응원 알림 구독 완료:", topic);
+          console.log("[CheerNotification] ✅ 응원 알림 구독 완료:", topic);
+          console.log("[CheerNotification] subscription 객체:", subscription);
         } else {
-          console.error("[CheerNotification] 구독 실패 - subscription이 null");
+          console.error("[CheerNotification] ❌ 구독 실패 - subscription이 null");
         }
       },
       onStompError: (frame) => {
