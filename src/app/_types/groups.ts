@@ -79,6 +79,7 @@ export type GroupMemberStatus = {
   daysSinceLastParticipation?: number;
   personalTimerSeconds?: number;
   todoTitle?: string;
+  cheerCount?: number;
 };
 
 // 알림

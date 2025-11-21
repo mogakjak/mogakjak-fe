@@ -149,3 +149,14 @@ export const sendPokeNotification = (body: PokeRequest) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+
+// 응원 보내기
+export type CheerRequest = {
+  targetUserId: string;
+};
+
+export const sendCheer = (groupId: string, body: CheerRequest) =>
+  request<unknown>(`/${groupId}/cheer`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
