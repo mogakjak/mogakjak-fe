@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { getGroupDetailServer } from "@/app/api/groups/serverApi";
 import InvitePageClient from "./InvitePageClient";
+import { Metadata } from "next";
 
 type InvitePageProps = {
   params: Promise<{ groupid: string }>;
@@ -12,42 +12,6 @@ const DEFAULT_METADATA = {
   imageUrl: "https://mogakjak-fe.vercel.app/thumbnail.png",
 };
 
-function buildInviteMetadata(
-  inviterName: string,
-  groupName: string,
-  groupid: string,
-  imageUrl?: string
-): Metadata {
-  const title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
-  const description =
-    "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
-  const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
-  console.log(title);
-  console.log(description);
-  console.log(url);
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "모각작",
-      images: [
-        {
-          url: imageUrl || DEFAULT_METADATA.imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${groupName} 초대`,
-        },
-      ],
-      locale: "ko_KR",
-      type: "website",
-    },
-  };
-}
-
 export async function generateMetadata({
   params,
 }: InvitePageProps): Promise<Metadata> {
@@ -58,13 +22,31 @@ export async function generateMetadata({
     const inviter = groupData.members?.[0];
     const inviterName = inviter?.nickname || "모각작 멤버";
     const groupName = groupData.name || "모각작";
+    const title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
+    const description =
+      "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
+    const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
 
-    return buildInviteMetadata(
-      inviterName,
-      groupName,
-      groupid,
-      groupData.imageUrl
-    );
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        url,
+        siteName: "모각작",
+        images: [
+          {
+            url: groupData.imageUrl || DEFAULT_METADATA.imageUrl,
+            width: 1200,
+            height: 630,
+            alt: `${groupName} 초대`,
+          },
+        ],
+        locale: "ko_KR",
+        type: "website",
+      },
+    };
   } catch (error) {
     console.error("그룹 정보 가져오기 실패:", error);
     return {
