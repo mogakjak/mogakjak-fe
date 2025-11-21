@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import {
   createGroup,
+  exitGroupSession,
   getGroupDetail,
   getMates,
   GetMatesParams,
@@ -168,3 +169,14 @@ export const useJoinGroup = () =>
   useMutation<void, Error, string>({
     mutationFn: (groupId: string) => joinGroup(groupId),
   });
+
+export const useExitGroupSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: (groupId: string) => exitGroupSession(groupId),
+    onSuccess: (_, groupId) => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+    },
+  });
+};

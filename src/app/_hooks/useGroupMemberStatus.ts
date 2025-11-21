@@ -137,7 +137,7 @@ export function useGroupMemberStatus({
       },
       // STOMP CONNECT 프레임에 Authorization 헤더 포함
       connectHeaders,
-      debug: (str) => {
+      debug: () => {
         // 디버그 로그는 필요시에만 활성화
         // console.log("[WebSocket Debug]", str);
       },
@@ -196,4 +196,3 @@ export function useGroupMemberStatus({
     disconnect,
   };
 }
-

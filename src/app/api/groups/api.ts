@@ -128,3 +128,9 @@ export const joinGroup = (groupId: string) =>
   request<void>(`/${groupId}/join`, {
     method: "POST",
   });
+
+// 그룹 세션에서 나가기
+export const exitGroupSession = (groupId: string) =>
+  request<void>(`/${groupId}/session/me`, {
+    method: "DELETE",
+  });

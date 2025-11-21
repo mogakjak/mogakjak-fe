@@ -56,6 +56,8 @@ export default function GroupTimer({
 
       const session = await startGroupTimerMutation.mutateAsync({
         targetSeconds: 3600,
+        participationType: "GROUP",
+        groupId,
       });
       setSessionId(session.sessionId);
       onSessionIdChange?.(session.sessionId);

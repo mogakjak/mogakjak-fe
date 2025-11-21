@@ -69,9 +69,16 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     },
   });
 
-  // 멤버 상태를 기반으로 표시할 멤버 목록 생성
+  const { token } = useAuthState();
+
+  // 현재 사용자 ID 가져오기
+  const currentUserId = useMemo(() => {
+    return getUserIdFromToken(token);
+  }, [token]);
+
+  // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
   const displayMembers = useMemo(() => {
-    return groupData.members.map((member) => {
+    const membersWithStatus = groupData.members.map((member) => {
       const status = memberStatuses.get(member.userId);
       return {
         ...member,
@@ -85,26 +92,17 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         },
       };
     });
-  }, [groupData.members, memberStatuses, groupData.groupId]);
-  const { token } = useAuthState();
 
-  // 현재 사용자 ID 가져오기
-  const currentUserId = useMemo(() => {
-    return getUserIdFromToken(token);
-  }, [token]);
+    // 현재 사용자를 맨 앞으로 정렬
+    if (!currentUserId) return membersWithStatus;
 
-  // 현재 사용자를 맨 앞으로 정렬
-  const sortedMembers = useMemo(() => {
-    if (!currentUserId) return groupData.members;
-
-    return [...groupData.members].sort((a, b) => {
+    return [...membersWithStatus].sort((a, b) => {
       if (a.userId === currentUserId) return -1;
       if (b.userId === currentUserId) return 1;
       return 0;
     });
-  }, [groupData.members, currentUserId]);
+  }, [groupData.members, memberStatuses, groupData.groupId, currentUserId]);
 
-  const groupMembers = sortedMembers;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -221,6 +219,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             <ReviewPopup
               groupName={groupData.name}
               sessionId={sessionId || ""}
+              groupId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={onExitGroup}
             />

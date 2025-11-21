@@ -14,18 +14,21 @@ import { useTimer } from "@/app/_contexts/TimerContext";
 
 type PreviewMainProps = {
   state: boolean;
+  groupId?: string;
 };
 
-export default function PreviewMain({ state }: PreviewMainProps) {
+export default function PreviewMain({ state, groupId }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
   const queryClient = useQueryClient();
-  const { data: todayTodos = [], isFetched: isTodayTodosFetched } = useTodayTodos();
+  const { data: todayTodos = [], isFetched: isTodayTodosFetched } =
+    useTodayTodos();
   const { setHasSelectedTodo } = useTimer();
-  
-  const savedTodoId = typeof window !== "undefined" 
-    ? localStorage.getItem("groupMySidebar_selectedTodoId")
-    : null;
-  
+
+  const savedTodoId =
+    typeof window !== "undefined"
+      ? localStorage.getItem("groupMySidebar_selectedTodoId")
+      : null;
+
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
     if (!isTodayTodosFetched) return savedTodoId;
@@ -33,17 +36,17 @@ export default function PreviewMain({ state }: PreviewMainProps) {
       const found = category.todos.find((todo) => todo.id === savedTodoId);
       if (found) return savedTodoId;
     }
-    
+
     if (typeof window !== "undefined") {
       localStorage.removeItem("groupMySidebar_selectedTodoId");
     }
     return null;
   }, [savedTodoId, todayTodos, isTodayTodosFetched]);
-  
-  const currentSession = validTodoId 
+
+  const currentSession = validTodoId
     ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId))
     : queryClient.getQueryData<PomodoroSession>(timerKeys.current());
-  
+
   const todoId = currentSession?.todo?.id ?? validTodoId;
 
   useEffect(() => {
@@ -75,7 +78,7 @@ export default function PreviewMain({ state }: PreviewMainProps) {
         </>
       )}
 
-      <TimerComponent todoId={todoId} />
+      <TimerComponent todoId={todoId} groupId={groupId} />
     </div>
   );
 }
