@@ -5,6 +5,7 @@ interface CharacterProps {
   level: number;
   name: string;
   description: string;
+  imageUrl?: string;
   locked?: boolean;
 }
 
@@ -13,6 +14,7 @@ export default function Character({
   level,
   name,
   description,
+  imageUrl,
   locked = false,
 }: CharacterProps) {
   return (
@@ -21,8 +23,8 @@ export default function Character({
         <div className="flex flex-col items-center">
           <p className="text-body1-16SB">{`Lv.${level} ${name}`}</p>
           <Image
-            src={`/character/level${level}.svg`}
-            alt={`${name} 캐릭터`}
+            src={imageUrl || `/character/level${level}.svg`}
+            alt={name}
             width={100}
             height={100}
             className="object-contain"
