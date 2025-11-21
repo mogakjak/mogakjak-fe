@@ -64,7 +64,7 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  htmlLimitedBots: /.*/,
+  htmlLimitedBots: /(kakaotalk|facebookexternalhit|twitterbot|slackbot)/i,
 };
 
 export default nextConfig;
