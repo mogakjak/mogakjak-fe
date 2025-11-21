@@ -3,7 +3,7 @@ import { getGroupDetailServer } from "@/app/api/groups/serverApi";
 import InvitePageClient from "./InvitePageClient";
 
 type InvitePageProps = {
-  params: Promise<{ groupid: string }>;
+  params: { groupid: string };
 };
 
 const DEFAULT_METADATA = {
@@ -48,7 +48,7 @@ function buildInviteMetadata(
 export async function generateMetadata({
   params,
 }: InvitePageProps): Promise<Metadata> {
-  const { groupid } = await params;
+  const { groupid } = params;
 
   try {
     const groupData = await getGroupDetailServer(groupid);
@@ -64,15 +64,30 @@ export async function generateMetadata({
     );
   } catch (error) {
     console.error("그룹 정보 가져오기 실패:", error);
-    return buildInviteMetadata(
-      DEFAULT_METADATA.title,
-      DEFAULT_METADATA.title,
-      groupid
-    );
+    return {
+      title: DEFAULT_METADATA.title,
+      description: DEFAULT_METADATA.description,
+      openGraph: {
+        title: DEFAULT_METADATA.title,
+        description: DEFAULT_METADATA.description,
+        url: `https://mogakjak-fe.vercel.app/invite/${groupid}`,
+        siteName: "모각작",
+        images: [
+          {
+            url: DEFAULT_METADATA.imageUrl,
+            width: 1200,
+            height: 630,
+            alt: "모각작 초대",
+          },
+        ],
+        locale: "ko_KR",
+        type: "website",
+      },
+    };
   }
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const { groupid } = await params;
+  const { groupid } = params;
   return <InvitePageClient groupid={groupid} />;
 }

@@ -41,7 +41,9 @@ async function requestServer<T>(
     throw new Error(`HTTP ${res.status}`);
   }
 
-  const json = (await res.json().catch(() => undefined)) as
+  const json = (await res.json().catch(() => {
+    throw new Error("Failed to parse JSON response");
+  })) as
     | { statusCode?: number; message?: string; data?: unknown }
     | undefined;
 
