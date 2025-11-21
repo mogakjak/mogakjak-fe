@@ -163,6 +163,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer
             groupId={groupData.groupId}
+            initialAccumulatedDuration={groupData.accumulatedDuration || 0}
             onSessionIdChange={setSessionId}
           />
         </div>

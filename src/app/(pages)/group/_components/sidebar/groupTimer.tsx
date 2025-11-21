@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useStopwatch } from "react-timer-hook";
 import Icon from "../../../../_components/common/Icons";
 import {
@@ -9,6 +9,7 @@ import {
   useResumeGroupTimer,
   useFinishGroupTimer,
 } from "@/app/_hooks/timers";
+import { useGroupTimer, GroupTimerEvent } from "@/app/_hooks/useGroupTimer";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -20,23 +21,48 @@ type Status = "idle" | "running" | "paused";
 
 interface GroupTimerProps {
   groupId: string;
+  initialAccumulatedDuration?: number; // 초기 누적 시간 (초 단위)
   onSessionIdChange?: (sessionId: string | null) => void;
 }
 
 export default function GroupTimer({
   groupId,
+  initialAccumulatedDuration = 0,
   onSessionIdChange,
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] = useState(0); // 현재 세션의 총 시간
+  const [accumulatedDuration, setAccumulatedDuration] = useState(initialAccumulatedDuration); // 서버에서 받은 그룹 누적 시간
+  const [targetDuration, setTargetDuration] = useState<number | null>(null);
+  const [serverTimeOffset, setServerTimeOffset] = useState<number>(0); // 서버와 클라이언트 시간 차이
 
   const stopwatch = useStopwatch({ autoStart: false });
 
-  const elapsedSeconds = useMemo(
-    () => stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds,
-    [stopwatch.hours, stopwatch.minutes, stopwatch.seconds]
-  );
+  // 초기 누적 시간이 변경되면 업데이트 (그룹 상세 정보가 로드된 후)
+  useEffect(() => {
+    setAccumulatedDuration(initialAccumulatedDuration);
+  }, [initialAccumulatedDuration]);
+
+  // 서버 시간과 동기화된 경과 시간 계산 (현재 세션의 경과 시간)
+  const elapsedSeconds = useMemo(() => {
+    // RUNNING 상태이고 세션이 있으면 서버의 totalDuration 사용
+    // SYNC 이벤트로 10초마다 업데이트됨
+    if (status === "running" && sessionId) {
+      return currentSessionTotalSeconds;
+    }
+    // PAUSED 상태이거나 세션이 있으면 currentSessionTotalSeconds 사용
+    if (sessionId) {
+      return currentSessionTotalSeconds;
+    }
+    // 로컬 stopwatch 시간 (시작 전)
+    return stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds;
+  }, [status, sessionId, currentSessionTotalSeconds, stopwatch.hours, stopwatch.minutes, stopwatch.seconds]);
+  
+  // 전체 누적 시간 (서버에서 받은 누적 시간 + 현재 세션 시간)
+  const totalSeconds = useMemo(() => {
+    return accumulatedDuration + elapsedSeconds;
+  }, [accumulatedDuration, elapsedSeconds]);
 
   const startGroupTimerMutation = useStartGroupTimer(groupId);
   const pauseGroupTimerMutation = usePauseGroupTimer(groupId, sessionId || "");
@@ -49,6 +75,124 @@ export default function GroupTimer({
     sessionId || ""
   );
 
+  // 그룹 타이머 WebSocket 이벤트 구독
+  useGroupTimer({
+    groupId,
+    enabled: true,
+    onEvent: (event: GroupTimerEvent) => {
+      console.log("[GroupTimer] 이벤트 수신:", event);
+      
+      switch (event.eventType) {
+        case "START":
+          // 다른 사용자가 시작한 타이머도 처리
+          setSessionId(event.sessionId);
+          onSessionIdChange?.(event.sessionId);
+          setTargetDuration(event.targetDuration || null);
+          setCurrentSessionTotalSeconds(event.totalDuration || 0);
+          // 서버에서 받은 누적 시간 설정
+          if (event.accumulatedDuration !== undefined) {
+            setAccumulatedDuration(event.accumulatedDuration);
+          }
+          // 서버 시간과 클라이언트 시간 차이 계산
+          if (event.serverTime) {
+            const serverTime = new Date(event.serverTime).getTime();
+            const clientTime = Date.now();
+            setServerTimeOffset(serverTime - clientTime);
+          }
+          stopwatch.start();
+          setStatus("running");
+          break;
+          
+        case "PAUSE":
+          // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
+          if (!sessionId || event.sessionId === sessionId) {
+            setSessionId(event.sessionId);
+            stopwatch.pause();
+            setStatus("paused");
+            // 서버에서 전달된 totalDuration으로 업데이트 (현재 세션의 총 시간)
+            if (event.totalDuration !== undefined) {
+              setCurrentSessionTotalSeconds(event.totalDuration);
+            }
+            // 서버에서 받은 누적 시간 업데이트
+            if (event.accumulatedDuration !== undefined) {
+              setAccumulatedDuration(event.accumulatedDuration);
+            }
+          }
+          break;
+          
+        case "RESUME":
+          // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
+          if (!sessionId || event.sessionId === sessionId) {
+            setSessionId(event.sessionId);
+            stopwatch.start();
+            setStatus("running");
+            // 서버 시간 동기화
+            if (event.serverTime) {
+              const serverTime = new Date(event.serverTime).getTime();
+              const clientTime = Date.now();
+              setServerTimeOffset(serverTime - clientTime);
+            }
+            if (event.totalDuration !== undefined) {
+              setCurrentSessionTotalSeconds(event.totalDuration);
+            }
+            // 서버에서 받은 누적 시간 업데이트
+            if (event.accumulatedDuration !== undefined) {
+              setAccumulatedDuration(event.accumulatedDuration);
+            }
+          }
+          break;
+          
+        case "FINISH":
+          // 세션 ID가 일치하면 종료
+          if (event.sessionId === sessionId) {
+            // 서버에서 받은 누적 시간으로 업데이트 (서버에서 이미 더해진 값)
+            if (event.accumulatedDuration !== undefined) {
+              setAccumulatedDuration(event.accumulatedDuration);
+            }
+            setCurrentSessionTotalSeconds(0);
+            stopwatch.reset(undefined, false);
+            setStatus("idle");
+            setSessionId(null);
+            onSessionIdChange?.(null);
+            setTargetDuration(null);
+          }
+          break;
+          
+        case "SYNC":
+          // 10초마다 서버 시간 동기화
+          if (event.sessionId && event.status === "RUNNING") {
+            // 현재 세션이 없거나 일치하는 세션이면 업데이트
+            setSessionId((currentSessionId) => {
+              if (!currentSessionId || event.sessionId === currentSessionId) {
+                setStatus("running");
+                
+                if (event.serverTime && event.totalDuration !== undefined) {
+                  const serverTime = new Date(event.serverTime).getTime();
+                  const clientTime = Date.now();
+                  setServerTimeOffset(serverTime - clientTime);
+                  
+                  // 서버의 totalDuration으로 동기화 (현재 세션의 총 시간)
+                  setCurrentSessionTotalSeconds(event.totalDuration);
+                  
+                  // 서버에서 받은 누적 시간 업데이트
+                  if (event.accumulatedDuration !== undefined) {
+                    setAccumulatedDuration(event.accumulatedDuration);
+                  }
+                  
+                  // stopwatch 시작 (이미 실행 중이어도 안전)
+                  stopwatch.start();
+                }
+                
+                return event.sessionId;
+              }
+              return currentSessionId;
+            });
+          }
+          break;
+      }
+    },
+  });
+
   const handleStart = async () => {
     try {
       setSessionId(null);
@@ -59,10 +203,9 @@ export default function GroupTimer({
         participationType: "GROUP",
         groupId,
       });
-      setSessionId(session.sessionId);
-      onSessionIdChange?.(session.sessionId);
-      stopwatch.start();
-      setStatus("running");
+      // WebSocket 이벤트로 상태가 업데이트되므로 여기서는 세션 ID만 설정
+      setTargetDuration(session.targetDuration || 3600);
+      // 실제 상태는 WebSocket 이벤트에서 업데이트됨
     } catch (error) {
       console.error("그룹 타이머 시작 실패:", error);
     }
@@ -72,8 +215,7 @@ export default function GroupTimer({
     if (!sessionId) return;
     try {
       await pauseGroupTimerMutation.mutateAsync();
-      stopwatch.pause();
-      setStatus("paused");
+      // WebSocket 이벤트로 상태가 업데이트됨
     } catch (error) {
       console.error("그룹 타이머 일시정지 실패:", error);
     }
@@ -83,8 +225,7 @@ export default function GroupTimer({
     if (!sessionId) return;
     try {
       await resumeGroupTimerMutation.mutateAsync();
-      stopwatch.start();
-      setStatus("running");
+      // WebSocket 이벤트로 상태가 업데이트됨
     } catch (error) {
       console.error("그룹 타이머 재개 실패:", error);
     }
@@ -94,9 +235,7 @@ export default function GroupTimer({
     if (!sessionId) return;
     try {
       await finishGroupTimerMutation.mutateAsync();
-      setTotalSeconds((prev) => prev + elapsedSeconds);
-      stopwatch.reset(undefined, false);
-      setStatus("idle");
+      // WebSocket 이벤트로 상태가 업데이트됨
     } catch (error) {
       console.error("그룹 타이머 종료 실패:", error);
     }
