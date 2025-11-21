@@ -3,7 +3,7 @@ import { getGroupDetailServer } from "@/app/api/groups/serverApi";
 import InvitePageClient from "./InvitePageClient";
 
 type InvitePageProps = {
-  params: { groupid: string };
+  params: Promise<{ groupid: string }>;
 };
 
 const DEFAULT_METADATA = {
@@ -48,7 +48,7 @@ function buildInviteMetadata(
 export async function generateMetadata({
   params,
 }: InvitePageProps): Promise<Metadata> {
-  const { groupid } = params;
+  const { groupid } = await params;
 
   try {
     const groupData = await getGroupDetailServer(groupid);
@@ -88,6 +88,6 @@ export async function generateMetadata({
 }
 
 export default async function InvitePage({ params }: InvitePageProps) {
-  const { groupid } = params;
+  const { groupid } = await params;
   return <InvitePageClient groupid={groupid} />;
 }
