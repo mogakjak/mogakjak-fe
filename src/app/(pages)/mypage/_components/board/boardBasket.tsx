@@ -6,30 +6,34 @@ import Character from "./basket/character";
 import Image from "next/image";
 import CharacterModal from "./basket/characterModal";
 import { rows } from "@/app/_utils/getCharacterByHours";
+import { CharacterCard } from "@/app/_types/mypage";
+
+const getDescriptionByLevel = (level: number): string => {
+  const character = rows.find((c) => c.level === level);
+  return character?.description || "";
+};
 
 export default function BoardBasket({
-  totalHours = 0,
+  ownedCharacters = [],
 }: {
-  totalHours?: number;
+  ownedCharacters: CharacterCard[];
 }) {
-  const characters = useMemo(() => {
-    return rows.map((r) => ({
-      level: r.level,
-      name: r.name,
-      hours: r.hours,
-      description: r.description,
-      locked: r.level === 1 ? false : totalHours < r.hours, // Lv1은 항상 언락
-    }));
-  }, [totalHours]);
-
   const [openCharacter, setOpenCharacter] = useState(false);
-  const unlockedCount = characters.filter((c) => !c.locked).length;
-  const totalCount = characters.length;
+
+  // ownedCharacters를 level로 매핑하여 빠른 조회 가능하게
+  const ownedCharactersMap = useMemo(() => {
+    const map = new Map<number, CharacterCard>();
+    ownedCharacters.forEach((char) => {
+      map.set(char.level, char);
+    });
+    return map;
+  }, [ownedCharacters]);
+
   return (
     <div className="w-full h-full min-h-0 flex flex-col">
       <div className="flex justify-between items-center  mb-3.5">
         <h2 className="text-heading4-20SB text-black">
-          내 과일 바구니 ({unlockedCount}/{totalCount})
+          내 과일 바구니 ({ownedCharacters.length}/12)
         </h2>
         <button
           className="flex items-center gap-2.5 text-body1-16M text-gray-400 px-7 py-2 border border-gray-200 rounded-[22px]"
@@ -46,16 +50,22 @@ export default function BoardBasket({
       </div>
 
       <div className="grid grid-cols-4 gap-4 items-stretch h-full  auto-rows-fr">
-        {characters.map((character, index) => (
-          <Character
-            key={`${character.name}-${index}`}
-            hours={character.hours}
-            level={character.level}
-            name={character.name}
-            description={character.description}
-            locked={character.locked}
-          />
-        ))}
+        {rows.map((characterInfo) => {
+          const ownedCharacter = ownedCharactersMap.get(characterInfo.level);
+          const isLocked = !ownedCharacter;
+
+          return (
+            <Character
+              key={`character-level-${characterInfo.level}`}
+              hours={characterInfo.hours}
+              level={characterInfo.level}
+              name={ownedCharacter?.name || characterInfo.name}
+              description={getDescriptionByLevel(characterInfo.level)}
+              imageUrl={ownedCharacter?.imageUrl}
+              locked={isLocked}
+            />
+          );
+        })}
       </div>
 
       {openCharacter && (
