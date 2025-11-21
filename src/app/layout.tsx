@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: "모각작",
     images: [
       {
-        url: "https://mogakjak-fe.vercel.app/thumbnail.png",
+        url: "https://mogakjak-fe.vercel.app/thumbnail.png?v=2",
         width: 1200,
         height: 630,
         alt: "모각작",
