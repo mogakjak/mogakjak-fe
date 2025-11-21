@@ -64,7 +64,22 @@ export type GroupMembers = {
   userId: string;
   nickname: string;
   profileUrl: string;
+  level?: number;
 }[];
+
+// 그룹 멤버 상태 (실시간 업데이트용)
+export type GroupMemberStatus = {
+  groupId: string;
+  userId: string;
+  nickname: string;
+  profileUrl?: string;
+  level: number;
+  participationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  enteredAt?: string;
+  daysSinceLastParticipation?: number;
+  personalTimerSeconds?: number;
+  todoTitle?: string;
+};
 
 // 알림
 export type NotiReq = {
@@ -102,4 +117,29 @@ export type InviteResponse = {
   statusCode: number;
   message: string;
   data: Record<string, never>; // 빈 객체
+};
+
+// 콕 찌르기 관련 타입
+export type CommonGroup = {
+  groupId: string;
+  groupName: string;
+  imageUrl?: string;
+  memberCount: number;
+  maxMemberCount: number;
+  myParticipationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  targetParticipationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+};
+
+export type PokeRequest = {
+  targetUserId: string;
+  groupId: string;
+};
+
+export type PokeNotification = {
+  fromUserId: string;
+  fromUserNickname: string;
+  targetUserId: string;
+  groupId: string;
+  groupName: string;
+  message: string;
 };

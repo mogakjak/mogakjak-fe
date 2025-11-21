@@ -1,81 +1,92 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
 import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
-import { Mate, MyGroup } from "@/app/_types/groups";
-import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
-import ForkPopup, { ForkGroup } from "@/app/_components/common/forkPopup";
-import { useMyGroups } from "@/app/_hooks/groups";
+import { Mate } from "@/app/_types/groups";
+import ForkPopup from "@/app/_components/common/forkPopup";
+import { useCommonGroups, usePoke } from "@/app/_hooks/groups";
+
+type UniqueProfile = {
+  profile: Mate;
+  groupNames: string[];
+};
 
 interface ProfileListProps {
   profiles: Mate[];
   totalCount: number;
-  groupName?: string;
-  page?: number;
   pageSize?: number;
   onCountChange?: (n: number) => void;
   search?: string;
   isLoading?: boolean;
-  groups?: MyGroup[];
 }
 
 export default function ProfileList({
   profiles,
   totalCount,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  page = 1,
   pageSize = 6,
   onCountChange,
   search = "",
   isLoading = false,
-  groups: propsGroups,
 }: ProfileListProps) {
-  const [openForkPopup, setOpenForkPopup] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
 
-  const { data: myGroups = [] } = useMyGroups();
-  const groups = propsGroups || myGroups;
+  const { data: commonGroups = [], isLoading: isLoadingGroups } =
+    useCommonGroups(selectedUserId || "");
+  const pokeMutation = usePoke();
 
   useEffect(() => {
     onCountChange?.(totalCount);
   }, [totalCount, onCountChange]);
 
-  const uniqueProfiles = useMemo(() => {
-    return getUniqueProfiles(profiles);
-  }, [profiles]);
-
-  // 내 그룹 목록을 ForkGroup 타입으로 변환
-  const forkGroups: ForkGroup[] = useMemo(() => {
-    return groups.map((group) => ({
-      id: group.groupId,
-      name: group.groupName,
-      members: group.members.length,
-      capacity: 8, // 기본 용량
-      status: "active" as const, // 기본값, 실제로는 그룹 상태에 따라 결정
-      avatarUrl: group.imageUrl,
-    }));
-  }, [groups]);
-
-  // 선택된 사용자 정보
-  const selectedUser = useMemo(() => {
-    if (!selectedUserId) return null;
-    return uniqueProfiles.find((p) => p.profile.userId === selectedUserId);
-  }, [selectedUserId, uniqueProfiles]);
-
   const handleForkClick = (userId: string) => {
     setSelectedUserId(userId);
-    setOpenForkPopup(true);
+    setShowModal(true);
   };
 
-  const handleJoin = (groupId: string) => {
-    setOpenForkPopup(false);
-    setSelectedUserId(null);
-    router.push(`/group/${groupId}`);
-  };
+  // 중복된 userId를 가진 프로필들을 그룹화
+  const uniqueProfiles = useMemo<UniqueProfile[]>(() => {
+    const profileMap = new Map<string, UniqueProfile>();
 
+    profiles.forEach((profile) => {
+      const existing = profileMap.get(profile.userId);
+      if (existing) {
+        // 이미 존재하는 경우 그룹 이름만 추가 (중복 제거)
+        if (!existing.groupNames.includes(profile.groupName)) {
+          existing.groupNames.push(profile.groupName);
+        }
+      } else {
+        // 새로운 프로필인 경우 추가
+        profileMap.set(profile.userId, {
+          profile,
+          groupNames: [profile.groupName],
+        });
+      }
+    });
+
+    return Array.from(profileMap.values());
+  }, [profiles]);
+
+  const handleJoinGroup = (groupId: string) => {
+    if (!selectedUserId) return;
+
+    pokeMutation.mutate(
+      {
+        targetUserId: selectedUserId,
+        groupId: groupId,
+      },
+      {
+        onSuccess: () => {
+          setShowModal(false);
+          setSelectedUserId(null);
+        },
+        onError: (error) => {
+          console.error("콕 찌르기 알림 전송 실패:", error);
+        },
+      }
+    );
+  };
   if (isLoading) {
     return (
       <div className="flex flex-col h-[552px] mb-1">
@@ -112,7 +123,7 @@ export default function ProfileList({
   }
 
   return (
-    <div className="flex flex-col h-[552px] mb-1">
+    <div className="flex flex-col h-[552px] mb-1 ">
       {uniqueProfiles.map(({ profile, groupNames }) => (
         <div
           key={profile.userId}
@@ -121,26 +132,25 @@ export default function ProfileList({
           <ProfileActive
             src={profile.profileUrl}
             name={profile.nickname}
-            active={true}
+            active={false}
           />
 
-          <p className="text-heading4-20SB text-black ml-7 max-w-[100px] truncate">
+          <p className="text-heading4-20SB text-black ml-7">
             {profile.nickname}
           </p>
 
           <div className="w-px h-5 bg-black m-2" />
-
-          <div className="text-gray-500 text-body1-16R flex gap-2 flex-wrap">
-            {groupNames.length > 0 ? (
-              groupNames.map((name, idx) => (
-                <span key={`${profile.userId}-${name}`}>
-                  {idx > 0 && <span>,</span>}
-                  <p className="inline">{name}</p>
+          <div className="text-gray-500 text-body1-16R flex">
+            <div className="w-[200px] truncate">
+              {groupNames.map((name, idx) => (
+                <span key={idx}>
+                  {name}
+                  {idx < groupNames.length - 1 && (
+                    <span className="mx-1">,</span>
+                  )}
                 </span>
-              ))
-            ) : (
-              <p>-</p>
-            )}
+              ))}
+            </div>
             <p>·</p>
             <p>1일 전</p>
           </div>
@@ -154,20 +164,34 @@ export default function ProfileList({
         </div>
       ))}
 
-      {openForkPopup && selectedUser && (
+      {showModal && (
         <div
           className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
           onClick={() => {
-            setOpenForkPopup(false);
+            setShowModal(false);
             setSelectedUserId(null);
           }}
         >
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <ForkPopup
-              userName={selectedUser.profile.nickname}
-              groups={forkGroups}
-              onJoin={handleJoin}
-            />
+            {isLoadingGroups ? (
+              <div className="bg-white p-8 rounded-2xl">
+                <p className="text-center">그룹 목록을 불러오는 중...</p>
+              </div>
+            ) : (
+              <ForkPopup
+                userName={
+                  uniqueProfiles.find(
+                    (p) => p.profile.userId === selectedUserId
+                  )?.profile.nickname || ""
+                }
+                groups={commonGroups}
+                onJoin={handleJoinGroup}
+                onClose={() => {
+                  setShowModal(false);
+                  setSelectedUserId(null);
+                }}
+              />
+            )}
           </div>
         </div>
       )}

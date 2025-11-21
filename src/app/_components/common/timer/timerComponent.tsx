@@ -30,10 +30,12 @@ export default function TimerComponent({
   className,
   initialMode = "pomodoro",
   todoId,
+  groupId,
 }: {
   className?: string;
   initialMode?: Mode;
   todoId?: string | null;
+  groupId?: string;
 }) {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [running, setRunning] = useState<boolean>(false);
@@ -85,6 +87,8 @@ export default function TimerComponent({
           focusSeconds,
           breakSeconds,
           repeatCount,
+          participationType: groupId ? "GROUP" : "INDIVIDUAL",
+          ...(groupId && { groupId }),
         });
         setSessionId(session.sessionId);
         pomoRef.current?.reset(focusSeconds / 60);
@@ -104,7 +108,7 @@ export default function TimerComponent({
         setIsRunning(false);
       }
     },
-    [todoId, startPomodoroMutation, setIsRunning]
+    [todoId, groupId, startPomodoroMutation, setIsRunning]
   );
 
   const onStart = useCallback(async () => {
@@ -156,7 +160,11 @@ export default function TimerComponent({
       } else {
         // 새로 시작
         try {
-          const session = await startStopwatchMutation.mutateAsync({ todoId });
+          const session = await startStopwatchMutation.mutateAsync({
+            todoId,
+            participationType: groupId ? "GROUP" : "INDIVIDUAL",
+            ...(groupId && { groupId }),
+          });
           setSessionId(session.sessionId);
           swRef.current?.start();
           setRunning(true);
@@ -200,6 +208,7 @@ export default function TimerComponent({
     resumeTimerMutation,
     startStopwatchMutation,
     todoId,
+    groupId,
     setIsRunning,
     pomoRef,
     swRef,
@@ -565,6 +574,8 @@ export default function TimerComponent({
                 const session = await startTimerMutation.mutateAsync({
                   todoId,
                   targetSeconds,
+                  participationType: groupId ? "GROUP" : "INDIVIDUAL",
+                  ...(groupId && { groupId }),
                 });
                 setSessionId(session.sessionId);
                 const hours = Math.floor(targetSeconds / 3600);

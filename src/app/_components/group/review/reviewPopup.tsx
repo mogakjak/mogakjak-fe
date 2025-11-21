@@ -5,6 +5,7 @@ import ReviewEmoji from "./reviewEmoji";
 import ReviewTag from "./reviewTag";
 import { useCreateFeedback, useFeedbackTags } from "@/app/_hooks/feedback";
 import { FeedbackTagType } from "@/app/_types/feedback";
+import { useExitGroupSession } from "@/app/_hooks/groups";
 
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
@@ -16,6 +17,7 @@ interface ReviewBlock {
 interface ReviewPopupProps {
   groupName: string;
   sessionId: string;
+  groupId: string;
   onClose: () => void;
   onExitGroup: () => void;
 }
@@ -62,6 +64,7 @@ const emojiToScore = (emoji: EmojiType): number => {
 
 export default function ReviewPopup({
   groupName,
+  groupId,
   onClose,
   onExitGroup,
 }: ReviewPopupProps) {
@@ -82,6 +85,7 @@ export default function ReviewPopup({
   const { data: feedbackTags = [], isPending } = useFeedbackTags(feedbackType);
   const { mutateAsync: createFeedback, isPending: isSubmitting } =
     useCreateFeedback();
+  const { mutateAsync: exitSession } = useExitGroupSession();
 
   const handleEmojiClick = (e: EmojiType) => {
     if (selectedEmoji === e) {
@@ -110,6 +114,9 @@ export default function ReviewPopup({
         tagCodes: selectedTags,
         content: etcText.trim(),
       });
+
+      // 그룹 세션에서 나가기
+      await exitSession(groupId);
 
       onClose();
       onExitGroup();

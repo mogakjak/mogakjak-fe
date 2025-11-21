@@ -47,7 +47,7 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
 
       <div className="w-full h-full flex gap-5">
         <div className="self-stretch">
-          <PreviewMain state={true} />
+          <PreviewMain state={true} groupId={validGroupId} />
         </div>
 
         {isPending || !data ? (

@@ -15,6 +15,8 @@ export interface GroupFriendFieldProps {
   friendName?: string;
   isPublic?: boolean;
   activeTime?: number;
+  task?: string;
+  lastActiveAt?: Date | string | number;
   profileUrl?: string;
   isCurrentUser?: boolean;
 }
@@ -25,6 +27,8 @@ export default function GroupFriendField({
   friendName = "가나디",
   isPublic = true,
   activeTime = 0,
+  task,
+  lastActiveAt,
   profileUrl,
   isCurrentUser = false,
 }: GroupFriendFieldProps) {
@@ -76,6 +80,8 @@ export default function GroupFriendField({
           status={status}
           isPublic={isPublic}
           activeTime={activeTime}
+          task={task}
+          lastActiveAt={lastActiveAt}
         />
       </div>
     </div>

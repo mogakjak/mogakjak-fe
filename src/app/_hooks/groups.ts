@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import {
   createGroup,
+  exitGroupSession,
   getGroupDetail,
   getMates,
   GetMatesParams,
@@ -18,6 +19,8 @@ import {
   putGroupGoal,
   putGroupNoti,
   updateGroup,
+  getCommonGroups,
+  sendPokeNotification,
 } from "../api/groups/api";
 import {
   CreateGroupBody,
@@ -29,6 +32,8 @@ import {
   MyGroup,
   NotiReq,
   NotiRes,
+  CommonGroup,
+  PokeRequest,
 } from "../_types/groups";
 import { groupKeys } from "../api/groups/keys";
 
@@ -168,3 +173,30 @@ export const useJoinGroup = () =>
   useMutation<void, Error, string>({
     mutationFn: (groupId: string) => joinGroup(groupId),
   });
+
+export const useExitGroupSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: (groupId: string) => exitGroupSession(groupId),
+    onSuccess: (_, groupId) => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+    },
+  });
+};
+
+// 콕 찌르기
+export const useCommonGroups = (targetUserId: string) => {
+  return useQuery<CommonGroup[], unknown>({
+    queryKey: ["common-groups", targetUserId],
+    queryFn: () => getCommonGroups(targetUserId),
+    enabled: !!targetUserId,
+    staleTime: 30 * 1000,
+  });
+};
+
+export const usePoke = () => {
+  return useMutation<unknown, unknown, PokeRequest>({
+    mutationFn: (body: PokeRequest) => sendPokeNotification(body),
+  });
+};

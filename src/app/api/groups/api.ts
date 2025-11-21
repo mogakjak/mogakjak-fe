@@ -9,6 +9,8 @@ import type {
   GroupGoalReq,
   InviteResponse,
   InviteRequest,
+  CommonGroup,
+  PokeRequest,
 } from "@/app/_types/groups";
 
 const GROUPS_BASE = "/api/groups";
@@ -123,8 +125,27 @@ export const postGroupInvitation = (groupId: string, body: InviteRequest) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+
 // 자동 가입
 export const joinGroup = (groupId: string) =>
   request<void>(`/${groupId}/join`, {
     method: "POST",
+  });
+
+// 그룹 세션에서 나가기
+export const exitGroupSession = (groupId: string) =>
+  request<void>(`/${groupId}/session/me`, {
+    method: "DELETE",
+  });
+
+// 콕 찌르기
+export const getCommonGroups = (targetUserId: string) =>
+  request<CommonGroup[]>(`/common-groups/${targetUserId}`, {
+    method: "GET",
+  });
+
+export const sendPokeNotification = (body: PokeRequest) =>
+  request<unknown>("/poke", {
+    method: "POST",
+    body: JSON.stringify(body),
   });

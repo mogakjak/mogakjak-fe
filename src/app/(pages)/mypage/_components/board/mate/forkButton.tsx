@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 interface ForkButtonProps {
@@ -8,9 +10,9 @@ interface ForkButtonProps {
 export default function ForkButton({ active, onClick }: ForkButtonProps) {
   return (
     <button
+      onClick={active ? onClick : undefined}
       disabled={!active}
       aria-disabled={!active}
-      onClick={active ? onClick : undefined}
       className={`flex items-center gap-2 px-6 py-3 rounded-2xl border border-gray-200 text-body2-14SB transition-colors duration-200
         ${
           active

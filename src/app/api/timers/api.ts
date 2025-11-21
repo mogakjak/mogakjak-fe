@@ -70,6 +70,8 @@ export type StartPomodoroPayload = {
   focusSeconds: number;
   breakSeconds: number;
   repeatCount: number;
+  participationType?: "INDIVIDUAL" | "GROUP";
+  groupId?: string;
 };
 
 export const startPomodoro = (payload: StartPomodoroPayload) =>
@@ -96,10 +98,14 @@ export const finishTimer = (sessionId: string) =>
 export type StartTimerPayload = {
   todoId: string;
   targetSeconds: number;
+  participationType?: "INDIVIDUAL" | "GROUP";
+  groupId?: string;
 };
 
 export type StartStopwatchPayload = {
   todoId: string;
+  participationType?: "INDIVIDUAL" | "GROUP";
+  groupId?: string;
 };
 
 export const startTimer = (payload: StartTimerPayload) =>
@@ -128,6 +134,8 @@ export const nextPomodoro = (sessionId: string) =>
 
 export type StartGroupTimerPayload = {
   targetSeconds: number;
+  participationType?: "INDIVIDUAL" | "GROUP";
+  groupId?: string;
 };
 
 export const startGroupTimer = (
