@@ -174,29 +174,41 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleCheerNotification = useCallback(
     (notification: CheerNotification) => {
-      console.log("[NotificationProvider] 응원 알림:", notification);
+      console.log("[NotificationProvider] ===== 응원 알림 수신 ===== ");
+      console.log("[NotificationProvider] 응원 알림 데이터:", notification);
+      console.log("[NotificationProvider] 현재 권한 상태:", permission);
+      console.log("[NotificationProvider] isSupported:", isSupported);
+      
       const title = `💪🏻 ${notification.fromUserNickname}님이 응원을 보내셨어요!`;
+      console.log("[NotificationProvider] 알림 제목:", title);
 
       if (permission === "granted") {
-        console.log("[NotificationProvider] 응원 알림 표시");
-        showBrowserNotification(title, {
+        console.log("[NotificationProvider] 권한 granted - 브라우저 알림 표시 시도");
+        const result = showBrowserNotification(title, {
           icon: "/chorme/cheerupIcon.png",
           badge: "/chorme/cheerupIcon.png",
           tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
         });
+        console.log("[NotificationProvider] showBrowserNotification 결과:", result);
       } else if (permission === "default") {
+        console.log("[NotificationProvider] 권한 default - 권한 요청 후 알림 표시");
         requestPermission().then((granted) => {
+          console.log("[NotificationProvider] 권한 요청 결과:", granted);
           if (granted) {
-            showBrowserNotification(title, {
+            const result = showBrowserNotification(title, {
               icon: "/chorme/cheerupIcon.png",
               badge: "/chorme/cheerupIcon.png",
               tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
             });
+            console.log("[NotificationProvider] showBrowserNotification 결과:", result);
           }
         });
+      } else {
+        console.warn("[NotificationProvider] 권한 denied - 알림을 표시할 수 없음");
       }
+      console.log("[NotificationProvider] ===== 응원 알림 처리 완료 ===== ");
     },
-    [permission, requestPermission, showBrowserNotification]
+    [permission, requestPermission, showBrowserNotification, isSupported]
   );
   useGlobalFocusNotifications(handleFocusNotification);
   useTimerCompletionNotification({
@@ -209,9 +221,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     onNotification: handlePokeNotification,
   });
 
+  // 응원 알림 구독
+  console.log("[NotificationProvider] useCheerNotification 호출 준비");
   useCheerNotification({
     enabled: true,
-    onNotification: handleCheerNotification,
+    onNotification: (notification) => {
+      console.log("[NotificationProvider] useCheerNotification의 onNotification 콜백 호출됨");
+      handleCheerNotification(notification);
+    },
   });
 
   return (
