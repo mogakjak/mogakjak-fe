@@ -108,7 +108,7 @@ export function usePokeNotification({
         return sock;
       },
       connectHeaders,
-      debug: (str) => {
+      debug: () => {
         // 디버그 로그는 필요시에만 활성화
       },
       reconnectDelay: 5000,

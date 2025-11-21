@@ -169,7 +169,6 @@ export const useInviteMate = (groupId: string) => {
   });
 };
 
-<<<<<<< HEAD
 export const useJoinGroup = () =>
   useMutation<void, Error, string>({
     mutationFn: (groupId: string) => joinGroup(groupId),
@@ -183,7 +182,9 @@ export const useExitGroupSession = () => {
     onSuccess: (_, groupId) => {
       queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
     },
-=======
+  });
+};
+
 // 콕 찌르기
 export const useCommonGroups = (targetUserId: string) => {
   return useQuery<CommonGroup[], unknown>({
@@ -197,6 +198,5 @@ export const useCommonGroups = (targetUserId: string) => {
 export const usePoke = () => {
   return useMutation<unknown, unknown, PokeRequest>({
     mutationFn: (body: PokeRequest) => sendPokeNotification(body),
->>>>>>> 1ca76c5 (feat: 콕 찌르기 기능 구현)
   });
 };
