@@ -14,7 +14,7 @@ type InvitePageProps = {
 const DEFAULT_METADATA = {
   title: "모각작 초대",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-  imageUrl: "https://mogakjak-fe.vercel.app/thumbnail.png",
+  imageUrl: "https://mogakjak-fe.vercel.app/thumbnailInvite.png",
 };
 
 export async function generateMetadata({
@@ -37,7 +37,8 @@ export async function generateMetadata({
       title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
       description =
         "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
-      imageUrl = groupData.imageUrl || DEFAULT_METADATA.imageUrl;
+      // 초대 페이지 : thumbnailInvite.png
+      imageUrl = DEFAULT_METADATA.imageUrl;
     }
   } catch (error) {
     // 에러가 발생해도 기본 메타데이터 사용
