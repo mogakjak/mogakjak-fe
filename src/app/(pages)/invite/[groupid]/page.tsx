@@ -2,6 +2,11 @@ import { getGroupDetailServer } from "@/app/api/groups/serverApi";
 import InvitePageClient from "./InvitePageClient";
 import { Metadata } from "next";
 
+// 동적 라우트가 서버에서 실행되도록 명시
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
+
 type InvitePageProps = {
   params: Promise<{ groupid: string }>;
 };
