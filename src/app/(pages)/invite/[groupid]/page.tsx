@@ -22,6 +22,9 @@ function buildInviteMetadata(
   const description =
     "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
   const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
+  console.log(title);
+  console.log(description);
+  console.log(url);
 
   return {
     title,
