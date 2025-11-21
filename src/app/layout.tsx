@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   title: "모각작",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
   openGraph: {
-    title: "김이름님이 `몰딥브 팀` 으로 초대했어요!",
-    description: "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
+    title: "모각작",
+    description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
     url: "https://mogakjak-fe.vercel.app",
     siteName: "모각작",
     images: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         url: "https://mogakjak-fe.vercel.app/thumbnail.png",
         width: 1200,
         height: 630,
-        alt: "모각작 초대",
+        alt: "모각작",
       },
     ],
     locale: "ko_KR",

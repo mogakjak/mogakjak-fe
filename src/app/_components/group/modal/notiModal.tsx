@@ -13,7 +13,7 @@ interface NotiModalProps {
 }
 
 export default function NotiModal({ onClose, groupId }: NotiModalProps) {
-  const [isAgreed, setIsAgreed] = useState(true);
+  const [isAgreed, setIsAgreed] = useState(false);
   const [hours, setHours] = useState(1);
   const [message, setMessage] = useState("");
 
