@@ -144,3 +144,11 @@ export type PokeNotification = {
   groupName: string;
   message: string;
 };
+
+export type CheerNotification = {
+  fromUserId: string;
+  fromUserNickname: string;
+  targetUserId: string;
+  groupId: string;
+  groupName: string;
+};

@@ -10,6 +10,8 @@ import {
 import { useGlobalFocusNotifications } from "@/app/_hooks/useGlobalFocusNotifications";
 import { useTimerCompletionNotification } from "@/app/_hooks/useTimerCompletionNotification";
 import { usePokeNotification } from "@/app/_hooks/usePokeNotification";
+import { useCheerNotification } from "@/app/_hooks/useCheerNotification";
+import type { CheerNotification } from "@/app/_types/groups";
 import { useBrowserNotification } from "@/app/_hooks/useBrowserNotification";
 import TimerCompletionModal from "./timerCompletionModal";
 import PokeNotificationModal from "./pokeNotificationModal";
@@ -174,6 +176,35 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setPokeNotification(null);
   }, []);
 
+  const handleCheerNotification = useCallback(
+    (notification: CheerNotification) => {
+      console.log("[NotificationProvider] 응원 알림:", notification);
+
+      // 브라우저 알림 표시
+      const title = `💪🏻 ${notification.fromUserNickname}님이 응원을 보내셨어요!`;
+
+      if (permission === "granted") {
+        console.log("[NotificationProvider] 응원 알림 표시");
+        showBrowserNotification(title, {
+          icon: "/chorme/cheerupIcon.png",
+          badge: "/chorme/cheerupIcon.png",
+          tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
+        });
+      } else if (permission === "default") {
+        requestPermission().then((granted) => {
+          if (granted) {
+            showBrowserNotification(title, {
+              icon: "/chorme/cheerupIcon.png",
+              badge: "/chorme/cheerupIcon.png",
+              tag: `cheer-notification-${notification.groupId}-${notification.fromUserId}`,
+            });
+          }
+        });
+      }
+    },
+    [permission, requestPermission, showBrowserNotification]
+  );
+
   // 집중 체크 알림 구독
   useGlobalFocusNotifications(handleFocusNotification);
   
@@ -187,6 +218,12 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   usePokeNotification({
     enabled: true,
     onNotification: handlePokeNotification,
+  });
+
+  // 응원 알림 구독
+  useCheerNotification({
+    enabled: true,
+    onNotification: handleCheerNotification,
   });
 
   return (
