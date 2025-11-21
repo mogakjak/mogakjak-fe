@@ -16,6 +16,7 @@ import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import Add from "/Icons/add.svg";
 import { GroupDetail, GroupMemberStatus } from "@/app/_types/groups";
 import { useGroupMemberStatus } from "@/app/_hooks/useGroupMemberStatus";
+import { useSendCheer } from "@/app/_hooks/groups";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -41,6 +42,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         profileUrl: member.profileUrl,
         level: member.level || 1,
         participationStatus: "NOT_PARTICIPATING",
+        cheerCount: 0,
       });
     });
     setMemberStatuses(initialStatuses);
@@ -75,6 +77,21 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
   }, [token]);
+
+  // 응원 보내기 훅
+  const sendCheerMutation = useSendCheer(groupData.groupId);
+
+  // 응원 버튼 클릭 핸들러
+  const handleCheerClick = (targetUserId: string) => {
+    sendCheerMutation.mutate(
+      { targetUserId },
+      {
+        onError: (error) => {
+          console.error("응원 보내기 실패:", error);
+        },
+      }
+    );
+  };
 
   // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
   // memberStatuses를 기반으로 생성하여 웹소켓으로 업데이트되는 실시간 변경사항 반영
@@ -190,6 +207,10 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                     lastActiveAt={lastActiveAt}
                     profileUrl={member.profileUrl}
                     isCurrentUser={member.userId === currentUserId}
+                    cheerCount={status.cheerCount || 0}
+                    userId={member.userId}
+                    groupId={groupData.groupId}
+                    onCheerClick={handleCheerClick}
                   />
                 );
               })}

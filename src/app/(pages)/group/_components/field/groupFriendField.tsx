@@ -19,6 +19,10 @@ export interface GroupFriendFieldProps {
   lastActiveAt?: Date | string | number;
   profileUrl?: string;
   isCurrentUser?: boolean;
+  cheerCount?: number;
+  userId?: string;
+  groupId?: string;
+  onCheerClick?: (userId: string) => void;
 }
 
 export default function GroupFriendField({
@@ -31,6 +35,10 @@ export default function GroupFriendField({
   lastActiveAt,
   profileUrl,
   isCurrentUser = false,
+  cheerCount = 0,
+  userId,
+  groupId,
+  onCheerClick,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
 
@@ -65,7 +73,16 @@ export default function GroupFriendField({
               )}
             </div>
           </div>
-          {!isActive && <CheerUp />}
+          {!isActive && (
+            <CheerUp
+              cheerCount={cheerCount}
+              onClick={() => {
+                if (userId && onCheerClick) {
+                  onCheerClick(userId);
+                }
+              }}
+            />
+          )}
         </section>
 
         <section className={`flex mt-2 justify-center`}>
