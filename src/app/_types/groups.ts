@@ -63,7 +63,22 @@ export type GroupMembers = {
   userId: string;
   nickname: string;
   profileUrl: string;
+  level?: number;
 }[];
+
+// 그룹 멤버 상태 (실시간 업데이트용)
+export type GroupMemberStatus = {
+  groupId: string;
+  userId: string;
+  nickname: string;
+  profileUrl?: string;
+  level: number;
+  participationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  enteredAt?: string;
+  daysSinceLastParticipation?: number;
+  personalTimerSeconds?: number;
+  todoTitle?: string;
+};
 
 // 알림
 export type NotiReq = {
