@@ -4,8 +4,6 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/button";
 import { useMates, useInviteMate } from "@/app/_hooks/groups";
-import { Mate } from "@/app/_types/groups";
-import { getUniqueProfiles } from "@/app/_utils/uniqueProfiles";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 
 interface InviteModalProps {
@@ -19,21 +17,14 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   const [showToast, setShowToast] = useState(false);
 
   const { data: matesData, isLoading: matesLoading } = useMates({
-    page: 0,
-    size: 10,
-    groupId: undefined,
     search: submittedSearch || undefined,
   });
 
+  const profiles = matesData?.content ?? [];
+
   const { mutate: inviteMate, isPending: isInviting } = useInviteMate(groupId);
 
-  // 중복 제거된 프로필 목록
-  const uniqueProfiles = useMemo(() => {
-    const rawProfiles: Mate[] = matesData?.content ?? [];
-    return getUniqueProfiles(rawProfiles);
-  }, [matesData?.content]);
-
-  // 초대링크크
+  // 초대링크
   const inviteUrl = useMemo(() => {
     if (!groupId) return "";
     const baseUrl =
@@ -152,7 +143,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                     <div className="flex items-center justify-center py-8">
                       <p className="text-gray-500">로딩 중...</p>
                     </div>
-                  ) : uniqueProfiles.length === 0 ? (
+                  ) : profiles.length === 0 ? (
                     <div className="flex items-center justify-center py-8">
                       <p className="text-gray-500 text-sm">
                         {submittedSearch
@@ -161,7 +152,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                       </p>
                     </div>
                   ) : (
-                    uniqueProfiles.map(({ profile, groupNames }) => (
+                    profiles.map((profile) => (
                       <div
                         key={profile.userId}
                         className="h-16 px-4 py-2 bg-neutral-50 rounded-[10px] flex justify-between items-center"
@@ -179,8 +170,9 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                             </div>
                             <div className="w-5 h-px bg-neutral-900 rotate-90" />
                             <div className="text-zinc-500 text-sm font-normal leading-5 truncate w-[170px]">
-                              {groupNames.length > 0
-                                ? groupNames.join(", ")
+                              {profile.groupNames &&
+                              profile.groupNames.length > 0
+                                ? profile.groupNames.join(", ")
                                 : "-"}
                             </div>
                           </div>
