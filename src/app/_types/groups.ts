@@ -10,7 +10,7 @@ export type Mate = {
   nickname: string;
   profileUrl: string;
   level: number;
-  groupName: string;
+  groupNames: string[];
 };
 
 export type SortInfo = {
@@ -151,4 +151,5 @@ export type CheerNotification = {
   targetUserId: string;
   groupId: string;
   groupName: string;
+  message: string;
 };

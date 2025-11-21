@@ -132,7 +132,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     };
   }, [openReview]);
   return (
-    <div className="flex flex-col items-center w-full justify-between">
+    <div className="flex flex-col items-center w-full justify-between ">
       <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
@@ -144,7 +144,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <GroupGoal data={groupData}></GroupGoal>
       </div>
 
-      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px]">
+      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px] mt-4">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {displayMembers.length}/8
