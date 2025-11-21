@@ -56,6 +56,7 @@ export type GroupDetail = {
   groupId: string;
   name: string;
   imageUrl: string;
+  accumulatedDuration?: number; // 그룹 타이머 누적 시간 (초 단위)
   members: GroupMembers;
 };
 

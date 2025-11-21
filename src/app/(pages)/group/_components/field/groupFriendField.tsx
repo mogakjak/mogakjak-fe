@@ -35,7 +35,6 @@ export default function GroupFriendField({
   isCurrentUser = false,
   cheerCount = 0,
   userId,
-  groupId,
   onCheerClick,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
