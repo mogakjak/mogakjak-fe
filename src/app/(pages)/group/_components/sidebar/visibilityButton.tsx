@@ -20,7 +20,7 @@ export default function VisibilityToggle({
         className={clsx(
           "flex-1 py-1 rounded-sm transition-colors text-caption-12SB",
           isTaskOpen
-            ? "border border-red-500 text-red-500"
+            ? "border border-red-300 text-red-400"
             : "bg-gray-300 text-gray-500"
         )}
       >
@@ -32,8 +32,8 @@ export default function VisibilityToggle({
         className={clsx(
           "flex-1 text-gray-500 py-1 rounded-sm  transition-colors text-caption-12SB",
           !isTaskOpen
-            ? "border border-red-500 text-red-500"
-            : "bg-gray-300 text-gray-500"
+            ? "border border-red-300 text-red-400"
+            : "bg-gray-200 text-gray-500"
         )}
       >
         비공개

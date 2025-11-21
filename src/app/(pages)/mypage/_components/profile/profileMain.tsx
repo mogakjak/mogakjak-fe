@@ -51,7 +51,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
         </button>
       </div>
 
-      <section className="flex flex-col items-center">
+      <section className="flex flex-col items-center mb-12">
         <div className="w-[130px] h-[130px] border-2 border-gray-300 rounded-full overflow-hidden mt-4">
           <Image
             src={profileImage}
@@ -62,7 +62,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
             onError={() => setProfileImage("/profileDefault.svg")}
           />
         </div>
-        <div className="flex flex-col gap-1 text-center mt-5 mb-2">
+        <div className="flex flex-col gap-1 text-center mt-5 mb-6">
           <p className="text-heading3-24SB text-black max-w-[150px] truncate">
             {nickname}
           </p>
