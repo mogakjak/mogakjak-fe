@@ -118,3 +118,28 @@ export type InviteResponse = {
   message: string;
   data: Record<string, never>; // 빈 객체
 };
+
+// 콕 찌르기 관련 타입
+export type CommonGroup = {
+  groupId: string;
+  groupName: string;
+  imageUrl?: string;
+  memberCount: number;
+  maxMemberCount: number;
+  myParticipationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  targetParticipationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+};
+
+export type PokeRequest = {
+  targetUserId: string;
+  groupId: string;
+};
+
+export type PokeNotification = {
+  fromUserId: string;
+  fromUserNickname: string;
+  targetUserId: string;
+  groupId: string;
+  groupName: string;
+  message: string;
+};

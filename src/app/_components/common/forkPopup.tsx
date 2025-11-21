@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import Image from "next/image";
+import type { CommonGroup } from "@/app/_types/groups";
 
 type GroupStatus = "active" | "inactive";
 
@@ -15,30 +16,63 @@ export type ForkGroup = {
   avatarUrl?: string;
 };
 
+// CommonGroup을 ForkGroup으로 변환
+function convertToForkGroup(group: CommonGroup): ForkGroup {
+  const isActive =
+    group.myParticipationStatus === "PARTICIPATING" ||
+    group.targetParticipationStatus === "PARTICIPATING";
+  
+  return {
+    id: group.groupId,
+    name: group.groupName,
+    members: group.memberCount,
+    capacity: group.maxMemberCount,
+    status: isActive ? "active" : "inactive",
+    avatarUrl: group.imageUrl,
+  };
+}
+
 export default function ForkPopup({
   userName = "박뽀모",
   groups,
   defaultSelectedId,
   onJoin,
   className,
+  onClose,
 }: {
   userName?: string;
-  groups: ForkGroup[];
+  groups: ForkGroup[] | CommonGroup[];
   defaultSelectedId?: string;
   onJoin?: (groupId: string) => void;
   className?: string;
+  onClose?: () => void;
 }) {
+  // CommonGroup 배열인 경우 ForkGroup으로 변환
+  const forkGroups: ForkGroup[] = useMemo(() => {
+    if (groups.length === 0) return [];
+    // 첫 번째 그룹이 CommonGroup인지 확인
+    const firstGroup = groups[0];
+    if ("groupId" in firstGroup) {
+      return (groups as CommonGroup[]).map(convertToForkGroup);
+    }
+    return groups as ForkGroup[];
+  }, [groups]);
   const [selectedId, setSelectedId] = useState<string | undefined>(
     defaultSelectedId
   );
 
   const selected = useMemo(
-    () => groups.find((g) => g.id === selectedId),
-    [groups, selectedId]
+    () => forkGroups.find((g) => g.id === selectedId),
+    [forkGroups, selectedId],
   );
 
   const handleSelect = (g: ForkGroup) => setSelectedId(g.id);
-  const handleJoin = () => selected && onJoin?.(selected.id);
+  const handleJoin = () => {
+    if (selected) {
+      onJoin?.(selected.id);
+      onClose?.();
+    }
+  };
 
   return (
     <div
@@ -49,7 +83,30 @@ export default function ForkPopup({
       role="dialog"
       aria-modal="true"
     >
-      <header className="flex flex-col items-center text-center gap-4 pt-13">
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          aria-label="닫기"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18 6L6 18M6 6L18 18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
+      <header className="flex flex-col items-center text-center gap-4 pt-13 relative">
         <Image src="/Icons/fork.svg" alt="fork" width={40} height={40} />
         <div className="space-y-1">
           <h2 className="text-neutral-900 text-2xl font-semibold font-['Pretendard']">
@@ -66,11 +123,16 @@ export default function ForkPopup({
 
       <section className="mt-8 space-y-4">
         <h3 className="text-neutral-900 font-semibold font-['Pretendard']">
-          내가 참여 중인 그룹 ({groups.length}개)
+          함께 몰입 중인 그룹 ({forkGroups.length}개)
         </h3>
 
         <ul className="space-y-3 max-h-[184px] overflow-y-auto pr-1">
-          {groups.map((g) => {
+          {forkGroups.length === 0 ? (
+            <li className="text-center text-gray-500 py-4">
+              함께 있는 그룹이 없습니다.
+            </li>
+          ) : (
+            forkGroups.map((g) => {
             const isSelected = selectedId === g.id;
             const isActive = g.status === "active";
 
@@ -128,7 +190,8 @@ export default function ForkPopup({
                 </div>
               </li>
             );
-          })}
+            })
+          )}
         </ul>
       </section>
 
