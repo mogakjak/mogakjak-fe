@@ -76,7 +76,6 @@ export default function FriendMain({ groups }: FriendMainProps) {
         <ProfileList
           profiles={profiles}
           totalCount={totalCount}
-          page={page}
           pageSize={pageSize}
           search={submittedSearch}
           isLoading={matesLoading}
