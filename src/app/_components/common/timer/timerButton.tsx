@@ -32,9 +32,9 @@ export default function TimerButtons({
     return (
       <div className={clsx("w-full flex flex-col gap-1", className)}>
         <Button
-          variant="slate600"
+          variant="primary2"
           size="custom"
-          className="text-body2-14SB h-9 text-base rounded-lg w-full"
+          className="text-body2-14SB h-9 text-base rounded-lg w-full pt-1"
           onClick={onStart}
           leftIcon={null}
           data-pip-action="start"
@@ -75,60 +75,62 @@ export default function TimerButtons({
 
   const isBreakPhase = currentPhase === "BREAK";
   const pauseButtonText = isBreakPhase ? "다시 시작" : "휴식";
-  const pauseButtonIcon = isBreakPhase ? "/Icons/startWhite.svg" : "/Icons/pauseWhite.svg";
+  const pauseButtonIcon = isBreakPhase
+    ? "/Icons/startWhite.svg"
+    : "/Icons/pauseWhite.svg";
 
   return (
     <div className={clsx("w-full flex flex-col gap-1", className)}>
       <div className="w-full flex items-center gap-3">
-      <Button
-        variant="slate600"
-        className={clsx(
-            " text-body2-14SB h-8 text-base rounded-lg w-full flex-1",
+        <Button
+          variant="slate600"
+          className={clsx(
+            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1",
             isBreakPhase && "bg-gray600 hover:bg-gray600/90"
-        )}
-        size="custom"
-        onClick={onPause}
-        leftIcon={null}
+          )}
+          size="custom"
+          onClick={onPause}
+          leftIcon={null}
           data-pip-action="pause"
           style={isBreakPhase ? { backgroundColor: "#585D63" } : undefined}
-      >
-        <span className="inline-flex items-center gap-2 justify-center">
-          <Image
+        >
+          <span className="inline-flex items-center gap-2 justify-center">
+            <Image
               src={pauseButtonIcon}
               alt={pauseButtonText}
-            width={24}
-            height={24}
-            className="w-6 h-6"
-          />
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
             {pauseButtonText}
-        </span>
-      </Button>
-      <Button
-        variant="primary"
-        className={clsx(
-          " text-body2-14SB h-8 text-base rounded-lg w-full flex-1"
-        )}
-        size="custom"
-        onClick={onStop}
-        leftIcon={null}
+          </span>
+        </Button>
+        <Button
+          variant="primary2"
+          className={clsx(
+            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1"
+          )}
+          size="custom"
+          onClick={onStop}
+          leftIcon={null}
           data-pip-action="stop"
-      >
-        <span className="inline-flex items-center gap-2 justify-center">
-          <Image
-            src="/Icons/stopWhite.svg"
-            alt="stop"
-            width={24}
-            height={24}
-            className="w-6 h-6"
-          />
-          종료
-        </span>
-      </Button>
+        >
+          <span className="inline-flex items-center gap-2 justify-center">
+            <Image
+              src="/Icons/stopWhite.svg"
+              alt="stop"
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
+            종료
+          </span>
+        </Button>
       </div>
       {onPipToggle && !isInPip && (
         <button
           onClick={onPipToggle}
-          className="self-stretch h-8 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
+          className="self-stretch h-9 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
         >
           <div className="w-6 h-6 relative overflow-hidden">
             <Image

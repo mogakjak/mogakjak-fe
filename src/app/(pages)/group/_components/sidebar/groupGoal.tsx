@@ -91,6 +91,7 @@ export default function GroupGoal({ data }: GroupGoalProps) {
                         text-heading3-24SB
                         text-right
                         text-gray-800
+                        placeholder:text-gray-800
                         bg-transparent 
                         border-none 
                         outline-none
@@ -111,6 +112,7 @@ export default function GroupGoal({ data }: GroupGoalProps) {
                             w-8
                             text-heading3-24SB
                           text-gray-800
+                            placeholder:text-gray-800
                             bg-transparent 
                             border-none 
                             outline-none
