@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const DEFAULT_METADATA = {
   title: "모각작",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-  imageUrl: "https://mogakjak-fe.vercel.app/thumbnail.png",
+  imageUrl: "https://mogakjak-fe.vercel.app/thumbnail.png?v=2",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
