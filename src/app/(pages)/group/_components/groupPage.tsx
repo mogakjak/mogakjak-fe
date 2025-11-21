@@ -77,21 +77,20 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   }, [token]);
 
   // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
+  // memberStatuses를 기반으로 생성하여 웹소켓으로 업데이트되는 실시간 변경사항 반영
   const displayMembers = useMemo(() => {
-    const membersWithStatus = groupData.members.map((member) => {
-      const status = memberStatuses.get(member.userId);
-      return {
-        ...member,
-        status: status || {
-          groupId: groupData.groupId,
-          userId: member.userId,
-          nickname: member.nickname,
-          profileUrl: member.profileUrl,
-          level: member.level || 1,
-          participationStatus: "NOT_PARTICIPATING" as const,
-        },
-      };
-    });
+    const membersWithStatus = Array.from(memberStatuses.values()).map(
+      (status) => {
+        // GroupMemberStatus가 userId, nickname, profileUrl 등 필요한 모든 정보를 포함합니다.
+        return {
+          userId: status.userId,
+          nickname: status.nickname,
+          profileUrl: status.profileUrl,
+          level: status.level,
+          status: status,
+        };
+      }
+    );
 
     // 현재 사용자를 맨 앞으로 정렬
     if (!currentUserId) return membersWithStatus;
@@ -101,7 +100,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       if (b.userId === currentUserId) return 1;
       return 0;
     });
-  }, [groupData.members, memberStatuses, groupData.groupId, currentUserId]);
+  }, [memberStatuses, currentUserId]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
