@@ -27,20 +27,11 @@ function getKoreanDateLabel(d = new Date()) {
 export default function TodoPage() {
   const [filter, setFilter] = useState<DayFilter>("today");
   const [selectedId, setSelectedId] = useState<string>("all");
-  const {
-    categories,
-    createCategory,
-    deleteCategory,
-    reorderCategories,
-  } = useTodoCategoryController();
-  const {
-    todayTodos,
-    createTodo,
-    updateTodo,
-    deleteTodo,
-    toggleTodoComplete,
-  } = useTodoController();
-  
+  const { categories, createCategory, deleteCategory, reorderCategories } =
+    useTodoCategoryController();
+  const { todayTodos, createTodo, updateTodo, deleteTodo, toggleTodoComplete } =
+    useTodoController();
+
   const { data: myTodos = [] } = useMyTodos();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
@@ -61,7 +52,7 @@ export default function TodoPage() {
 
   const todoListCategories = useMemo<ListCategory[]>(() => {
     const todosByCat = new Map<string, Todo[]>();
-    
+
     if (filter === "all") {
       myTodos.forEach((todo) => {
         if (!todosByCat.has(todo.categoryId)) {
@@ -80,34 +71,34 @@ export default function TodoPage() {
       .sort((a, b) => a.displayOrder - b.displayOrder)
       .map((category) => {
         const todos = todosByCat.get(category.id) ?? [];
-        
-      const baseToken =
-        CATEGORY_COLOR_TOKEN_BY_NAME[
-          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
-        ] ?? "category-1-red";
-      const colorToken = `bg-${baseToken}`;
 
-      return {
-        id: category.id,
-        title: category.name,
-        barColorClass: colorToken,
-        colorToken: baseToken,
-          expanded: todos.length > 0 ? (category.isExpanded ?? true) : false,
+        const baseToken =
+          CATEGORY_COLOR_TOKEN_BY_NAME[
+            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          ] ?? "category-1-red";
+        const colorToken = `bg-${baseToken}`;
+
+        return {
+          id: category.id,
+          title: category.name,
+          barColorClass: colorToken,
+          colorToken: baseToken,
+          expanded: todos.length > 0 ? category.isExpanded ?? true : false,
           items: todos.map((todo) => ({
-          id: todo.id,
-          date: todo.date,
-          title: todo.task,
-          targetSeconds: todo.targetTimeInSeconds,
-          currentSeconds: todo.actualTimeInSeconds,
-          completed: todo.isCompleted,
-        })),
-      };
-    });
+            id: todo.id,
+            date: todo.date,
+            title: todo.task,
+            targetSeconds: todo.targetTimeInSeconds,
+            currentSeconds: todo.actualTimeInSeconds,
+            completed: todo.isCompleted,
+          })),
+        };
+      });
 
     if (selectedId !== "all") {
       return allMappedCategories.filter((cat) => cat.id === selectedId);
     }
-    
+
     return allMappedCategories;
   }, [categories, todayTodos, myTodos, filter, selectedId]);
 
@@ -207,26 +198,28 @@ export default function TodoPage() {
   const handleToggleTodo = useCallback(
     async (todoId: string, next: boolean) => {
       if (!todoId) return;
-      
+
       if (filter === "all") {
         const todo = myTodos.find((t) => t.id === todoId);
         const current = todo?.isCompleted;
         if (current === next) return;
       } else {
-      const category = todayTodos.find((cat) =>
-        cat.todos.some((todo) => todo.id === todoId),
-      );
-      const current = category?.todos.find((todo) => todo.id === todoId)?.isCompleted;
-      if (current === next) return;
+        const category = todayTodos.find((cat) =>
+          cat.todos.some((todo) => todo.id === todoId)
+        );
+        const current = category?.todos.find(
+          (todo) => todo.id === todoId
+        )?.isCompleted;
+        if (current === next) return;
       }
-      
+
       await toggleTodoComplete(todoId);
     },
-    [todayTodos, myTodos, filter, toggleTodoComplete],
+    [todayTodos, myTodos, filter, toggleTodoComplete]
   );
 
   return (
-    <div className="w-full max-w-[1440px] h-full pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
+    <div className="w-full max-w-[1440px] min-h-[calc(100vh-97px)] pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
       <section className="flex flex-col gap-5 self-stretch">
         <CategorySidebar
           filter={filter}
@@ -241,17 +234,17 @@ export default function TodoPage() {
       </section>
 
       <section className="w-full self-stretch">
-          <TodoSection
-            filter={filter}
-            dateLabel={dateLabel}
-            categories={todoListCategories}
-            onCreateTodo={handleCreateTodo}
+        <TodoSection
+          filter={filter}
+          dateLabel={dateLabel}
+          categories={todoListCategories}
+          onCreateTodo={handleCreateTodo}
           onUpdateTodo={handleUpdateTodo}
           onDeleteTodo={handleDeleteTodo}
-            onToggleTodo={handleToggleTodo}
+          onToggleTodo={handleToggleTodo}
           onCategorySelect={setSelectedId}
-          />
+        />
       </section>
-      </div>
+    </div>
   );
 }

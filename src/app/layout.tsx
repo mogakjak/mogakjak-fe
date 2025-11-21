@@ -64,8 +64,8 @@ export default function RootLayout({
           <WithMobileDetection>
             {({ isMobile }) => <ConditionalHeader isMobile={isMobile} />}
           </WithMobileDetection>
-          <div className="flex-1 flex justify-center bg-gray-100 w-full ">
-            <div className="px-9 pb-9 w-[1440px]">{children}</div>
+          <div className="flex-1 flex justify-center bg-gray-100 w-full h-full">
+            <div className="px-9 h-full w-[1440px]">{children}</div>
           </div>
         </Providers>
       </body>
