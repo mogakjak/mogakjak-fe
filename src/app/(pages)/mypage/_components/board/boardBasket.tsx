@@ -61,7 +61,10 @@ export default function BoardBasket({
               level={characterInfo.level}
               name={ownedCharacter?.name || characterInfo.name}
               description={getDescriptionByLevel(characterInfo.level)}
-              imageUrl={ownedCharacter?.imageUrl || ""}
+              imageUrl={
+                ownedCharacter?.imageUrl ||
+                `/character/level${characterInfo.level}.svg`
+              }
               locked={isLocked}
             />
           );
