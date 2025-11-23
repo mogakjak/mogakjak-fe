@@ -15,7 +15,7 @@ interface GroupMemberStateProps {
   status: MemberStatus;
   isPublic: boolean;
   task?: string;
-  activeTime?: number;
+  activeTime?: number | null;
   restTime?: number;
   activeSec?: number;
   breakSec?: number;

@@ -1,6 +1,7 @@
 import type {
   MyGroup,
   MatesPage,
+  Mate,
   GroupDetail,
   CreateGroupBody,
   NotiRes,

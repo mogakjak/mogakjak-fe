@@ -109,8 +109,8 @@ export default function GroupTimer({
       switch (event.eventType) {
         case "START":
           // 다른 사용자가 시작한 타이머도 처리
-          setSessionId(event.sessionId);
-          onSessionIdChange?.(event.sessionId);
+          setSessionId(event.sessionId ?? null);
+          onSessionIdChange?.(event.sessionId ?? null);
           const startTotalDuration = event.totalDuration || 0;
           setCurrentSessionTotalSeconds(startTotalDuration);
           setClientElapsedSeconds(startTotalDuration);
@@ -132,7 +132,7 @@ export default function GroupTimer({
         case "PAUSE":
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
-            setSessionId(event.sessionId);
+            setSessionId(event.sessionId ?? null);
             stopwatch.pause();
             setStatus("paused");
             // 서버에서 전달된 totalDuration으로 업데이트 (현재 세션의 총 시간)
@@ -149,7 +149,7 @@ export default function GroupTimer({
         case "RESUME":
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
-            setSessionId(event.sessionId);
+            setSessionId(event.sessionId ?? null);
             stopwatch.start();
             setStatus("running");
             if (event.totalDuration !== undefined) {
@@ -205,7 +205,7 @@ export default function GroupTimer({
                   stopwatch.start();
                 }
                 
-                return event.sessionId;
+                return event.sessionId ?? null;
               }
               return currentSessionId;
             });
