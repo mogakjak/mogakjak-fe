@@ -32,6 +32,12 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
+
+  const finishGroupTimerMutation = useFinishGroupTimer(
+    groupData.groupId,
+    sessionId || ""
+  );
 
   // 그룹 멤버 상태 관리 훅
   const { memberStatuses } = useGroupMemberStatus({

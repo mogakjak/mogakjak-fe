@@ -138,12 +138,6 @@ export default function GroupTimer({
           if (event.accumulatedDuration !== undefined) {
             setAccumulatedDuration(event.accumulatedDuration);
           }
-          // 서버 시간과 클라이언트 시간 차이 계산
-          if (event.serverTime) {
-            const serverTime = new Date(event.serverTime).getTime();
-            const clientTime = Date.now();
-            setServerTimeOffset(serverTime - clientTime);
-          }
           stopwatch.start();
           setStatus("running");
           break;
@@ -154,11 +148,9 @@ export default function GroupTimer({
             setSessionId(event.sessionId ?? null);
             stopwatch.pause();
             setStatus("paused");
-            setStartedAt(null); // 일시정지 시 startedAt 초기화
             // 서버에서 전달된 totalDuration으로 업데이트 (현재 세션의 총 시간)
             if (event.totalDuration !== undefined) {
               setCurrentSessionTotalSeconds(event.totalDuration);
-              setBaseSeconds(event.totalDuration);
             }
             // 서버에서 받은 누적 시간 업데이트
             if (event.accumulatedDuration !== undefined) {
