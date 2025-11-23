@@ -7,7 +7,7 @@ import SockJS from "sockjs-client";
 export type GroupTimerEvent = {
   groupId: string;
   sessionId?: string;
-  eventType: "START" | "PAUSE" | "RESUME" | "FINISH" | "SYNC" | "VISIBILITY_CHANGE";
+  eventType: "START" | "PAUSE" | "RESUME" | "FINISH" | "SYNC";
   mode?: "TIMER" | "STOPWATCH" | "POMODORO";
   status?: "RUNNING" | "PAUSED" | "FINISHED";
   startedAt?: string;
@@ -16,7 +16,6 @@ export type GroupTimerEvent = {
   targetDuration?: number;
   totalDuration?: number; // 현재 세션의 총 시간
   accumulatedDuration?: number; // 그룹 누적 시간 (여러 세션을 거쳐 쌓인 시간)
-  isTimerPublic?: boolean; // 그룹 타이머 공개 여부
   progressRate?: number;
   serverTime: string; // 서버 시간 (동기화용)
 };

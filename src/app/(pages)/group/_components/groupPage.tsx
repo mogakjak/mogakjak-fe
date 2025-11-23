@@ -156,7 +156,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <GroupTimer
             groupId={groupData.groupId}
             initialAccumulatedDuration={groupData.accumulatedDuration || 0}
-            initialIsTimerPublic={groupData.isTimerPublic ?? true}
             onSessionIdChange={setSessionId}
           />
         </div>

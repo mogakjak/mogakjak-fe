@@ -10,12 +10,6 @@ import {
   useFinishGroupTimer,
 } from "@/app/_hooks/timers";
 import { useGroupTimer, GroupTimerEvent } from "@/app/_hooks/useGroupTimer";
-import VisibilityToggle from "./visibilityButton";
-import { updateGroupTimerVisibility } from "@/app/api/groups/api";
-import { useQueryClient } from "@tanstack/react-query";
-import { groupKeys } from "@/app/api/groups/keys";
-import { useAuthState } from "@/app/api/auth/useAuthState";
-import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -28,31 +22,22 @@ type Status = "idle" | "running" | "paused";
 interface GroupTimerProps {
   groupId: string;
   initialAccumulatedDuration?: number; // 초기 누적 시간 (초 단위)
-  initialIsTimerPublic?: boolean; // 초기 공개 여부
   onSessionIdChange?: (sessionId: string | null) => void;
 }
 
 export default function GroupTimer({
   groupId,
   initialAccumulatedDuration = 0,
-  initialIsTimerPublic = true,
   onSessionIdChange,
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] = useState(0); // 현재 세션의 총 시간
+  const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] = useState(0); // 현재 세션의 총 시간 (서버에서 받은 값)
+  const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0); // 클라이언트에서 추적하는 경과 시간 (1초마다 증가)
+  const [serverSyncTime, setServerSyncTime] = useState<number>(Date.now()); // 서버 동기화 시점
   const [accumulatedDuration, setAccumulatedDuration] = useState(initialAccumulatedDuration); // 서버에서 받은 그룹 누적 시간
-  const [isTimerPublic, setIsTimerPublic] = useState(initialIsTimerPublic); // 그룹 타이머 공개 여부
   const [targetDuration, setTargetDuration] = useState<number | null>(null);
   const [serverTimeOffset, setServerTimeOffset] = useState<number>(0); // 서버와 클라이언트 시간 차이
-  const [startedByUserId, setStartedByUserId] = useState<string | null>(null); // 타이머를 시작한 사용자 ID
-  const queryClient = useQueryClient();
-  const { token } = useAuthState();
-
-  // 현재 사용자 ID
-  const currentUserId = useMemo(() => {
-    return getUserIdFromToken(token);
-  }, [token]);
 
   const stopwatch = useStopwatch({ autoStart: false });
 
@@ -61,25 +46,44 @@ export default function GroupTimer({
     setAccumulatedDuration(initialAccumulatedDuration);
   }, [initialAccumulatedDuration]);
 
-  // 초기 공개 여부가 변경되면 업데이트
+  // 서버에서 받은 시간이 변경되면 클라이언트 경과 시간 동기화
   useEffect(() => {
-    setIsTimerPublic(initialIsTimerPublic);
-  }, [initialIsTimerPublic]);
+    if (status === "running" && sessionId) {
+      setClientElapsedSeconds(currentSessionTotalSeconds);
+      setServerSyncTime(Date.now());
+    }
+  }, [currentSessionTotalSeconds, status, sessionId]);
+
+  // running 상태일 때 1초마다 클라이언트 경과 시간 증가
+  useEffect(() => {
+    if (status !== "running" || !sessionId) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setClientElapsedSeconds(() => {
+        // 서버에서 받은 시간 + 경과 시간 (초 단위)
+        const elapsedSeconds = Math.floor((Date.now() - serverSyncTime) / 1000);
+        return currentSessionTotalSeconds + elapsedSeconds;
+      });
+    }, 1000); // 1초마다 업데이트
+
+    return () => clearInterval(interval);
+  }, [status, sessionId, currentSessionTotalSeconds, serverSyncTime]);
 
   // 서버 시간과 동기화된 경과 시간 계산 (현재 세션의 경과 시간)
   const elapsedSeconds = useMemo(() => {
-    // RUNNING 상태이고 세션이 있으면 서버의 totalDuration 사용
-    // SYNC 이벤트로 10초마다 업데이트됨
+    // RUNNING 상태이고 세션이 있으면 클라이언트에서 증가하는 시간 사용
     if (status === "running" && sessionId) {
-      return currentSessionTotalSeconds;
+      return clientElapsedSeconds;
     }
-    // PAUSED 상태이거나 세션이 있으면 currentSessionTotalSeconds 사용
+    // PAUSED 상태이거나 세션이 있으면 서버에서 받은 정적 시간 사용
     if (sessionId) {
       return currentSessionTotalSeconds;
     }
     // 로컬 stopwatch 시간 (시작 전)
     return stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds;
-  }, [status, sessionId, currentSessionTotalSeconds, stopwatch.hours, stopwatch.minutes, stopwatch.seconds]);
+  }, [status, sessionId, currentSessionTotalSeconds, clientElapsedSeconds, stopwatch.hours, stopwatch.minutes, stopwatch.seconds]);
   
   // 전체 누적 시간 (서버에서 받은 누적 시간 + 현재 세션 시간)
   const totalSeconds = useMemo(() => {
@@ -109,14 +113,13 @@ export default function GroupTimer({
           // 다른 사용자가 시작한 타이머도 처리
           setSessionId(event.sessionId);
           onSessionIdChange?.(event.sessionId);
-          setCurrentSessionTotalSeconds(event.totalDuration || 0);
+          const startTotalDuration = event.totalDuration || 0;
+          setCurrentSessionTotalSeconds(startTotalDuration);
+          setClientElapsedSeconds(startTotalDuration);
+          setServerSyncTime(Date.now());
           // 서버에서 받은 누적 시간 설정
           if (event.accumulatedDuration !== undefined) {
             setAccumulatedDuration(event.accumulatedDuration);
-          }
-          // 서버에서 받은 공개 여부 설정
-          if (event.isTimerPublic !== undefined) {
-            setIsTimerPublic(event.isTimerPublic);
           }
           // 서버 시간과 클라이언트 시간 차이 계산
           if (event.serverTime) {
@@ -142,10 +145,6 @@ export default function GroupTimer({
             if (event.accumulatedDuration !== undefined) {
               setAccumulatedDuration(event.accumulatedDuration);
             }
-            // 서버에서 받은 공개 여부 업데이트
-            if (event.isTimerPublic !== undefined) {
-              setIsTimerPublic(event.isTimerPublic);
-            }
           }
           break;
           
@@ -156,15 +155,14 @@ export default function GroupTimer({
             stopwatch.start();
             setStatus("running");
             if (event.totalDuration !== undefined) {
-              setCurrentSessionTotalSeconds(event.totalDuration);
+              const resumeTotalDuration = event.totalDuration;
+              setCurrentSessionTotalSeconds(resumeTotalDuration);
+              setClientElapsedSeconds(resumeTotalDuration);
+              setServerSyncTime(Date.now());
             }
             // 서버에서 받은 누적 시간 업데이트
             if (event.accumulatedDuration !== undefined) {
               setAccumulatedDuration(event.accumulatedDuration);
-            }
-            // 서버에서 받은 공개 여부 업데이트
-            if (event.isTimerPublic !== undefined) {
-              setIsTimerPublic(event.isTimerPublic);
             }
           }
           break;
@@ -177,10 +175,10 @@ export default function GroupTimer({
               setAccumulatedDuration(event.accumulatedDuration);
             }
             setCurrentSessionTotalSeconds(0);
+            setClientElapsedSeconds(0);
             stopwatch.reset(undefined, false);
             setStatus("idle");
             setSessionId(null);
-            setStartedByUserId(null);
             onSessionIdChange?.(null);
           }
           break;
@@ -195,16 +193,14 @@ export default function GroupTimer({
                 
                 if (event.totalDuration !== undefined) {
                   // 서버의 totalDuration으로 동기화 (현재 세션의 총 시간)
-                  setCurrentSessionTotalSeconds(event.totalDuration);
+                  const syncTotalDuration = event.totalDuration;
+                  setCurrentSessionTotalSeconds(syncTotalDuration);
+                  setClientElapsedSeconds(syncTotalDuration);
+                  setServerSyncTime(Date.now());
                   
                   // 서버에서 받은 누적 시간 업데이트
                   if (event.accumulatedDuration !== undefined) {
                     setAccumulatedDuration(event.accumulatedDuration);
-                  }
-
-                  // 서버에서 받은 공개 여부 업데이트
-                  if (event.isTimerPublic !== undefined) {
-                    setIsTimerPublic(event.isTimerPublic);
                   }
                   
                   // stopwatch 시작 (이미 실행 중이어도 안전)
@@ -217,16 +213,6 @@ export default function GroupTimer({
             });
           }
           break;
-
-        case "VISIBILITY_CHANGE":
-          // 공개/비공개 상태 변경
-          if (event.isTimerPublic !== undefined) {
-            setIsTimerPublic(event.isTimerPublic);
-          }
-          if (event.accumulatedDuration !== undefined) {
-            setAccumulatedDuration(event.accumulatedDuration);
-          }
-          break;
       }
     },
   });
@@ -236,11 +222,6 @@ export default function GroupTimer({
       setSessionId(null);
       onSessionIdChange?.(null);
       
-      // 현재 사용자가 타이머를 시작한 것으로 기록
-      if (currentUserId) {
-        setStartedByUserId(currentUserId);
-      }
-
       await startGroupTimerMutation.mutateAsync({
         targetSeconds: 3600,
         participationType: "GROUP",
@@ -281,34 +262,6 @@ export default function GroupTimer({
       console.error("그룹 타이머 종료 실패:", error);
     }
   };
-
-  const handleVisibilityChange = async (isPublic: boolean) => {
-    try {
-      await updateGroupTimerVisibility(groupId, { isTimerPublic: isPublic });
-      setIsTimerPublic(isPublic);
-      // 그룹 상세 정보 캐시 업데이트
-      queryClient.setQueryData<{ isTimerPublic?: boolean } | undefined>(
-        groupKeys.detail(groupId),
-        (prev) => (prev ? { ...prev, isTimerPublic: isPublic } : prev)
-      );
-    } catch (error) {
-      console.error("그룹 타이머 공개/비공개 설정 실패:", error);
-    }
-  };
-
-  // 비공개일 때는 시작한 사용자만 볼 수 있음
-  const canViewTimer = isTimerPublic || (startedByUserId && currentUserId === startedByUserId);
-
-  // 비공개이고 시작한 사용자가 아니면 타이머를 숨김
-  if (!canViewTimer && (status === "running" || status === "paused")) {
-    return (
-      <div className="w-full flex flex-col gap-3">
-        <div className="w-full flex items-center justify-center rounded-2xl py-8 bg-gray-100">
-          <p className="text-body1-16M text-gray-400">타이머가 비공개로 설정되어 있습니다</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full flex flex-col gap-3">
@@ -380,16 +333,6 @@ export default function GroupTimer({
             <Icon Svg={Stop} size={24} className="text-white" />
             {finishGroupTimerMutation.isPending ? "..." : "종료"}
           </button>
-        </div>
-        )}
-
-        {/* 공개/비공개 설정 */}
-        {(status === "running" || status === "paused") && (
-        <div className="w-full">
-          <VisibilityToggle
-            isTaskOpen={isTimerPublic}
-            setIsTaskOpen={handleVisibilityChange}
-          />
         </div>
         )}
       </div>

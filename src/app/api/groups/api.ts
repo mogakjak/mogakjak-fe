@@ -199,17 +199,3 @@ export const sendCheer = (groupId: string, body: CheerRequest) =>
     method: "POST",
     body: JSON.stringify(body),
   });
-
-// 그룹 타이머 공개/비공개 설정
-export type GroupTimerVisibilityRequest = {
-  isTimerPublic: boolean;
-};
-
-export const updateGroupTimerVisibility = (
-  groupId: string,
-  payload: GroupTimerVisibilityRequest
-) =>
-  request<void>(`/${groupId}/timer/visibility`, {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
