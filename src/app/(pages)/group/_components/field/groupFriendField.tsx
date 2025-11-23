@@ -12,7 +12,7 @@ export interface GroupFriendFieldProps {
   level: number;
   friendName?: string;
   isPublic?: boolean;
-  activeTime?: number;
+  activeTime?: number | null;
   task?: string;
   lastActiveAt?: Date | string | number;
   profileUrl?: string;
@@ -28,7 +28,7 @@ export default function GroupFriendField({
   level,
   friendName = "가나디",
   isPublic = true,
-  activeTime = 0,
+  activeTime,
   task,
   lastActiveAt,
   profileUrl,

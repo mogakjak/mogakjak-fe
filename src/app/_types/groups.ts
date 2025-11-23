@@ -57,6 +57,7 @@ export type GroupDetail = {
   name: string;
   imageUrl: string;
   accumulatedDuration?: number; // 그룹 타이머 누적 시간 (초 단위)
+  isTimerPublic?: boolean; // 그룹 타이머 공개 여부
   members: GroupMembers;
 };
 

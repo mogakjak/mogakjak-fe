@@ -33,8 +33,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
 
   // 초기 멤버 상태 설정 및 groupData 변경 시 업데이트
   useEffect(() => {
-    console.log("[GroupPage] groupData 변경됨, members:", groupData.members.length);
-    
     setMemberStatuses((prev) => {
       const next = new Map(prev);
       const currentMemberIds = new Set(groupData.members.map(m => m.userId));
@@ -64,7 +62,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         }
       });
       
-      console.log("[GroupPage] memberStatuses 업데이트 완료, 현재 멤버 수:", next.size);
       return next;
     });
   }, [groupData.groupId, groupData.members]);
@@ -74,23 +71,18 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     groupId: groupData.groupId,
     enabled: true,
     onUpdate: (update) => {
-      console.log("[GroupPage] 웹소켓 멤버 상태 업데이트 수신:", update);
       setMemberStatuses((prev) => {
         const next = new Map(prev);
 
         if (update.members) {
           // 전체 멤버 목록 업데이트
-          console.log("[GroupPage] 전체 멤버 목록 업데이트:", update.members.length);
           update.members.forEach((member) => {
             next.set(member.userId, member);
           });
         } else if (update.updatedMember) {
           // 단일 멤버 상태 업데이트
-          console.log("[GroupPage] 단일 멤버 상태 업데이트:", update.updatedMember.userId, update.updatedMember.participationStatus);
           next.set(update.updatedMember.userId, update.updatedMember);
         }
-
-        console.log("[GroupPage] 업데이트 후 memberStatuses:", Array.from(next.values()).map(m => ({ userId: m.userId, status: m.participationStatus })));
         return next;
       });
     },
@@ -164,6 +156,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           <GroupTimer
             groupId={groupData.groupId}
             initialAccumulatedDuration={groupData.accumulatedDuration || 0}
+            initialIsTimerPublic={groupData.isTimerPublic ?? true}
             onSessionIdChange={setSessionId}
           />
         </div>
@@ -211,7 +204,12 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                 // 개인 타이머 시간 (백엔드에서 초 단위로 전달됨)
                 // toSec 함수는 100,000보다 크면 밀리초로 간주하고 1000으로 나누므로,
                 // 초 단위 값을 그대로 전달하면 됩니다.
-                const activeTime = status.personalTimerSeconds || 0;
+                // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
+                // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
+                // null이나 undefined이면 undefined로, 숫자(0 포함)면 그대로 전달
+                const activeTime = status.personalTimerSeconds !== null && status.personalTimerSeconds !== undefined
+                  ? status.personalTimerSeconds
+                  : undefined;
 
                 // 최근 참여 일수
                 const lastActiveAt = status.daysSinceLastParticipation
@@ -229,7 +227,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                     level={status.level}
                     isPublic={true}
                     activeTime={activeTime}
-                    task={status.todoTitle}
+                    task={status.todoTitle ?? undefined}
                     lastActiveAt={lastActiveAt}
                     profileUrl={member.profileUrl}
                     isCurrentUser={member.userId === currentUserId}

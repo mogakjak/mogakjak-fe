@@ -31,11 +31,17 @@ export default function TimerComponent({
   initialMode = "pomodoro",
   todoId,
   groupId,
+  isTaskPublic,
+  isTimerPublic,
+  onSessionIdChange,
 }: {
   className?: string;
   initialMode?: Mode;
   todoId?: string | null;
   groupId?: string;
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
+  onSessionIdChange?: (sessionId: string | null) => void;
 }) {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [running, setRunning] = useState<boolean>(false);
@@ -89,8 +95,11 @@ export default function TimerComponent({
           repeatCount,
           participationType: groupId ? "GROUP" : "INDIVIDUAL",
           ...(groupId && { groupId }),
+          isTaskPublic,
+          isTimerPublic,
         });
         setSessionId(session.sessionId);
+        onSessionIdChange?.(session.sessionId);
         pomoRef.current?.reset(focusSeconds / 60);
         pomoRef.current?.start();
         setRunning(true);
@@ -108,7 +117,7 @@ export default function TimerComponent({
         setIsRunning(false);
       }
     },
-    [todoId, groupId, startPomodoroMutation, setIsRunning]
+    [todoId, groupId, startPomodoroMutation, setIsRunning, isTaskPublic, isTimerPublic]
   );
 
   const onStart = useCallback(async () => {
@@ -164,8 +173,11 @@ export default function TimerComponent({
             todoId,
             participationType: groupId ? "GROUP" : "INDIVIDUAL",
             ...(groupId && { groupId }),
+            isTaskPublic,
+            isTimerPublic,
           });
           setSessionId(session.sessionId);
+          onSessionIdChange?.(session.sessionId);
           swRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -287,6 +299,7 @@ export default function TimerComponent({
           setCurrentPhase("FOCUS");
           setCurrentRound(1);
           setSessionId(null);
+          onSessionIdChange?.(null);
           setIsPaused(false);
           setRunning(false);
           setIsRunning(false);
@@ -310,6 +323,7 @@ export default function TimerComponent({
           await finishTimerMutation.mutateAsync(sessionId);
           swRef.current?.stop();
           setSessionId(null);
+          onSessionIdChange?.(null);
           setIsPaused(false);
           setRunning(false);
           setIsRunning(false);
@@ -330,6 +344,7 @@ export default function TimerComponent({
           await finishTimerMutation.mutateAsync(sessionId);
           cdRef.current?.reset();
           setSessionId(null);
+          onSessionIdChange?.(null);
           setIsPaused(false);
           setRunning(false);
           setIsRunning(false);
@@ -576,8 +591,11 @@ export default function TimerComponent({
                   targetSeconds,
                   participationType: groupId ? "GROUP" : "INDIVIDUAL",
                   ...(groupId && { groupId }),
+                  isTaskPublic,
+                  isTimerPublic,
                 });
                 setSessionId(session.sessionId);
+                onSessionIdChange?.(session.sessionId);
                 const hours = Math.floor(targetSeconds / 3600);
                 const minutes = Math.floor((targetSeconds % 3600) / 60);
                 const secs = targetSeconds % 60;

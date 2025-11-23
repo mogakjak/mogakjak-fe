@@ -113,10 +113,10 @@ export default function ProfileList({
           <div className="w-px h-5 bg-black m-2" />
           <div className="text-gray-500 text-body1-16R flex">
             <div className="w-[200px] truncate">
-              {profile.groupNames.map((name, idx) => (
+              {(profile.groupNames || []).map((name, idx) => (
                 <span key={idx}>
                   {name}
-                  {idx < profile.groupNames.length - 1 && (
+                  {idx < (profile.groupNames || []).length - 1 && (
                     <span className="mx-1">,</span>
                   )}
                 </span>

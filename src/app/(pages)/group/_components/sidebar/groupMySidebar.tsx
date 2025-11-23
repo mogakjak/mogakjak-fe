@@ -21,10 +21,35 @@ import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
 import { useTodayTodoSync } from "./useTodayTodoSync";
+import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
+import type { PomodoroSession } from "@/app/api/timers/api";
 
-export default function GroupMySidebar({ state }: { state: boolean }) {
-  const [isTaskOpen, setIsTaskOpen] = useState(true);
-  const [isTimeOpen, setIsTimeOpen] = useState(true);
+type GroupMySidebarProps = {
+  state: boolean;
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
+  setIsTaskPublic?: (v: boolean) => void;
+  setIsTimerPublic?: (v: boolean) => void;
+  currentSessionId?: string | null;
+};
+
+export default function GroupMySidebar({ 
+  state,
+  isTaskPublic: externalIsTaskPublic,
+  isTimerPublic: externalIsTimerPublic,
+  setIsTaskPublic: externalSetIsTaskPublic,
+  setIsTimerPublic: externalSetIsTimerPublic,
+  currentSessionId,
+}: GroupMySidebarProps) {
+  const [internalIsTaskOpen, setInternalIsTaskOpen] = useState(true);
+  const [internalIsTimeOpen, setInternalIsTimeOpen] = useState(true);
+  
+  // 외부에서 전달된 값이 있으면 사용, 없으면 내부 상태 사용
+  const isTaskOpen = externalIsTaskPublic ?? internalIsTaskOpen;
+  const isTimeOpen = externalIsTimerPublic ?? internalIsTimeOpen;
+  
+  const setIsTaskOpen = externalSetIsTaskPublic ?? setInternalIsTaskOpen;
+  const setIsTimeOpen = externalSetIsTimerPublic ?? setInternalIsTimeOpen;
   const [selectedWork, setSelectedWork] = useState<AddWorkPayload | null>(null);
   const [currentTodo, setCurrentTodo] = useState<Todo | null>(null);
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(() => {
@@ -180,7 +205,24 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
             {state && (
               <VisibilityToggle
                 isTaskOpen={isTaskOpen}
-                setIsTaskOpen={setIsTaskOpen}
+                setIsTaskOpen={async (v: boolean) => {
+                  setIsTaskOpen(v);
+                  // 현재 활성 세션이 있으면 API 호출
+                  if (currentSessionId) {
+                    try {
+                      await updatePersonalTimerVisibility(currentSessionId, {
+                        isTaskPublic: v,
+                      });
+                      console.log("할일 공개/비공개 설정 성공:", v);
+                    } catch (error) {
+                      console.error("할일 공개/비공개 설정 실패:", error);
+                      // 실패 시 롤백
+                      setIsTaskOpen(!v);
+                    }
+                  } else {
+                    console.warn("활성 세션이 없어서 API 호출을 건너뜁니다.");
+                  }
+                }}
               />
             )}
             <div className="flex flex-col gap-1 mt-1">
@@ -197,7 +239,24 @@ export default function GroupMySidebar({ state }: { state: boolean }) {
               {state && (
                 <VisibilityToggle
                   isTaskOpen={isTimeOpen}
-                  setIsTaskOpen={setIsTimeOpen}
+                  setIsTaskOpen={async (v: boolean) => {
+                    setIsTimeOpen(v);
+                    // 현재 활성 세션이 있으면 API 호출
+                    if (currentSessionId) {
+                      try {
+                        await updatePersonalTimerVisibility(currentSessionId, {
+                          isTimerPublic: v,
+                        });
+                        console.log("타이머 누적 시간 공개/비공개 설정 성공:", v);
+                      } catch (error) {
+                        console.error("타이머 누적 시간 공개/비공개 설정 실패:", error);
+                        // 실패 시 롤백
+                        setIsTimeOpen(!v);
+                      }
+                    } else {
+                      console.warn("활성 세션이 없어서 API 호출을 건너뜁니다.");
+                    }
+                  }}
                 />
               )}
             </div>

@@ -13,8 +13,8 @@ export type GroupMemberStatus = {
   participationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
   enteredAt?: string;
   daysSinceLastParticipation?: number;
-  personalTimerSeconds?: number;
-  todoTitle?: string;
+  personalTimerSeconds?: number | null; // null이면 비공개, 숫자면 공개
+  todoTitle?: string | null; // null이면 비공개, 문자열이면 공개
 };
 
 export type GroupMemberStatusUpdate = {

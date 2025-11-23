@@ -72,6 +72,8 @@ export type StartPomodoroPayload = {
   repeatCount: number;
   participationType?: "INDIVIDUAL" | "GROUP";
   groupId?: string;
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
 };
 
 export const startPomodoro = (payload: StartPomodoroPayload) =>
@@ -100,12 +102,16 @@ export type StartTimerPayload = {
   targetSeconds: number;
   participationType?: "INDIVIDUAL" | "GROUP";
   groupId?: string;
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
 };
 
 export type StartStopwatchPayload = {
   todoId: string;
   participationType?: "INDIVIDUAL" | "GROUP";
   groupId?: string;
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
 };
 
 export const startTimer = (payload: StartTimerPayload) =>
@@ -128,6 +134,21 @@ export const finishActiveTimer = () =>
 export const nextPomodoro = (sessionId: string) =>
   request<PomodoroSession>(`/next/pomodoro/${sessionId}`, {
     method: "POST",
+  });
+
+// 개인 타이머 공개/비공개 설정
+export type PersonalTimerVisibilityRequest = {
+  isTaskPublic?: boolean;
+  isTimerPublic?: boolean;
+};
+
+export const updatePersonalTimerVisibility = (
+  sessionId: string,
+  payload: PersonalTimerVisibilityRequest
+) =>
+  request<void>(`/${sessionId}/visibility`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
   });
 
 //// 그룹 타이머
