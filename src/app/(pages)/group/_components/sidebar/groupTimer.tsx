@@ -42,7 +42,6 @@ export default function GroupTimer({
   const [accumulatedDuration, setAccumulatedDuration] = useState(
     initialAccumulatedDuration
   ); // 서버에서 받은 그룹 누적 시간
-  const [serverTimeOffset, setServerTimeOffset] = useState<number>(0); // 서버와 클라이언트 시간 차이
 
   const stopwatch = useStopwatch({ autoStart: false });
 
