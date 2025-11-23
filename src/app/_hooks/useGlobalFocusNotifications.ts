@@ -9,7 +9,8 @@ import type { FocusNotificationMessage } from "./useFocusNotification";
 
 function getWebSocketUrl(): string {
   const apiBase = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
-  const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+  const isHttps =
+    typeof window !== "undefined" && window.location.protocol === "https:";
   if (apiBase.startsWith("//")) {
     return isHttps ? `https:${apiBase}/connect` : `http:${apiBase}/connect`;
   }
@@ -64,7 +65,7 @@ export function useGlobalFocusNotifications(
     const wsUrl = getWebSocketUrl();
 
     const client = new Client({
-      webSocketFactory: () => { 
+      webSocketFactory: () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sock = new SockJS(wsUrl) as any;
         return sock;
@@ -85,13 +86,17 @@ export function useGlobalFocusNotifications(
           }
           groups.forEach((group) => {
             try {
-              if (!group.groupId || group.groupId === "undefined" || group.groupId === "") {
+              if (
+                !group.groupId ||
+                group.groupId === "undefined" ||
+                group.groupId === ""
+              ) {
                 console.error(`[WebSocket] Invalid group ID:`, group);
                 return;
               }
-              
+
               const destination = `/topic/group/${group.groupId}/notification`;
-              
+
               const subscription = client.subscribe(
                 destination,
                 (message) => {
@@ -101,13 +106,16 @@ export function useGlobalFocusNotifications(
                   id: `sub-${group.groupId}-${Date.now()}`,
                 }
               );
-              
+
               subscriptionsRef.current.set(group.groupId, subscription);
             } catch (error) {
-              console.error(`[WebSocket] Failed to subscribe to group ${group.groupId}:`, error);
+              console.error(
+                `[WebSocket] Failed to subscribe to group ${group.groupId}:`,
+                error
+              );
             }
           });
-        }, 100); 
+        }, 100);
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP error:", frame);
@@ -120,13 +128,12 @@ export function useGlobalFocusNotifications(
             if (clientRef.current) {
               try {
                 clientRef.current.deactivate();
-              } catch {
-              }
+              } catch {}
               clientRef.current = null;
             }
             connect();
           }
-        }, 10000); 
+        }, 10000);
       },
       onWebSocketClose: () => {
         subscriptionsRef.current.clear();
@@ -145,12 +152,11 @@ export function useGlobalFocusNotifications(
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (clientRef.current) {
       try {
         clientRef.current.deactivate();
-      } catch {
-      }
+      } catch {}
       clientRef.current = null;
     }
     subscriptionsRef.current.clear();
