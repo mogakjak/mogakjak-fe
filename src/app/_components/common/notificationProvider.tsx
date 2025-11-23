@@ -80,7 +80,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleTimerCompletionNotification = useCallback(
     (notification: TimerCompletionNotification) => {
-
       setTimerCompletionNotification(notification);
 
       const title = notification.todoTitle
@@ -120,7 +119,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     (notification: PokeNotification) => {
       setPokeNotification(notification);
 
-      const title = `${notification.fromUserNickname}님이 콕 찌르기를 보냈어요!`;
+      const title = `${notification.fromUserNickname}님이 콕 찔렀어요!`;
       const body = notification.message;
 
       if (permission === "granted") {
