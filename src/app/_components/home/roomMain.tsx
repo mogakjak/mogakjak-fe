@@ -3,9 +3,6 @@
 import { useState } from "react";
 import GroupRoom from "./room/groupRoom";
 import { Button } from "@/components/button";
-import { categoriesData } from "@/app/_utils/mockData";
-import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
-import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
 import { useMyGroups } from "@/app/_hooks/groups";
@@ -16,7 +13,6 @@ type RoomMainProps = {
 
 export default function RoomMain({ isPending }: RoomMainProps) {
   const [groupOpen, setGroupOpen] = useState(false);
-  const [personalOpen, setPersonalOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [createdGroupId, setCreatedGroupId] = useState<string | undefined>();
 
@@ -88,20 +84,6 @@ export default function RoomMain({ isPending }: RoomMainProps) {
               setInviteModalOpen(false);
               setCreatedGroupId(undefined);
             }}
-          />
-        </div>
-      )}
-
-      {personalOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <AddWorkForm
-            type="select"
-            categories={categoriesData.map((c) => ({
-              id: String(c.id),
-              name: c.title,
-              colorToken: "category-1-red" as CategoryOption["colorToken"],
-            }))}
-            onClose={() => setPersonalOpen(false)}
           />
         </div>
       )}
