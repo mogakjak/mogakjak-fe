@@ -220,7 +220,7 @@ export function useGroupMemberStatus({
         console.error("[WebSocket] 메시지 파싱 실패:", error);
       }
     },
-    [groupData]
+    [groupData, members]
   );
 
   const disconnect = useCallback(() => {
@@ -276,7 +276,7 @@ export function useGroupMemberStatus({
       console.error("[WebSocket] 연결 실패:", error);
       setIsConnected(false);
     }
-  }, [enabled, groupId, handleUpdate, disconnect, members]);
+  }, [enabled, groupId, handleUpdate, disconnect]);
 
   useEffect(() => {
     if (enabled && groupId) {
