@@ -38,14 +38,14 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       const currentMemberIds = new Set(groupData.members.map(m => m.userId));
       
       // groupData의 멤버들을 업데이트 (기존 상태 유지)
-      groupData.members.forEach((member) => {
+    groupData.members.forEach((member) => {
         const existingStatus = next.get(member.userId);
         next.set(member.userId, {
-          groupId: groupData.groupId,
-          userId: member.userId,
-          nickname: member.nickname,
-          profileUrl: member.profileUrl,
-          level: member.level || 1,
+        groupId: groupData.groupId,
+        userId: member.userId,
+        nickname: member.nickname,
+        profileUrl: member.profileUrl,
+        level: member.level || 1,
           // 기존 상태가 있으면 유지, 없으면 NOT_PARTICIPATING
           participationStatus: existingStatus?.participationStatus || "NOT_PARTICIPATING",
           cheerCount: existingStatus?.cheerCount || 0,

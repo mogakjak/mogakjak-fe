@@ -78,13 +78,18 @@ export const getMates = async (params?: GetMatesParams) => {
 
   const result = await request<MatesPage>(endpoint, { method: "GET" });
   
+  // 디버깅: API 응답 확인
+  if (result?.content) {
+    console.log("[getMates] API 응답:", result.content.map(m => ({ userId: m.userId, nickname: m.nickname, isActive: m.isActive })));
+  }
+  
   // groupName을 groupNames 배열로 변환
   if (result?.content) {
     const userGroupMap = new Map<string, string[]>();
     
     // 같은 userId를 가진 항목들을 그룹화하여 groupNames 배열 생성
     // API 응답에는 groupName (단수)이 있지만, Mate 타입에는 groupNames (복수 배열)가 있음
-    type RawMate = Mate & { groupName?: string };
+    type RawMate = Mate & { groupName?: string; isActive?: boolean };
     result.content.forEach((mate: RawMate) => {
       const userId = mate.userId;
       const groupName = mate.groupName;
@@ -105,13 +110,24 @@ export const getMates = async (params?: GetMatesParams) => {
         uniqueMates.set(userId, {
           ...mate,
           groupNames: userGroupMap.get(userId) || [],
+          isActive: mate.isActive, // isActive 필드 유지
         });
+      } else {
+        // 이미 존재하는 경우, isActive가 true이면 유지 (더 최신 정보 우선)
+        const existing = uniqueMates.get(userId)!;
+        if (mate.isActive && !existing.isActive) {
+          existing.isActive = true;
+        }
       }
     });
     
+    const finalMates = Array.from(uniqueMates.values());
+    // 디버깅: 최종 변환된 메이트 목록 확인
+    console.log("[getMates] 최종 변환된 메이트:", finalMates.map(m => ({ userId: m.userId, nickname: m.nickname, isActive: m.isActive })));
+    
     return {
       ...result,
-      content: Array.from(uniqueMates.values()),
+      content: finalMates,
     };
   }
   
