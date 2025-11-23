@@ -10,8 +10,10 @@ import GroupTimer from "./sidebar/groupTimer";
 import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 import InviteModal from "@/app/_components/home/room/inviteModal";
+import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { useAuthState } from "@/app/api/auth/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
+import { useFinishGroupTimer } from "@/app/_hooks/timers";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
@@ -23,9 +25,12 @@ type GroupPageProps = {
   groupData: GroupDetail;
 };
 
+type TimerStatus = "idle" | "running" | "paused";
+
 export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
+  const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   // 그룹 멤버 상태 관리 훅
@@ -103,6 +108,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             groupId={groupData.groupId}
             initialAccumulatedDuration={groupData.accumulatedDuration || 0}
             onSessionIdChange={setSessionId}
+            onStatusChange={setTimerStatus}
           />
         </div>
         <GroupGoal data={groupData}></GroupGoal>
@@ -191,7 +197,14 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
 
         <div className="flex mt-3">
           <Button
-            onClick={() => setOpenReview(true)}
+            onClick={() => {
+              // 타이머가 실행 중이거나 일시정지 상태면 TimerEndModal 먼저 표시
+              if (timerStatus === "running" || timerStatus === "paused") {
+                setOpenTimerEndModal(true);
+              } else {
+                setOpenReview(true);
+              }
+            }}
             leftIconSrc={"/Icons/timerOut.svg"}
             size="custom"
             className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
@@ -200,6 +213,33 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           </Button>
         </div>
       </div>
+
+      {openTimerEndModal && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenTimerEndModal(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <TimerEndModal
+              onClose={() => setOpenTimerEndModal(false)}
+              onConfirm={async () => {
+                if (sessionId) {
+                  try {
+                    await finishGroupTimerMutation.mutateAsync();
+                    setOpenTimerEndModal(false);
+                    setOpenReview(true);
+                  } catch (error) {
+                    console.error("그룹 타이머 종료 실패:", error);
+                  }
+                } else {
+                  setOpenTimerEndModal(false);
+                  setOpenReview(true);
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {openReview && (
         <div
