@@ -78,52 +78,61 @@ export const getMates = async (params?: GetMatesParams) => {
 
   const result = await request<MatesPage>(endpoint, { method: "GET" });
   
-  // 디버깅: API 응답 확인
+  // 백엔드에서 이미 groupNames 배열로 반환하므로, 중복 제거만 수행
   if (result?.content) {
-    console.log("[getMates] API 응답:", result.content.map(m => ({ userId: m.userId, nickname: m.nickname, isActive: m.isActive })));
-  }
-  
-  // groupName을 groupNames 배열로 변환
-  if (result?.content) {
-    const userGroupMap = new Map<string, string[]>();
+    // 같은 userId를 가진 항목들을 그룹화하여 groupNames 배열 병합
+    type RawMate = Mate & { groupNames?: string[]; groupName?: string; isActive?: boolean };
     
-    // 같은 userId를 가진 항목들을 그룹화하여 groupNames 배열 생성
-    // API 응답에는 groupName (단수)이 있지만, Mate 타입에는 groupNames (복수 배열)가 있음
-    type RawMate = Mate & { groupName?: string; isActive?: boolean };
+    // 디버깅: API 응답 확인
+    console.log("[getMates] API 응답:", result.content.map((m: RawMate) => ({ 
+      userId: m.userId, 
+      nickname: m.nickname, 
+      isActive: m.isActive,
+      groupNames: m.groupNames 
+    })));
+    const userGroupMap = new Map<string, string[]>();
+    const userMateMap = new Map<string, RawMate>();
+    
     result.content.forEach((mate: RawMate) => {
       const userId = mate.userId;
-      const groupName = mate.groupName;
+      
+      // 백엔드에서 groupNames 배열로 반환 (또는 레거시 groupName 단수)
+      const groupNames = mate.groupNames || (mate.groupName ? [mate.groupName] : []);
       
       if (!userGroupMap.has(userId)) {
         userGroupMap.set(userId, []);
+        userMateMap.set(userId, mate);
       }
-      if (groupName && !userGroupMap.get(userId)!.includes(groupName)) {
-        userGroupMap.get(userId)!.push(groupName);
-      }
-    });
-    
-    // 중복 제거 및 groupNames 변환
-    const uniqueMates = new Map<string, Mate>();
-    result.content.forEach((mate: RawMate) => {
-      const userId = mate.userId;
-      if (!uniqueMates.has(userId)) {
-        uniqueMates.set(userId, {
-          ...mate,
-          groupNames: userGroupMap.get(userId) || [],
-          isActive: mate.isActive, // isActive 필드 유지
-        });
-      } else {
-        // 이미 존재하는 경우, isActive가 true이면 유지 (더 최신 정보 우선)
-        const existing = uniqueMates.get(userId)!;
-        if (mate.isActive && !existing.isActive) {
-          existing.isActive = true;
+      
+      // groupNames 병합 (중복 제거)
+      const existingGroups = userGroupMap.get(userId)!;
+      groupNames.forEach(groupName => {
+        if (!existingGroups.includes(groupName)) {
+          existingGroups.push(groupName);
         }
+      });
+      
+      // isActive는 true가 있으면 우선
+      const existing = userMateMap.get(userId)!;
+      if (mate.isActive && !existing.isActive) {
+        existing.isActive = true;
       }
     });
     
-    const finalMates = Array.from(uniqueMates.values());
+    // 최종 메이트 목록 생성
+    const finalMates: Mate[] = Array.from(userMateMap.entries()).map(([userId, mate]) => ({
+      ...mate,
+      groupNames: userGroupMap.get(userId) || [],
+      isActive: mate.isActive ?? false,
+    }));
+    
     // 디버깅: 최종 변환된 메이트 목록 확인
-    console.log("[getMates] 최종 변환된 메이트:", finalMates.map(m => ({ userId: m.userId, nickname: m.nickname, isActive: m.isActive })));
+    console.log("[getMates] 최종 변환된 메이트:", finalMates.map(m => ({ 
+      userId: m.userId, 
+      nickname: m.nickname, 
+      isActive: m.isActive,
+      groupNames: m.groupNames 
+    })));
     
     return {
       ...result,
