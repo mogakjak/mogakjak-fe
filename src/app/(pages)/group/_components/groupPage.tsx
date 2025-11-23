@@ -57,7 +57,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   };
 
   // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
-  // memberStatuses를 기반으로 생성하여 웹소켓으로 업데이트되는 실시간 변경사항 반영
   const displayMembers = useMemo(() => {
     const membersWithStatus = Array.from(memberStatuses.values()).map(
       (status) => {
@@ -94,6 +93,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       document.body.classList.remove("overflow-hidden");
     };
   }, [openReview]);
+
   return (
     <div className="flex flex-col items-center w-full justify-between ">
       <div className="flex gap-5 w-full">

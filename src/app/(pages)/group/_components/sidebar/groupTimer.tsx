@@ -9,7 +9,10 @@ import {
   useResumeGroupTimer,
   useFinishGroupTimer,
 } from "@/app/_hooks/timers";
-import { useGroupTimer, GroupTimerEvent } from "@/app/_hooks/_websocket/groupTimer";
+import {
+  useGroupTimer,
+  GroupTimerEvent,
+} from "@/app/_hooks/_websocket/groupTimer";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -32,11 +35,13 @@ export default function GroupTimer({
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] = useState(0); // 현재 세션의 총 시간 (서버에서 받은 값)
+  const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] =
+    useState(0); // 현재 세션의 총 시간 (서버에서 받은 값)
   const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0); // 클라이언트에서 추적하는 경과 시간 (1초마다 증가)
   const [serverSyncTime, setServerSyncTime] = useState<number>(Date.now()); // 서버 동기화 시점
-  const [accumulatedDuration, setAccumulatedDuration] = useState(initialAccumulatedDuration); // 서버에서 받은 그룹 누적 시간
-  const [targetDuration, setTargetDuration] = useState<number | null>(null);
+  const [accumulatedDuration, setAccumulatedDuration] = useState(
+    initialAccumulatedDuration
+  ); // 서버에서 받은 그룹 누적 시간
   const [serverTimeOffset, setServerTimeOffset] = useState<number>(0); // 서버와 클라이언트 시간 차이
 
   const stopwatch = useStopwatch({ autoStart: false });
@@ -83,8 +88,16 @@ export default function GroupTimer({
     }
     // 로컬 stopwatch 시간 (시작 전)
     return stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds;
-  }, [status, sessionId, currentSessionTotalSeconds, clientElapsedSeconds, stopwatch.hours, stopwatch.minutes, stopwatch.seconds]);
-  
+  }, [
+    status,
+    sessionId,
+    currentSessionTotalSeconds,
+    clientElapsedSeconds,
+    stopwatch.hours,
+    stopwatch.minutes,
+    stopwatch.seconds,
+  ]);
+
   // 전체 누적 시간 (서버에서 받은 누적 시간 + 현재 세션 시간)
   const totalSeconds = useMemo(() => {
     return accumulatedDuration + elapsedSeconds;
@@ -128,7 +141,7 @@ export default function GroupTimer({
           stopwatch.start();
           setStatus("running");
           break;
-          
+
         case "PAUSE":
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
@@ -145,7 +158,7 @@ export default function GroupTimer({
             }
           }
           break;
-          
+
         case "RESUME":
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
@@ -164,7 +177,7 @@ export default function GroupTimer({
             }
           }
           break;
-          
+
         case "FINISH":
           // 세션 ID가 일치하면 종료
           if (event.sessionId === sessionId) {
@@ -180,7 +193,7 @@ export default function GroupTimer({
             onSessionIdChange?.(null);
           }
           break;
-          
+
         case "SYNC":
           // 10초마다 서버 시간 동기화
           if (event.sessionId && event.status === "RUNNING") {
@@ -188,23 +201,23 @@ export default function GroupTimer({
             setSessionId((currentSessionId) => {
               if (!currentSessionId || event.sessionId === currentSessionId) {
                 setStatus("running");
-                
+
                 if (event.totalDuration !== undefined) {
                   // 서버의 totalDuration으로 동기화 (현재 세션의 총 시간)
                   const syncTotalDuration = event.totalDuration;
                   setCurrentSessionTotalSeconds(syncTotalDuration);
                   setClientElapsedSeconds(syncTotalDuration);
                   setServerSyncTime(Date.now());
-                  
+
                   // 서버에서 받은 누적 시간 업데이트
                   if (event.accumulatedDuration !== undefined) {
                     setAccumulatedDuration(event.accumulatedDuration);
                   }
-                  
+
                   // stopwatch 시작 (이미 실행 중이어도 안전)
                   stopwatch.start();
                 }
-                
+
                 return event.sessionId ?? null;
               }
               return currentSessionId;
@@ -219,7 +232,7 @@ export default function GroupTimer({
     try {
       setSessionId(null);
       onSessionIdChange?.(null);
-      
+
       await startGroupTimerMutation.mutateAsync({
         targetSeconds: 3600,
         participationType: "GROUP",
@@ -282,56 +295,56 @@ export default function GroupTimer({
         </div>
 
         {status === "idle" && (
-        <button
-          onClick={handleStart}
-          disabled={startGroupTimerMutation.isPending}
-          className="bg-gray-600 px-8 py-1.5 text-white rounded-lg text-body2-14SB flex justify-center items-center gap-2 disabled:opacity-50"
-        >
-          <Icon Svg={StartIcon} size={24} className="text-white" />
-          {startGroupTimerMutation.isPending ? "..." : "시작"}
-        </button>
+          <button
+            onClick={handleStart}
+            disabled={startGroupTimerMutation.isPending}
+            className="bg-gray-600 px-8 py-1.5 text-white rounded-lg text-body2-14SB flex justify-center items-center gap-2 disabled:opacity-50"
+          >
+            <Icon Svg={StartIcon} size={24} className="text-white" />
+            {startGroupTimerMutation.isPending ? "..." : "시작"}
+          </button>
         )}
 
         {status === "running" && (
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={handlePause}
-            disabled={pauseGroupTimerMutation.isPending}
-            className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
-          >
-            <Icon Svg={Pause} size={24} className="text-white" />
-            {pauseGroupTimerMutation.isPending ? "..." : "휴식"}
-          </button>
-          <button
-            onClick={handleStop}
-            disabled={finishGroupTimerMutation.isPending}
-            className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
-          >
-            <Icon Svg={Stop} size={24} className="text-white" />
-            {finishGroupTimerMutation.isPending ? "..." : "종료"}
-          </button>
-        </div>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={handlePause}
+              disabled={pauseGroupTimerMutation.isPending}
+              className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Icon Svg={Pause} size={24} className="text-white" />
+              {pauseGroupTimerMutation.isPending ? "..." : "휴식"}
+            </button>
+            <button
+              onClick={handleStop}
+              disabled={finishGroupTimerMutation.isPending}
+              className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Icon Svg={Stop} size={24} className="text-white" />
+              {finishGroupTimerMutation.isPending ? "..." : "종료"}
+            </button>
+          </div>
         )}
 
         {status === "paused" && (
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={handleResume}
-            disabled={resumeGroupTimerMutation.isPending}
-            className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
-          >
-            <Icon Svg={StartIcon} size={24} className="text-white" />
-            {resumeGroupTimerMutation.isPending ? "..." : "시작"}
-          </button>
-          <button
-            onClick={handleStop}
-            disabled={finishGroupTimerMutation.isPending}
-            className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
-          >
-            <Icon Svg={Stop} size={24} className="text-white" />
-            {finishGroupTimerMutation.isPending ? "..." : "종료"}
-          </button>
-        </div>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={handleResume}
+              disabled={resumeGroupTimerMutation.isPending}
+              className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Icon Svg={StartIcon} size={24} className="text-white" />
+              {resumeGroupTimerMutation.isPending ? "..." : "시작"}
+            </button>
+            <button
+              onClick={handleStop}
+              disabled={finishGroupTimerMutation.isPending}
+              className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              <Icon Svg={Stop} size={24} className="text-white" />
+              {finishGroupTimerMutation.isPending ? "..." : "종료"}
+            </button>
+          </div>
         )}
       </div>
     </div>

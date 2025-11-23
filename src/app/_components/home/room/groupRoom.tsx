@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Members from "./members";
 import StateButton from "./stateButton";
 import HomeButton from "./homeButton";
@@ -7,6 +8,8 @@ import MembersHover from "./membersHover";
 import Image from "next/image";
 import { MyGroup } from "@/app/_types/groups";
 import { useRouter } from "next/navigation";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/groupMemberStatus";
+import { useGroupTimer } from "@/app/_hooks/_websocket/groupTimer";
 
 type GroupRoomProps = {
   group: MyGroup;
@@ -16,7 +19,31 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   const router = useRouter();
   const { groupId, groupName, imageUrl, members } = group;
 
-  const activeCount = members.length;
+  // 그룹 타이머 상태 관리
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  // 그룹 타이머 이벤트 구독
+  useGroupTimer({
+    groupId,
+    enabled: true,
+    onEvent: (event) => {
+      if (event.eventType === "START" || event.eventType === "RESUME") {
+        setIsTimerRunning(true);
+      } else if (event.eventType === "PAUSE" || event.eventType === "FINISH") {
+        setIsTimerRunning(false);
+      } else if (event.eventType === "SYNC" && event.status === "RUNNING") {
+        setIsTimerRunning(true);
+      }
+    },
+  });
+
+  // 그룹 멤버 상태를 기반으로 isActive 계산
+  const { membersWithStatus, activeCount } = useGroupMemberStatus({
+    groupId,
+    members,
+    enabled: true,
+  });
+
   const totalCount = members.length;
 
   const handleEnter = () => {
@@ -42,19 +69,19 @@ export default function GroupRoom({ group }: GroupRoomProps) {
 
       <div className="flex flex-col gap-2 ml-5">
         <p className="text-heading4-20SB text-black">{groupName}</p>
-        <StateButton state={true} />
+        <StateButton state={isTimerRunning} />
       </div>
 
       <div className="flex items-center ml-auto gap-9">
         <div className="flex items-center gap-4">
           <MembersHover
-            members={members}
+            members={membersWithStatus}
             activeCount={activeCount}
             trigger={
               <Members
-                members={members.map((m) => ({
+                members={membersWithStatus.map((m) => ({
                   id: m.userId,
-                  isActive: true,
+                  isActive: m.isActive ?? false,
                   profileUrl: m.profileUrl,
                 }))}
                 size="default"

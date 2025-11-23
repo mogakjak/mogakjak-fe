@@ -181,8 +181,8 @@ export default function ProfileList({
             </p>
 
             <div className="w-px h-5 bg-black m-2" />
-            <div className="text-gray-500 text-body1-16R flex">
-              <div className="w-[200px] truncate">
+            <div className="text-gray-500 text-body1-16R flex gap-2">
+              <div className="max-w-[200px] truncate">
                 {(profile.groupNames || []).map((name, idx) => (
                   <span key={idx}>
                     {name}
@@ -198,7 +198,7 @@ export default function ProfileList({
 
             <div className="ml-auto">
               <ForkButton
-                active={true}
+                active={isActive}
                 onClick={() => handleForkClick(profile.userId)}
               />
             </div>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import {
   GroupDetail,
   GroupMemberStatus as GroupsGroupMemberStatus,
+  Mate,
 } from "@/app/_types/groups";
 import {
   createWebSocketClient,
@@ -41,17 +42,27 @@ type UseGroupMemberStatusOptionsWithCallback =
   UseGroupMemberStatusOptionsBase & {
     onUpdate: (update: GroupMemberStatusUpdate) => void;
     groupData?: never;
+    members?: never;
   };
 
 type UseGroupMemberStatusOptionsWithGroupData =
   UseGroupMemberStatusOptionsBase & {
     groupData: GroupDetail;
     onUpdate?: never;
+    members?: never;
+  };
+
+type UseGroupMemberStatusOptionsWithMembers =
+  UseGroupMemberStatusOptionsBase & {
+    members: Mate[];
+    onUpdate?: never;
+    groupData?: never;
   };
 
 type UseGroupMemberStatusOptions =
   | UseGroupMemberStatusOptionsWithCallback
-  | UseGroupMemberStatusOptionsWithGroupData;
+  | UseGroupMemberStatusOptionsWithGroupData
+  | UseGroupMemberStatusOptionsWithMembers;
 
 // 함수 오버로드
 export function useGroupMemberStatus(
@@ -61,6 +72,16 @@ export function useGroupMemberStatus(
   connect: () => Promise<void>;
   disconnect: () => void;
   memberStatuses: Map<string, GroupsGroupMemberStatus>;
+};
+
+export function useGroupMemberStatus(
+  options: UseGroupMemberStatusOptionsWithMembers
+): {
+  isConnected: boolean;
+  connect: () => Promise<void>;
+  disconnect: () => void;
+  membersWithStatus: (Mate & { isActive: boolean })[];
+  activeCount: number;
 };
 
 export function useGroupMemberStatus(
@@ -76,6 +97,7 @@ export function useGroupMemberStatus({
   enabled = true,
   onUpdate,
   groupData,
+  members,
 }: UseGroupMemberStatusOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const clientRef = useRef<Client | null>(null);
@@ -84,6 +106,11 @@ export function useGroupMemberStatus({
   // groupData가 제공되면 상태 관리 모드
   const [memberStatuses, setMemberStatuses] = useState<
     Map<string, GroupsGroupMemberStatus>
+  >(new Map());
+
+  // members가 제공되면 멤버 상태를 Map으로 관리
+  const [memberStatusMap, setMemberStatusMap] = useState<
+    Map<string, GroupMemberStatus>
   >(new Map());
 
   // onUpdate를 ref로 관리하여 변경되어도 재연결하지 않도록 함
@@ -166,6 +193,27 @@ export function useGroupMemberStatus({
           });
         }
 
+        // members가 제공되면 상태 관리 모드
+        if (members) {
+          setMemberStatusMap((prev) => {
+            const next = new Map(prev);
+
+            // 전체 멤버 목록 업데이트
+            if (update.members) {
+              update.members.forEach((member) => {
+                next.set(member.userId, member);
+              });
+            }
+
+            // 개별 멤버 업데이트
+            if (update.updatedMember) {
+              next.set(update.updatedMember.userId, update.updatedMember);
+            }
+
+            return next;
+          });
+        }
+
         // onUpdate 콜백 호출 (groupData 모드가 아닐 때)
         onUpdateRef.current?.(update);
       } catch (error) {
@@ -228,7 +276,7 @@ export function useGroupMemberStatus({
       console.error("[WebSocket] 연결 실패:", error);
       setIsConnected(false);
     }
-  }, [enabled, groupId, handleUpdate, disconnect]);
+  }, [enabled, groupId, handleUpdate, disconnect, members]);
 
   useEffect(() => {
     if (enabled && groupId) {
@@ -241,7 +289,25 @@ export function useGroupMemberStatus({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, groupId]); // connect와 disconnect를 의존성에서 제거
 
-  // groupData가 제공되면 memberStatuses를 반환, 아니면 기존 반환값
+  // members가 제공되면 membersWithStatus와 activeCount 계산
+  const membersWithStatus = useMemo(() => {
+    if (!members) return [];
+    return members.map((member) => {
+      const status = memberStatusMap.get(member.userId);
+      const isActive = status?.participationStatus === "PARTICIPATING";
+      return {
+        ...member,
+        isActive,
+      };
+    });
+  }, [members, memberStatusMap]);
+
+  const activeCount = useMemo(
+    () => membersWithStatus.filter((m) => m.isActive).length,
+    [membersWithStatus]
+  );
+
+  // groupData가 제공되면 memberStatuses를 반환
   if (groupData) {
     return {
       isConnected,
@@ -251,10 +317,21 @@ export function useGroupMemberStatus({
     } as const;
   }
 
+  // members가 제공되면 membersWithStatus와 activeCount를 반환
+  if (members) {
+    return {
+      isConnected,
+      connect,
+      disconnect,
+      membersWithStatus,
+      activeCount,
+    } as const;
+  }
+
+  // onUpdate 콜백 모드
   return {
     isConnected,
     connect,
     disconnect,
   } as const;
 }
-
