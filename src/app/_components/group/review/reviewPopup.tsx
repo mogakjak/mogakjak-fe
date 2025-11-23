@@ -6,9 +6,6 @@ import ReviewTag from "./reviewTag";
 import { useCreateFeedback, useFeedbackTags } from "@/app/_hooks/feedback";
 import { FeedbackTagType } from "@/app/_types/feedback";
 import { useExitGroupSession } from "@/app/_hooks/groups";
-import { useCharacterBasket } from "@/app/_hooks/mypage";
-import GainCharacterModal from "@/app/_components/common/gainCharacterModal";
-import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
 
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
@@ -89,34 +86,6 @@ export default function ReviewPopup({
   const { mutateAsync: createFeedback, isPending: isSubmitting } =
     useCreateFeedback();
   const { mutateAsync: exitSession } = useExitGroupSession();
-  const { data: characterBasket } = useCharacterBasket();
-  const [showGainModal, setShowGainModal] = useState(false);
-
-  // 새로 얻은 캐릭터 정보 계산
-  const newCharacter = useMemo(() => {
-    if (!characterBasket?.ownedCharacters) return null;
-
-    const ownedCharacters = characterBasket.ownedCharacters;
-    const currentLevel = ownedCharacters.length;
-    const nextLevel = currentLevel + 1;
-
-    // 마지막 캐릭터 정보
-    const lastCharacter = ownedCharacters[ownedCharacters.length - 1];
-    if (!lastCharacter) return null;
-
-    // 다음 레벨의 설명 가져오기
-    const nextLevelInfo = Object.values(CHARACTER_BY_HOURS).find(
-      (c) => c.level === nextLevel
-    );
-
-    return {
-      level: lastCharacter.level,
-      name: lastCharacter.name,
-      hours: nextLevel,
-      description: nextLevelInfo?.description || "",
-      imageUrl: lastCharacter.imageUrl,
-    };
-  }, [characterBasket]);
 
   const handleEmojiClick = (e: EmojiType) => {
     if (selectedEmoji === e) {
@@ -149,22 +118,11 @@ export default function ReviewPopup({
       await exitSession(groupId);
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // 새로 얻은 캐릭터가 있으면 모달 표시
-      if (newCharacter) {
-        setShowGainModal(true);
-      } else {
-        onClose();
-        onExitGroup();
-      }
+      onClose();
+      onExitGroup();
     } catch (e) {
       console.error("[ReviewPopup] 세션 나가기 실패:", e);
     }
-  };
-
-  const handleGainModalClose = () => {
-    setShowGainModal(false);
-    onClose();
-    onExitGroup();
   };
 
   return (
