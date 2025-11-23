@@ -41,10 +41,9 @@ export function useTimerCompletionNotification({
       const notification: TimerCompletionNotification = JSON.parse(
         message.body
       );
-      console.log("[WebSocket] 타이머 완료 알림:", notification);
       onNotificationRef.current?.(notification);
     } catch (error) {
-      console.error("[WebSocket] 메시지 파싱 실패:", error);
+      // 메시지 파싱 실패
     }
   }, []);
 
@@ -67,14 +66,12 @@ export function useTimerCompletionNotification({
     const token = await getTokenFromServer();
 
     if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
       return;
     }
 
     // 토큰에서 userId 추출
     const userId = getUserIdFromToken(token);
     if (!userId) {
-      console.error("[WebSocket] 토큰에서 userId를 추출할 수 없습니다.");
       return;
     }
 
@@ -109,7 +106,6 @@ export function useTimerCompletionNotification({
         }
       },
       onStompError: (frame) => {
-        console.error("[WebSocket] STOMP 에러:", frame);
         setIsConnected(false);
       },
       onWebSocketClose: () => {

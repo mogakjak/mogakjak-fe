@@ -34,7 +34,7 @@ export function usePokeNotification({
       const notification: PokeNotification = JSON.parse(message.body);
       onNotificationRef.current?.(notification);
     } catch (error) {
-      console.error("[WebSocket] 메시지 파싱 실패:", error);
+      // 메시지 파싱 실패
     }
   }, []);
 
@@ -57,13 +57,11 @@ export function usePokeNotification({
     const token = await getTokenFromServer();
 
     if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
       return;
     }
 
     const userId = getUserIdFromToken(token);
     if (!userId) {
-      console.error("[WebSocket] 토큰에서 사용자 ID를 추출할 수 없습니다.");
       return;
     }
     userIdRef.current = userId;
@@ -99,7 +97,6 @@ export function usePokeNotification({
         }
       },
       onStompError: (frame) => {
-        console.error("[WebSocket] STOMP 에러:", frame);
         setIsConnected(false);
       },
       onWebSocketClose: () => {

@@ -50,7 +50,7 @@ export function useGroupTimer({
       const event: GroupTimerEvent = JSON.parse(message.body);
       onEventRef.current?.(event);
     } catch (error) {
-      console.error("[WebSocket] 그룹 타이머 이벤트 파싱 실패:", error);
+      // 그룹 타이머 이벤트 파싱 실패
     }
   }, []);
 
@@ -73,7 +73,6 @@ export function useGroupTimer({
     const token = await getTokenFromServer();
 
     if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
       return;
     }
 
@@ -100,18 +99,13 @@ export function useGroupTimer({
         setIsConnected(true);
 
         // 그룹 타이머 이벤트 구독
-        const subscription = subscribeToTopic(
+        subscribeToTopic(
           client,
           `/topic/group/${groupId}/timer`,
           handleEvent
         );
-
-        if (!subscription) {
-          console.error("[WebSocket] 그룹 타이머 구독 실패!");
-        }
       },
       onStompError: (frame) => {
-        console.error("[WebSocket] STOMP 에러:", frame);
         setIsConnected(false);
       },
       onWebSocketClose: () => {

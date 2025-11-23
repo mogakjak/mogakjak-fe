@@ -38,7 +38,7 @@ export function useFocusNotification({
         setLastNotification(notification);
         onNotification?.(notification);
       } catch (error) {
-        console.error("Failed to parse notification message:", error);
+        // 메시지 파싱 실패
       }
     },
     [onNotification]
@@ -56,13 +56,10 @@ export function useFocusNotification({
     try {
       const config: WebSocketClientConfig = {
         debug: (str) => {
-          if (process.env.NODE_ENV === "development") {
-            console.log("[STOMP]", str);
-          }
+          // STOMP 디버그
         },
         onConnect: () => {
           setIsConnected(true);
-          console.log("[WebSocket] Connected");
 
           // 그룹 알림 구독
           if (clientRef.current) {
@@ -72,19 +69,15 @@ export function useFocusNotification({
               destination,
               handleNotification
             );
-            console.log(`[WebSocket] Subscribed to ${destination}`);
           }
         },
         onStompError: (frame) => {
-          console.error("[WebSocket] STOMP error:", frame);
           setIsConnected(false);
         },
         onWebSocketClose: () => {
-          console.log("[WebSocket] Connection closed");
           setIsConnected(false);
         },
         onDisconnect: () => {
-          console.log("[WebSocket] Disconnected");
           setIsConnected(false);
         },
       };
@@ -95,7 +88,6 @@ export function useFocusNotification({
       clientRef.current = client;
       await connectClient();
     } catch (error) {
-      console.error("[WebSocket] 연결 실패:", error);
       setIsConnected(false);
     }
   }, [enabled, groupId, handleNotification]);

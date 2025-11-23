@@ -39,7 +39,6 @@ export function useMateActiveStatus({
     const connect = async () => {
       const token = await getTokenFromServer();
       if (!token) {
-        console.error("[useMateActiveStatus] 토큰을 가져올 수 없습니다.");
         return;
       }
 
@@ -57,82 +56,38 @@ export function useMateActiveStatus({
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
         onConnect: (frame) => {
-          console.log("[useMateActiveStatus] WebSocket 연결됨, frame:", frame);
           setIsConnected(true);
 
           // 메이트 isActive 상태 변경 구독
-          console.log(
-            "[useMateActiveStatus] 구독 시작: /topic/mates/active-status"
-          );
-          const subscription = subscribeToTopic(
+          subscribeToTopic(
             client,
             "/topic/mates/active-status",
             (message: IMessage) => {
               try {
-                console.log("[useMateActiveStatus] ===== 메시지 수신 ===== ");
-                console.log(
-                  "[useMateActiveStatus] 원본 메시지 body:",
-                  message.body
-                );
-                console.log(
-                  "[useMateActiveStatus] 메시지 헤더:",
-                  message.headers
-                );
                 const event: UserActiveStatusEvent = JSON.parse(message.body);
-                console.log("[useMateActiveStatus] 파싱된 이벤트:", event);
-                console.log(
-                  "[useMateActiveStatus] onStatusChange 호출 전, callback 존재:",
-                  !!onStatusChangeRef.current
-                );
                 if (onStatusChangeRef.current) {
                   onStatusChangeRef.current(event);
-                  console.log("[useMateActiveStatus] onStatusChange 호출 완료");
-                } else {
-                  console.warn(
-                    "[useMateActiveStatus] onStatusChange callback이 없습니다!"
-                  );
                 }
               } catch (error) {
-                console.error(
-                  "[useMateActiveStatus] 메시지 파싱 실패:",
-                  error,
-                  "원본:",
-                  message.body
-                );
+                // 메시지 파싱 실패
               }
             }
           );
-
-          if (!subscription) {
-            console.error("[useMateActiveStatus] 구독 실패!");
-          } else {
-            console.log(
-              "[useMateActiveStatus] 구독 성공: /topic/mates/active-status, subscription:",
-              subscription
-            );
-          }
         },
         onStompError: (frame) => {
-          console.error("[useMateActiveStatus] STOMP 에러:", frame);
-          console.error(
-            "[useMateActiveStatus] STOMP 에러 상세:",
-            JSON.stringify(frame, null, 2)
-          );
           setIsConnected(false);
         },
         onWebSocketError: (event) => {
-          console.error("[useMateActiveStatus] WebSocket 에러:", event);
+          // WebSocket 에러
         },
         onWebSocketClose: (event) => {
-          console.log("[useMateActiveStatus] WebSocket 연결 종료:", event);
           setIsConnected(false);
         },
         onDisconnect: () => {
-          console.log("[useMateActiveStatus] WebSocket 연결 해제");
           setIsConnected(false);
         },
         debug: (str) => {
-          console.log("[useMateActiveStatus] STOMP 디버그:", str);
+          // STOMP 디버그
         },
       });
 

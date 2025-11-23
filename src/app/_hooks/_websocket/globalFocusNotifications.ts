@@ -24,7 +24,7 @@ export function useGlobalFocusNotifications(
           onNotification?.(notification);
         }
       } catch (error) {
-        console.error("Failed to parse notification message:", error);
+        // 메시지 파싱 실패
       }
     },
     [onNotification]
@@ -70,7 +70,6 @@ export function useGlobalFocusNotifications(
                 group.groupId === "undefined" ||
                 group.groupId === ""
               ) {
-                console.error(`[WebSocket] Invalid group ID:`, group);
                 return;
               }
 
@@ -88,16 +87,12 @@ export function useGlobalFocusNotifications(
 
               subscriptionsRef.current.set(group.groupId, subscription);
             } catch (error) {
-              console.error(
-                `[WebSocket] Failed to subscribe to group ${group.groupId}:`,
-                error
-              );
+              // 구독 실패
             }
           });
         }, 100);
       },
       onStompError: (frame) => {
-        console.error("[WebSocket] STOMP error:", frame);
         subscriptionsRef.current.clear();
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
@@ -174,7 +169,6 @@ export function useGlobalFocusNotifications(
           handleNotification(message, group.groupId)
         );
         subscriptionsRef.current.set(group.groupId, subscription);
-        console.log(`[WebSocket] Subscribed to ${destination}`);
       }
     });
 
@@ -188,9 +182,6 @@ export function useGlobalFocusNotifications(
         ) {
           (subscription as { unsubscribe: () => void }).unsubscribe();
           subscriptionsRef.current.delete(groupId);
-          console.log(
-            `[WebSocket] Unsubscribed from /topic/group/${groupId}/notification`
-          );
         }
       }
     });

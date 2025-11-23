@@ -34,7 +34,7 @@ export function useCheerNotification({
       const notification: CheerNotification = JSON.parse(message.body);
       onNotificationRef.current?.(notification);
     } catch (error) {
-      console.error("[WebSocket] 메시지 파싱 실패:", error);
+      // 메시지 파싱 실패
     }
   }, []);
 
@@ -57,13 +57,11 @@ export function useCheerNotification({
     const token = await getTokenFromServer();
 
     if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
       return;
     }
 
     const userId = getUserIdFromToken(token);
     if (!userId) {
-      console.error("[WebSocket] 토큰에서 사용자 ID를 추출할 수 없습니다.");
       return;
     }
     userIdRef.current = userId;
@@ -74,24 +72,18 @@ export function useCheerNotification({
           setIsConnected(true);
 
           if (!userIdRef.current) {
-            console.error("[WebSocket] userIdRef.current가 null입니다!");
             return;
           }
 
           if (clientRef.current) {
-            const subscription = subscribeToTopic(
+            subscribeToTopic(
               clientRef.current,
               `/topic/user/${userIdRef.current}/cheer`,
               handleNotification
             );
-
-            if (!subscription) {
-              console.error("[WebSocket] 응원 알림 구독 실패!");
-            }
           }
         },
         onStompError: (frame) => {
-          console.error("[WebSocket] STOMP 에러:", frame);
           setIsConnected(false);
         },
         onWebSocketClose: () => {
@@ -108,7 +100,6 @@ export function useCheerNotification({
       clientRef.current = client;
       await connectClient();
     } catch (error) {
-      console.error("[WebSocket] 연결 실패:", error);
       setIsConnected(false);
     }
   }, [enabled, handleNotification, disconnect]);
@@ -130,4 +121,3 @@ export function useCheerNotification({
     disconnect,
   };
 }
-

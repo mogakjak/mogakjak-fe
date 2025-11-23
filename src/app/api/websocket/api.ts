@@ -73,7 +73,6 @@ export async function createWebSocketClient(
       config.onConnect?.();
     },
     onStompError: (frame) => {
-      console.error("[WebSocket] STOMP 에러:", frame);
       config.onStompError?.(frame);
     },
     onWebSocketClose: () => {
