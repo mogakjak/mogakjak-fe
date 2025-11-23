@@ -72,7 +72,6 @@ export function useTimerCompletionNotification({
 
   const disconnect = useCallback(() => {
     if (clientRef.current) {
-      console.log("[WebSocket] 타이머 완료 알림 연결 해제 시작");
       clientRef.current.deactivate();
       clientRef.current = null;
       setIsConnected(false);
@@ -83,7 +82,6 @@ export function useTimerCompletionNotification({
     if (!enabled) return;
 
     if (clientRef.current) {
-      console.log("[WebSocket] 기존 연결 정리 중...");
       disconnect();
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -122,31 +120,21 @@ export function useTimerCompletionNotification({
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log("[WebSocket] 타이머 완료 알림 연결 성공");
         setIsConnected(true);
 
-        const subscription = clientRef.current?.subscribe(
+        clientRef.current?.subscribe(
           `/topic/user/${userId}/timer-completion`,
           handleNotification
         );
-
-        if (subscription) {
-          console.log(
-            "[WebSocket] 타이머 완료 알림 구독 완료:",
-            `/topic/user/${userId}/timer-completion`
-          );
-        }
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP 에러:", frame);
         setIsConnected(false);
       },
-      onWebSocketClose: (event) => {
-        console.log("[WebSocket] 연결 종료", event.code, event.reason);
+      onWebSocketClose: () => {
         setIsConnected(false);
       },
       onDisconnect: () => {
-        console.log("[WebSocket] 연결 해제");
         setIsConnected(false);
       },
     });

@@ -106,8 +106,6 @@ export default function GroupTimer({
     groupId,
     enabled: true,
     onEvent: (event: GroupTimerEvent) => {
-      console.log("[GroupTimer] 이벤트 수신:", event);
-      
       switch (event.eventType) {
         case "START":
           // 다른 사용자가 시작한 타이머도 처리

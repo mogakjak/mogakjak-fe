@@ -56,7 +56,6 @@ export function usePokeNotification({
   const handleNotification = useCallback((message: IMessage) => {
     try {
       const notification: PokeNotification = JSON.parse(message.body);
-      console.log("[WebSocket] 콕 찌르기 알림:", notification);
       onNotificationRef.current?.(notification);
     } catch (error) {
       console.error("[WebSocket] 메시지 파싱 실패:", error);
@@ -65,7 +64,6 @@ export function usePokeNotification({
 
   const disconnect = useCallback(() => {
     if (clientRef.current) {
-      console.log("[WebSocket] 콕 찌르기 알림 연결 해제 시작");
       clientRef.current.deactivate();
       clientRef.current = null;
       setIsConnected(false);
@@ -76,7 +74,6 @@ export function usePokeNotification({
     if (!enabled) return;
 
     if (clientRef.current) {
-      console.log("[WebSocket] 기존 연결 정리 중...");
       disconnect();
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -115,31 +112,21 @@ export function usePokeNotification({
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log("[WebSocket] 콕 찌르기 알림 연결 성공");
         setIsConnected(true);
 
-        const subscription = clientRef.current?.subscribe(
+        clientRef.current?.subscribe(
           `/topic/user/${userIdRef.current}/poke`,
           handleNotification
         );
-
-        if (subscription) {
-          console.log(
-            "[WebSocket] 콕 찌르기 알림 구독 완료:",
-            `/topic/user/${userIdRef.current}/poke`
-          );
-        }
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP 에러:", frame);
         setIsConnected(false);
       },
-      onWebSocketClose: (event) => {
-        console.log("[WebSocket] 연결 종료", event.code, event.reason);
+      onWebSocketClose: () => {
         setIsConnected(false);
       },
       onDisconnect: () => {
-        console.log("[WebSocket] 연결 해제");
         setIsConnected(false);
       },
     });

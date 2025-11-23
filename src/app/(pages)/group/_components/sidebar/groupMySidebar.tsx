@@ -213,14 +213,11 @@ export default function GroupMySidebar({
                       await updatePersonalTimerVisibility(currentSessionId, {
                         isTaskPublic: v,
                       });
-                      console.log("할일 공개/비공개 설정 성공:", v);
                     } catch (error) {
                       console.error("할일 공개/비공개 설정 실패:", error);
                       // 실패 시 롤백
                       setIsTaskOpen(!v);
                     }
-                  } else {
-                    console.warn("활성 세션이 없어서 API 호출을 건너뜁니다.");
                   }
                 }}
               />
@@ -247,14 +244,11 @@ export default function GroupMySidebar({
                         await updatePersonalTimerVisibility(currentSessionId, {
                           isTimerPublic: v,
                         });
-                        console.log("타이머 누적 시간 공개/비공개 설정 성공:", v);
                       } catch (error) {
                         console.error("타이머 누적 시간 공개/비공개 설정 실패:", error);
                         // 실패 시 롤백
                         setIsTimeOpen(!v);
                       }
-                    } else {
-                      console.warn("활성 세션이 없어서 API 호출을 건너뜁니다.");
                     }
                   }}
                 />

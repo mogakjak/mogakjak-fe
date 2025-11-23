@@ -55,14 +55,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleFocusNotification = useCallback(
     (message: FocusNotificationMessage) => {
-      console.log("[NotificationProvider] 집중 체크 알림:", message);
-      console.log("[NotificationProvider] Permission status:", permission);
-      console.log("[NotificationProvider] Is supported:", isSupported);
-
       if (permission === "granted") {
-        console.log(
-          "[NotificationProvider] Permission granted, showing notification"
-        );
         showBrowserNotification(message.groupName || "모각작", {
           body: message.message,
           icon: "/chorme/notificationIcon.png",
@@ -70,14 +63,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           tag: `focus-notification-${message.groupId}`,
         });
       } else if (permission === "default") {
-        console.log(
-          "[NotificationProvider] Permission default, requesting permission"
-        );
         requestPermission().then((granted) => {
-          console.log(
-            "[NotificationProvider] Permission request result:",
-            granted
-          );
           if (granted) {
             showBrowserNotification(message.groupName || "모각작", {
               body: message.message,
@@ -85,14 +71,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               badge: "/chorme/notificationIcon.png",
               tag: `focus-notification-${message.groupId}`,
             });
-          } else {
-            console.warn("[NotificationProvider] Permission denied by user");
           }
         });
-      } else {
-        console.warn(
-          "[NotificationProvider] Permission denied, cannot show notification"
-        );
       }
     },
     [permission, requestPermission, showBrowserNotification, isSupported]
@@ -100,7 +80,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handleTimerCompletionNotification = useCallback(
     (notification: TimerCompletionNotification) => {
-      console.log("[NotificationProvider] 타이머 완료 알림:", notification);
 
       setTimerCompletionNotification(notification);
 
@@ -111,7 +90,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       const body = notification.message || "설정한 시간이 완료되었습니다.";
 
       if (permission === "granted") {
-        console.log("[NotificationProvider] 타이머 완료 알림 표시");
         showBrowserNotification(title, {
           body: body,
           icon: "/chorme/notificationIcon.png",
@@ -140,8 +118,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const handlePokeNotification = useCallback(
     (notification: PokeNotification) => {
-      console.log("[NotificationProvider] 콕 찌르기 알림:", notification);
-      
       setPokeNotification(notification);
 
       const title = `${notification.fromUserNickname}님이 콕 찌르기를 보냈어요!`;

@@ -138,9 +138,7 @@ export function useGroupTimer({
           handleEvent
         );
 
-        if (subscription) {
-          console.log("[WebSocket] 그룹 타이머 구독 완료:", `/topic/group/${groupId}/timer`);
-        } else {
+        if (!subscription) {
           console.error("[WebSocket] 그룹 타이머 구독 실패!");
         }
       },
