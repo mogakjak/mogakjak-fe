@@ -14,8 +14,8 @@ import { useAuthState } from "@/app/api/auth/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 
 import Add from "/Icons/add.svg";
-import { GroupDetail, GroupMemberStatus } from "@/app/_types/groups";
-import { useGroupMemberStatus } from "@/app/_hooks/useGroupMemberStatus";
+import { GroupDetail } from "@/app/_types/groups";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/groupMemberStatus";
 import { useSendCheer } from "@/app/_hooks/groups";
 
 type GroupPageProps = {
@@ -27,65 +27,11 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [memberStatuses, setMemberStatuses] = useState<
-    Map<string, GroupMemberStatus>
-  >(new Map());
 
-  // 초기 멤버 상태 설정 및 groupData 변경 시 업데이트
-  useEffect(() => {
-    setMemberStatuses((prev) => {
-      const next = new Map(prev);
-      const currentMemberIds = new Set(groupData.members.map(m => m.userId));
-      
-      // groupData의 멤버들을 업데이트 (기존 상태 유지)
-    groupData.members.forEach((member) => {
-        const existingStatus = next.get(member.userId);
-        next.set(member.userId, {
-        groupId: groupData.groupId,
-        userId: member.userId,
-        nickname: member.nickname,
-        profileUrl: member.profileUrl,
-        level: member.level || 1,
-          // 기존 상태가 있으면 유지, 없으면 NOT_PARTICIPATING
-          participationStatus: existingStatus?.participationStatus || "NOT_PARTICIPATING",
-          cheerCount: existingStatus?.cheerCount || 0,
-          enteredAt: existingStatus?.enteredAt,
-          personalTimerSeconds: existingStatus?.personalTimerSeconds,
-          todoTitle: existingStatus?.todoTitle,
-        });
-      });
-      
-      // groupData에 없는 멤버는 제거
-      Array.from(next.keys()).forEach((userId) => {
-        if (!currentMemberIds.has(userId)) {
-          next.delete(userId);
-        }
-      });
-      
-      return next;
-    });
-  }, [groupData.groupId, groupData.members]);
-
-  // 웹소켓으로 그룹 멤버 상태 구독
-  useGroupMemberStatus({
+  // 그룹 멤버 상태 관리 훅
+  const { memberStatuses } = useGroupMemberStatus({
     groupId: groupData.groupId,
-    enabled: true,
-    onUpdate: (update) => {
-      setMemberStatuses((prev) => {
-        const next = new Map(prev);
-
-        if (update.members) {
-          // 전체 멤버 목록 업데이트
-          update.members.forEach((member) => {
-            next.set(member.userId, member);
-          });
-        } else if (update.updatedMember) {
-          // 단일 멤버 상태 업데이트
-          next.set(update.updatedMember.userId, update.updatedMember);
-        }
-        return next;
-      });
-    },
+    groupData,
   });
 
   const { token } = useAuthState();
@@ -206,9 +152,11 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                 // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
                 // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
                 // null이나 undefined이면 undefined로, 숫자(0 포함)면 그대로 전달
-                const activeTime = status.personalTimerSeconds !== null && status.personalTimerSeconds !== undefined
-                  ? status.personalTimerSeconds
-                  : undefined;
+                const activeTime =
+                  status.personalTimerSeconds !== null &&
+                  status.personalTimerSeconds !== undefined
+                    ? status.personalTimerSeconds
+                    : undefined;
 
                 // 최근 참여 일수
                 const lastActiveAt = status.daysSinceLastParticipation

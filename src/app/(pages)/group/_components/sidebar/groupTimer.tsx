@@ -9,7 +9,7 @@ import {
   useResumeGroupTimer,
   useFinishGroupTimer,
 } from "@/app/_hooks/timers";
-import { useGroupTimer, GroupTimerEvent } from "@/app/_hooks/useGroupTimer";
+import { useGroupTimer, GroupTimerEvent } from "@/app/_hooks/_websocket/groupTimer";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";

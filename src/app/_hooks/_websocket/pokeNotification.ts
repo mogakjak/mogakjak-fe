@@ -5,40 +5,16 @@ import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { getUserIdFromToken } from "@/app/_utils/jwt";
 import type { PokeNotification } from "@/app/_types/groups";
+import {
+  getWebSocketUrl,
+  getTokenFromServer,
+  subscribeToTopic,
+} from "@/app/api/websocket/api";
 
 type UsePokeNotificationOptions = {
   enabled?: boolean;
   onNotification?: (notification: PokeNotification) => void;
 };
-
-function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-
-  if (!apiBase) {
-    return "https://mogakjak.site/connect";
-  }
-
-  return `${apiBase}/connect`;
-}
-
-async function getTokenFromServer(): Promise<string | null> {
-  try {
-    const response = await fetch("/api/auth/token", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.token || null;
-  } catch (error) {
-    console.error("[WebSocket] 토큰 가져오기 실패:", error);
-    return null;
-  }
-}
 
 export function usePokeNotification({
   enabled = true,
@@ -114,10 +90,13 @@ export function usePokeNotification({
       onConnect: () => {
         setIsConnected(true);
 
-        clientRef.current?.subscribe(
-          `/topic/user/${userIdRef.current}/poke`,
-          handleNotification
-        );
+        if (clientRef.current && userIdRef.current) {
+          subscribeToTopic(
+            clientRef.current,
+            `/topic/user/${userIdRef.current}/poke`,
+            handleNotification
+          );
+        }
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP 에러:", frame);

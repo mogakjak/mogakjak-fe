@@ -4,6 +4,11 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { getUserIdFromToken } from "@/app/_utils/jwt";
+import {
+  getWebSocketUrl,
+  getTokenFromServer,
+  subscribeToTopic,
+} from "@/app/api/websocket/api";
 
 export type TimerCompletionNotification = {
   sessionId: string;
@@ -19,35 +24,6 @@ type UseTimerCompletionNotificationOptions = {
   onNotification?: (notification: TimerCompletionNotification) => void;
 };
 
-function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-
-  if (!apiBase) {
-    return "https://mogakjak.site/connect";
-  }
-
-  return `${apiBase}/connect`;
-}
-
-async function getTokenFromServer(): Promise<string | null> {
-  try {
-    const response = await fetch("/api/auth/token", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.token || null;
-  } catch (error) {
-    console.error("[WebSocket] 토큰 가져오기 실패:", error);
-    return null;
-  }
-}
-
 export function useTimerCompletionNotification({
   enabled = true,
   onNotification,
@@ -62,7 +38,9 @@ export function useTimerCompletionNotification({
 
   const handleNotification = useCallback((message: IMessage) => {
     try {
-      const notification: TimerCompletionNotification = JSON.parse(message.body);
+      const notification: TimerCompletionNotification = JSON.parse(
+        message.body
+      );
       console.log("[WebSocket] 타이머 완료 알림:", notification);
       onNotificationRef.current?.(notification);
     } catch (error) {
@@ -122,10 +100,13 @@ export function useTimerCompletionNotification({
       onConnect: () => {
         setIsConnected(true);
 
-        clientRef.current?.subscribe(
-          `/topic/user/${userId}/timer-completion`,
-          handleNotification
-        );
+        if (clientRef.current) {
+          subscribeToTopic(
+            clientRef.current,
+            `/topic/user/${userId}/timer-completion`,
+            handleNotification
+          );
+        }
       },
       onStompError: (frame) => {
         console.error("[WebSocket] STOMP 에러:", frame);

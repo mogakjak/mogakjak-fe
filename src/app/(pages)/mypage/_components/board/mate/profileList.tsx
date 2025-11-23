@@ -6,7 +6,7 @@ import ForkButton from "./forkButton";
 import { Mate } from "@/app/_types/groups";
 import ForkPopup from "@/app/_components/common/forkPopup";
 import { useCommonGroups, usePoke } from "@/app/_hooks/groups";
-import { useMateActiveStatus } from "@/app/_hooks/useMateActiveStatus";
+import { useMateActiveStatus } from "@/app/_hooks/_websocket/mateActiveStatus";
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -27,7 +27,9 @@ export default function ProfileList({
 }: ProfileListProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [activeStatusMap, setActiveStatusMap] = useState<Record<string, boolean>>({});
+  const [activeStatusMap, setActiveStatusMap] = useState<
+    Record<string, boolean>
+  >({});
   const { data: commonGroups = [], isLoading: isLoadingGroups } =
     useCommonGroups(selectedUserId || "");
   const pokeMutation = usePoke();
@@ -51,23 +53,26 @@ export default function ProfileList({
   }, [profiles]);
 
   // WebSocket으로 실시간 isActive 상태 업데이트
-  const handleStatusChange = useCallback((event: { userId: string; isActive: boolean }) => {
-    console.log("[ProfileList] handleStatusChange 호출:", event);
-    setActiveStatusMap((prev) => {
-      const updated = {
-        ...prev,
-        [event.userId]: event.isActive,
-      };
-      console.log("[ProfileList] activeStatusMap 업데이트:", {
-        userId: event.userId,
-        isActive: event.isActive,
-        before: prev[event.userId],
-        after: updated[event.userId],
-        전체맵: updated,
+  const handleStatusChange = useCallback(
+    (event: { userId: string; isActive: boolean }) => {
+      console.log("[ProfileList] handleStatusChange 호출:", event);
+      setActiveStatusMap((prev) => {
+        const updated = {
+          ...prev,
+          [event.userId]: event.isActive,
+        };
+        console.log("[ProfileList] activeStatusMap 업데이트:", {
+          userId: event.userId,
+          isActive: event.isActive,
+          before: prev[event.userId],
+          after: updated[event.userId],
+          전체맵: updated,
+        });
+        return updated;
       });
-      return updated;
-    });
-  }, []);
+    },
+    []
+  );
 
   const { isConnected } = useMateActiveStatus({
     enabled: true,
@@ -146,9 +151,13 @@ export default function ProfileList({
     <div className="flex flex-col h-[552px] mb-1 ">
       {profiles.map((profile) => {
         // 실시간 업데이트된 isActive 상태 사용 (없으면 초기값 사용)
-        const isActive = activeStatusMap[profile.userId] ?? profile.isActive ?? false;
+        const isActive =
+          activeStatusMap[profile.userId] ?? profile.isActive ?? false;
         // 디버깅: 상태가 다를 때만 로그
-        if (activeStatusMap[profile.userId] !== undefined && activeStatusMap[profile.userId] !== profile.isActive) {
+        if (
+          activeStatusMap[profile.userId] !== undefined &&
+          activeStatusMap[profile.userId] !== profile.isActive
+        ) {
           console.log(`[ProfileList] ${profile.nickname} 상태 변경:`, {
             userId: profile.userId,
             원래값: profile.isActive,
@@ -157,43 +166,43 @@ export default function ProfileList({
           });
         }
         return (
-        <div
-          key={profile.userId}
-          className="flex items-center border-b border-gray-200 px-5 py-3"
-        >
-          <ProfileActive
-            src={profile.profileUrl}
-            name={profile.nickname}
-            active={isActive}
-          />
-
-          <p className="text-heading4-20SB text-black ml-7">
-            {profile.nickname}
-          </p>
-
-          <div className="w-px h-5 bg-black m-2" />
-          <div className="text-gray-500 text-body1-16R flex">
-            <div className="w-[200px] truncate">
-              {(profile.groupNames || []).map((name, idx) => (
-                <span key={idx}>
-                  {name}
-                  {idx < (profile.groupNames || []).length - 1 && (
-                    <span className="mx-1">,</span>
-                  )}
-                </span>
-              ))}
-            </div>
-            <p>·</p>
-            <p>1일 전</p>
-          </div>
-
-          <div className="ml-auto">
-            <ForkButton
-              active={true}
-              onClick={() => handleForkClick(profile.userId)}
+          <div
+            key={profile.userId}
+            className="flex items-center border-b border-gray-200 px-5 py-3"
+          >
+            <ProfileActive
+              src={profile.profileUrl}
+              name={profile.nickname}
+              active={isActive}
             />
+
+            <p className="text-heading4-20SB text-black ml-7">
+              {profile.nickname}
+            </p>
+
+            <div className="w-px h-5 bg-black m-2" />
+            <div className="text-gray-500 text-body1-16R flex">
+              <div className="w-[200px] truncate">
+                {(profile.groupNames || []).map((name, idx) => (
+                  <span key={idx}>
+                    {name}
+                    {idx < (profile.groupNames || []).length - 1 && (
+                      <span className="mx-1">,</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+              <p>·</p>
+              <p>1일 전</p>
+            </div>
+
+            <div className="ml-auto">
+              <ForkButton
+                active={true}
+                onClick={() => handleForkClick(profile.userId)}
+              />
+            </div>
           </div>
-        </div>
         );
       })}
 

@@ -17,7 +17,7 @@ export default function GainCharacterModal({
   hours,
   description,
 }: GainCharacterModalProps) {
-  const displayLevel = level + 1;
+  const displayLevel = level;
   const imageSrc = `/character/level${displayLevel}.svg`;
 
   return (
@@ -29,7 +29,7 @@ export default function GainCharacterModal({
       <div className="flex flex-col items-center py-4 px-7">
         <p className="text-heading4-20SB mb-2">축하합니다!</p>
         <p className="text-heading3-24SB mb-1">
-          <b className="text-red-500">{hours}0초</b>을 달성하여
+          <b className="text-red-500">{hours}</b>을 달성하여
         </p>
         <p className="text-heading3-24SB">
           <b className="text-red-500">

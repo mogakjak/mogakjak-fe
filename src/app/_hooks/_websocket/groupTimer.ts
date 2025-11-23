@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import {
+  getWebSocketUrl,
+  getTokenFromServer,
+  subscribeToTopic,
+} from "@/app/api/websocket/api";
 
 export type GroupTimerEvent = {
   groupId: string;
@@ -26,44 +31,6 @@ type UseGroupTimerOptions = {
   onEvent?: (event: GroupTimerEvent) => void;
 };
 
-function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
-  const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
-  
-  if (apiBase.startsWith("//")) {
-    return isHttps ? `https:${apiBase}/connect` : `http:${apiBase}/connect`;
-  }
-  if (apiBase.startsWith("http://")) {
-    if (isHttps) {
-      return apiBase.replace("http://", "https://") + "/connect";
-    }
-    return `${apiBase}/connect`;
-  }
-  if (apiBase.startsWith("https://")) {
-    return `${apiBase}/connect`;
-  }
-  const protocol = isHttps ? "https://" : "http://";
-  return `${protocol}${apiBase}/connect`;
-}
-
-async function getTokenFromServer(): Promise<string | null> {
-  try {
-    const response = await fetch("/api/auth/token", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.token || null;
-  } catch (error) {
-    console.error("[WebSocket] 토큰 가져오기 실패:", error);
-    return null;
-  }
-}
 
 export function useGroupTimer({
   groupId,
@@ -132,8 +99,9 @@ export function useGroupTimer({
       onConnect: () => {
         setIsConnected(true);
 
-        // 그룹 타이머 이벤트 구독 (클로저로 client 직접 사용)
-        const subscription = client.subscribe(
+        // 그룹 타이머 이벤트 구독
+        const subscription = subscribeToTopic(
+          client,
           `/topic/group/${groupId}/timer`,
           handleEvent
         );

@@ -3,31 +3,10 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useMyGroups } from "./groups";
+import { useMyGroups } from "../groups";
 import { useAuthState } from "@/app/api/auth/useAuthState";
-import type { FocusNotificationMessage } from "./useFocusNotification";
-
-function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
-  const isHttps =
-    typeof window !== "undefined" && window.location.protocol === "https:";
-  if (apiBase.startsWith("//")) {
-    return isHttps ? `https:${apiBase}/connect` : `http:${apiBase}/connect`;
-  }
-
-  if (apiBase.startsWith("http://")) {
-    if (isHttps) {
-      return apiBase.replace("http://", "https://") + "/connect";
-    }
-    return `${apiBase}/connect`;
-  }
-  if (apiBase.startsWith("https://")) {
-    return `${apiBase}/connect`;
-  }
-
-  const protocol = isHttps ? "https://" : "http://";
-  return `${protocol}${apiBase}/connect`;
-}
+import type { FocusNotificationMessage } from "./focusNotification";
+import { getWebSocketUrl } from "@/app/api/websocket/api";
 export function useGlobalFocusNotifications(
   onNotification?: (message: FocusNotificationMessage) => void
 ) {
@@ -217,3 +196,4 @@ export function useGlobalFocusNotifications(
     });
   }, [groups, handleNotification]);
 }
+
