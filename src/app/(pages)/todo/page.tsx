@@ -9,9 +9,10 @@ import TodoSection from "./components/todoSection";
 import {
   CATEGORY_COLOR_NAME_BY_TOKEN,
   CATEGORY_COLOR_TOKEN_BY_NAME,
-  useTodoCategoryController,
-} from "@/app/_hooks/todoCategory";
-import { useTodoController, useMyTodos } from "@/app/_hooks/todo";
+} from "@/app/_constants/categoryColor";
+import { useTodoCategoryController } from "@/app/_hooks/todoCategory/useTodoCategoryController";
+import { useTodoController } from "@/app/_hooks/todo/useTodoController";
+import { useMyTodos } from "@/app/_hooks/todo/useMyTodos";
 import type { Category as ListCategory } from "@/app/_types/category";
 import type { Todo } from "@/app/_types/todo";
 

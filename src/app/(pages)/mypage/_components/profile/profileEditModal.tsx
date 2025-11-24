@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
-import { useUpdateProfile } from "@/app/_hooks/mypage";
-import { useUploadImage } from "@/app/_hooks/images";
+import { useUpdateProfile } from "@/app/_hooks/mypage/useUpdateProfile";
+import { useUploadImage } from "@/app/_hooks/images/useUploadImage";
 import type { ProfileUpdate } from "@/app/_types/mypage";
 
 interface ProfileEditModalProps {

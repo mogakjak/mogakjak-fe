@@ -11,14 +11,12 @@ import PomodoroModal from "./pomodoroModal";
 import TimerModal from "./timerModal";
 import TimerEndModal from "../timerEndModal";
 import TodoRequiredModal from "./todoRequiredModal";
-import {
-  useStartPomodoro,
-  usePauseTimer,
-  useResumeTimer,
-  useFinishTimer,
-  useStartTimer,
-  useStartStopwatch,
-} from "@/app/_hooks/timers";
+import { useStartPomodoro } from "@/app/_hooks/timers/useStartPomodoro";
+import { usePauseTimer } from "@/app/_hooks/timers/usePauseTimer";
+import { useResumeTimer } from "@/app/_hooks/timers/useResumeTimer";
+import { useFinishTimer } from "@/app/_hooks/timers/useFinishTimer";
+import { useStartTimer } from "@/app/_hooks/timers/useStartTimer";
+import { useStartStopwatch } from "@/app/_hooks/timers/useStartStopwatch";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { usePictureInPicture } from "@/app/_hooks/usePictureInPicture";
 

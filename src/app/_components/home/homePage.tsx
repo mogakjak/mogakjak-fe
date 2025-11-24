@@ -3,7 +3,7 @@
 import PreviewMain from "./previewMain";
 import FriendMain from "./friendMain";
 import RoomMain from "./roomMain";
-import { useMyGroups } from "@/app/_hooks/groups";
+import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 
 export default function HomePage() {
   const { data: groups = [], isPending: isGroupsPending } = useMyGroups();

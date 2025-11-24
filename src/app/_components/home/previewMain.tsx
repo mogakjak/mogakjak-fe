@@ -1,6 +1,6 @@
 "use client";
 
-import { useProfile } from "@/app/_hooks/mypage";
+import { useProfile } from "@/app/_hooks/mypage/useProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import TimerComponent from "../common/timer/timerComponent";
 import GroupMySidebar from "../../(pages)/group/_components/sidebar/groupMySidebar";
@@ -8,7 +8,7 @@ import PreviewCharacter from "./preview/previewCharacter";
 import Quotes from "./preview/quotes";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { PomodoroSession } from "@/app/api/timers/api";
-import { useTodayTodos } from "@/app/_hooks/todo";
+import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
 import { useMemo, useEffect, useState } from "react";
 import { useTimer } from "@/app/_contexts/TimerContext";
 

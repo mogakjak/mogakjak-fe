@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
 import { ImageSelector } from "./ImageSelector";
-import { useCreateGroup, useUpdateGroup } from "@/app/_hooks/groups";
-import { useUploadImage } from "@/app/_hooks/images";
+import { useCreateGroup } from "@/app/_hooks/groups/useCreateGroup";
+import { useUpdateGroup } from "@/app/_hooks/groups/useUpdateGroup";
+import { useUploadImage } from "@/app/_hooks/images/useUploadImage";
 
 interface RoomModalProps {
   onClose: () => void;

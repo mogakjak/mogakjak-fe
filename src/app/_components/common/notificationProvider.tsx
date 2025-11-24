@@ -7,16 +7,16 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { useGlobalFocusNotifications } from "@/app/_hooks/_websocket/globalFocusNotifications";
-import { useTimerCompletionNotification } from "@/app/_hooks/_websocket/timerCompletionNotification";
-import { usePokeNotification } from "@/app/_hooks/_websocket/pokeNotification";
-import { useCheerNotification } from "@/app/_hooks/_websocket/cheerNotification";
+import { useGlobalFocusNotifications } from "@/app/_hooks/_websocket/notifications/useGlobalFocusNotifications";
+import { useTimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
+import { usePokeNotification } from "@/app/_hooks/_websocket/notifications/usePokeNotification";
+import { useCheerNotification } from "@/app/_hooks/_websocket/notifications/useCheerNotification";
 import { useBrowserNotification } from "@/app/_hooks/useBrowserNotification";
 import TimerCompletionModal from "./timerCompletionModal";
 import PokeNotificationModal from "./pokeNotificationModal";
 import CheerNotificationModal from "./cheerNotificationModal";
-import type { FocusNotificationMessage } from "@/app/_hooks/_websocket/focusNotification";
-import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/timerCompletionNotification";
+import type { FocusNotificationMessage } from "@/app/_hooks/_websocket/notifications/useFocusNotification";
+import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 import type { PokeNotification, CheerNotification } from "@/app/_types/groups";
 
 type NotificationContextType = {

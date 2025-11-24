@@ -5,7 +5,7 @@ import RecordDot, { RecordLevel } from "./recordDot";
 import RecordLegend from "./recordLegend";
 import RecordToolTip from "./recordToolTip";
 import { formatHMS } from "../../_utils/formatHMS";
-import { useDailyRecords } from "@/app/_hooks/records";
+import { useDailyRecords } from "@/app/_hooks/records/useDailyRecords";
 
 export function secondsToLevel(seconds = 0): RecordLevel {
   const h = seconds / 3600;

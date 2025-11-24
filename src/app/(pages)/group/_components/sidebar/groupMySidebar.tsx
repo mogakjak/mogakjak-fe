@@ -11,11 +11,10 @@ import AddWorkForm, {
 } from "@/app/(pages)/todo/components/addWorkForm";
 import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
 import VisibilityToggle from "./visibilityButton";
-import {
-  CATEGORY_COLOR_TOKEN_BY_NAME,
-  useTodoCategoryController,
-} from "@/app/_hooks/todoCategory";
-import { useTodoController, useTodayTodos } from "@/app/_hooks/todo";
+import { CATEGORY_COLOR_TOKEN_BY_NAME } from "@/app/_constants/categoryColor";
+import { useTodoCategoryController } from "@/app/_hooks/todoCategory/useTodoCategoryController";
+import { useTodoController } from "@/app/_hooks/todo/useTodoController";
+import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
@@ -32,7 +31,7 @@ type GroupMySidebarProps = {
   currentSessionId?: string | null;
 };
 
-export default function GroupMySidebar({ 
+export default function GroupMySidebar({
   state,
   isTaskPublic: externalIsTaskPublic,
   isTimerPublic: externalIsTimerPublic,
@@ -42,11 +41,11 @@ export default function GroupMySidebar({
 }: GroupMySidebarProps) {
   const [internalIsTaskOpen, setInternalIsTaskOpen] = useState(true);
   const [internalIsTimeOpen, setInternalIsTimeOpen] = useState(true);
-  
+
   // 외부에서 전달된 값이 있으면 사용, 없으면 내부 상태 사용
   const isTaskOpen = externalIsTaskPublic ?? internalIsTaskOpen;
   const isTimeOpen = externalIsTimerPublic ?? internalIsTimeOpen;
-  
+
   const setIsTaskOpen = externalSetIsTaskPublic ?? setInternalIsTaskOpen;
   const setIsTimeOpen = externalSetIsTimerPublic ?? setInternalIsTimeOpen;
   const [selectedWork, setSelectedWork] = useState<AddWorkPayload | null>(null);
@@ -244,7 +243,10 @@ export default function GroupMySidebar({
                           isTimerPublic: v,
                         });
                       } catch (error) {
-                        console.error("타이머 누적 시간 공개/비공개 설정 실패:", error);
+                        console.error(
+                          "타이머 누적 시간 공개/비공개 설정 실패:",
+                          error
+                        );
                         // 실패 시 롤백
                         setIsTimeOpen(!v);
                       }

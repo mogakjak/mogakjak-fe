@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecordDashboard } from "@/app/_hooks/records";
+import { useRecordDashboard } from "@/app/_hooks/records/useRecordDashboard";
 import ChartMain from "./chart/chartMain";
 import Cards from "./data/cards";
 import Tabs from "./tabs/tabs";

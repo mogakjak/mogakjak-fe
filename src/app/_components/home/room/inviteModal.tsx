@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/button";
-import { useMates, useInviteMate } from "@/app/_hooks/groups";
+import { useMates } from "@/app/_hooks/groups/useMates";
+import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 
 interface InviteModalProps {

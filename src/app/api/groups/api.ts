@@ -13,49 +13,12 @@ import type {
   CommonGroup,
   PokeRequest,
 } from "@/app/_types/groups";
+import { request } from "../request";
 
 const GROUPS_BASE = "/api/groups";
 
-async function request<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const res = await fetch(`${GROUPS_BASE}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    cache: "no-store",
-    ...options,
-  });
-
-  if (!res.ok) {
-    let message = `HTTP ${res.status}`;
-    try {
-      const err = await res.json();
-      message = err?.message || err?.error || message;
-    } catch {}
-    throw new Error(message);
-  }
-
-  const json = (await res.json().catch(() => undefined)) as
-    | { statusCode?: number; message?: string; data?: unknown }
-    | undefined;
-
-  if (json && typeof json.statusCode === "number") {
-    const code = json.statusCode;
-    const isSuccess = code === 0 || (code >= 200 && code < 300);
-    if (!isSuccess) {
-      throw new Error(json?.message ?? `HTTP ${code}`);
-    }
-    return json?.data as T;
-  }
-
-  return json as T;
-}
-
 export const getMyGroups = async () => {
-  const result = await request<MyGroup[]>("/my", { method: "GET" });
+  const result = await request<MyGroup[]>(GROUPS_BASE, "/my", { method: "GET" });
   return result ?? [];
 };
 
@@ -77,7 +40,7 @@ export const getMates = async (params?: GetMatesParams) => {
   const query = searchParams.toString();
   const endpoint = query ? `/mates?${query}` : "/mates";
 
-  const result = await request<MatesPage>(endpoint, { method: "GET" });
+  const result = await request<MatesPage>(GROUPS_BASE, endpoint, { method: "GET" });
   
   // 백엔드에서 이미 groupNames 배열로 반환하므로, 중복 제거만 수행
   if (result?.content) {
@@ -145,72 +108,72 @@ export const getMates = async (params?: GetMatesParams) => {
 };
 
 export const createGroup = (body: CreateGroupBody) =>
-  request<GroupDetail>("", {
+  request<GroupDetail>(GROUPS_BASE, "", {
     method: "POST",
     body: JSON.stringify(body),
   });
 
 export const updateGroup = (groupId: string, body: CreateGroupBody) =>
-  request<GroupDetail>(`/${groupId}`, {
+  request<GroupDetail>(GROUPS_BASE, `/${groupId}`, {
     method: "PUT",
     body: JSON.stringify(body),
   });
 
 export const getGroupDetail = (groupId: string) =>
-  request<GroupDetail>(`/${groupId}`, {
+  request<GroupDetail>(GROUPS_BASE, `/${groupId}`, {
     method: "GET",
   });
 
 export const getGroupInviteLink = (groupId: string) =>
-  request<{ inviteId: string }>(`/${groupId}/invitations/link`, {
+  request<{ inviteId: string }>(GROUPS_BASE, `/${groupId}/invitations/link`, {
     method: "GET",
   });
 
 // 그룹 알림 설정
 export const putGroupNoti = (groupId: string, payload: NotiReq) =>
-  request<NotiRes>(`/${groupId}/notifications`, {
+  request<NotiRes>(GROUPS_BASE, `/${groupId}/notifications`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
 
 export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
-  request<GroupGoalRes>(`/${groupId}/goals`, {
+  request<GroupGoalRes>(GROUPS_BASE, `/${groupId}/goals`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
 
 export const leaveGroup = (groupId: string) =>
-  request<unknown>(`/${groupId}/members/me`, {
+  request<unknown>(GROUPS_BASE, `/${groupId}/members/me`, {
     method: "DELETE",
   });
 
 //초대
 export const postGroupInvitation = (groupId: string, body: InviteRequest) =>
-  request<InviteResponse>(`/${groupId}/invitations`, {
+  request<InviteResponse>(GROUPS_BASE, `/${groupId}/invitations`, {
     method: "POST",
     body: JSON.stringify(body),
   });
 
 // 자동 가입
 export const joinGroup = (groupId: string) =>
-  request<void>(`/${groupId}/join`, {
+  request<void>(GROUPS_BASE, `/${groupId}/join`, {
     method: "POST",
   });
 
 // 그룹 세션에서 나가기
 export const exitGroupSession = (groupId: string) =>
-  request<void>(`/${groupId}/session/me`, {
+  request<void>(GROUPS_BASE, `/${groupId}/session/me`, {
     method: "DELETE",
   });
 
 // 콕 찌르기
 export const getCommonGroups = (targetUserId: string) =>
-  request<CommonGroup[]>(`/common-groups/${targetUserId}`, {
+  request<CommonGroup[]>(GROUPS_BASE, `/common-groups/${targetUserId}`, {
     method: "GET",
   });
 
 export const sendPokeNotification = (body: PokeRequest) =>
-  request<unknown>("/poke", {
+  request<unknown>(GROUPS_BASE, "/poke", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -221,7 +184,7 @@ export type CheerRequest = {
 };
 
 export const sendCheer = (groupId: string, body: CheerRequest) =>
-  request<unknown>(`/${groupId}/cheer`, {
+  request<unknown>(GROUPS_BASE, `/${groupId}/cheer`, {
     method: "POST",
     body: JSON.stringify(body),
   });

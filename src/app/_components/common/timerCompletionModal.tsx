@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/button";
-import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/timerCompletionNotification";
+import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 
 type TimerCompletionModalProps = {
   notification: TimerCompletionNotification;

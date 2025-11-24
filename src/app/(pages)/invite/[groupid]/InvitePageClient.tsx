@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useJoinGroup, useGroupDetail } from "@/app/_hooks/groups";
+import { useJoinGroup } from "@/app/_hooks/groups/useJoinGroup";
+import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
 import { groupKeys } from "@/app/api/groups/keys";
 import MobileHomePage from "@/app/_components/home/mobileHomePage";
 

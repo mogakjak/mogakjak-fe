@@ -5,7 +5,8 @@ import DropdownList from "./mate/dropdownList";
 import SearchBar from "./mate/searchBar";
 import ProfileList from "./mate/profileList";
 import PageNation from "./mate/pageNation";
-import { useMyGroups, useMates } from "@/app/_hooks/groups";
+import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
+import { useMates } from "@/app/_hooks/groups/useMates";
 
 export default function BoardMate() {
   const [selectedGroupName, setSelectedGroupName] = useState("전체 그룹");

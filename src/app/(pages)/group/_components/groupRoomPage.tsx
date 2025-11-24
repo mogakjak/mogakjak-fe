@@ -5,7 +5,7 @@ import PreviewMain from "@/app/_components/home/previewMain";
 import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import Icon from "@/app/_components/common/Icons";
 import Edit from "/Icons/edit.svg";
-import { useGroupDetail } from "@/app/_hooks/groups";
+import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
 import { useState } from "react";
 import RoomModal from "@/app/_components/home/room/roomModal";
 

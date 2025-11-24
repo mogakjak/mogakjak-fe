@@ -5,8 +5,9 @@ import ProfileActive from "./profileActive";
 import ForkButton from "./forkButton";
 import { Mate } from "@/app/_types/groups";
 import ForkPopup from "@/app/_components/common/forkPopup";
-import { useCommonGroups, usePoke } from "@/app/_hooks/groups";
-import { useMateActiveStatus } from "@/app/_hooks/_websocket/mateActiveStatus";
+import { useCommonGroups } from "@/app/_hooks/groups/useCommonGroups";
+import { usePoke } from "@/app/_hooks/groups/usePoke";
+import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
 
 interface ProfileListProps {
   profiles: Mate[];

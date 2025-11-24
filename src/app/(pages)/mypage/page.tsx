@@ -4,7 +4,7 @@ import { useState } from "react";
 import Board from "./_components/board/boardMain";
 import Menu from "./_components/menu/menuMain";
 import Profile from "./_components/profile/profileMain";
-import { useCharacterBasket } from "@/app/_hooks/mypage";
+import { useCharacterBasket } from "@/app/_hooks/mypage/useCharacterBasket";
 
 export default function MyPage() {
   const [selectedMenu, setSelectedMenu] = useState("내 과일 바구니");

@@ -7,7 +7,7 @@ import SidebarButton from "./sidebarButton";
 import Notification from "/Icons/notification.svg";
 import NotiModal from "../../../../_components/group/modal/notiModal";
 import { GroupDetail } from "@/app/_types/groups";
-import { useUpdateGroupGoal } from "@/app/_hooks/groups";
+import { useUpdateGroupGoal } from "@/app/_hooks/groups/useUpdateGroupGoal";
 
 type GroupGoalProps = {
   data: GroupDetail;
