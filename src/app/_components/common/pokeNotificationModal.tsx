@@ -19,7 +19,6 @@ export default function PokeNotificationModal({
   const router = useRouter();
 
   const handleJoinGroup = () => {
-    // 그룹 상세 페이지로 이동
     router.push(`/group/${notification.groupId}`);
     onClose();
   };
@@ -32,7 +31,7 @@ export default function PokeNotificationModal({
             <Icon Svg={Fork} size={48} className="text-red-500" />
           </div>
           <h2 className="text-heading3-24SB text-gray-800 mb-2">
-            {notification.fromUserNickname}님이 콕 찌르기를 보냈어요!
+            {notification.fromUserNickname}님이 콕 찔렀어요
           </h2>
           <p className="text-body1-16R text-gray-600">{notification.message}</p>
         </div>

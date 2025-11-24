@@ -68,8 +68,6 @@ export function useBrowserNotification() {
         const iconUrl = getIconUrl(options?.icon) || `${window.location.origin}/thumbnail.png`;
         const badgeUrl = getIconUrl(options?.badge) || `${window.location.origin}/thumbnail.png`;
 
-        console.log("[Notification] 알림 표시:", { title, iconUrl, badgeUrl, body: options?.body });
-
         let notification: Notification | null = null;
         try {
           notification = new Notification(title, {
@@ -84,32 +82,17 @@ export function useBrowserNotification() {
             lang: options?.lang,
           });
 
-          console.log("[Notification] 알림 객체 생성 성공:", {
-            title: notification.title,
-            body: notification.body,
-            tag: notification.tag,
-            icon: notification.icon,
-          });
           notification.onclick = () => {
-            console.log("[Notification] 알림 클릭됨");
             window.focus();
             notification?.close();
-          };
-
-          notification.onshow = () => {
-            console.log("[Notification] 알림 표시됨");
           };
 
           notification.onerror = (error) => {
             console.error("[Notification] 알림 에러 발생:", error);
           };
 
-          notification.onclose = () => {
-            console.log("[Notification] 알림 닫힘 (onclose 이벤트)");
-          };
           setTimeout(() => {
             if (notification) {
-              console.log("[Notification] 5초 후 알림 자동 닫기");
               notification.close();
             }
           }, 5000);

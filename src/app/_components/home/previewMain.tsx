@@ -9,7 +9,7 @@ import Quotes from "./preview/quotes";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { PomodoroSession } from "@/app/api/timers/api";
 import { useTodayTodos } from "@/app/_hooks/todo";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useTimer } from "@/app/_contexts/TimerContext";
 
 type PreviewMainProps = {
@@ -23,6 +23,9 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
   const { data: todayTodos = [], isFetched: isTodayTodosFetched } =
     useTodayTodos();
   const { setHasSelectedTodo } = useTimer();
+  const [isTaskPublic, setIsTaskPublic] = useState(true);
+  const [isTimerPublic, setIsTimerPublic] = useState(true);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   const savedTodoId =
     typeof window !== "undefined"
@@ -74,11 +77,24 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
       ) : (
         <>
           {!state && <Quotes Quotes={profile.quote} />}
-          <GroupMySidebar state={state} />
+          <GroupMySidebar 
+            state={state} 
+            isTaskPublic={isTaskPublic}
+            isTimerPublic={isTimerPublic}
+            setIsTaskPublic={setIsTaskPublic}
+            setIsTimerPublic={setIsTimerPublic}
+            currentSessionId={currentSessionId}
+          />
         </>
       )}
 
-      <TimerComponent todoId={todoId} groupId={groupId} />
+      <TimerComponent 
+        todoId={todoId} 
+        groupId={groupId}
+        isTaskPublic={isTaskPublic}
+        isTimerPublic={isTimerPublic}
+        onSessionIdChange={setCurrentSessionId}
+      />
     </div>
   );
 }

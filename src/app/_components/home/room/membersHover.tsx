@@ -72,17 +72,23 @@ export default function MembersHover({
           </div>
 
           <ul className="flex flex-col gap-3">
-            {members.map((m) => (
-              <li key={m.userId} className="flex items-center">
-                <MemberProfile isActive={true} profileUrl={m.profileUrl} />
-                <span className="text-body2-14R text-black ml-2 truncate">
-                  {m.nickname}
-                </span>
-                <div className="ml-auto">
-                  <StateButton state={true} />
-                </div>
-              </li>
-            ))}
+            {members.map((m) => {
+              const isActive = m.isActive ?? false;
+              return (
+                <li key={m.userId} className="flex items-center">
+                  <MemberProfile
+                    isActive={isActive}
+                    profileUrl={m.profileUrl}
+                  />
+                  <span className="text-body2-14R text-black ml-2 truncate">
+                    {m.nickname}
+                  </span>
+                  <div className="ml-auto">
+                    <StateButton state={isActive} />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

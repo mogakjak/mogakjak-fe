@@ -8,11 +8,14 @@ import CharacterModal from "./basket/characterModal";
 import { rows } from "@/app/_utils/getCharacterByHours";
 import { CharacterCard } from "@/app/_types/mypage";
 
+const getDescriptionByLevel = (level: number): string => {
+  const character = rows.find((c) => c.level === level);
+  return character?.description || "";
+};
+
 export default function BoardBasket({
-  currentLevel = 0,
   ownedCharacters = [],
 }: {
-  currentLevel: number;
   ownedCharacters: CharacterCard[];
 }) {
   const [openCharacter, setOpenCharacter] = useState(false);
@@ -49,7 +52,7 @@ export default function BoardBasket({
       <div className="grid grid-cols-4 gap-4 items-stretch h-full  auto-rows-fr">
         {rows.map((characterInfo) => {
           const ownedCharacter = ownedCharactersMap.get(characterInfo.level);
-          const isLocked = characterInfo.level > currentLevel;
+          const isLocked = !ownedCharacter;
 
           return (
             <Character
@@ -57,8 +60,11 @@ export default function BoardBasket({
               hours={characterInfo.hours}
               level={characterInfo.level}
               name={ownedCharacter?.name || characterInfo.name}
-              description={characterInfo.description}
-              imageUrl={ownedCharacter?.imageUrl}
+              description={getDescriptionByLevel(characterInfo.level)}
+              imageUrl={
+                ownedCharacter?.imageUrl ||
+                `/character/level${characterInfo.level}.svg`
+              }
               locked={isLocked}
             />
           );

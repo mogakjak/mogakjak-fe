@@ -4,6 +4,11 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { getUserIdFromToken } from "@/app/_utils/jwt";
+import {
+  getWebSocketUrl,
+  getTokenFromServer,
+  subscribeToTopic,
+} from "@/app/api/websocket/api";
 
 export type TimerCompletionNotification = {
   sessionId: string;
@@ -19,35 +24,6 @@ type UseTimerCompletionNotificationOptions = {
   onNotification?: (notification: TimerCompletionNotification) => void;
 };
 
-function getWebSocketUrl(): string {
-  const apiBase = process.env.NEXT_PUBLIC_API_PROXY;
-
-  if (!apiBase) {
-    return "https://mogakjak.site/connect";
-  }
-
-  return `${apiBase}/connect`;
-}
-
-async function getTokenFromServer(): Promise<string | null> {
-  try {
-    const response = await fetch("/api/auth/token", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.token || null;
-  } catch (error) {
-    console.error("[WebSocket] 토큰 가져오기 실패:", error);
-    return null;
-  }
-}
-
 export function useTimerCompletionNotification({
   enabled = true,
   onNotification,
@@ -62,17 +38,17 @@ export function useTimerCompletionNotification({
 
   const handleNotification = useCallback((message: IMessage) => {
     try {
-      const notification: TimerCompletionNotification = JSON.parse(message.body);
-      console.log("[WebSocket] 타이머 완료 알림:", notification);
+      const notification: TimerCompletionNotification = JSON.parse(
+        message.body
+      );
       onNotificationRef.current?.(notification);
-    } catch (error) {
-      console.error("[WebSocket] 메시지 파싱 실패:", error);
+    } catch {
+      // 메시지 파싱 실패
     }
   }, []);
 
   const disconnect = useCallback(() => {
     if (clientRef.current) {
-      console.log("[WebSocket] 타이머 완료 알림 연결 해제 시작");
       clientRef.current.deactivate();
       clientRef.current = null;
       setIsConnected(false);
@@ -83,7 +59,6 @@ export function useTimerCompletionNotification({
     if (!enabled) return;
 
     if (clientRef.current) {
-      console.log("[WebSocket] 기존 연결 정리 중...");
       disconnect();
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -91,14 +66,12 @@ export function useTimerCompletionNotification({
     const token = await getTokenFromServer();
 
     if (!token) {
-      console.error("[WebSocket] 토큰을 찾을 수 없습니다.");
       return;
     }
 
     // 토큰에서 userId 추출
     const userId = getUserIdFromToken(token);
     if (!userId) {
-      console.error("[WebSocket] 토큰에서 userId를 추출할 수 없습니다.");
       return;
     }
 
@@ -122,31 +95,23 @@ export function useTimerCompletionNotification({
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log("[WebSocket] 타이머 완료 알림 연결 성공");
         setIsConnected(true);
 
-        const subscription = clientRef.current?.subscribe(
-          `/topic/user/${userId}/timer-completion`,
-          handleNotification
-        );
-
-        if (subscription) {
-          console.log(
-            "[WebSocket] 타이머 완료 알림 구독 완료:",
-            `/topic/user/${userId}/timer-completion`
+        if (clientRef.current) {
+          subscribeToTopic(
+            clientRef.current,
+            `/topic/user/${userId}/timer-completion`,
+            handleNotification
           );
         }
       },
-      onStompError: (frame) => {
-        console.error("[WebSocket] STOMP 에러:", frame);
+      onStompError: () => {
         setIsConnected(false);
       },
-      onWebSocketClose: (event) => {
-        console.log("[WebSocket] 연결 종료", event.code, event.reason);
+      onWebSocketClose: () => {
         setIsConnected(false);
       },
       onDisconnect: () => {
-        console.log("[WebSocket] 연결 해제");
         setIsConnected(false);
       },
     });

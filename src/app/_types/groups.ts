@@ -11,6 +11,7 @@ export type Mate = {
   profileUrl: string;
   level: number;
   groupNames: string[];
+  isActive?: boolean; // 활동 중 여부 (웹사이트 접속 중이거나 개인 타이머 실행 중)
 };
 
 export type SortInfo = {

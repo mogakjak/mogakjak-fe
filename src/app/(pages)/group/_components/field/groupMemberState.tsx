@@ -15,7 +15,7 @@ interface GroupMemberStateProps {
   status: MemberStatus;
   isPublic: boolean;
   task?: string;
-  activeTime?: number;
+  activeTime?: number | null;
   restTime?: number;
   activeSec?: number;
   breakSec?: number;
@@ -24,13 +24,15 @@ interface GroupMemberStateProps {
 
 export default function GroupMemberState({
   status,
-  isPublic,
   task,
   activeTime,
-  activeSec,
   lastActiveAt,
 }: GroupMemberStateProps) {
-  const serverActiveTime = toSec(activeTime ?? activeSec ?? 0);
+  // activeTime 계산
+  // activeTime이 null이거나 undefined이면 시간 표시를 하지 않음
+  // activeTime이 0이면 실제로 0초인 경우이므로 시간 표시
+  const serverActiveTime =
+    activeTime !== null && activeTime !== undefined ? toSec(activeTime) : 0;
   const serverLastActiveAt = useRef<Date | null>(null);
 
   // 서버에서 받은 lastActiveAt을 Date로 변환하여 저장
@@ -49,16 +51,26 @@ export default function GroupMemberState({
   const [serverSyncTime, setServerSyncTime] = useState(Date.now());
 
   // 서버에서 받은 activeTime이 변경되면 동기화
+  // activeTime이 null이거나 undefined이면 동기화하지 않음
   useEffect(() => {
-    if (status === "active" || status === "rest") {
+    if (
+      (status === "active" || status === "rest") &&
+      activeTime !== null &&
+      activeTime !== undefined
+    ) {
       setClientActiveTime(serverActiveTime);
       setServerSyncTime(Date.now());
     }
-  }, [serverActiveTime, status]);
+  }, [serverActiveTime, status, activeTime]);
 
   // active 상태일 때만 클라이언트에서 시간 증가 (rest는 휴식이므로 증가하지 않음)
+  // activeTime이 null이거나 undefined이면 시간 증가하지 않음
   useEffect(() => {
-    if (status !== "active") {
+    if (
+      status !== "active" ||
+      activeTime === null ||
+      activeTime === undefined
+    ) {
       return;
     }
 
@@ -71,7 +83,7 @@ export default function GroupMemberState({
     }, 1000); // 1초마다 업데이트
 
     return () => clearInterval(interval);
-  }, [status, serverActiveTime, serverSyncTime]);
+  }, [status, serverActiveTime, serverSyncTime, activeTime]);
 
   // lastActiveAt으로부터 경과 시간 계산 (end 상태일 때)
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
@@ -103,8 +115,13 @@ export default function GroupMemberState({
   }, [status, lastActiveAt]);
 
   // active 상태일 때만 증가하는 시간 사용, rest/end는 서버에서 받은 정적 시간 사용
+  // activeTime이 null이거나 undefined이면 0 사용 (표시하지 않음)
   const effectiveActive =
-    status === "active" ? clientActiveTime : serverActiveTime;
+    activeTime !== null && activeTime !== undefined
+      ? status === "active"
+        ? clientActiveTime
+        : serverActiveTime
+      : 0;
 
   const now = new Date();
   const last =
@@ -122,14 +139,23 @@ export default function GroupMemberState({
   const statusIcon =
     status === "active" ? Book : status === "rest" ? Sleep : Empty;
 
+  // 할 일 제목 표시 (task가 없으면 "뭔가 하는 중")
   const line1 =
     status === "active"
-      ? `"${task ?? "가나다라마바사"}" 하는 중`
+      ? task
+        ? `"${task}" 하는 중`
+        : "뭔가 하는 중"
       : status === "rest"
       ? "잠시 쉬어갈래요"
       : "몰입에 참여하지 않았어요";
 
-  const line2 = isPublic
+  // 누적 시간 표시
+  // activeTime이 null이거나 undefined이면 비공개로 간주하여 "참여 중" 등으로 표시
+  // 백엔드에서 isTimerPublic이 false이면 null을 보내므로, null이면 "참여 중" 표시
+  // activeTime이 0이면서 status가 active인 경우는 실제로 0초인 경우이므로 시간 표시
+  const hasActiveTime = activeTime !== null && activeTime !== undefined;
+
+  const line2 = hasActiveTime
     ? status === "end"
       ? `최근 참여시간 ${diffMin}분전`
       : `${formatTime(effectiveActive)}`
