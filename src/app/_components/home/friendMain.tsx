@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import DropdownList from "../../(pages)/mypage/_components/board/mate/dropdownList";
 import SearchBar from "../../(pages)/mypage/_components/board/mate/searchBar";
 import ProfileList from "../../(pages)/mypage/_components/board/mate/profileList";
-import { useMates } from "@/app/_hooks/groups";
+import { useMates } from "@/app/_hooks/groups/useMates";
 import { MyGroup } from "@/app/_types/groups";
 
 interface FriendMainProps {

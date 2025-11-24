@@ -5,7 +5,7 @@ import GroupRoom from "./room/groupRoom";
 import { Button } from "@/components/button";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
-import { useMyGroups } from "@/app/_hooks/groups";
+import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 
 type RoomMainProps = {
   isPending: boolean;

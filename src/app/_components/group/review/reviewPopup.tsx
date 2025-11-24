@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react";
 import ReviewEmoji from "./reviewEmoji";
 import ReviewTag from "./reviewTag";
-import { useCreateFeedback, useFeedbackTags } from "@/app/_hooks/feedback";
+import { useCreateFeedback } from "@/app/_hooks/feedback/useCreateFeedback";
+import { useFeedbackTags } from "@/app/_hooks/feedback/useFeedbackTags";
 import { FeedbackTagType } from "@/app/_types/feedback";
-import { useExitGroupSession } from "@/app/_hooks/groups";
+import { useExitGroupSession } from "@/app/_hooks/groups/useExitGroupSession";
 
 type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 

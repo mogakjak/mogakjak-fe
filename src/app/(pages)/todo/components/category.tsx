@@ -5,7 +5,7 @@ import Image from "next/image";
 import { memo, useEffect, useState } from "react";
 import FilterPill from "./filterPill";
 import CategoryRow from "./categoryRow";
-import { CATEGORY_COLOR_TOKENS } from "@/app/_hooks/todoCategory";
+import { CATEGORY_COLOR_TOKENS } from "@/app/_constants/categoryColor";
 
 export type DayFilter = "today" | "all";
 export type Category = {

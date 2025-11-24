@@ -13,12 +13,12 @@ import InviteModal from "@/app/_components/home/room/inviteModal";
 import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { useAuthState } from "@/app/api/auth/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
-import { useFinishGroupTimer } from "@/app/_hooks/timers";
+import { useFinishGroupTimer } from "@/app/_hooks/timers/useFinishGroupTimer";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
-import { useGroupMemberStatus } from "@/app/_hooks/_websocket/groupMemberStatus";
-import { useSendCheer } from "@/app/_hooks/groups";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
+import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
 
 type GroupPageProps = {
   onExitGroup: () => void;

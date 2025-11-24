@@ -8,8 +8,8 @@ import MembersHover from "./membersHover";
 import Image from "next/image";
 import { MyGroup } from "@/app/_types/groups";
 import { useRouter } from "next/navigation";
-import { useGroupMemberStatus } from "@/app/_hooks/_websocket/groupMemberStatus";
-import { useGroupTimer } from "@/app/_hooks/_websocket/groupTimer";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
+import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 
 type GroupRoomProps = {
   group: MyGroup;

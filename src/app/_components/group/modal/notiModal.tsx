@@ -5,7 +5,7 @@ import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
 import ToggleButton from "./toggleButton";
 import Image from "next/image";
-import { useUpdateGroupNotifications } from "@/app/_hooks/groups";
+import { useUpdateGroupNotifications } from "@/app/_hooks/groups/useUpdateGroupNotifications";
 
 interface NotiModalProps {
   onClose: () => void;

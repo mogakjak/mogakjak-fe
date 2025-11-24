@@ -3,10 +3,8 @@
 import Image from "next/image";
 import GroupModal from "./groupModal";
 import { Button } from "@/components/button";
-import {
-  useAcceptInvitation,
-  useDeclineInvitation,
-} from "@/app/_hooks/invitations";
+import { useAcceptInvitation } from "@/app/_hooks/invitations/useAcceptInvitation";
+import { useDeclineInvitation } from "@/app/_hooks/invitations/useDeclineInvitation";
 import { PendingInvitation } from "@/app/_types/invitations";
 
 interface InviteAcceptModalProps {

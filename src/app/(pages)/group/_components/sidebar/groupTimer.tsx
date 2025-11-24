@@ -3,16 +3,14 @@
 import { useMemo, useState, useEffect } from "react";
 import { useStopwatch } from "react-timer-hook";
 import Icon from "../../../../_components/common/Icons";
-import {
-  useStartGroupTimer,
-  usePauseGroupTimer,
-  useResumeGroupTimer,
-  useFinishGroupTimer,
-} from "@/app/_hooks/timers";
+import { useStartGroupTimer } from "@/app/_hooks/timers/useStartGroupTimer";
+import { usePauseGroupTimer } from "@/app/_hooks/timers/usePauseGroupTimer";
+import { useResumeGroupTimer } from "@/app/_hooks/timers/useResumeGroupTimer";
+import { useFinishGroupTimer } from "@/app/_hooks/timers/useFinishGroupTimer";
 import {
   useGroupTimer,
   GroupTimerEvent,
-} from "@/app/_hooks/_websocket/groupTimer";
+} from "@/app/_hooks/_websocket/timer/useGroupTimer";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
