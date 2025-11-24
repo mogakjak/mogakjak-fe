@@ -45,10 +45,7 @@ export default function ProfileList({
           updated[profile.userId] = profile.isActive ?? false;
         }
       });
-      console.log("[ProfileList] profiles 변경, activeStatusMap 업데이트:", {
-        profilesCount: profiles.length,
-        updatedMap: updated,
-      });
+
       return updated;
     });
   }, [profiles]);
@@ -56,19 +53,12 @@ export default function ProfileList({
   // WebSocket으로 실시간 isActive 상태 업데이트
   const handleStatusChange = useCallback(
     (event: { userId: string; isActive: boolean }) => {
-      console.log("[ProfileList] handleStatusChange 호출:", event);
       setActiveStatusMap((prev) => {
         const updated = {
           ...prev,
           [event.userId]: event.isActive,
         };
-        console.log("[ProfileList] activeStatusMap 업데이트:", {
-          userId: event.userId,
-          isActive: event.isActive,
-          before: prev[event.userId],
-          after: updated[event.userId],
-          전체맵: updated,
-        });
+
         return updated;
       });
     },
@@ -79,11 +69,6 @@ export default function ProfileList({
     enabled: true,
     onStatusChange: handleStatusChange,
   });
-
-  // WebSocket 연결 상태 로그
-  useEffect(() => {
-    console.log("[ProfileList] WebSocket 연결 상태:", isConnected);
-  }, [isConnected]);
 
   useEffect(() => {
     onCountChange?.(totalCount);
@@ -107,9 +92,7 @@ export default function ProfileList({
           setShowModal(false);
           setSelectedUserId(null);
         },
-        onError: (error) => {
-          console.error("콕 찌르기 알림 전송 실패:", error);
-        },
+        onError: (error) => {},
       }
     );
   };
@@ -154,18 +137,7 @@ export default function ProfileList({
         // 실시간 업데이트된 isActive 상태 사용 (없으면 초기값 사용)
         const isActive =
           activeStatusMap[profile.userId] ?? profile.isActive ?? false;
-        // 디버깅: 상태가 다를 때만 로그
-        if (
-          activeStatusMap[profile.userId] !== undefined &&
-          activeStatusMap[profile.userId] !== profile.isActive
-        ) {
-          console.log(`[ProfileList] ${profile.nickname} 상태 변경:`, {
-            userId: profile.userId,
-            원래값: profile.isActive,
-            실시간값: activeStatusMap[profile.userId],
-            최종값: isActive,
-          });
-        }
+
         return (
           <div
             key={profile.userId}
