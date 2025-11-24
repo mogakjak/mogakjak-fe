@@ -5,6 +5,7 @@ import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
 import ProfileEditModal from "./profileEditModal";
+import { invalidateTokenCache } from "@/app/api/auth/api";
 
 import type { CharacterBasket } from "@/app/_types/mypage";
 
@@ -28,6 +29,9 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
 
   const handleLogout = async () => {
     try {
+      // 토큰 캐시 무효화
+      invalidateTokenCache();
+
       await fetch("/api/auth/logout", {
         method: "POST",
       });
@@ -35,6 +39,8 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
       window.location.href = "/login";
     } catch (error) {
       console.error("로그아웃 중 오류 발생:", error);
+      // 에러 발생 시에도 캐시 무효화
+      invalidateTokenCache();
       window.location.href = "/login";
     }
   };
