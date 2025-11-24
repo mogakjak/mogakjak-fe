@@ -22,7 +22,6 @@ import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
 import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
-import type { PomodoroSession } from "@/app/api/timers/api";
 
 type GroupMySidebarProps = {
   state: boolean;

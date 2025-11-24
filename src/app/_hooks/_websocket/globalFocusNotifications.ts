@@ -23,7 +23,7 @@ export function useGlobalFocusNotifications(
         if (notification.groupId === groupId) {
           onNotification?.(notification);
         }
-      } catch (error) {
+      } catch {
         // 메시지 파싱 실패
       }
     },
@@ -86,13 +86,13 @@ export function useGlobalFocusNotifications(
               );
 
               subscriptionsRef.current.set(group.groupId, subscription);
-            } catch (error) {
+            } catch {
               // 구독 실패
             }
           });
         }, 100);
       },
-      onStompError: (frame) => {
+      onStompError: () => {
         subscriptionsRef.current.clear();
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
@@ -187,4 +187,3 @@ export function useGlobalFocusNotifications(
     });
   }, [groups, handleNotification]);
 }
-

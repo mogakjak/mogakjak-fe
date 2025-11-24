@@ -55,7 +55,7 @@ export function useMateActiveStatus({
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
-        onConnect: (frame) => {
+        onConnect: () => {
           setIsConnected(true);
 
           // 메이트 isActive 상태 변경 구독
@@ -68,25 +68,25 @@ export function useMateActiveStatus({
                 if (onStatusChangeRef.current) {
                   onStatusChangeRef.current(event);
                 }
-              } catch (error) {
+              } catch {
                 // 메시지 파싱 실패
               }
             }
           );
         },
-        onStompError: (frame) => {
+        onStompError: () => {
           setIsConnected(false);
         },
-        onWebSocketError: (event) => {
+        onWebSocketError: () => {
           // WebSocket 에러
         },
-        onWebSocketClose: (event) => {
+        onWebSocketClose: () => {
           setIsConnected(false);
         },
         onDisconnect: () => {
           setIsConnected(false);
         },
-        debug: (str) => {
+        debug: () => {
           // STOMP 디버그
         },
       });

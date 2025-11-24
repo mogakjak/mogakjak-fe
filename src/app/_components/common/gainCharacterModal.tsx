@@ -1,4 +1,3 @@
-import { CHARACTER_BY_HOURS } from "@/app/_constants/character";
 import { Button } from "@/components/button";
 import Image from "next/image";
 

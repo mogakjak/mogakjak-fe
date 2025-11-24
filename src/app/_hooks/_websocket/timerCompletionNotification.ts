@@ -42,7 +42,7 @@ export function useTimerCompletionNotification({
         message.body
       );
       onNotificationRef.current?.(notification);
-    } catch (error) {
+    } catch {
       // 메시지 파싱 실패
     }
   }, []);
@@ -105,7 +105,7 @@ export function useTimerCompletionNotification({
           );
         }
       },
-      onStompError: (frame) => {
+      onStompError: () => {
         setIsConnected(false);
       },
       onWebSocketClose: () => {

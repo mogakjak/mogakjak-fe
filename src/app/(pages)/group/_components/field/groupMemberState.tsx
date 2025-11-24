@@ -24,10 +24,8 @@ interface GroupMemberStateProps {
 
 export default function GroupMemberState({
   status,
-  isPublic,
   task,
   activeTime,
-  activeSec,
   lastActiveAt,
 }: GroupMemberStateProps) {
   // activeTime 계산

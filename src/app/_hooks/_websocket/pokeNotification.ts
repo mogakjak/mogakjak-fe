@@ -33,7 +33,7 @@ export function usePokeNotification({
     try {
       const notification: PokeNotification = JSON.parse(message.body);
       onNotificationRef.current?.(notification);
-    } catch (error) {
+    } catch {
       // 메시지 파싱 실패
     }
   }, []);
@@ -96,7 +96,7 @@ export function usePokeNotification({
           );
         }
       },
-      onStompError: (frame) => {
+      onStompError: () => {
         setIsConnected(false);
       },
       onWebSocketClose: () => {

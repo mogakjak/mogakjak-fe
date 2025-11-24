@@ -33,7 +33,7 @@ export function useCheerNotification({
     try {
       const notification: CheerNotification = JSON.parse(message.body);
       onNotificationRef.current?.(notification);
-    } catch (error) {
+    } catch {
       // 메시지 파싱 실패
     }
   }, []);
@@ -83,7 +83,7 @@ export function useCheerNotification({
             );
           }
         },
-        onStompError: (frame) => {
+        onStompError: () => {
           setIsConnected(false);
         },
         onWebSocketClose: () => {
@@ -99,7 +99,7 @@ export function useCheerNotification({
       );
       clientRef.current = client;
       await connectClient();
-    } catch (error) {
+    } catch {
       setIsConnected(false);
     }
   }, [enabled, handleNotification, disconnect]);

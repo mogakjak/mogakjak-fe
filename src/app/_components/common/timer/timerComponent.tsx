@@ -117,7 +117,7 @@ export default function TimerComponent({
         setIsRunning(false);
       }
     },
-    [todoId, groupId, startPomodoroMutation, setIsRunning, isTaskPublic, isTimerPublic]
+    [todoId, groupId, startPomodoroMutation, setIsRunning, isTaskPublic, isTimerPublic, onSessionIdChange]
   );
 
   const onStart = useCallback(async () => {
@@ -228,6 +228,9 @@ export default function TimerComponent({
     timerContainerRef,
     openPipWindowRef,
     isInPipRef,
+    onSessionIdChange,
+    isTaskPublic,
+    isTimerPublic,
   ]);
 
   const onPause = useCallback(async () => {
@@ -359,7 +362,7 @@ export default function TimerComponent({
         setIsRunning(false);
       }
     }
-  }, [mode, sessionId, finishTimerMutation, setIsRunning]);
+  }, [mode, sessionId, finishTimerMutation, setIsRunning, onSessionIdChange]);
 
   const { isInPip, openPipWindow, closePipWindow } = usePictureInPicture({
     containerRef: timerContainerRef,

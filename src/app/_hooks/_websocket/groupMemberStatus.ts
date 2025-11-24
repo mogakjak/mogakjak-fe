@@ -216,7 +216,7 @@ export function useGroupMemberStatus({
 
         // onUpdate 콜백 호출 (groupData 모드가 아닐 때)
         onUpdateRef.current?.(update);
-      } catch (error) {
+      } catch {
         // 메시지 파싱 실패
       }
     },
@@ -255,7 +255,7 @@ export function useGroupMemberStatus({
             );
           }
         },
-        onStompError: (frame) => {
+        onStompError: () => {
           setIsConnected(false);
         },
         onWebSocketClose: () => {
@@ -271,7 +271,7 @@ export function useGroupMemberStatus({
       );
       clientRef.current = client;
       await connectClient();
-    } catch (error) {
+    } catch {
       setIsConnected(false);
     }
   }, [enabled, groupId, handleUpdate, disconnect]);

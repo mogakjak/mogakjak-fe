@@ -49,7 +49,7 @@ export function useGroupTimer({
     try {
       const event: GroupTimerEvent = JSON.parse(message.body);
       onEventRef.current?.(event);
-    } catch (error) {
+    } catch {
       // 그룹 타이머 이벤트 파싱 실패
     }
   }, []);
@@ -105,7 +105,7 @@ export function useGroupTimer({
           handleEvent
         );
       },
-      onStompError: (frame) => {
+      onStompError: () => {
         setIsConnected(false);
       },
       onWebSocketClose: () => {

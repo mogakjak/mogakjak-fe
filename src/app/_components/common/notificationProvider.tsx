@@ -75,7 +75,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         });
       }
     },
-    [permission, requestPermission, showBrowserNotification, isSupported]
+    [permission, requestPermission, showBrowserNotification]
   );
 
   const handleTimerCompletionNotification = useCallback(
