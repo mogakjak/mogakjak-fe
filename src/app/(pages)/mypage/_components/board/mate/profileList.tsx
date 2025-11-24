@@ -65,7 +65,7 @@ export default function ProfileList({
     []
   );
 
-  const { isConnected } = useMateActiveStatus({
+  useMateActiveStatus({
     enabled: true,
     onStatusChange: handleStatusChange,
   });
@@ -92,7 +92,7 @@ export default function ProfileList({
           setShowModal(false);
           setSelectedUserId(null);
         },
-        onError: (error) => {},
+        onError: () => {},
       }
     );
   };
