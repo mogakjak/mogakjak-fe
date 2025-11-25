@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getAuthToken } from "./getAuthToken";
+import { getAuthToken } from "../../api/auth/getAuthToken";
 
 const AUTH_QUERY_KEY = ["auth", "token"];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useLogin } from "@/app/api/auth/useLogin";
+import { useLogin } from "@/app/_hooks/login/useLogin";
 
 type LoginType = "google" | "kakao";
 

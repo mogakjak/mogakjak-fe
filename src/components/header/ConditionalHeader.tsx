@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useAuthState } from "@/app/api/auth/useAuthState";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import Header from "../Header";
 
 interface ConditionalHeaderProps {
