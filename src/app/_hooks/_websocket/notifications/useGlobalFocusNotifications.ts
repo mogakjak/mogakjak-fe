@@ -4,7 +4,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
-import { useAuthState } from "@/app/api/auth/useAuthState";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import type { FocusNotificationMessage } from "./useFocusNotification";
 import { getWebSocketUrl } from "@/app/api/websocket/api";
 export function useGlobalFocusNotifications(

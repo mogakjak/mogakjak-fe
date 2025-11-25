@@ -18,7 +18,9 @@ import { request } from "../request";
 const GROUPS_BASE = "/api/groups";
 
 export const getMyGroups = async () => {
-  const result = await request<MyGroup[]>(GROUPS_BASE, "/my", { method: "GET" });
+  const result = await request<MyGroup[]>(GROUPS_BASE, "/my", {
+    method: "GET",
+  });
   return result ?? [];
 };
 
@@ -40,70 +42,64 @@ export const getMates = async (params?: GetMatesParams) => {
   const query = searchParams.toString();
   const endpoint = query ? `/mates?${query}` : "/mates";
 
-  const result = await request<MatesPage>(GROUPS_BASE, endpoint, { method: "GET" });
-  
+  const result = await request<MatesPage>(GROUPS_BASE, endpoint, {
+    method: "GET",
+  });
+
   // 백엔드에서 이미 groupNames 배열로 반환하므로, 중복 제거만 수행
   if (result?.content) {
     // 같은 userId를 가진 항목들을 그룹화하여 groupNames 배열 병합
-    type RawMate = Mate & { groupNames?: string[]; groupName?: string; isActive?: boolean };
-    
-    // 디버깅: API 응답 확인
-    console.log("[getMates] API 응답:", result.content.map((m: RawMate) => ({ 
-      userId: m.userId, 
-      nickname: m.nickname, 
-      isActive: m.isActive,
-      groupNames: m.groupNames 
-    })));
+    type RawMate = Mate & {
+      groupNames?: string[];
+      groupName?: string;
+      isActive?: boolean;
+    };
+
     const userGroupMap = new Map<string, string[]>();
     const userMateMap = new Map<string, RawMate>();
-    
+
     result.content.forEach((mate: RawMate) => {
       const userId = mate.userId;
-      
+
       // 백엔드에서 groupNames 배열로 반환 (또는 레거시 groupName 단수)
-      const groupNames = mate.groupNames || (mate.groupName ? [mate.groupName] : []);
-      
+      const groupNames =
+        mate.groupNames || (mate.groupName ? [mate.groupName] : []);
+
       if (!userGroupMap.has(userId)) {
         userGroupMap.set(userId, []);
         userMateMap.set(userId, mate);
       }
-      
+
       // groupNames 병합 (중복 제거)
       const existingGroups = userGroupMap.get(userId)!;
-      groupNames.forEach(groupName => {
+      groupNames.forEach((groupName) => {
         if (!existingGroups.includes(groupName)) {
           existingGroups.push(groupName);
         }
       });
-      
+
       // isActive는 true가 있으면 우선
       const existing = userMateMap.get(userId)!;
       if (mate.isActive && !existing.isActive) {
         existing.isActive = true;
       }
     });
-    
+
     // 최종 메이트 목록 생성
-    const finalMates: Mate[] = Array.from(userMateMap.entries()).map(([userId, mate]) => ({
-      ...mate,
-      groupNames: userGroupMap.get(userId) || [],
-      isActive: mate.isActive ?? false,
-    }));
-    
-    // 디버깅: 최종 변환된 메이트 목록 확인
-    console.log("[getMates] 최종 변환된 메이트:", finalMates.map(m => ({ 
-      userId: m.userId, 
-      nickname: m.nickname, 
-      isActive: m.isActive,
-      groupNames: m.groupNames 
-    })));
-    
+    const finalMates: Mate[] = Array.from(userMateMap.entries()).map(
+      ([userId, mate]) => ({
+        ...mate,
+        groupNames: userGroupMap.get(userId) || [],
+        isActive: mate.isActive ?? false,
+      })
+    );
+
     return {
       ...result,
       content: finalMates,
     };
   }
-  
+
   return result;
 };
 

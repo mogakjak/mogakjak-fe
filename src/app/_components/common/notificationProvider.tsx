@@ -11,7 +11,7 @@ import { useGlobalFocusNotifications } from "@/app/_hooks/_websocket/notificatio
 import { useTimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 import { usePokeNotification } from "@/app/_hooks/_websocket/notifications/usePokeNotification";
 import { useCheerNotification } from "@/app/_hooks/_websocket/notifications/useCheerNotification";
-import { useBrowserNotification } from "@/app/_hooks/useBrowserNotification";
+import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 import TimerCompletionModal from "./timerCompletionModal";
 import PokeNotificationModal from "./pokeNotificationModal";
 import CheerNotificationModal from "./cheerNotificationModal";

@@ -11,7 +11,7 @@ import GroupGoal from "./sidebar/groupGoal";
 import SidebarButton from "./sidebar/sidebarButton";
 import InviteModal from "@/app/_components/home/room/inviteModal";
 import TimerEndModal from "@/app/_components/common/timerEndModal";
-import { useAuthState } from "@/app/api/auth/useAuthState";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import { useFinishGroupTimer } from "@/app/_hooks/timers/useFinishGroupTimer";
 

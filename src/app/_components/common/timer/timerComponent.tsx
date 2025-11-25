@@ -18,7 +18,7 @@ import { useFinishTimer } from "@/app/_hooks/timers/useFinishTimer";
 import { useStartTimer } from "@/app/_hooks/timers/useStartTimer";
 import { useStartStopwatch } from "@/app/_hooks/timers/useStartStopwatch";
 import { useTimer } from "@/app/_contexts/TimerContext";
-import { usePictureInPicture } from "@/app/_hooks/usePictureInPicture";
+import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
@@ -115,7 +115,15 @@ export default function TimerComponent({
         setIsRunning(false);
       }
     },
-    [todoId, groupId, startPomodoroMutation, setIsRunning, isTaskPublic, isTimerPublic, onSessionIdChange]
+    [
+      todoId,
+      groupId,
+      startPomodoroMutation,
+      setIsRunning,
+      isTaskPublic,
+      isTimerPublic,
+      onSessionIdChange,
+    ]
   );
 
   const onStart = useCallback(async () => {

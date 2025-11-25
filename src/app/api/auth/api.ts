@@ -47,9 +47,18 @@ export async function getTokenFromServer(): Promise<string | null> {
 
       return token;
     } catch (error) {
-      console.error("[WebSocket] 토큰 가져오기 실패:", error);
-      // 에러 발생 시 캐시 초기화
-      cachedToken = undefined;
+      // 401 에러는 로그아웃 상태를 의미하므로 정상적인 경우입니다
+      const isUnauthorized =
+        error instanceof Error &&
+        (error.message.includes("HTTP 401") || error.message.includes("401"));
+
+      if (!isUnauthorized) {
+        console.error("[WebSocket] 토큰 가져오기 실패:", error);
+      }
+
+      // 에러 발생 시 캐시 초기화 (401 포함)
+      cachedToken = null; // null로 설정하여 로그아웃 상태임을 명시
+      cacheExpiry = now + CACHE_DURATION; // 짧은 시간 캐시하여 불필요한 재요청 방지
       return null;
     } finally {
       // Promise 초기화 (다음 요청을 위해)

@@ -48,7 +48,9 @@ export async function createWebSocketClient(
   const token = await getTokenFromServer();
 
   if (!token) {
-    throw new Error("[WebSocket] 토큰을 찾을 수 없습니다.");
+    // 로그아웃 상태에서는 조용히 실패 (에러를 throw하지 않음)
+    // useWebSocket에서 이 경우를 처리할 수 있도록 특별한 에러 타입 사용
+    throw new Error("[WebSocket] 토큰을 찾을 수 없습니다. (로그아웃 상태)");
   }
 
   const connectHeaders: Record<string, string> = {

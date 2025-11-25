@@ -35,7 +35,9 @@ export function useWebSocket<T = IMessage>({
 }: UseWebSocketOptions<T>) {
   const [isConnected, setIsConnected] = useState(false);
   const clientRef = useRef<Client | null>(null);
-  const subscriptionRef = useRef<ReturnType<typeof subscribeToTopic> | null>(null);
+  const subscriptionRef = useRef<ReturnType<typeof subscribeToTopic> | null>(
+    null
+  );
   const onMessageRef = useRef(onMessage);
   const onConnectRef = useRef(onConnect);
   const onDisconnectRef = useRef(onDisconnect);
@@ -127,12 +129,19 @@ export function useWebSocket<T = IMessage>({
         ...config,
       };
 
-      const { client, connect: connectClient } = await createWebSocketClient(wsConfig);
+      const { client, connect: connectClient } = await createWebSocketClient(
+        wsConfig
+      );
       clientRef.current = client;
       await connectClient();
     } catch (error) {
       setIsConnected(false);
-      onError?.(error);
+      // 로그아웃 상태는 정상적인 경우이므로 에러 콜백을 호출하지 않음
+      const isLogoutError =
+        error instanceof Error && error.message.includes("로그아웃 상태");
+      if (!isLogoutError) {
+        onError?.(error);
+      }
     }
   }, [enabled, destination, handleMessage, disconnect, config, onError]);
 
@@ -156,4 +165,3 @@ export function useWebSocket<T = IMessage>({
     client: clientRef.current,
   };
 }
-

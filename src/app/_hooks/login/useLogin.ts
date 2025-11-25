@@ -14,8 +14,8 @@ function stripSlash(s: string) {
 
 function buildAuthorizeUrl(provider: Provider): string {
   const rawBase = required(
-    "NEXT_PUBLIC_API_BASE_URL",
-    process.env.NEXT_PUBLIC_API_BASE_URL
+    "NEXT_PUBLIC_API_PROXY",
+    process.env.NEXT_PUBLIC_API_PROXY
   );
   const apiBase = stripSlash(rawBase);
 
