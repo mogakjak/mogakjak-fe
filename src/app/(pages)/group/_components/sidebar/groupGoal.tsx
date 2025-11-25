@@ -15,34 +15,29 @@ type GroupGoalProps = {
 
 export default function GroupGoal({ data }: GroupGoalProps) {
   const [openNoti, setOpenNoti] = useState(false);
-  const [goalHour, setGoalHour] = useState("");
-  const [goalMin, setGoalMin] = useState("");
+  const [goalHour, setGoalHour] = useState(data.groupGoal.goalHours);
+  const [goalMin, setGoalMin] = useState(data.groupGoal.goalMinutes);
   const { mutateAsync: updateGoal } = useUpdateGroupGoal(data.groupId);
 
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     v = v.slice(0, 2);
-    setGoalHour(v);
+    setGoalHour(Number(v));
   };
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     v = v.slice(0, 2);
-    setGoalMin(v);
+    setGoalMin(Number(v));
   };
 
   const lastSavedRef = useRef<{ hour: number; minute: number } | null>(null);
 
   useEffect(() => {
-    if (goalHour === "" && goalMin === "") return;
+    if (goalHour === 0 && goalMin === 0) return;
 
     const timer = setTimeout(() => {
-      const hour = goalHour === "" ? 0 : Number(goalHour);
-      const minute = goalMin === "" ? 0 : Number(goalMin);
-
-      if (minute < 0 || minute > 59) return;
-
-      const payload = { hour, minute };
+      const payload = { hour: goalHour, minute: goalMin };
 
       const last = lastSavedRef.current;
       if (
@@ -128,7 +123,9 @@ export default function GroupGoal({ data }: GroupGoalProps) {
           </div>
           <div className="flex flex-col items-center">
             <p className="text-body2-14R text-gray-600">달성률</p>
-            <p className="text-heading3-24SB text-red-500">0%</p>
+            <p className="text-heading3-24SB text-red-500">
+              {data.progressRate}%
+            </p>
           </div>
         </div>
       </div>
