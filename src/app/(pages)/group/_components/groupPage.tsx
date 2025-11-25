@@ -115,6 +115,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             initialAccumulatedDuration={groupData.accumulatedDuration || 0}
             onSessionIdChange={setSessionId}
             onStatusChange={setTimerStatus}
+            memberStatuses={memberStatuses}
           />
         </div>
         <GroupGoal data={groupData}></GroupGoal>
