@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mogakjak-fe.vercel.app/sitemap.xml
+
