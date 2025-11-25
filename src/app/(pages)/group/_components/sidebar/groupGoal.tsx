@@ -37,6 +37,8 @@ export default function GroupGoal({ data }: GroupGoalProps) {
     if (goalHour === 0 && goalMin === 0) return;
 
     const timer = setTimeout(() => {
+      if (goalMin > 59) return;
+
       const payload = { hour: goalHour, minute: goalMin };
 
       const last = lastSavedRef.current;
