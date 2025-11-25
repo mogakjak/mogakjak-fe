@@ -70,7 +70,7 @@ export default function GroupFriendField({
               )}
             </div>
           </div>
-          {!isActive && (
+          {!isActive && !isCurrentUser && (
             <CheerUp
               cheerCount={cheerCount}
               onClick={() => {
