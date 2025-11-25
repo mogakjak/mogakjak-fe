@@ -92,6 +92,13 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     });
   }, [memberStatuses, currentUserId]);
 
+  // 참여 중인 멤버 수 계산 (NOT_PARTICIPATING이 아닌 멤버)
+  const participatingMemberCount = useMemo(() => {
+    return Array.from(memberStatuses.values()).filter(
+      (status) => status.participationStatus !== "NOT_PARTICIPATING"
+    ).length;
+  }, [memberStatuses]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpenReview(false);
@@ -124,7 +131,8 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px] mt-4">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
-            <b className="text-black">그룹원</b> {displayMembers.length}/8
+            <b className="text-black">그룹원</b> {participatingMemberCount}/
+            {groupData.members.length}
           </p>
           <SidebarButton
             className="px-5 cursor-pointer"
