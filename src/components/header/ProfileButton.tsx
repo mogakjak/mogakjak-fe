@@ -2,15 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useBlockNavigation } from "@/app/_hooks/block/useBlockNavigation";
 
 export default function ProfileButton() {
   const pathname = usePathname();
+  const router = useRouter();
   const isMypage = pathname === "/mypage";
+  const { handleClick } = useBlockNavigation(() => {
+    router.push("/mypage");
+  });
 
   return (
     <Link
       href="/mypage"
+      onClick={handleClick}
       aria-current={isMypage ? "page" : undefined}
       className="relative w-10 h-10 block group"
     >
