@@ -8,6 +8,9 @@ import Edit from "/Icons/edit.svg";
 import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
 import { useState } from "react";
 import RoomModal from "@/app/_components/home/room/roomModal";
+import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
+import { useQueryClient } from "@tanstack/react-query";
+import { groupKeys } from "@/app/api/groups/keys";
 
 type GroupRoomPageProps = {
   groupid: string;
@@ -16,11 +19,26 @@ type GroupRoomPageProps = {
 export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // 그룹 아이디 확인
   const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
   const { data, isPending } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,
+  });
+
+  // 그룹 타이머 종료 이벤트 수신하여 달성률 업데이트
+  useGroupTimer({
+    groupId: validGroupId,
+    enabled: !!validGroupId,
+    onEvent: (event) => {
+      // 타이머 종료 시 그룹 상세 정보를 invalidate하여 달성률 업데이트
+      if (event.eventType === "FINISH") {
+        queryClient.invalidateQueries({
+          queryKey: groupKeys.detail(validGroupId),
+        });
+      }
+    },
   });
 
   const handleExitGroup = () => {

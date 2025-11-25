@@ -7,12 +7,14 @@ type PreviewCharacterProps = {
   state: boolean;
   nickname: string;
   character: Character;
+  cheerCount?: number;
 };
 
 export default function PreviewCharacter({
   state,
   nickname,
   character,
+  cheerCount = 0,
 }: PreviewCharacterProps) {
   return (
     <div className="flex flex-col mb-1">
@@ -23,7 +25,7 @@ export default function PreviewCharacter({
           </p>
           <span className="text-heading4-20SB">(나)</span>
         </div>
-        {state && <CheerUp />}
+        {state && <CheerUp cheerCount={cheerCount} />}
       </div>
       <div className="flex flex-col items-center gap-2.5">
         <Image

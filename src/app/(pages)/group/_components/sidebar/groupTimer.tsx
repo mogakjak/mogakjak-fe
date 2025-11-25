@@ -11,6 +11,8 @@ import {
   useGroupTimer,
   GroupTimerEvent,
 } from "@/app/_hooks/_websocket/timer/useGroupTimer";
+import type { GroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
+import AlertModal from "@/app/_components/common/timer/alertModal";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -25,6 +27,7 @@ interface GroupTimerProps {
   initialAccumulatedDuration?: number; // 초기 누적 시간 (초 단위)
   onSessionIdChange?: (sessionId: string | null) => void;
   onStatusChange?: (status: Status) => void;
+  memberStatuses?: Map<string, GroupMemberStatus>; // 그룹 멤버 상태
 }
 
 export default function GroupTimer({
@@ -32,6 +35,7 @@ export default function GroupTimer({
   initialAccumulatedDuration = 0,
   onSessionIdChange,
   onStatusChange,
+  memberStatuses,
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
 
@@ -47,6 +51,7 @@ export default function GroupTimer({
   const [accumulatedDuration, setAccumulatedDuration] = useState(
     initialAccumulatedDuration
   ); // 서버에서 받은 그룹 누적 시간
+  const [isLimitOpen, setLimitOpen] = useState(false); // 참여자 수 제한 모달
 
   const stopwatch = useStopwatch({ autoStart: false });
 
@@ -226,7 +231,35 @@ export default function GroupTimer({
     },
   });
 
+  // NOT_PARTICIPATING이 아닌 멤버 수 계산
+  const activeParticipantCount = useMemo(() => {
+    if (!memberStatuses) return 0;
+    let count = 0;
+    memberStatuses.forEach((member) => {
+      if (member.participationStatus !== "NOT_PARTICIPATING") {
+        count++;
+      }
+    });
+    return count;
+  }, [memberStatuses]);
+
+  // 타이머 실행 중 참여자가 1명 이하가 되면 자동 종료
+  useEffect(() => {
+    if (status === "running" && sessionId && activeParticipantCount <= 1) {
+      // 자동 종료
+      finishGroupTimerMutation.mutateAsync().catch((error) => {
+        console.error("그룹 타이머 자동 종료 실패:", error);
+      });
+    }
+  }, [status, sessionId, activeParticipantCount, finishGroupTimerMutation]);
+
   const handleStart = async () => {
+    // 참여자가 2명 미만이면 AlertModal 띄우고 타이머 시작 막기
+    if (activeParticipantCount < 2) {
+      setLimitOpen(true);
+      return; // 타이머 시작을 완전히 막음
+    }
+
     try {
       setSessionId(null);
       onSessionIdChange?.(null);
@@ -345,6 +378,12 @@ export default function GroupTimer({
           </div>
         )}
       </div>
+
+      <AlertModal
+        isOpen={isLimitOpen}
+        onClose={() => setLimitOpen(false)}
+        type="groupTimerLimit"
+      />
     </div>
   );
 }

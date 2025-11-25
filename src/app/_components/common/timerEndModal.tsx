@@ -9,8 +9,8 @@ export default function TimerEndModal({
     <div className="flex flex-col w-[340px]">
       <div className="flex flex-col p-7 pt-8 bg-white rounded-t-xl shadow-md text-center">
         <h2 className="text-body1-16SB">
-          그룹 타이머를 종료하고 <br />
-          초기화하시겠어요?
+          타이머를 종료하고 <br />
+          이동하시겠어요?
         </h2>
 
         <p className="text-body2-14R text-gray-600 mt-2">
