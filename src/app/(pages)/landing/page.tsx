@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Script from "next/script";
 import KakaoShareButton from "@/app/(pages)/landing/_components/kakaoShareButton";
 
 export default function Landing() {
@@ -9,7 +10,13 @@ export default function Landing() {
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+    <>
+      {/* Kakao SDK는 landing 페이지에서만 필요하므로 여기서만 로드 */}
+      <Script
+        src="https://developers.kakao.com/sdk/js/kakao.js"
+        strategy="lazyOnload"
+      />
+      <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       <main className="w-full py-7 min-h-screen bg-white flex flex-col items-center justify-evenly">
       <div className="flex flex-col justify-start items-center gap-4">
         <div className="flex flex-col justify-start items-center gap-2">
@@ -72,5 +79,6 @@ export default function Landing() {
       </div>
     </main>
     </div>
+    </>
   );
 }

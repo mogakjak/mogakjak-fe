@@ -80,10 +80,6 @@ export default function RootLayout({
             `,
           }}
         />
-        <Script
-          src="https://developers.kakao.com/sdk/js/kakao.js"
-          strategy="afterInteractive"
-        />
 
         <Providers>
           <WithMobileDetection>

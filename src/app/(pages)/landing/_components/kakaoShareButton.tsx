@@ -46,52 +46,66 @@ export default function KakaoShareButton({
   imageUrl =  "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
 }: KakaoShareButtonProps) {
   useEffect(() => {
-    if (typeof window !== "undefined" && window.Kakao && !window.Kakao.isInitialized()) {
-      const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
-      if (kakaoKey) {
-        window.Kakao.init(kakaoKey);
+    const initKakao = () => {
+      if (typeof window === "undefined") return;
+      
+      if (window.Kakao && !window.Kakao.isInitialized()) {
+        const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
+        if (kakaoKey) {
+          window.Kakao.init(kakaoKey);
+        }
+      } else if (!window.Kakao) {
+        setTimeout(initKakao, 100);
       }
-    }
+    };
+  
+    const timer = setTimeout(initKakao, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleKakaoShare = (): void => {
     if (typeof window === "undefined" || !window.Kakao) {
-      console.error("Kakao SDK가 로드되지 않았습니다.");
       return;
     }
 
     if (!window.Kakao.isInitialized()) {
       const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
       if (!kakaoKey) {
-        console.error("카카오 JavaScript 키가 설정되지 않았습니다.");
+        alert("카카오톡 공유 오류입니다. 관리자에게 문의해주세요.");
         return;
       }
       window.Kakao.init(kakaoKey);
     }
+    
     const currentUrl = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://mogakjak-fe.vercel.app";
-
-    window.Kakao.Share.sendDefault({
-      objectType: "feed",
-      content: {
-        title,
-        description,
-        imageUrl,
-        link: {
-          mobileWebUrl: currentUrl,
-          webUrl: currentUrl,
-        },
-      },
-      buttons: [
-        {
-          title: "모각작 시작하기",
+    
+    try {
+      window.Kakao.Share.sendDefault({
+        objectType: "feed",
+        content: {
+          title,
+          description,
+          imageUrl,
           link: {
             mobileWebUrl: currentUrl,
             webUrl: currentUrl,
           },
         },
-      ],
-      installTalk: true,
-    });
+        buttons: [
+          {
+            title: "모각작 시작하기",
+            link: {
+              mobileWebUrl: currentUrl,
+              webUrl: currentUrl,
+            },
+          },
+        ],
+        installTalk: true,
+      });
+    } catch (error) {
+      console.error(error);
+      alert("카카오톡 공유 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
