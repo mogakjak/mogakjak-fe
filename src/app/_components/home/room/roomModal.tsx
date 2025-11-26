@@ -103,7 +103,7 @@ export default function RoomModal({
 
   return (
     <div className="bg-white p-5 w-[516px] rounded-[20px]">
-      <button className="flex ml-auto" onClick={onClose}>
+      <button className="flex ml-auto" onClick={onClose} aria-label="닫기">
         <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
       </button>
 

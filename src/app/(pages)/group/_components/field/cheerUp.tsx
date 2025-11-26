@@ -11,6 +11,7 @@ export default function CheerUp({ cheerCount = 0, onClick }: CheerUpProps) {
   return (
     <button
       onClick={onClick}
+      aria-label={`응원하기 (현재 ${cheerCount}개)`}
       className="flex items-center gap-1 hover:opacity-80 transition-opacity"
     >
       <p className="text-body2-14SB text-red-600">{cheerCount}</p>
