@@ -60,10 +60,36 @@ const nextConfig: NextConfig = {
       ],
     });
 
-    config.resolve.alias = {
-      ...config.resolve.alias,
+    // Alias 설정 - 기존 alias를 덮어쓰지 않고 병합
+    const existingAlias = config.resolve.alias || {};
+    const newAlias: Record<string, string> = {
+      ...(typeof existingAlias === "object" && !Array.isArray(existingAlias)
+        ? existingAlias
+        : {}),
       "/Icons": path.resolve(process.cwd(), "public/Icons"),
     };
+
+    // Material-UI/Emotion 최적화
+    if (!dev && !isServer) {
+      try {
+        const emotionReactPath = require.resolve("@emotion/react/package.json");
+        const emotionStyledPath = require.resolve("@emotion/styled/package.json");
+
+        const emotionReactModule = path.dirname(emotionReactPath);
+        const emotionStyledModule = path.dirname(emotionStyledPath);
+
+        if (!newAlias["@emotion/react"]) {
+          newAlias["@emotion/react"] = emotionReactModule;
+        }
+        if (!newAlias["@emotion/styled"]) {
+          newAlias["@emotion/styled"] = emotionStyledModule;
+        }
+      } catch (error) {
+        console.warn("Emotion alias 설정 중 오류 (무시됨):", error);
+      }
+    }
+
+    config.resolve.alias = newAlias;
 
     // 프로덕션 빌드 시 minification 최적화
     if (!dev && !isServer) {
@@ -73,16 +99,6 @@ const nextConfig: NextConfig = {
         minimizer: [
           ...(config.optimization?.minimizer || []),
         ],
-      };
-    }
-
-    // CSS 최적화 설정 - Material-UI/Emotion 최적화
-    if (!dev) {
-      // Emotion의 CSS-in-JS 최적화
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "@emotion/react": require.resolve("@emotion/react"),
-        "@emotion/styled": require.resolve("@emotion/styled"),
       };
     }
 
