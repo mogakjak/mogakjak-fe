@@ -40,8 +40,7 @@ export default function GroupPage({
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
   const [hasReceivedWebSocketUpdate, setHasReceivedWebSocketUpdate] =
     useState(false);
-  const [initialMemberStatusesSize, setInitialMemberStatusesSize] =
-    useState(0);
+  const [initialMemberStatusesSize, setInitialMemberStatusesSize] = useState(0);
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
@@ -53,7 +52,7 @@ export default function GroupPage({
     groupId: groupData.groupId,
     groupData,
   });
-//websocket 연결 이후 상태 체크 
+  //websocket 연결 이후 상태 체크
   useEffect(() => {
     if (!isConnected) {
       setHasReceivedWebSocketUpdate(false);
@@ -162,7 +161,7 @@ export default function GroupPage({
   }, [openReview]);
 
   return (
-    <div className="flex flex-col items-center w-full justify-between ">
+    <div className="flex flex-col items-center w-full gap-5">
       <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
@@ -177,7 +176,7 @@ export default function GroupPage({
         <GroupGoal data={groupData}></GroupGoal>
       </div>
 
-      <div className="w-full bg-white rounded-2xl px-8 pt-8 pb-6 h-[590px] mt-4">
+      <div className="w-full bg-white rounded-2xl px-8 pt-8 pb-6 h-[590px] flex flex-col flex-1">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {participatingMemberCount}/
@@ -217,7 +216,7 @@ export default function GroupPage({
                 } else {
                   displayStatus = "end";
                 }
-                  
+
                 // 초 단위 값을 그대로 전달하면 됩니다.
                 // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
                 // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
