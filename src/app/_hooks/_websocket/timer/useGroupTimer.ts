@@ -22,17 +22,23 @@ type UseGroupTimerOptions = {
   groupId: string;
   enabled?: boolean;
   onEvent?: (event: GroupTimerEvent) => void;
+  connectDelay?: number;
+  waitForLoad?: boolean;
 };
 
 export function useGroupTimer({
   groupId,
   enabled = true,
   onEvent,
+  connectDelay = 500, // 그룹 페이지는 실시간이 중요하므로 짧은 지연
+  waitForLoad = false,
 }: UseGroupTimerOptions) {
   return useWebSocket<GroupTimerEvent>({
     enabled: enabled && !!groupId,
     destination: groupId ? `/topic/group/${groupId}/timer` : undefined,
     onMessage: onEvent,
+    connectDelay,
+    waitForLoad,
   });
 }
 

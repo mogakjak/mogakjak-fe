@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useQuery,
-  type UseQueryOptions,
-} from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { getGroupDetail } from "../../api/groups/api";
 import { groupKeys } from "../../api/groups/keys";
 import type { GroupDetail } from "../../_types/groups";
@@ -24,7 +21,10 @@ export const useGroupDetail = (
       );
       return getGroupDetail(groupId);
     },
-    staleTime: 5 * 60 * 1000,
+    // 목표는 그룹 타이머 종료 시에만 변경되므로 긴 캐시 시간 설정
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
     ...options,
   });
-

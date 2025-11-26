@@ -61,7 +61,10 @@ export default forwardRef<
     onComplete?: () => void;
     isBreak?: boolean;
   }
->(function PomodoroDial({ minutes = 60, className, onComplete, isBreak = false }, ref) {
+>(function PomodoroDial(
+  { minutes = 60, className, onComplete, isBreak = false },
+  ref
+) {
   const [targetSec, setTargetSec] = useState(Math.max(0, (minutes ?? 0) * 60));
   const [leftSec, setLeftSec] = useState(targetSec);
   const [running, setRunning] = useState(false);
@@ -209,12 +212,14 @@ export default forwardRef<
             );
           })}
         </svg>
-        <div className="absolute">
+        <div className="absolute w-7 h-7 shrink-0">
           <Image
             src="/pomodoro.svg"
             width={28}
             height={28}
             alt="Pomodoro Center"
+            style={{ aspectRatio: "1 / 1" }}
+            className="object-contain"
           />
         </div>
       </div>

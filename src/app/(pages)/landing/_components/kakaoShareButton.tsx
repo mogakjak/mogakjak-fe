@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Script from "next/script";
 
 declare global {
   interface Window {
@@ -43,16 +44,23 @@ interface KakaoShareButtonProps {
 export default function KakaoShareButton({
   title = "모각작",
   description = "함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
-  imageUrl =  "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
+  imageUrl = "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
 }: KakaoShareButtonProps) {
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+
   useEffect(() => {
-    if (typeof window !== "undefined" && window.Kakao && !window.Kakao.isInitialized()) {
+    if (
+      kakaoLoaded &&
+      typeof window !== "undefined" &&
+      window.Kakao &&
+      !window.Kakao.isInitialized()
+    ) {
       const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
       if (kakaoKey) {
         window.Kakao.init(kakaoKey);
       }
     }
-  }, []);
+  }, [kakaoLoaded]);
 
   const handleKakaoShare = (): void => {
     if (typeof window === "undefined" || !window.Kakao) {
@@ -68,7 +76,8 @@ export default function KakaoShareButton({
       }
       window.Kakao.init(kakaoKey);
     }
-    const currentUrl = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://mogakjak-fe.vercel.app";
+    const currentUrl =
+      process.env.NEXT_PUBLIC_REDIRECT_URI || "https://mogakjak-fe.vercel.app";
 
     window.Kakao.Share.sendDefault({
       objectType: "feed",
@@ -95,23 +104,30 @@ export default function KakaoShareButton({
   };
 
   return (
-    <button
-      onClick={handleKakaoShare}
-      className="self-stretch h-12 px-10 py-4 bg-yellow-400 rounded-2xl inline-flex justify-center items-center gap-2 transition active:scale-[0.99] disabled:opacity-70"
-    >
-      <div className="w-6 h-6 relative overflow-hidden">
-        <Image
-          src="/Icons/kakao.svg"
-          alt="카카오톡"
-          width={24}
-          height={24}
-          className="w-5 h-5"
-        />
-      </div>
-      <div className="justify-center text-neutral-900 text-base font-medium font-['Pretendard'] leading-6">
-        카카오톡 &apos;나에게&apos; 보내기
-      </div>
-    </button>
+    <>
+      {/* Kakao SDK - landing 페이지에서만 동적 로드 */}
+      <Script
+        src="https://developers.kakao.com/sdk/js/kakao.js"
+        strategy="lazyOnload"
+        onLoad={() => setKakaoLoaded(true)}
+      />
+      <button
+        onClick={handleKakaoShare}
+        className="self-stretch h-12 px-10 py-4 bg-yellow-400 rounded-2xl inline-flex justify-center items-center gap-2 transition active:scale-[0.99] disabled:opacity-70"
+      >
+        <div className="w-6 h-6 relative overflow-hidden">
+          <Image
+            src="/Icons/kakao.svg"
+            alt="카카오톡"
+            width={24}
+            height={24}
+            className="w-5 h-5"
+          />
+        </div>
+        <div className="justify-center text-neutral-900 text-base font-medium font-['Pretendard'] leading-6">
+          카카오톡 &apos;나에게&apos; 보내기
+        </div>
+      </button>
+    </>
   );
 }
-

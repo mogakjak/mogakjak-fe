@@ -72,7 +72,7 @@ export default function FriendMain({ groups }: FriendMainProps) {
         />
       </section>
 
-      <section className="flex flex-col justify-between mt-4 h-[195px] overflow-y-auto">
+      <section className="flex flex-col justify-between mt-4 h-[225px] overflow-y-auto">
         <ProfileList
           profiles={profiles}
           totalCount={totalCount}

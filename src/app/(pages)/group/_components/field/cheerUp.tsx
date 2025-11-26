@@ -14,7 +14,16 @@ export default function CheerUp({ cheerCount = 0, onClick }: CheerUpProps) {
       className="flex items-center gap-1 hover:opacity-80 transition-opacity"
     >
       <p className="text-body2-14SB text-red-600">{cheerCount}</p>
-      <Image src="/Icons/cheerup.svg" alt="응원" width={24} height={24}></Image>
+      <div className="w-6 h-6 relative shrink-0">
+        <Image
+          src="/Icons/cheerup.svg"
+          alt="응원"
+          width={24}
+          height={24}
+          style={{ aspectRatio: "1 / 1" }}
+          className="object-contain"
+        />
+      </div>
     </button>
   );
 }
