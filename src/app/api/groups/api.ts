@@ -53,6 +53,7 @@ export const getMates = async (params?: GetMatesParams) => {
       groupNames?: string[];
       groupName?: string;
       isActive?: boolean;
+      lastActivityAt?: string | null;
     };
 
     const userGroupMap = new Map<string, string[]>();
@@ -83,6 +84,13 @@ export const getMates = async (params?: GetMatesParams) => {
       if (mate.isActive && !existing.isActive) {
         existing.isActive = true;
       }
+      // lastActivityAt은 가장 최근 값으로 업데이트
+      if (mate.lastActivityAt) {
+        const existingLastActivityAt = existing.lastActivityAt;
+        if (!existingLastActivityAt || new Date(mate.lastActivityAt) > new Date(existingLastActivityAt)) {
+          existing.lastActivityAt = mate.lastActivityAt;
+        }
+      }
     });
 
     // 최종 메이트 목록 생성
@@ -91,6 +99,7 @@ export const getMates = async (params?: GetMatesParams) => {
         ...mate,
         groupNames: userGroupMap.get(userId) || [],
         isActive: mate.isActive ?? false,
+        lastActivityAt: mate.lastActivityAt ?? null,
       })
     );
 
