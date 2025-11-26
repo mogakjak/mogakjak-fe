@@ -51,6 +51,22 @@ export default function TodoPage() {
     });
   }, [categories]);
 
+  const allCategoryOptions = useMemo(() => {
+    return categories
+      .sort((a, b) => a.displayOrder - b.displayOrder)
+      .map((category) => {
+        const baseToken =
+          CATEGORY_COLOR_TOKEN_BY_NAME[
+            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          ] ?? "category-1-red";
+        return {
+          id: String(category.id),
+          name: category.name,
+          colorToken: baseToken,
+        };
+      });
+  }, [categories]);
+
   const todoListCategories = useMemo<ListCategory[]>(() => {
     const todosByCat = new Map<string, Todo[]>();
 
@@ -239,6 +255,7 @@ export default function TodoPage() {
           filter={filter}
           dateLabel={dateLabel}
           categories={todoListCategories}
+          allCategories={allCategoryOptions}
           onCreateTodo={handleCreateTodo}
           onUpdateTodo={handleUpdateTodo}
           onDeleteTodo={handleDeleteTodo}

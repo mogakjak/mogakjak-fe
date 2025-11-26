@@ -185,22 +185,33 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setCheerNotification(null);
   }, []);
 
-  // 집중 체크 알림 구독
-  useGlobalFocusNotifications(handleFocusNotification);
+  // 집중 체크 알림 구독 - LCP 이후에 연결
+  useGlobalFocusNotifications(handleFocusNotification, {
+    enabled: true,
+  });
+
+  // 타이머 완료 알림 - LCP 이후에 연결 (window load 이후)
   useTimerCompletionNotification({
     enabled: true,
     onNotification: handleTimerCompletionNotification,
+    connectDelay: 1000, // LCP 이후 1초 추가 지연
+    waitForLoad: true,
   });
 
+  // 콕 찌르기 알림 - LCP 이후에 연결 (window load 이후)
   usePokeNotification({
     enabled: true,
     onNotification: handlePokeNotification,
+    connectDelay: 1000,
+    waitForLoad: true,
   });
 
-  // 응원 알림 구독
+  // 응원 알림 구독 - LCP 이후에 연결 (window load 이후)
   useCheerNotification({
     enabled: true,
     onNotification: handleCheerNotification,
+    connectDelay: 1000,
+    waitForLoad: true,
   });
 
   return (

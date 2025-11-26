@@ -90,7 +90,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
         </div>
       )}
       <div className="w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0px_0px_28px_0px_rgba(0,0,0,0.15)]">
-        <button className="flex ml-auto mb-2" onClick={onClose}>
+        <button className="flex ml-auto mb-2" onClick={onClose} aria-label="닫기">
           <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
         </button>
         <div className="p-5 flex flex-col items-center gap-7">

@@ -25,6 +25,7 @@ export default function MemberProfile({
           width={size === "small" ? 28 : 36}
           height={size === "small" ? 28 : 36}
           className="w-full h-full object-cover"
+          style={{ aspectRatio: "1 / 1" }}
         />
       ) : null}
       {!isActive && (

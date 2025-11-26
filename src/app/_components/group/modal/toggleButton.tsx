@@ -3,9 +3,7 @@
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 
-const ToggleButton = styled((props: SwitchProps) => (
-  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-))(() => ({
+const StyledSwitch = styled(Switch)<SwitchProps>(({ theme }) => ({
   width: 64,
   height: 36,
   padding: 0,
@@ -34,5 +32,14 @@ const ToggleButton = styled((props: SwitchProps) => (
     transition: "background-color 200ms",
   },
 }));
+
+interface ToggleButtonProps extends SwitchProps {
+  checked?: boolean;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const ToggleButton = ({ disableRipple = true, ...props }: ToggleButtonProps) => {
+  return <StyledSwitch disableRipple={disableRipple} {...props} />;
+};
 
 export default ToggleButton;

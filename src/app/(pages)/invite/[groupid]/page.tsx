@@ -1,11 +1,6 @@
-import { getGroupDetailServer } from "@/app/api/groups/serverApi";
 import InvitePageClient from "./InvitePageClient";
 import { Metadata } from "next";
-
-// 동적 라우트가 서버에서 실행되도록 명시
-export const dynamic = "force-dynamic";
-export const dynamicParams = true;
-export const revalidate = 0;
+import type { GroupMeta } from "@/app/_types/groups";
 
 type InvitePageProps = {
   params: Promise<{ groupid: string }>;
@@ -13,9 +8,41 @@ type InvitePageProps = {
 
 const DEFAULT_METADATA = {
   title: "몰입이 쉬워지는 곳, 모각작에 초대해요 💌",
-  description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
+  description: "타이머로 함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
   imageUrl: "https://mogakjak-fe.vercel.app/thumbnailInvite.png",
 };
+
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
+
+async function fetchGroupMeta(groupId: string): Promise<GroupMeta | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/groups/meta/${groupId}`, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!res.ok) return null;
+
+    const json = (await res.json().catch(() => null)) as
+      | { statusCode?: number; data?: unknown }
+      | GroupMeta
+      | null;
+
+    if (!json || typeof json !== "object") return null;
+
+    if ("statusCode" in json && typeof json.statusCode === "number") {
+      const data = (json as { data?: unknown }).data as GroupMeta | undefined;
+      return data ?? null;
+    }
+
+    return json as GroupMeta;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -26,23 +53,20 @@ export async function generateMetadata({
   let description = DEFAULT_METADATA.description;
   let imageUrl = DEFAULT_METADATA.imageUrl;
   let groupName = "모각작";
-  let inviterName = "모각작 멤버";
 
   try {
-    const groupData = await getGroupDetailServer(groupid);
-    if (groupData) {
-      const inviter = groupData.members?.[0];
-      inviterName = inviter?.nickname || "모각작 멤버";
-      groupName = groupData.name || "모각작";
-      title = `${inviterName}님이 "${groupName}"으로 초대했어요!`;
-      description =
-        "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
-      // 초대 페이지 : thumbnailInvite.png
-      imageUrl = DEFAULT_METADATA.imageUrl;
+    if (groupid) {
+      const meta = await fetchGroupMeta(groupid);
+      if (meta?.groupName) {
+        groupName = meta.groupName;
+        title = `"${groupName}" 그룹으로 초대해요 💌`;
+        description =
+          "타이머로 함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!";
+        imageUrl = DEFAULT_METADATA.imageUrl;
+      }
     }
   } catch (error) {
-    // 에러가 발생해도 기본 메타데이터 사용
-    console.error("그룹 정보 가져오기 실패:", error);
+    console.error("그룹 메타 정보 가져오기 실패:", error);
   }
 
   const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
@@ -71,5 +95,19 @@ export async function generateMetadata({
 
 export default async function InvitePage({ params }: InvitePageProps) {
   const { groupid } = await params;
-  return <InvitePageClient groupid={groupid} />;
+
+  let groupName = "모각작";
+  try {
+    if (groupid) {
+      const meta = await fetchGroupMeta(groupid);
+      console.log("meta", meta);
+      if (meta?.groupName) {
+        groupName = meta.groupName;
+      }
+    }
+  } catch (error) {
+    console.error("그룹 메타 정보 가져오기 실패 (페이지):", error);
+  }
+
+  return <InvitePageClient groupid={groupid} groupName={groupName} />;
 }

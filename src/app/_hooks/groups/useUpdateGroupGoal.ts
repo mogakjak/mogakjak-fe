@@ -16,19 +16,23 @@ export const useUpdateGroupGoal = (groupId: string) => {
     mutationFn: (payload: GroupGoalReq) => putGroupGoal(groupId, payload),
 
     onSuccess: (data: GroupGoalRes) => {
+      // 목표 데이터만 캐시 업데이트 (별도 키)
       queryClient.setQueryData(groupKeys.goal(groupId), data);
+
       queryClient.setQueryData<GroupDetail | undefined>(
         groupKeys.detail(groupId),
         (prev) =>
           prev
             ? {
                 ...prev,
-                goalHours: data.goalHours,
-                goalMinutes: data.goalMinutes,
+                groupGoal: {
+                  ...prev.groupGoal,
+                  goalHours: data.goalHours,
+                  goalMinutes: data.goalMinutes,
+                },
               }
             : prev
       );
     },
   });
 };
-

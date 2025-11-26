@@ -17,12 +17,10 @@ const features = [
 ];
 
 interface MobileHomePageProps {
-  inviterNickname?: string;
   groupName?: string;
 }
 
 export default function MobileHomePage({
-  inviterNickname = "김이름",
   groupName = "모각작",
 }: MobileHomePageProps) {
   return (
@@ -45,9 +43,6 @@ export default function MobileHomePage({
       ></Image>
 
       <div className="flex flex-col items-center w-full py-5 mb-5 bg-red-50 border border-red-100 rounded-3xl">
-        <p className="text-sm">
-          <b>{inviterNickname}</b> 님의 초대를 확인했어요
-        </p>
         <p className="text-lg font-semibold text-red-500">{groupName}</p>
       </div>
 

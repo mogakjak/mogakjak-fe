@@ -79,7 +79,7 @@ export default function ProfileEditModal({
 
   return (
     <div className="bg-white p-5 w-[516px] rounded-[20px]">
-      <button className="flex ml-auto" onClick={onClose}>
+      <button className="flex ml-auto" onClick={onClose} aria-label="닫기">
         <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
       </button>
 
@@ -89,12 +89,20 @@ export default function ProfileEditModal({
         </h2>
 
         <div className="relative mb-5">
-          <label className="w-[120px] h-[120px] rounded-full border-2 border-gray-300 bg-gray-200 flex items-center justify-center cursor-pointer overflow-hidden">
+          <div className="w-[120px] h-[120px] rounded-full border-2 border-gray-300 bg-gray-200 flex items-center justify-center overflow-hidden">
             <Image
               src={profileImage || "/profileDefault.svg"}
               alt="기본 이미지"
               fill
               className="object-cover rounded-full"
+            />
+          </div>
+          <label className="absolute bottom-0 right-0 bg-gray-200 rounded-full p-2 cursor-pointer">
+            <Image
+              src="/Icons/camera.svg"
+              alt="카메라"
+              width={25}
+              height={25}
             />
             <input
               type="file"
@@ -103,14 +111,6 @@ export default function ProfileEditModal({
               onChange={handleImageChange}
             />
           </label>
-          <div className="absolute bottom-0 right-0 bg-gray-200 rounded-full p-2">
-            <Image
-              src="/Icons/camera.svg"
-              alt="카메라"
-              width={25}
-              height={25}
-            />
-          </div>
         </div>
 
         <div className="flex flex-col gap-2 mb-5 w-full">

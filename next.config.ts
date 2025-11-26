@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // 프로덕션 환경에서는 assetPrefix를 사용하지 않음 (같은 도메인에서 서빙)
   // assetPrefix는 CDN이나 다른 도메인에서 정적 파일을 서빙할 때만 사용
 
+  compress: true, // gzip 압축 활성화
+  productionBrowserSourceMaps: false, // 프로덕션 소스맵 비활성화 (빌드 크기 감소)
+
   async rewrites() {
     const apiProxy =
       process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
@@ -24,7 +27,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["kr.object.ncloudstorage.com"],
   },
-  webpack(config) {
+  webpack(config, { dev, isServer }) {
     const assetRule = (config.module.rules as RuleSetRule[]).find(
       (rule) => rule?.test instanceof RegExp && rule.test.test(".svg")
     );
@@ -57,10 +60,47 @@ const nextConfig: NextConfig = {
       ],
     });
 
-    config.resolve.alias = {
-      ...config.resolve.alias,
+    // Alias 설정 - 기존 alias를 덮어쓰지 않고 병합
+    const existingAlias = config.resolve.alias || {};
+    const newAlias: Record<string, string> = {
+      ...(typeof existingAlias === "object" && !Array.isArray(existingAlias)
+        ? existingAlias
+        : {}),
       "/Icons": path.resolve(process.cwd(), "public/Icons"),
     };
+
+    // Material-UI/Emotion 최적화
+    if (!dev && !isServer) {
+      try {
+        const emotionReactPath = require.resolve("@emotion/react/package.json");
+        const emotionStyledPath = require.resolve("@emotion/styled/package.json");
+
+        const emotionReactModule = path.dirname(emotionReactPath);
+        const emotionStyledModule = path.dirname(emotionStyledPath);
+
+        if (!newAlias["@emotion/react"]) {
+          newAlias["@emotion/react"] = emotionReactModule;
+        }
+        if (!newAlias["@emotion/styled"]) {
+          newAlias["@emotion/styled"] = emotionStyledModule;
+        }
+      } catch (error) {
+        console.warn("Emotion alias 설정 중 오류 (무시됨):", error);
+      }
+    }
+
+    config.resolve.alias = newAlias;
+
+    // 프로덕션 빌드 시 minification 최적화
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        minimize: true,
+        minimizer: [
+          ...(config.optimization?.minimizer || []),
+        ],
+      };
+    }
 
     return config;
   },

@@ -60,6 +60,15 @@ export type GroupDetail = {
   imageUrl: string;
   accumulatedDuration?: number; // 그룹 타이머 누적 시간 (초 단위)
   members: GroupMembers;
+  progressRate: number;
+  groupGoal: GroupGoal;
+};
+
+// 그룹 공동 목표
+export type GroupGoal = {
+  groupId: string;
+  goalHours: number;
+  goalMinutes: number;
 };
 
 // 그룹 멤버
@@ -155,4 +164,9 @@ export type CheerNotification = {
   groupId: string;
   groupName: string;
   message: string;
+};
+
+export type GroupMeta = {
+  groupId: string;
+  groupName: string;
 };
