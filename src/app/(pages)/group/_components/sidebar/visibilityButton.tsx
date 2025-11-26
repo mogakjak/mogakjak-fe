@@ -17,6 +17,7 @@ export default function VisibilityToggle({
     <div className={clsx("flex w-full mt-1.5", className)}>
       <button
         onClick={() => setIsTaskOpen(true)}
+        aria-label="공개"
         className={clsx(
           "flex-1 py-1 rounded-sm transition-colors text-caption-12SB",
           isTaskOpen
@@ -29,6 +30,7 @@ export default function VisibilityToggle({
 
       <button
         onClick={() => setIsTaskOpen(false)}
+        aria-label="비공개"
         className={clsx(
           "flex-1 text-gray-500 py-1 rounded-sm  transition-colors text-caption-12SB",
           !isTaskOpen
