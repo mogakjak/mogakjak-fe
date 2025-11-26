@@ -16,7 +16,7 @@ function createGroupTimerOnSuccess(
     queryClient.invalidateQueries({
       queryKey: timerKeys.groupSession(groupId, sessionId),
     });
-    // 그룹 상세 정보도 invalidate하여 달성률 업데이트
+    // 그룹 상세 정보를 invalidate하여 달성률 업데이트
     queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
   };
 }
