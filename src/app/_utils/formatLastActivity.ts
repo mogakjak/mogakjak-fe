@@ -15,7 +15,7 @@ export function formatLastActivity(
 
   // lastActivityAt이 없으면 "알 수 없음" 반환
   if (!lastActivityAt) {
-    return "알 수 없음";
+    return "활동 없음";
   }
 
   try {
@@ -45,7 +45,6 @@ export function formatLastActivity(
     return `${diffDays}일 전`;
   } catch (error) {
     console.error("날짜 파싱 오류:", error);
-    return "알 수 없음";
+    return "활동 없음";
   }
 }
-
