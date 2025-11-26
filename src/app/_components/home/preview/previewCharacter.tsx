@@ -33,6 +33,9 @@ export default function PreviewCharacter({
           alt="캐릭터"
           width={135}
           height={135}
+          priority
+          loading="eager"
+          fetchPriority="high"
         />
         <p className="text-body1-16SB">
           Lv{character.level}.{character.name}
