@@ -17,7 +17,14 @@ export default function Header() {
     <header className="w-full flex items-center justify-center bg-white border-b border-gray-200">
       <div className="flex w-full justify-between items-center px-9 py-4">
         <Link href="/" onClick={handleLogoClick}>
-          <Image src="/logo.svg" alt="logo" width={105} height={36}></Image>
+          <Image
+            src="/logo.svg"
+            alt="logo"
+            width={105}
+            height={36}
+            style={{ aspectRatio: "105 / 36" }}
+            className="object-contain"
+          />
         </Link>
         <nav className="flex gap-3">
           <HeaderButton text="할 일" href="/todo" />

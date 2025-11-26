@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Script from "next/script";
 
 declare global {
   interface Window {
@@ -43,8 +44,10 @@ interface KakaoShareButtonProps {
 export default function KakaoShareButton({
   title = "모각작",
   description = "함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
-  imageUrl =  "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
+  imageUrl = "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
 }: KakaoShareButtonProps) {
+  const [kakaoLoaded, setKakaoLoaded] = useState(false);
+
   useEffect(() => {
     const initKakao = () => {
       if (typeof window === "undefined") return;
@@ -129,4 +132,3 @@ export default function KakaoShareButton({
     </button>
   );
 }
-

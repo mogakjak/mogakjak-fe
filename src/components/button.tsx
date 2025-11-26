@@ -61,7 +61,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const iconNode =
       leftIcon ??
       (leftIconSrc ? (
-        <Image src={leftIconSrc} alt="" width={24} height={24} aria-hidden />
+        <Image
+          src={leftIconSrc}
+          alt=""
+          width={24}
+          height={24}
+          aria-hidden
+          style={{ aspectRatio: "1 / 1" }}
+          className="object-contain"
+        />
       ) : null);
 
     return (
@@ -80,7 +88,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {iconNode && (
-          <span aria-hidden className="w-6 h-6 grid place-items-center">
+          <span
+            aria-hidden
+            className="w-6 h-6 grid place-items-center shrink-0"
+          >
             {iconNode}
           </span>
         )}

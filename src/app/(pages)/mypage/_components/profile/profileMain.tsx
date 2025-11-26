@@ -58,13 +58,14 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
       </div>
 
       <section className="flex flex-col items-center mb-12">
-        <div className="w-[130px] h-[130px] border-2 border-gray-300 rounded-full overflow-hidden mt-4">
+        <div className="w-[130px] h-[130px] border-2 border-gray-300 rounded-full overflow-hidden mt-4 relative">
           <Image
             src={profileImage}
             alt="프로필"
             width={130}
             height={130}
             className="rounded-full object-cover"
+            style={{ aspectRatio: "1 / 1" }}
             onError={() => setProfileImage("/profileDefault.svg")}
           />
         </div>
