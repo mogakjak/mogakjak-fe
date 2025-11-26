@@ -71,7 +71,11 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
         {isPending || !data ? (
           <div className="w-full h-full bg-white animate-pulse rounded-2xl" />
         ) : (
-          <GroupPage onExitGroup={handleExitGroup} groupData={data} />
+          <GroupPage
+            onExitGroup={handleExitGroup}
+            groupData={data}
+            isLoading={isPending}
+          />
         )}
       </div>
 

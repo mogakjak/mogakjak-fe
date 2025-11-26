@@ -104,9 +104,9 @@ export default function GroupGoal({ data }: GroupGoalProps) {
                 type="text"
                 value={goalMin}
                 onChange={handleMinChange}
-                placeholder="00"
+                placeholder="0"
                 className="
-                            w-8
+                            w-3.5
                             text-heading3-24SB
                           text-gray-800
                             placeholder:text-gray-800

@@ -3,11 +3,13 @@
 import TodoList from "./todoList";
 import type { Category as CategoryType } from "@/app/_types/category";
 import type { DayFilter } from "./category";
+import type { CategoryOption } from "./categorySelect";
 
 export default function TodoSection({
   filter,
   dateLabel,
   categories,
+  allCategories,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
@@ -17,6 +19,7 @@ export default function TodoSection({
   filter: DayFilter;
   dateLabel?: string;
   categories: CategoryType[];
+  allCategories?: CategoryOption[];
   onAddWork?: (categoryId: CategoryType["id"]) => void;
   onToggleCategory?: (
     categoryId: CategoryType["id"],
@@ -53,6 +56,7 @@ export default function TodoSection({
       <div className="flex-1 overflow-y-auto">
         <TodoList
           categories={categories}
+          allCategories={allCategories}
           className="w-full"
           onCreateTodo={onCreateTodo}
           onUpdateTodo={onUpdateTodo}

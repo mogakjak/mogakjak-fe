@@ -13,7 +13,7 @@ export default function HomePage() {
         <PreviewMain state={false} />
       </div>
 
-      <section className="w-full flex-1 flex flex-col justify-between">
+      <section className="w-full flex-1 flex flex-col gap-5">
         <RoomMain isPending={isGroupsPending} />
         <FriendMain groups={groups} />
       </section>
