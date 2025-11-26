@@ -329,6 +329,7 @@ export default function GroupTimer({
           <button
             onClick={handleStart}
             disabled={startGroupTimerMutation.isPending}
+            aria-label="그룹 타이머 시작"
             className="bg-gray-600 px-8 py-1.5 text-white rounded-lg text-body2-14SB flex justify-center items-center gap-2 disabled:opacity-50"
           >
             <Icon Svg={StartIcon} size={24} className="text-white" />
@@ -341,6 +342,7 @@ export default function GroupTimer({
             <button
               onClick={handlePause}
               disabled={pauseGroupTimerMutation.isPending}
+              aria-label="그룹 타이머 휴식"
               className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Pause} size={24} className="text-white" />
@@ -349,6 +351,7 @@ export default function GroupTimer({
             <button
               onClick={handleStop}
               disabled={finishGroupTimerMutation.isPending}
+              aria-label="그룹 타이머 종료"
               className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Stop} size={24} className="text-white" />
@@ -362,6 +365,7 @@ export default function GroupTimer({
             <button
               onClick={handleResume}
               disabled={resumeGroupTimerMutation.isPending}
+              aria-label="그룹 타이머 재시작"
               className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={StartIcon} size={24} className="text-white" />
@@ -370,6 +374,7 @@ export default function GroupTimer({
             <button
               onClick={handleStop}
               disabled={finishGroupTimerMutation.isPending}
+              aria-label="그룹 타이머 종료"
               className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Stop} size={24} className="text-white" />

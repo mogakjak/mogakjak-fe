@@ -19,6 +19,7 @@ export default function HeaderButton({ text, href }: HeaderButtonProps) {
   return (
     <button
       onClick={handleClick}
+      aria-label={text}
       className={
         "w-30 h-10 rounded-3xl text-body1-16M transition-colors border " +
         (isActive

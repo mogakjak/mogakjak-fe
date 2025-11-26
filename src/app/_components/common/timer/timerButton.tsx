@@ -53,6 +53,7 @@ export default function TimerButtons({
         {onPipToggle && !isInPip && (
           <button
             onClick={onPipToggle}
+            aria-label="PIP 열기"
             className="self-stretch h-8 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
           >
             <div className="w-6 h-6 relative overflow-hidden">

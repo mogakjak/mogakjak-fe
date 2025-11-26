@@ -21,7 +21,7 @@ export default function GainCharacterModal({
 
   return (
     <div className="bg-white rounded-[20px] shadow-lg p-5  flex flex-col items-center">
-      <button className="flex ml-auto mb-2" onClick={onClose}>
+      <button className="flex ml-auto mb-2" onClick={onClose} aria-label="닫기">
         <Image src="/Icons/xmark.svg" alt="닫기" width={24} height={24} />
       </button>
 

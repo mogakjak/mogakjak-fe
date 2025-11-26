@@ -60,6 +60,7 @@ export default function Landing() {
 
           <button
             onClick={handleInstagramClick}
+            aria-label="인스타그램 구경하기"
             className="self-stretch h-12 px-10 py-4 bg-white rounded-2xl border border-gray-200 inline-flex justify-center items-center gap-2 transition active:scale-[0.99]"
           >
             <div className="w-6 h-6 relative">

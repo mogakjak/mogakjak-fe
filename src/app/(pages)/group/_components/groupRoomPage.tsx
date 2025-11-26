@@ -56,7 +56,7 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
         ) : (
           <>
             <p className="text-heading4-20SB">{data?.name} 팀</p>
-            <button onClick={() => setGroupEditOpen(true)}>
+            <button onClick={() => setGroupEditOpen(true)} aria-label="그룹 편집">
               <Icon Svg={Edit} size={20} className="text-gray-600" />
             </button>
           </>
