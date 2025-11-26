@@ -152,7 +152,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-x-5 gap-y-3 h-[420px]">
+            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px] h-[420px]">
               {displayMembers.map((member) => {
                 const status = member.status;
                 const participationStatus = status.participationStatus;

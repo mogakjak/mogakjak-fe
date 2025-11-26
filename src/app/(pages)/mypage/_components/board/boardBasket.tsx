@@ -49,7 +49,7 @@ export default function BoardBasket({
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 items-stretch h-full  auto-rows-fr">
+      <div className="grid grid-cols-4 gap-4 items-stretch min-h-[420px] auto-rows-fr">
         {rows.map((characterInfo) => {
           const ownedCharacter = ownedCharactersMap.get(characterInfo.level);
           const isLocked = !ownedCharacter;
