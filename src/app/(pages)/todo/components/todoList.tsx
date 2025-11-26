@@ -11,6 +11,7 @@ import type { Category } from "@/app/_types/category";
 export type TodoListProps = {
   dateLabel?: string;
   categories: Category[];
+  allCategories?: CategoryOption[];
   onAddWork?: (categoryId: Category["id"]) => void;
   onToggleCategory?: (categoryId: Category["id"], expanded: boolean) => void;
   onCreateTodo?: (payload: {
@@ -90,6 +91,7 @@ function CategoryHeader({
 
 export default function TodoList({
   categories,
+  allCategories,
   onToggleCategory,
   onCreateTodo,
   onUpdateTodo,
@@ -193,15 +195,16 @@ export default function TodoList({
     setEditingTodo(null);
   };
 
-  const categoryOptions = useMemo<CategoryOption[]>(
-    () =>
-      categories.map((c) => ({
-        id: String(c.id),
-        name: c.title,
-        colorToken: c.colorToken ?? "category-1-red",
-      })),
-    [categories]
-  );
+  const categoryOptions = useMemo<CategoryOption[]>(() => {
+    if (allCategories && allCategories.length > 0) {
+      return allCategories;
+    }
+    return categories.map((c) => ({
+      id: String(c.id),
+      name: c.title,
+      colorToken: c.colorToken ?? "category-1-red",
+    }));
+  }, [categories, allCategories]);
 
   return (
     <>
@@ -213,7 +216,6 @@ export default function TodoList({
       >
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           {categories.map((cat) => {
-            // 할일이 있으면 openMap 값 사용, 없으면 false
             const expanded = cat.items.length > 0 ? (openMap[cat.id] ?? true) : false;
             return (
               <Fragment key={cat.id}>

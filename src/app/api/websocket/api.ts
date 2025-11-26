@@ -68,7 +68,8 @@ export async function createWebSocketClient(
     },
     connectHeaders,
     debug: config.debug || (() => {}),
-    reconnectDelay: config.reconnectDelay ?? 5000,
+    // 자동 재연결 비활성화 - 수동으로 재연결 관리
+    reconnectDelay: 0, // 0으로 설정하면 자동 재연결 비활성화
     heartbeatIncoming: config.heartbeatIncoming ?? 4000,
     heartbeatOutgoing: config.heartbeatOutgoing ?? 4000,
     onConnect: () => {

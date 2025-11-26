@@ -9,7 +9,10 @@ export default function Landing() {
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
+    <>
+      {/* Kakao SDK는 사용자가 버튼을 클릭할 때만 로드하여 초기 로딩 최적화 */}
+      {/* 카카오 SDK는 외부 CDN에서 제공되므로 minify할 수 없지만, 필요할 때만 로드 */}
+      <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       <main className="w-full py-7 min-h-screen bg-white flex flex-col items-center justify-evenly">
       <div className="flex flex-col justify-start items-center gap-4">
         <div className="flex flex-col justify-start items-center gap-2">
@@ -53,6 +56,7 @@ export default function Landing() {
 
           <button
             onClick={handleInstagramClick}
+            aria-label="인스타그램 구경하기"
             className="self-stretch h-12 px-10 py-4 bg-white rounded-2xl border border-gray-200 inline-flex justify-center items-center gap-2 transition active:scale-[0.99]"
           >
             <div className="w-6 h-6 relative">
@@ -72,5 +76,6 @@ export default function Landing() {
       </div>
     </main>
     </div>
+    </>
   );
 }

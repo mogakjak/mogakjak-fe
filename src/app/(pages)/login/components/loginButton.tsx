@@ -40,6 +40,7 @@ export default function LoginButton({ type }: LoginButtonProps) {
     <button
       onClick={handleLogin}
       disabled={login.isPending}
+      aria-label={label}
       className={`w-[360px] h-[56px] rounded-2xl flex items-center justify-center gap-2 transition active:scale-[0.99] disabled:opacity-70 ${bg}  ${border} border`}
     >
       <Image src={icon} alt={label} width={20} height={20} />

@@ -10,7 +10,7 @@ import Countdown, { CountdownHandle } from "./timer";
 import PomodoroModal from "./pomodoroModal";
 import TimerModal from "./timerModal";
 import TimerEndModal from "../timerEndModal";
-import TodoRequiredModal from "./todoRequiredModal";
+import AlertModal from "./alertModal";
 import { useStartPomodoro } from "@/app/_hooks/timers/useStartPomodoro";
 import { usePauseTimer } from "@/app/_hooks/timers/usePauseTimer";
 import { useResumeTimer } from "@/app/_hooks/timers/useResumeTimer";
@@ -46,7 +46,7 @@ export default function TimerComponent({
   const [pomodoroModalOpen, setPomodoroModalOpen] = useState(false);
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
-  const [todoRequiredModalOpen, setTodoRequiredModalOpen] = useState(false);
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
   const [pomodoroConfig, setPomodoroConfig] = useState<{
     focusSeconds: number;
@@ -81,7 +81,7 @@ export default function TimerComponent({
       setIsPaused(false);
 
       if (!todoId) {
-        setTodoRequiredModalOpen(true);
+        setAlertModalOpen(true);
         return;
       }
 
@@ -128,7 +128,7 @@ export default function TimerComponent({
 
   const onStart = useCallback(async () => {
     if (!todoId) {
-      setTodoRequiredModalOpen(true);
+      setAlertModalOpen(true);
       return;
     }
 
@@ -591,7 +591,7 @@ export default function TimerComponent({
             onStart={async (targetSeconds: number) => {
               if (!todoId) {
                 setTimerModalOpen(false);
-                setTodoRequiredModalOpen(true);
+                setAlertModalOpen(true);
                 return;
               }
               try {
@@ -633,9 +633,10 @@ export default function TimerComponent({
               />
             </div>
           )}
-          <TodoRequiredModal
-            isOpen={todoRequiredModalOpen}
-            onClose={() => setTodoRequiredModalOpen(false)}
+          <AlertModal
+            isOpen={alertModalOpen}
+            onClose={() => setAlertModalOpen(false)}
+            type="todoRequired"
           />
         </>
       )}

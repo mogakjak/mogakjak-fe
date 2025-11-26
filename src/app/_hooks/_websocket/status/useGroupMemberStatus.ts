@@ -206,6 +206,8 @@ export function useGroupMemberStatus({
         ? `/topic/group/${groupId}/member-status`
         : undefined,
       onMessage: handleUpdate,
+      connectDelay: 500, // 그룹 페이지는 실시간이 중요하므로 짧은 지연
+      waitForLoad: false,
     });
 
   // members가 제공되면 membersWithStatus와 activeCount 계산

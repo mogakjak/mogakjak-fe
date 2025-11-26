@@ -56,7 +56,7 @@ export default function FriendMain({ groups }: FriendMainProps) {
   const totalCount = matesData?.totalElements ?? 0;
 
   return (
-    <div className="px-10 pt-10 bg-white rounded-[20px] self-stretch ">
+    <div className="px-10 pt-10 bg-white rounded-[20px] self-stretch flex flex-col flex-1">
       <h2 className="text-heading4-20SB text-black">메이트들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-4">
@@ -72,7 +72,7 @@ export default function FriendMain({ groups }: FriendMainProps) {
         />
       </section>
 
-      <section className="flex flex-col justify-between mt-4 h-[195px] overflow-y-auto">
+      <section className="flex flex-col justify-between mt-4 h-[225px] overflow-y-auto">
         <ProfileList
           profiles={profiles}
           totalCount={totalCount}

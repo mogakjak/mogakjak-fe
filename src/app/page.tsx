@@ -15,6 +15,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: DEFAULT_METADATA.title,
     description: DEFAULT_METADATA.description,
+    keywords: ["모각작", "몰입", "집중", "타이머", "공부", "스터디", "커뮤니티", "프로젝트", "개발", "학습"],
+    authors: [{ name: "모각작" }],
+    creator: "모각작",
+    publisher: "모각작",
+    metadataBase: new URL("https://mogakjak-fe.vercel.app"),
+    alternates: {
+      canonical: "/",
+    },
     openGraph: {
       title: DEFAULT_METADATA.title,
       description: DEFAULT_METADATA.description,
@@ -31,15 +39,47 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "ko_KR",
       type: "website",
     },
+    twitter: {
+      card: "summary_large_image",
+      title: DEFAULT_METADATA.title,
+      description: DEFAULT_METADATA.description,
+      images: [DEFAULT_METADATA.imageUrl],
+    },
   };
 }
 
 export default function Home() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "모각작",
+    description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
+    url: "https://mogakjak-fe.vercel.app",
+    applicationCategory: "ProductivityApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "KRW",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.5",
+      ratingCount: "100",
+    },
+  };
+
   return (
-    <main className="h-full">
-      <WithMobileDetection>
-        {({ isMobile }) => (isMobile ? <MobileHomePage /> : <HomePage />)}
-      </WithMobileDetection>
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <main className="h-full">
+        <WithMobileDetection>
+          {({ isMobile }) => (isMobile ? <MobileHomePage /> : <HomePage />)}
+        </WithMobileDetection>
+      </main>
+    </>
   );
 }

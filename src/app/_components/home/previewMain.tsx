@@ -11,6 +11,10 @@ import type { PomodoroSession } from "@/app/api/timers/api";
 import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
 import { useMemo, useEffect, useState } from "react";
 import { useTimer } from "@/app/_contexts/TimerContext";
+import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
+import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 
 type PreviewMainProps = {
   state: boolean;
@@ -26,6 +30,33 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
   const [isTaskPublic, setIsTaskPublic] = useState(true);
   const [isTimerPublic, setIsTimerPublic] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
+  // 그룹 데이터 가져오기
+  const validGroupId = groupId && groupId !== "undefined" ? groupId : "";
+  const { data: groupData } = useGroupDetail(validGroupId, {
+    enabled: !!validGroupId,
+  });
+
+  // 그룹 멤버 상태 관리
+  const { memberStatuses } = useGroupMemberStatus({
+    groupId: validGroupId,
+    groupData: groupData!,
+    enabled: !!validGroupId && !!groupData,
+  });
+
+  const { token } = useAuthState();
+
+  // 현재 사용자 ID 가져오기
+  const currentUserId = useMemo(() => {
+    return getUserIdFromToken(token);
+  }, [token]);
+
+  // 현재 사용자의 응원 개수 가져오기
+  const myCheerCount = useMemo(() => {
+    if (!currentUserId || !memberStatuses) return 0;
+    const myStatus = memberStatuses.get(currentUserId);
+    return myStatus?.cheerCount || 0;
+  }, [currentUserId, memberStatuses]);
 
   const savedTodoId =
     typeof window !== "undefined"
@@ -69,6 +100,7 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
           state={state}
           nickname={profile.nickname}
           character={profile.character}
+          cheerCount={myCheerCount}
         />
       )}
 
@@ -77,8 +109,8 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
       ) : (
         <>
           {!state && <Quotes Quotes={profile.quote} />}
-          <GroupMySidebar 
-            state={state} 
+          <GroupMySidebar
+            state={state}
             isTaskPublic={isTaskPublic}
             isTimerPublic={isTimerPublic}
             setIsTaskPublic={setIsTaskPublic}
@@ -88,8 +120,8 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
         </>
       )}
 
-      <TimerComponent 
-        todoId={todoId} 
+      <TimerComponent
+        todoId={todoId}
         groupId={groupId}
         isTaskPublic={isTaskPublic}
         isTimerPublic={isTimerPublic}

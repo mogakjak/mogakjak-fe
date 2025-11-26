@@ -196,7 +196,7 @@ export default function GroupMySidebar({
                 {todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title}
               </p>
 
-              <button className="ml-auto" onClick={() => setModalOpen(true)}>
+              <button className="ml-auto" onClick={() => setModalOpen(true)} aria-label="할 일 편집">
                 <Icon Svg={Edit} size={24} className="text-gray-600" />
               </button>
             </div>
@@ -266,7 +266,7 @@ export default function GroupMySidebar({
                     할 일을 설정해 주세요!
                   </p>
                 </div>
-                <button onClick={() => setModalOpen(true)}>
+                <button onClick={() => setModalOpen(true)} aria-label="할 일 설정">
                   <Icon Svg={Edit} size={24} className="text-gray-600" />
                 </button>
               </div>

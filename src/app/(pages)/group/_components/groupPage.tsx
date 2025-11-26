@@ -23,16 +23,24 @@ import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
 type GroupPageProps = {
   onExitGroup: () => void;
   groupData: GroupDetail;
+  isLoading?: boolean;
 };
 
 type TimerStatus = "idle" | "running" | "paused";
 
-export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
+export default function GroupPage({
+  onExitGroup,
+  groupData,
+  isLoading = false,
+}: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
+  const [hasReceivedWebSocketUpdate, setHasReceivedWebSocketUpdate] =
+    useState(false);
+  const [initialMemberStatusesSize, setInitialMemberStatusesSize] = useState(0);
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
@@ -40,22 +48,52 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   );
 
   // 그룹 멤버 상태 관리 훅
-  const { memberStatuses } = useGroupMemberStatus({
+  const { memberStatuses, isConnected } = useGroupMemberStatus({
     groupId: groupData.groupId,
     groupData,
   });
+  //websocket 연결 이후 상태 체크
+  useEffect(() => {
+    if (!isConnected) {
+      setHasReceivedWebSocketUpdate(false);
+      setInitialMemberStatusesSize(0);
+      return;
+    }
+
+    if (initialMemberStatusesSize === 0 && memberStatuses.size > 0) {
+      setInitialMemberStatusesSize(memberStatuses.size);
+    }
+
+    if (
+      isConnected &&
+      memberStatuses.size > 0 &&
+      initialMemberStatusesSize > 0
+    ) {
+      const hasRealUpdate = Array.from(memberStatuses.values()).some(
+        (status) => {
+          return (
+            status.enteredAt !== undefined ||
+            status.personalTimerSeconds !== null ||
+            status.todoTitle !== null ||
+            status.cheerCount !== 0
+          );
+        }
+      );
+
+      if (hasRealUpdate) {
+        setHasReceivedWebSocketUpdate(true);
+      }
+    }
+  }, [isConnected, memberStatuses, initialMemberStatusesSize]);
 
   const { token } = useAuthState();
 
-  // 현재 사용자 ID 가져오기
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
   }, [token]);
 
-  // 응원 보내기 훅
   const sendCheerMutation = useSendCheer(groupData.groupId);
 
-  // 응원 버튼 클릭 핸들러
   const handleCheerClick = (targetUserId: string) => {
     sendCheerMutation.mutate(
       { targetUserId },
@@ -67,11 +105,9 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
     );
   };
 
-  // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
   const displayMembers = useMemo(() => {
     const membersWithStatus = Array.from(memberStatuses.values()).map(
       (status) => {
-        // GroupMemberStatus가 userId, nickname, profileUrl 등 필요한 모든 정보를 포함합니다.
         return {
           userId: status.userId,
           nickname: status.nickname,
@@ -82,7 +118,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       }
     );
 
-    // 현재 사용자를 맨 앞으로 정렬
     if (!currentUserId) return membersWithStatus;
 
     return [...membersWithStatus].sort((a, b) => {
@@ -91,6 +126,26 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
       return 0;
     });
   }, [memberStatuses, currentUserId]);
+
+  const isMemberStatusLoaded = useMemo(() => {
+    if (!isConnected) return false;
+    if (!hasReceivedWebSocketUpdate) return false;
+    const allMembersHaveStatus = groupData.members.every((member) =>
+      memberStatuses.has(member.userId)
+    );
+    return allMembersHaveStatus;
+  }, [
+    isConnected,
+    hasReceivedWebSocketUpdate,
+    memberStatuses,
+    groupData.members,
+  ]);
+
+  const participatingMemberCount = useMemo(() => {
+    return Array.from(memberStatuses.values()).filter(
+      (status) => status.participationStatus !== "NOT_PARTICIPATING"
+    ).length;
+  }, [memberStatuses]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -106,7 +161,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
   }, [openReview]);
 
   return (
-    <div className="flex flex-col items-center w-full justify-between ">
+    <div className="flex flex-col items-center w-full gap-5">
       <div className="flex gap-5 w-full">
         <div className="flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
@@ -115,15 +170,17 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
             initialAccumulatedDuration={groupData.accumulatedDuration || 0}
             onSessionIdChange={setSessionId}
             onStatusChange={setTimerStatus}
+            memberStatuses={memberStatuses}
           />
         </div>
         <GroupGoal data={groupData}></GroupGoal>
       </div>
 
-      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px] mt-4">
+      <div className="w-full bg-white rounded-2xl px-8 pt-8 pb-6 h-[590px] flex flex-col flex-1">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
-            <b className="text-black">그룹원</b> {displayMembers.length}/8
+            <b className="text-black">그룹원</b> {participatingMemberCount}/
+            {groupData.members.length}
           </p>
           <SidebarButton
             className="px-5 cursor-pointer"
@@ -134,21 +191,23 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           </SidebarButton>
         </div>
         <div className="flex flex-col items-center justify-center">
-          {displayMembers.length === 0 ? (
-            <div className="text-gray-400 text-heading3-24SB font-semibold flex flex-col justify-center items-center h-[420px] text-center">
-              <p>아직 그룹원이 없어요.</p>
-              <p>
-                <b className="text-red-300">&quot;그룹원 추가하기&quot;</b>를
-                눌러 초대해보세요!
-              </p>
+          {isLoading || !isMemberStatusLoaded ? (
+            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <GroupFriendField
+                  key={`skeleton-${index}`}
+                  status="end"
+                  level={1}
+                  isLoading={true}
+                />
+              ))}
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-x-5 gap-y-3 h-[420px]">
+            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
               {displayMembers.map((member) => {
                 const status = member.status;
                 const participationStatus = status.participationStatus;
 
-                // 상태 매핑: PARTICIPATING -> "active", RESTING -> "rest", NOT_PARTICIPATING -> "end"
                 let displayStatus: "active" | "rest" | "end";
                 if (participationStatus === "PARTICIPATING") {
                   displayStatus = "active";
@@ -158,8 +217,6 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
                   displayStatus = "end";
                 }
 
-                // 개인 타이머 시간 (백엔드에서 초 단위로 전달됨)
-                // toSec 함수는 100,000보다 크면 밀리초로 간주하고 1000으로 나누므로,
                 // 초 단위 값을 그대로 전달하면 됩니다.
                 // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
                 // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
@@ -201,7 +258,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           )}
         </div>
 
-        <div className="flex mt-3">
+        <div className="flex mt-4">
           <Button
             onClick={() => {
               // 타이머가 실행 중이거나 일시정지 상태면 TimerEndModal 먼저 표시
