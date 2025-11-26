@@ -2,10 +2,14 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TimerProvider, useTimer } from "@/app/_contexts/TimerContext";
-import { NotificationProvider } from "@/app/_components/common/notificationProvider";
 import { useBlockPageNavigation } from "@/app/_hooks/block/useBlockPageNavigation";
-import TimerEndModal from "@/app/_components/common/timerEndModal";
+import dynamic from "next/dynamic";
 import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
+
+const TimerEndModal = dynamic(
+  () => import("@/app/_components/common/timerEndModal"),
+  { ssr: false }
+);
 
 const queryClient = new QueryClient();
 
@@ -57,7 +61,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <TimerProvider>
         <NavigationBlocker />
         <NavigationModal />
-        <NotificationProvider>{children}</NotificationProvider>
+        {children}
       </TimerProvider>
     </QueryClientProvider>
   );

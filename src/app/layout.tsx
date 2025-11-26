@@ -1,8 +1,25 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
-import Providers from "./_providers/providers";
-import ConditionalHeader from "@/components/header/ConditionalHeader";
+import dynamic from "next/dynamic";
+
+// 동적 import로 변경하여 초기 번들 크기 줄이기
+const Providers = dynamic(() => import("./_providers/providers"), {
+  ssr: true,
+});
+
+const NotificationRoot = dynamic(
+  () => import("./_components/common/notificationRoot"),
+  {
+    ssr: true,
+  }
+);
+
+const ConditionalHeader = dynamic(
+  () => import("@/components/header/ConditionalHeader"),
+  { ssr: true }
+);
+
 import WithMobileDetection from "@/app/_utils/isMobileUserAgent";
 
 export const metadata: Metadata = {
@@ -97,11 +114,13 @@ export default function RootLayout({
           <WithMobileDetection>
             {({ isMobile }) => <ConditionalHeader isMobile={isMobile} />}
           </WithMobileDetection>
-          <div className="flex-1 flex justify-center bg-gray-100 w-full min-h-screen">
-            <div className="px-9 pb-[60px] min-h-screen w-[1440px] max-w-full">
-              {children}
+          <NotificationRoot>
+            <div className="flex-1 flex justify-center bg-gray-100 w-full min-h-screen">
+              <div className="px-9 pb-[60px] min-h-screen w-[1440px] max-w-full">
+                {children}
+              </div>
             </div>
-          </div>
+          </NotificationRoot>
         </Providers>
       </body>
     </html>
