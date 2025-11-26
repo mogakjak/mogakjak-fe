@@ -23,11 +23,16 @@ import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
 type GroupPageProps = {
   onExitGroup: () => void;
   groupData: GroupDetail;
+  isLoading?: boolean;
 };
 
 type TimerStatus = "idle" | "running" | "paused";
 
-export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
+export default function GroupPage({
+  onExitGroup,
+  groupData,
+  isLoading = false,
+}: GroupPageProps) {
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
@@ -143,13 +148,16 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           </SidebarButton>
         </div>
         <div className="flex flex-col items-center justify-center">
-          {displayMembers.length === 0 ? (
-            <div className="text-gray-400 text-heading3-24SB font-semibold flex flex-col justify-center items-center h-[420px] text-center">
-              <p>아직 그룹원이 없어요.</p>
-              <p>
-                <b className="text-red-300">&quot;그룹원 추가하기&quot;</b>를
-                눌러 초대해보세요!
-              </p>
+          {isLoading ? (
+            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <GroupFriendField
+                  key={`skeleton-${index}`}
+                  status="end"
+                  level={1}
+                  isLoading={true}
+                />
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
