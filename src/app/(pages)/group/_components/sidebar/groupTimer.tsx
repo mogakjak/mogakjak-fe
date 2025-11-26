@@ -12,6 +12,8 @@ import {
 } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 import type { GroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import AlertModal from "@/app/_components/common/timer/alertModal";
+import { useTimer } from "@/app/_contexts/TimerContext";
+import { useBlockGroupTimerNavigation } from "@/app/_hooks/block/useBlockGroupTimerNavigation";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -37,19 +39,22 @@ export default function GroupTimer({
   memberStatuses,
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
+  const { setIsRunning } = useTimer();
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
-  // status 변경 시 부모 컴포넌트에 알림
   useEffect(() => {
     onStatusChange?.(status);
-  }, [status, onStatusChange]);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+    setIsRunning(status === "running");
+  }, [status, onStatusChange, setIsRunning]);
+
+  useBlockGroupTimerNavigation(groupId, sessionId, status === "running");
   const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] =
-    useState(0); // 현재 세션의 총 시간 (서버에서 받은 값)
-  const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0); // 클라이언트에서 추적하는 경과 시간 (1초마다 증가)
+    useState(0); 
+  const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0); 
   const [serverSyncTime, setServerSyncTime] = useState<number>(Date.now()); // 서버 동기화 시점
   const [accumulatedDuration, setAccumulatedDuration] = useState(
     initialAccumulatedDuration
-  ); // 서버에서 받은 그룹 누적 시간
+  ); 
   const [isLimitOpen, setLimitOpen] = useState(false); 
   const [localIdleSeconds, setLocalIdleSeconds] = useState(0);
 
