@@ -202,8 +202,7 @@ export function useWebSocket<T = IMessage>({
       }
       disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, shouldConnect, connectDelay]);
+  }, [enabled, shouldConnect, connectDelay, connect, disconnect]);
 
   return {
     isConnected,

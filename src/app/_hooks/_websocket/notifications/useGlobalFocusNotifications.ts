@@ -70,7 +70,7 @@ export function useGlobalFocusNotifications(
       debug: () => {
         // 디버그 로그는 필요시에만 활성화
       },
-      reconnectDelay: 0, // 자동 재연결 비활성화
+      reconnectDelay: 5000, // 자동 재연결 비활성화
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
