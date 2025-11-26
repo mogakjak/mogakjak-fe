@@ -73,13 +73,14 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="mx-auto w-full min-h-screen flex flex-col items-center bg-gray-100 overflow-x-hidden">
+        {/* Google Tag Manager - lazyOnload로 지연 로드 */}
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src="https://www.googletagmanager.com/gtag/js?id=G-T8JCTVV834"
         />
         <Script
           id="google-analytics"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -90,10 +91,6 @@ export default function RootLayout({
               });
             `,
           }}
-        />
-        <Script
-          src="https://developers.kakao.com/sdk/js/kakao.js"
-          strategy="afterInteractive"
         />
 
         <Providers>
