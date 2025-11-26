@@ -17,6 +17,8 @@ export type UseWebSocketOptions<T = IMessage> = {
   onError?: (error: unknown) => void;
   parseMessage?: (body: string) => T;
   config?: Partial<WebSocketClientConfig>;
+  connectDelay?: number;
+  waitForLoad?: boolean;
 };
 
 /**
@@ -32,8 +34,11 @@ export function useWebSocket<T = IMessage>({
   onError,
   parseMessage,
   config = {},
+  connectDelay = 0,
+  waitForLoad = false,
 }: UseWebSocketOptions<T>) {
   const [isConnected, setIsConnected] = useState(false);
+  const [shouldConnect, setShouldConnect] = useState(false);
   const clientRef = useRef<Client | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof subscribeToTopic> | null>(
     null
@@ -95,6 +100,10 @@ export function useWebSocket<T = IMessage>({
   const connect = useCallback(async () => {
     if (!enabled) return;
 
+    if (clientRef.current?.connected || clientRef.current?.active) {
+      return;
+    }
+
     // 기존 연결 정리
     if (clientRef.current) {
       disconnect();
@@ -146,17 +155,55 @@ export function useWebSocket<T = IMessage>({
   }, [enabled, destination, handleMessage, disconnect, config, onError]);
 
   useEffect(() => {
-    if (enabled) {
-      connect();
-    } else {
+    if (!waitForLoad) {
+      setShouldConnect(true);
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      setShouldConnect(true);
+      return;
+    }
+
+    if (document.readyState === "complete") {
+      setShouldConnect(true);
+      return;
+    }
+
+    const handleLoad = () => {
+      setShouldConnect(true);
+    };
+
+    window.addEventListener("load", handleLoad);
+    return () => {
+      window.removeEventListener("load", handleLoad);
+    };
+  }, [waitForLoad]);
+
+  useEffect(() => {
+    if (!enabled || !shouldConnect) {
       disconnect();
+      return;
+    }
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    if (connectDelay > 0) {
+      timeoutId = setTimeout(() => {
+        connect();
+      }, connectDelay);
+    } else {
+      connect();
     }
 
     return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled]);
+  }, [enabled, shouldConnect, connectDelay]);
 
   return {
     isConnected,

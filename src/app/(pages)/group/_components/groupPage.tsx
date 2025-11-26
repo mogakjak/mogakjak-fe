@@ -128,7 +128,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
         <GroupGoal data={groupData}></GroupGoal>
       </div>
 
-      <div className="w-full bg-white rounded-2xl px-8 py-4 h-[560px] mt-4">
+      <div className="w-full bg-white rounded-2xl px-8 pt-8 pb-6 h-[590px] mt-4">
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {participatingMemberCount}/
@@ -210,7 +210,7 @@ export default function GroupPage({ onExitGroup, groupData }: GroupPageProps) {
           )}
         </div>
 
-        <div className="flex mt-3">
+        <div className="flex mt-4">
           <Button
             onClick={() => {
               // 타이머가 실행 중이거나 일시정지 상태면 TimerEndModal 먼저 표시

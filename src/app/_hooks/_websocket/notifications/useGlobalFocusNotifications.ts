@@ -1,20 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import type { FocusNotificationMessage } from "./useFocusNotification";
 import { getWebSocketUrl } from "@/app/api/websocket/api";
+import { afterLCP } from "@/app/_utils/performance";
+
 export function useGlobalFocusNotifications(
-  onNotification?: (message: FocusNotificationMessage) => void
+  onNotification?: (message: FocusNotificationMessage) => void,
+  options?: {
+    enabled?: boolean;
+  }
 ) {
   const { data: groups = [] } = useMyGroups();
   const { token } = useAuthState();
   const clientRef = useRef<Client | null>(null);
   const subscriptionsRef = useRef<Map<string, unknown>>(new Map());
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [shouldConnect, setShouldConnect] = useState(false);
+  const isConnectingRef = useRef(false);
 
   const handleNotification = useCallback(
     (message: IMessage, groupId: string) => {
@@ -31,12 +38,20 @@ export function useGlobalFocusNotifications(
   );
 
   const connect = useCallback(() => {
-    if (groups.length === 0 || !token) {
+    if (groups.length === 0 || !token || !shouldConnect) {
       return;
     }
 
+    if (isConnectingRef.current || clientRef.current?.connected) {
+      return;
+    }
+
+    isConnectingRef.current = true;
+
     if (clientRef.current) {
-      clientRef.current.deactivate();
+      try {
+        clientRef.current.deactivate();
+      } catch {}
       clientRef.current = null;
       subscriptionsRef.current.clear();
     }
@@ -55,10 +70,11 @@ export function useGlobalFocusNotifications(
       debug: () => {
         // 디버그 로그는 필요시에만 활성화
       },
-      reconnectDelay: 5000,
+      reconnectDelay: 0, // 자동 재연결 비활성화
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
+        isConnectingRef.current = false; // 연결 성공 시 플래그 리셋
         setTimeout(() => {
           if (!clientRef.current || !clientRef.current.connected) {
             return;
@@ -93,33 +109,23 @@ export function useGlobalFocusNotifications(
         }, 100);
       },
       onStompError: () => {
+        isConnectingRef.current = false;
         subscriptionsRef.current.clear();
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-        }
-        reconnectTimeoutRef.current = setTimeout(() => {
-          if (groups.length > 0) {
-            if (clientRef.current) {
-              try {
-                clientRef.current.deactivate();
-              } catch {}
-              clientRef.current = null;
-            }
-            connect();
-          }
-        }, 10000);
+        // 재연결은 자동으로 STOMP 클라이언트가 처리하므로 수동 재연결 제거
       },
       onWebSocketClose: () => {
+        isConnectingRef.current = false;
         subscriptionsRef.current.clear();
       },
       onDisconnect: () => {
+        isConnectingRef.current = false;
         subscriptionsRef.current.clear();
       },
     });
 
     clientRef.current = client;
     client.activate();
-  }, [groups, handleNotification, token]);
+  }, [groups, handleNotification, token, shouldConnect]);
 
   const disconnect = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -136,8 +142,28 @@ export function useGlobalFocusNotifications(
     subscriptionsRef.current.clear();
   }, []);
 
+  // LCP 이후에 연결 허용
   useEffect(() => {
-    if (groups.length > 0) {
+    if (options?.enabled === false) {
+      setShouldConnect(false);
+      return;
+    }
+
+    const cleanup = afterLCP(() => {
+      setShouldConnect(true);
+    });
+
+    return cleanup;
+  }, [options?.enabled]);
+
+  // 연결 실행
+  useEffect(() => {
+    if (options?.enabled === false) {
+      disconnect();
+      return;
+    }
+
+    if (groups.length > 0 && shouldConnect) {
       connect();
     } else {
       disconnect();
@@ -146,7 +172,7 @@ export function useGlobalFocusNotifications(
     return () => {
       disconnect();
     };
-  }, [groups.length, connect, disconnect]);
+  }, [groups.length, shouldConnect, connect, disconnect, options?.enabled]);
 
   useEffect(() => {
     const client = clientRef.current;
