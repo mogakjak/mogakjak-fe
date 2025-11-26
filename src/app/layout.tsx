@@ -8,10 +8,12 @@ const Providers = dynamic(() => import("./_providers/providers"), {
   ssr: true,
 });
 
+// NotificationRoot는 hydration 이후에만 로드
+// ssr: false는 NotificationRoot 내부에서 처리
 const NotificationRoot = dynamic(
   () => import("./_components/common/notificationRoot"),
   {
-    ssr: true,
+    ssr: true, // SSR에서는 children만 렌더링
   }
 );
 
