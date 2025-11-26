@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
-import { useStopwatch } from "react-timer-hook";
+import { useMemo, useState, useEffect} from "react";
 import Icon from "../../../../_components/common/Icons";
 import { useStartGroupTimer } from "@/app/_hooks/timers/useStartGroupTimer";
 import { usePauseGroupTimer } from "@/app/_hooks/timers/usePauseGroupTimer";
@@ -51,9 +50,8 @@ export default function GroupTimer({
   const [accumulatedDuration, setAccumulatedDuration] = useState(
     initialAccumulatedDuration
   ); // 서버에서 받은 그룹 누적 시간
-  const [isLimitOpen, setLimitOpen] = useState(false); // 참여자 수 제한 모달
-
-  const stopwatch = useStopwatch({ autoStart: false });
+  const [isLimitOpen, setLimitOpen] = useState(false); 
+  const [localIdleSeconds, setLocalIdleSeconds] = useState(0);
 
   // 초기 누적 시간이 변경되면 업데이트 (그룹 상세 정보가 로드된 후)
   useEffect(() => {
@@ -95,16 +93,14 @@ export default function GroupTimer({
     if (sessionId) {
       return currentSessionTotalSeconds;
     }
-    // 로컬 stopwatch 시간 (시작 전)
-    return stopwatch.hours * 3600 + stopwatch.minutes * 60 + stopwatch.seconds;
+    // 로컬 idle 시간 (시작 전)
+    return localIdleSeconds;
   }, [
     status,
     sessionId,
     currentSessionTotalSeconds,
     clientElapsedSeconds,
-    stopwatch.hours,
-    stopwatch.minutes,
-    stopwatch.seconds,
+    localIdleSeconds,
   ]);
 
   // 전체 누적 시간 (서버에서 받은 누적 시간 + 현재 세션 시간)
@@ -141,7 +137,6 @@ export default function GroupTimer({
           if (event.accumulatedDuration !== undefined) {
             setAccumulatedDuration(event.accumulatedDuration);
           }
-          stopwatch.start();
           setStatus("running");
           break;
 
@@ -149,7 +144,6 @@ export default function GroupTimer({
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
             setSessionId(event.sessionId ?? null);
-            stopwatch.pause();
             setStatus("paused");
             // 서버에서 전달된 totalDuration으로 업데이트 (현재 세션의 총 시간)
             if (event.totalDuration !== undefined) {
@@ -166,7 +160,6 @@ export default function GroupTimer({
           // 세션 ID가 일치하거나 현재 세션이 없으면 업데이트
           if (!sessionId || event.sessionId === sessionId) {
             setSessionId(event.sessionId ?? null);
-            stopwatch.start();
             setStatus("running");
             if (event.totalDuration !== undefined) {
               const resumeTotalDuration = event.totalDuration;
@@ -190,7 +183,7 @@ export default function GroupTimer({
             }
             setCurrentSessionTotalSeconds(0);
             setClientElapsedSeconds(0);
-            stopwatch.reset(undefined, false);
+            setLocalIdleSeconds(0);
             setStatus("idle");
             setSessionId(null);
             onSessionIdChange?.(null);
@@ -216,9 +209,6 @@ export default function GroupTimer({
                   if (event.accumulatedDuration !== undefined) {
                     setAccumulatedDuration(event.accumulatedDuration);
                   }
-
-                  // stopwatch 시작 (이미 실행 중이어도 안전)
-                  stopwatch.start();
                 }
 
                 return event.sessionId ?? null;
