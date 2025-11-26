@@ -44,8 +44,8 @@ export default function GroupFriendField({
     : `/character/level${level}.svg`;
 
   return (
-    <div className="flex flex-col">
-      <div className="bg-white p-4 pt-3 rounded-t-xl w-[224px] h-[144px] border-2 border-gray-200">
+    <div className="flex flex-col h-full">
+      <div className="bg-white p-4 pt-3 rounded-t-xl w-[224px] h-[144px] border-2 border-gray-200 shrink-0">
         <section
           className={`flex items-center ${
             isActive ? "justify-start" : "justify-between"
@@ -100,7 +100,7 @@ export default function GroupFriendField({
       </div>
 
       <div
-        className={`w-[224px] rounded-b-xl px-3 py-2 border-2 border-gray-200 border-t-0 bg-gray-50`}
+        className={`w-[224px] rounded-b-xl px-3 py-2 border-2 border-gray-200 border-t-0 bg-gray-50 shrink-0`}
       >
         <GroupMemberState
           status={status}
