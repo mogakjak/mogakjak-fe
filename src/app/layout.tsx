@@ -8,7 +8,18 @@ import WithMobileDetection from "@/app/_utils/isMobileUserAgent";
 export const metadata: Metadata = {
   title: "모각작 - 함께 몰입하며 꾸준함을 만드는 커뮤니티",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-  keywords: ["모각작", "몰입", "집중", "타이머", "공부", "스터디", "커뮤니티", "프로젝트", "개발", "학습"],
+  keywords: [
+    "모각작",
+    "몰입",
+    "집중",
+    "타이머",
+    "공부",
+    "스터디",
+    "커뮤니티",
+    "프로젝트",
+    "개발",
+    "학습",
+  ],
   authors: [{ name: "모각작" }],
   creator: "모각작",
   publisher: "모각작",
@@ -89,8 +100,10 @@ export default function RootLayout({
           <WithMobileDetection>
             {({ isMobile }) => <ConditionalHeader isMobile={isMobile} />}
           </WithMobileDetection>
-          <div className="flex-1 flex justify-center bg-gray-100 w-full h-full">
-            <div className="px-9 h-full w-[1440px]">{children}</div>
+          <div className="flex-1 flex justify-center bg-gray-100 w-full min-h-screen">
+            <div className="px-9 pb-[60px] min-h-screen w-[1440px] max-w-full">
+              {children}
+            </div>
           </div>
         </Providers>
       </body>

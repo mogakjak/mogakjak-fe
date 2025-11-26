@@ -83,7 +83,19 @@ export default function GroupFriendField({
         </section>
 
         <section className={`flex mt-2 justify-center`}>
-          <Image src={avatarSrc} alt="토마토" width={90} height={90} />
+          <div className="w-[90px] h-[90px] relative shrink-0">
+            <Image
+              src={avatarSrc}
+              alt="토마토"
+              width={90}
+              height={90}
+              priority
+              loading="eager"
+              fetchPriority="high"
+              style={{ aspectRatio: "1 / 1" }}
+              className="object-contain"
+            />
+          </div>
         </section>
       </div>
 
