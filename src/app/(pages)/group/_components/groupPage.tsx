@@ -38,6 +38,10 @@ export default function GroupPage({
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
+  const [hasReceivedWebSocketUpdate, setHasReceivedWebSocketUpdate] =
+    useState(false);
+  const [initialMemberStatusesSize, setInitialMemberStatusesSize] =
+    useState(0);
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
@@ -45,22 +49,52 @@ export default function GroupPage({
   );
 
   // 그룹 멤버 상태 관리 훅
-  const { memberStatuses } = useGroupMemberStatus({
+  const { memberStatuses, isConnected } = useGroupMemberStatus({
     groupId: groupData.groupId,
     groupData,
   });
+//websocket 연결 이후 상태 체크 
+  useEffect(() => {
+    if (!isConnected) {
+      setHasReceivedWebSocketUpdate(false);
+      setInitialMemberStatusesSize(0);
+      return;
+    }
+
+    if (initialMemberStatusesSize === 0 && memberStatuses.size > 0) {
+      setInitialMemberStatusesSize(memberStatuses.size);
+    }
+
+    if (
+      isConnected &&
+      memberStatuses.size > 0 &&
+      initialMemberStatusesSize > 0
+    ) {
+      const hasRealUpdate = Array.from(memberStatuses.values()).some(
+        (status) => {
+          return (
+            status.enteredAt !== undefined ||
+            status.personalTimerSeconds !== null ||
+            status.todoTitle !== null ||
+            status.cheerCount !== 0
+          );
+        }
+      );
+
+      if (hasRealUpdate) {
+        setHasReceivedWebSocketUpdate(true);
+      }
+    }
+  }, [isConnected, memberStatuses, initialMemberStatusesSize]);
 
   const { token } = useAuthState();
 
-  // 현재 사용자 ID 가져오기
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
   }, [token]);
 
-  // 응원 보내기 훅
   const sendCheerMutation = useSendCheer(groupData.groupId);
 
-  // 응원 버튼 클릭 핸들러
   const handleCheerClick = (targetUserId: string) => {
     sendCheerMutation.mutate(
       { targetUserId },
@@ -72,11 +106,9 @@ export default function GroupPage({
     );
   };
 
-  // 멤버 상태를 기반으로 표시할 멤버 목록 생성 (현재 사용자를 맨 앞으로 정렬)
   const displayMembers = useMemo(() => {
     const membersWithStatus = Array.from(memberStatuses.values()).map(
       (status) => {
-        // GroupMemberStatus가 userId, nickname, profileUrl 등 필요한 모든 정보를 포함합니다.
         return {
           userId: status.userId,
           nickname: status.nickname,
@@ -87,7 +119,6 @@ export default function GroupPage({
       }
     );
 
-    // 현재 사용자를 맨 앞으로 정렬
     if (!currentUserId) return membersWithStatus;
 
     return [...membersWithStatus].sort((a, b) => {
@@ -97,7 +128,20 @@ export default function GroupPage({
     });
   }, [memberStatuses, currentUserId]);
 
-  // 참여 중인 멤버 수 계산 (NOT_PARTICIPATING이 아닌 멤버)
+  const isMemberStatusLoaded = useMemo(() => {
+    if (!isConnected) return false;
+    if (!hasReceivedWebSocketUpdate) return false;
+    const allMembersHaveStatus = groupData.members.every((member) =>
+      memberStatuses.has(member.userId)
+    );
+    return allMembersHaveStatus;
+  }, [
+    isConnected,
+    hasReceivedWebSocketUpdate,
+    memberStatuses,
+    groupData.members,
+  ]);
+
   const participatingMemberCount = useMemo(() => {
     return Array.from(memberStatuses.values()).filter(
       (status) => status.participationStatus !== "NOT_PARTICIPATING"
@@ -148,7 +192,7 @@ export default function GroupPage({
           </SidebarButton>
         </div>
         <div className="flex flex-col items-center justify-center">
-          {isLoading ? (
+          {isLoading || !isMemberStatusLoaded ? (
             <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
               {Array.from({ length: 8 }).map((_, index) => (
                 <GroupFriendField
@@ -165,7 +209,6 @@ export default function GroupPage({
                 const status = member.status;
                 const participationStatus = status.participationStatus;
 
-                // 상태 매핑: PARTICIPATING -> "active", RESTING -> "rest", NOT_PARTICIPATING -> "end"
                 let displayStatus: "active" | "rest" | "end";
                 if (participationStatus === "PARTICIPATING") {
                   displayStatus = "active";
@@ -174,9 +217,7 @@ export default function GroupPage({
                 } else {
                   displayStatus = "end";
                 }
-
-                // 개인 타이머 시간 (백엔드에서 초 단위로 전달됨)
-                // toSec 함수는 100,000보다 크면 밀리초로 간주하고 1000으로 나누므로,
+                  
                 // 초 단위 값을 그대로 전달하면 됩니다.
                 // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
                 // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
