@@ -29,7 +29,7 @@ export default function Character({
             height={100}
             className="object-contain"
           />
-          <p className="text-caption-12R text-gray-600 text-center">
+          <p className="text-caption-12R text-gray-600 text-center whitespace-pre-line">
             {description}
           </p>
         </div>

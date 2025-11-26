@@ -164,3 +164,8 @@ export type CheerNotification = {
   groupName: string;
   message: string;
 };
+
+export type GroupMeta = {
+  groupId: string;
+  groupName: string;
+};
