@@ -87,7 +87,10 @@ export const getMates = async (params?: GetMatesParams) => {
       // lastActivityAt은 가장 최근 값으로 업데이트
       if (mate.lastActivityAt) {
         const existingLastActivityAt = existing.lastActivityAt;
-        if (!existingLastActivityAt || new Date(mate.lastActivityAt) > new Date(existingLastActivityAt)) {
+        if (
+          !existingLastActivityAt ||
+          new Date(mate.lastActivityAt) > new Date(existingLastActivityAt)
+        ) {
           existing.lastActivityAt = mate.lastActivityAt;
         }
       }
@@ -139,6 +142,12 @@ export const putGroupNoti = (groupId: string, payload: NotiReq) =>
   request<NotiRes>(GROUPS_BASE, `/${groupId}/notifications`, {
     method: "PUT",
     body: JSON.stringify(payload),
+  });
+
+// 그룹 알림 설정 조회
+export const getGroupNoti = (groupId: string) =>
+  request<NotiRes>(GROUPS_BASE, `/${groupId}/notifications`, {
+    method: "GET",
   });
 
 export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
