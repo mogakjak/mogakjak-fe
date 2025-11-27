@@ -17,18 +17,20 @@ export default function GroupGoal({ data }: GroupGoalProps) {
   const [openNoti, setOpenNoti] = useState(false);
   const [goalHour, setGoalHour] = useState(data.groupGoal.goalHours);
   const [goalMin, setGoalMin] = useState(data.groupGoal.goalMinutes);
+  const [isMinFocused, setIsMinFocused] = useState(false);
   const { mutateAsync: updateGoal } = useUpdateGroupGoal(data.groupId);
 
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     v = v.slice(0, 2);
-    setGoalHour(Number(v));
+    setGoalHour(Number(v) || 0);
   };
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.replace(/\D/g, "");
     v = v.slice(0, 2);
-    setGoalMin(Number(v));
+    const numValue = Number(v) || 0;
+    setGoalMin(numValue);
   };
 
   const lastSavedRef = useRef<{ hour: number; minute: number } | null>(null);
@@ -102,11 +104,13 @@ export default function GroupGoal({ data }: GroupGoalProps) {
 
               <input
                 type="text"
-                value={goalMin}
+                value={isMinFocused ? (goalMin === 0 ? "" : goalMin.toString()) : goalMin.toString().padStart(2, '0')}
                 onChange={handleMinChange}
-                placeholder="0"
+                onFocus={() => setIsMinFocused(true)}
+                onBlur={() => setIsMinFocused(false)}
+                placeholder="00"
                 className="
-                            w-3.5
+                            w-8
                             text-heading3-24SB
                           text-gray-800
                             placeholder:text-gray-800
