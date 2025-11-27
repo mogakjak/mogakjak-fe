@@ -22,7 +22,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     search: submittedSearch || undefined,
   });
 
-  const profiles = matesData?.content ?? [];
+  const profiles = useMemo(() => matesData?.content ?? [], [matesData?.content]);
 
   const { mutate: inviteMate } = useInviteMate(groupId);
 
@@ -226,7 +226,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                               <div className="w-5 h-px bg-neutral-900 rotate-90" />
                               <div className="text-zinc-500 text-sm font-normal leading-5 truncate w-[160px]">
                                 {profile.groupNames &&
-                                profile.groupNames.length > 0
+                                  profile.groupNames.length > 0
                                   ? profile.groupNames.join(", ")
                                   : "-"}
                               </div>
