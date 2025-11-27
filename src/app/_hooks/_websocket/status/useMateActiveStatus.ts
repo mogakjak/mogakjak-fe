@@ -5,6 +5,7 @@ import { useWebSocket } from "../useWebSocket";
 export type UserActiveStatusEvent = {
   userId: string;
   isActive: boolean;
+  lastActivityAt?: string | null; // 마지막 활동 시간 (ISO 8601 형식)
 };
 
 type UseMateActiveStatusOptions = {

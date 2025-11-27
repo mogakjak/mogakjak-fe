@@ -43,10 +43,14 @@ export default function AddWorkForm({
   todayTodos?: Todo[];
   className?: string;
 }) {
-  const [categoryId, setCategoryId] = useState<string>(initialValues?.categoryId ?? "");
+  const [categoryId, setCategoryId] = useState<string>(
+    initialValues?.categoryId ?? ""
+  );
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [date, setDate] = useState<Date>(initialValues?.date ?? defaultDate);
-  const [target, setTarget] = useState<number>(initialValues?.targetSeconds ?? 0);
+  const [target, setTarget] = useState<number>(
+    initialValues?.targetSeconds ?? 0
+  );
   const prevInitialValuesRef = useRef<string>("");
 
   const filteredTodayTodos = useMemo(() => {
@@ -62,7 +66,7 @@ export default function AddWorkForm({
       date: initialValues.date?.getTime(),
       targetSeconds: initialValues.targetSeconds,
     });
-    
+
     if (prevInitialValuesRef.current !== currentKey) {
       prevInitialValuesRef.current = currentKey;
       setCategoryId(initialValues.categoryId ?? "");
@@ -140,7 +144,9 @@ export default function AddWorkForm({
                     if (selectedTodo) {
                       setCategoryId(selectedTodo.categoryId);
                       onCategorySelect?.(selectedTodo.categoryId);
-                      const [year, month, day] = selectedTodo.date.split("-").map(Number);
+                      const [year, month, day] = selectedTodo.date
+                        .split("-")
+                        .map(Number);
                       setDate(new Date(year, month - 1, day));
                       setTarget(selectedTodo.targetTimeInSeconds);
                     }

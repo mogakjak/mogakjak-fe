@@ -8,6 +8,7 @@ import ForkPopup from "@/app/_components/common/forkPopup";
 import { useCommonGroups } from "@/app/_hooks/groups/useCommonGroups";
 import { usePoke } from "@/app/_hooks/groups/usePoke";
 import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
+import { formatLastActivity } from "@/app/_utils/formatLastActivity";
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -31,11 +32,14 @@ export default function ProfileList({
   const [activeStatusMap, setActiveStatusMap] = useState<
     Record<string, boolean>
   >({});
+  const [lastActivityAtMap, setLastActivityAtMap] = useState<
+    Record<string, string | null>
+  >({});
   const { data: commonGroups = [], isLoading: isLoadingGroups } =
     useCommonGroups(selectedUserId || "");
   const pokeMutation = usePoke();
 
-  // 초기 isActive 상태를 맵에 저장 (기존 값은 유지)
+  // 초기 isActive 상태와 lastActivityAt을 맵에 저장 (기존 값은 유지)
   useEffect(() => {
     setActiveStatusMap((prev) => {
       const updated = { ...prev };
@@ -48,11 +52,30 @@ export default function ProfileList({
 
       return updated;
     });
+
+    setLastActivityAtMap((prev) => {
+      const updated = { ...prev };
+      profiles.forEach((profile) => {
+        // WebSocket으로 업데이트된 값이 없을 때만 초기값 사용
+        if (
+          updated[profile.userId] === undefined &&
+          profile.lastActivityAt !== undefined
+        ) {
+          updated[profile.userId] = profile.lastActivityAt ?? null;
+        }
+      });
+
+      return updated;
+    });
   }, [profiles]);
 
-  // WebSocket으로 실시간 isActive 상태 업데이트
+  // WebSocket으로 실시간 isActive 상태와 lastActivityAt 업데이트
   const handleStatusChange = useCallback(
-    (event: { userId: string; isActive: boolean }) => {
+    (event: {
+      userId: string;
+      isActive: boolean;
+      lastActivityAt?: string | null;
+    }) => {
       setActiveStatusMap((prev) => {
         const updated = {
           ...prev,
@@ -61,6 +84,18 @@ export default function ProfileList({
 
         return updated;
       });
+
+      // lastActivityAt도 함께 업데이트
+      if (event.lastActivityAt !== undefined) {
+        setLastActivityAtMap((prev) => {
+          const updated = {
+            ...prev,
+            [event.userId]: event.lastActivityAt ?? null,
+          };
+
+          return updated;
+        });
+      }
     },
     []
   );
@@ -137,6 +172,16 @@ export default function ProfileList({
         // 실시간 업데이트된 isActive 상태 사용 (없으면 초기값 사용)
         const isActive =
           activeStatusMap[profile.userId] ?? profile.isActive ?? false;
+        // 실시간 업데이트된 lastActivityAt 사용 (없으면 초기값 사용)
+        const lastActivityAt =
+          lastActivityAtMap[profile.userId] ??
+          profile.lastActivityAt ??
+          null;
+        // 포맷팅된 활동 시간 문자열 생성
+        const lastActivityFormatted = formatLastActivity(
+          lastActivityAt,
+          isActive
+        );
 
         return (
           <div
@@ -165,8 +210,12 @@ export default function ProfileList({
                   </span>
                 ))}
               </div>
-              <p>·</p>
-              <p>1일 전</p>
+              {lastActivityFormatted && (
+                <>
+                  <p>·</p>
+                  <p>{lastActivityFormatted}</p>
+                </>
+              )}
             </div>
 
             <div className="ml-auto">
