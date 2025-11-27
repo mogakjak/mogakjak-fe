@@ -3,7 +3,7 @@
 import Switch, { SwitchProps } from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 
-const StyledSwitch = styled(Switch)<SwitchProps>(({ theme }) => ({
+const StyledSwitch = styled(Switch)<SwitchProps>(() => ({
   width: 64,
   height: 36,
   padding: 0,
