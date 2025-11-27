@@ -33,7 +33,7 @@ export function usePictureInPicture({
     
     const isPipSupported = "documentPictureInPicture" in window;
     if (!isPipSupported) {
-      console.warn("Document Picture-in-Picture API 불가능한 브라우저입니다. ");
+      console.warn("PIP모드가 불가능한 브라우저입니다. ");
       return false;
     }
 
