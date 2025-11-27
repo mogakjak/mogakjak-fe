@@ -9,9 +9,12 @@ import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 
 type RoomMainProps = {
   isPending: boolean;
+  highlightButton?: boolean;
+  onButtonClick?: () => void;
+  disableInternalModal?: boolean;
 };
 
-export default function RoomMain({ isPending }: RoomMainProps) {
+export default function RoomMain({ isPending, highlightButton, onButtonClick, disableInternalModal }: RoomMainProps) {
   const [groupOpen, setGroupOpen] = useState(false);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [createdGroupId, setCreatedGroupId] = useState<string | undefined>();
@@ -32,9 +35,16 @@ export default function RoomMain({ isPending }: RoomMainProps) {
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => setGroupOpen(true)}
+          onClick={() => {
+            if (onButtonClick) {
+              onButtonClick();
+            } else {
+              setGroupOpen(true);
+            }
+          }}
           leftIconSrc="/Icons/plusDefault.svg"
-          disabled={isPending}
+          disabled={isPending && !highlightButton}
+          className={highlightButton ? "border-2 border-red-500" : ""}
         >
           새로운 그룹 생성하기
         </Button>
@@ -66,7 +76,7 @@ export default function RoomMain({ isPending }: RoomMainProps) {
         )}
       </div>
 
-      {groupOpen && (
+      {groupOpen && !disableInternalModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <RoomModal
             mode="create"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect} from "react";
+import { useMemo, useState, useEffect } from "react";
 import Icon from "../../../../_components/common/Icons";
 import { useStartGroupTimer } from "@/app/_hooks/timers/useStartGroupTimer";
 import { usePauseGroupTimer } from "@/app/_hooks/timers/usePauseGroupTimer";
@@ -49,13 +49,13 @@ export default function GroupTimer({
 
   useBlockGroupTimerNavigation(groupId, sessionId, status === "running");
   const [currentSessionTotalSeconds, setCurrentSessionTotalSeconds] =
-    useState(0); 
-  const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0); 
+    useState(0);
+  const [clientElapsedSeconds, setClientElapsedSeconds] = useState(0);
   const [serverSyncTime, setServerSyncTime] = useState<number>(Date.now()); // 서버 동기화 시점
   const [accumulatedDuration, setAccumulatedDuration] = useState(
     initialAccumulatedDuration
-  ); 
-  const [isLimitOpen, setLimitOpen] = useState(false); 
+  );
+  const [isLimitOpen, setLimitOpen] = useState(false);
   const [localIdleSeconds, setLocalIdleSeconds] = useState(0);
 
   // 초기 누적 시간이 변경되면 업데이트 (그룹 상세 정보가 로드된 후)
@@ -305,16 +305,14 @@ export default function GroupTimer({
       <div className="w-full flex items-center gap-5">
         <div className="w-[346px] flex flex-col justify-center items-center rounded-2xl py-2 bg-gray-100">
           <p
-            className={`text-heading1-32B whitespace-nowrap ${
-              status === "running" ? "text-gray-800" : "text-gray-400"
-            }`}
+            className={`text-heading1-32B whitespace-nowrap ${status === "running" ? "text-gray-800" : "text-gray-400"
+              }`}
           >
             {formatTime(elapsedSeconds)}
           </p>
           <p
-            className={`text-body1-16M ${
-              status === "running" ? "text-gray-800" : "text-gray-400"
-            }`}
+            className={`text-body1-16M ${status === "running" ? "text-gray-800" : "text-gray-400"
+              }`}
           >
             누적 시간 {formatTime(totalSeconds)}
           </p>
@@ -325,7 +323,7 @@ export default function GroupTimer({
             onClick={handleStart}
             disabled={startGroupTimerMutation.isPending}
             aria-label="그룹 타이머 시작"
-            className="bg-gray-600 px-8 py-1.5 text-white rounded-lg text-body2-14SB flex justify-center items-center gap-2 disabled:opacity-50"
+            className="bg-gray-600 w-[120px] py-1.5 text-white rounded-lg text-body2-14SB flex justify-center items-center gap-2 disabled:opacity-50"
           >
             <Icon Svg={StartIcon} size={24} className="text-white" />
             {startGroupTimerMutation.isPending ? "..." : "시작"}
@@ -338,7 +336,7 @@ export default function GroupTimer({
               onClick={handlePause}
               disabled={pauseGroupTimerMutation.isPending}
               aria-label="그룹 타이머 휴식"
-              className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+              className="bg-gray-600 w-[120px] text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Pause} size={24} className="text-white" />
               {pauseGroupTimerMutation.isPending ? "..." : "휴식"}
@@ -347,7 +345,7 @@ export default function GroupTimer({
               onClick={handleStop}
               disabled={finishGroupTimerMutation.isPending}
               aria-label="그룹 타이머 종료"
-              className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+              className="w-[120px] text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Stop} size={24} className="text-white" />
               {finishGroupTimerMutation.isPending ? "..." : "종료"}
@@ -361,7 +359,7 @@ export default function GroupTimer({
               onClick={handleResume}
               disabled={resumeGroupTimerMutation.isPending}
               aria-label="그룹 타이머 재시작"
-              className="bg-gray-600 px-8 text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+              className="bg-gray-600 w-[120px] text-body2-14SB text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={StartIcon} size={24} className="text-white" />
               {resumeGroupTimerMutation.isPending ? "..." : "시작"}
@@ -370,7 +368,7 @@ export default function GroupTimer({
               onClick={handleStop}
               disabled={finishGroupTimerMutation.isPending}
               aria-label="그룹 타이머 종료"
-              className="px-8 text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
+              className="w-[120px] text-body2-14SB bg-red-400 text-white rounded-lg py-1.5 flex justify-center items-center gap-2 disabled:opacity-50"
             >
               <Icon Svg={Stop} size={24} className="text-white" />
               {finishGroupTimerMutation.isPending ? "..." : "종료"}

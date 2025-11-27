@@ -64,7 +64,7 @@ export default function GroupGoal({ data }: GroupGoalProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl flex-1">
+      <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl ">
         <div className="flex items-center justify-between">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
           <SidebarButton className="px-7" onClick={() => setOpenNoti(true)}>
