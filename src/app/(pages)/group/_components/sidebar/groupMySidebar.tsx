@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 
 import Icon from "../../../../_components/common/Icons";
 import Edit from "/Icons/edit.svg";
@@ -63,9 +63,20 @@ export default function GroupMySidebar({
   );
 
   const { categories } = useTodoCategoryController();
-  const { createTodo, updateTodo } = useTodoController();
+  const { createTodo, updateTodo, toggleTodoComplete } = useTodoController();
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
   const queryClient = useQueryClient();
+  const prevSessionIdRef = useRef<string | null | undefined>(currentSessionId);
+  const hasAutoCompletedRef = useRef<Set<string>>(new Set()); // 자동 완료 처리한 todo ID 추적
+
+  useEffect(() => {
+    if (prevSessionIdRef.current && !currentSessionId) {
+      queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.my() });
+      refetchTodayTodos();
+    }
+    prevSessionIdRef.current = currentSessionId;
+  }, [currentSessionId, queryClient, refetchTodayTodos]);
 
   const todayTodo = useMemo<Todo | null>(() => {
     if (selectedTodoId) {
@@ -91,6 +102,33 @@ export default function GroupMySidebar({
     setSelectedWork,
     setSelectedTodoId,
   });
+  useEffect(() => {
+    const todo = todayTodo ?? currentTodo;
+    if (!todo || !todo.id) return;
+
+    if (todo.isCompleted || hasAutoCompletedRef.current.has(todo.id)) return;
+
+    const progressRate =
+      todo.progressRate !== undefined && todo.progressRate !== null
+        ? todo.progressRate
+        : todo.targetTimeInSeconds > 0
+          ? (todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100
+          : 0;
+
+    if (progressRate >= 100) {
+      hasAutoCompletedRef.current.add(todo.id);
+      toggleTodoComplete(todo.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+          queryClient.invalidateQueries({ queryKey: todoKeys.my() });
+          refetchTodayTodos();
+        })
+        .catch((error) => {
+          console.error("자동 완료 처리 실패:", error);
+          hasAutoCompletedRef.current.delete(todo.id);
+        });
+    }
+  }, [todayTodo, currentTodo, toggleTodoComplete, queryClient, refetchTodayTodos]);
   const formatSeconds = (seconds: number) => {
     const safeSeconds = Math.max(0, seconds);
     const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, "0");
@@ -205,7 +243,6 @@ export default function GroupMySidebar({
                 isTaskOpen={isTaskOpen}
                 setIsTaskOpen={async (v: boolean) => {
                   setIsTaskOpen(v);
-                  // 현재 활성 세션이 있으면 API 호출
                   if (currentSessionId) {
                     try {
                       await updatePersonalTimerVisibility(currentSessionId, {
@@ -213,7 +250,6 @@ export default function GroupMySidebar({
                       });
                     } catch (error) {
                       console.error("할일 공개/비공개 설정 실패:", error);
-                      // 실패 시 롤백
                       setIsTaskOpen(!v);
                     }
                   }
@@ -225,9 +261,9 @@ export default function GroupMySidebar({
                 <Icon Svg={Clock} size={24} className={"text-gray-400"} />
                 <h3 className="text-body2-14SB ml-1">
                   {formatSeconds(
-                    todayTodo?.actualTimeInSeconds ??
-                      currentTodo?.actualTimeInSeconds ??
-                      0
+                    todayTodo
+                      ? todayTodo.actualTimeInSeconds
+                      : currentTodo?.actualTimeInSeconds ?? 0
                   )}
                 </h3>
               </div>
@@ -236,7 +272,6 @@ export default function GroupMySidebar({
                   isTaskOpen={isTimeOpen}
                   setIsTaskOpen={async (v: boolean) => {
                     setIsTimeOpen(v);
-                    // 현재 활성 세션이 있으면 API 호출
                     if (currentSessionId) {
                       try {
                         await updatePersonalTimerVisibility(currentSessionId, {
@@ -247,7 +282,6 @@ export default function GroupMySidebar({
                           "타이머 누적 시간 공개/비공개 설정 실패:",
                           error
                         );
-                        // 실패 시 롤백
                         setIsTimeOpen(!v);
                       }
                     }
@@ -295,8 +329,13 @@ export default function GroupMySidebar({
         </p>
         <p className="text-caption-12SB text-gray-600">
           <b className="text-black mr-2">현재 달성률</b>{" "}
-          {(() => {
+          {(() => { 
             const todo = todayTodo ?? currentTodo;
+            
+            if (todo?.progressRate !== undefined && todo.progressRate !== null) {
+              return Math.round(todo.progressRate);
+            }
+            
             if (todo && todo.targetTimeInSeconds > 0) {
               return Math.round(
                 (todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100
