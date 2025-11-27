@@ -27,8 +27,11 @@ export function useTodayTodoSync({
     if (!selectedTodoId || !todayTodo) return;
 
     // selectedTodoId와 todayTodo.id가 일치하는 경우에만 동기화
-    if (todayTodo.id === selectedTodoId) {
-      setCurrentTodo(todayTodo);
+      if (todayTodo.id === selectedTodoId) {
+      setCurrentTodo({
+        ...todayTodo,
+        progressRate: todayTodo.progressRate, 
+      });
 
       const [year, month, day] = todayTodo.date.split("-").map(Number);
       setSelectedWork({
@@ -38,7 +41,6 @@ export function useTodayTodoSync({
         targetSeconds: todayTodo.targetTimeInSeconds,
       });
 
-      // React Query에 타이머용 데이터 저장
       queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
         todo: {
           id: todayTodo.id,

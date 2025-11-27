@@ -8,6 +8,7 @@ export type Todo = {
   targetTimeInSeconds: number;
   actualTimeInSeconds: number;
   isCompleted: boolean;
+  progressRate?: number; 
 };
 
 export type TodoCategoryWithTodos = {
