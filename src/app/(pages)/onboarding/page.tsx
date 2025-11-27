@@ -10,6 +10,7 @@ import IntroModal from "./_components/introModal";
 import GuideModal from "./_components/guideModal";
 import AddWorkForm from "@/app/(pages)/todo/components/addWorkForm";
 import { useTodoCategories } from "@/app/_hooks/todoCategory/useTodoCategories";
+import { useProfile } from "@/app/_hooks/mypage/useProfile";
 import type { CategoryColorToken } from "@/app/_types/category";
 import type { TodoCategoryColor } from "@/app/_types/todoCategory";
 import GroupPage from "@/app/(pages)/group/_components/groupPage";
@@ -34,7 +35,7 @@ const colorToToken = (color: TodoCategoryColor): CategoryColorToken => {
 };
 
 const dummyGroupData: GroupDetail = {
-    groupId: "dummy-group",
+    groupId: "1",
     name: "모각작 온보딩 그룹",
     imageUrl: "",
     accumulatedDuration: 0,
@@ -53,7 +54,7 @@ const dummyGroupData: GroupDetail = {
         }
     ],
     groupGoal: {
-        groupId: "dummy-group",
+        groupId: "1",
         goalHours: 2,
         goalMinutes: 0,
     },
@@ -68,11 +69,12 @@ export default function OnboardingPage() {
     const [showGroupCreateModal, setShowGroupCreateModal] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [showFinalModal, setShowFinalModal] = useState(false);
-    const [showGuideModal, setShowGuideModal] = useState(true);
+    const [showGuideModal] = useState(true);
 
     const [currentStep, setCurrentStep] = useState(-1);
 
     const { data: categories = [] } = useTodoCategories();
+    const { data: profile, isLoading: isProfileLoading } = useProfile();
 
     const handleWelcomeModalClose = () => {
         setShowWelcomeModal(false);
@@ -168,9 +170,9 @@ export default function OnboardingPage() {
 
     return (
         <>
-            {showWelcomeModal && (
+            {showWelcomeModal && !isProfileLoading && profile && (
                 <OnboardingCommonModal
-                    title="반가워요, 김몰입님!"
+                    title={`반가워요, ${profile.nickname}님!`}
                     description={
                         "나의 모각작은 함께 몰입하는 시간을 만드는 공간입니다.\n" +
                         "나의 몰입을 시작하고,친구들을 초대해볼까요?"
@@ -179,6 +181,7 @@ export default function OnboardingPage() {
                     onClose={handleWelcomeModalClose}
                 />
             )}
+
 
             {showCompletionModal && (
                 <OnboardingCommonModal
