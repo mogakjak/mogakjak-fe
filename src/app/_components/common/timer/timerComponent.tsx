@@ -11,12 +11,14 @@ import PomodoroModal from "./pomodoroModal";
 import TimerModal from "./timerModal";
 import TimerEndModal from "../timerEndModal";
 import AlertModal from "./alertModal";
+import ActiveSessionModal from "./activeSessionModal";
 import { useStartPomodoro } from "@/app/_hooks/timers/useStartPomodoro";
 import { usePauseTimer } from "@/app/_hooks/timers/usePauseTimer";
 import { useResumeTimer } from "@/app/_hooks/timers/useResumeTimer";
 import { useFinishTimer } from "@/app/_hooks/timers/useFinishTimer";
 import { useStartTimer } from "@/app/_hooks/timers/useStartTimer";
 import { useStartStopwatch } from "@/app/_hooks/timers/useStartStopwatch";
+import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
 
@@ -47,7 +49,15 @@ export default function TimerComponent({
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [activeSessionModalOpen, setActiveSessionModalOpen] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
+  const [pendingStopwatchConfig, setPendingStopwatchConfig] = useState<{
+    todoId: string;
+    participationType: "INDIVIDUAL" | "GROUP";
+    groupId?: string;
+    isTaskPublic?: boolean;
+    isTimerPublic?: boolean;
+  } | null>(null);
   const [pomodoroConfig, setPomodoroConfig] = useState<{
     focusSeconds: number;
     breakSeconds: number;
@@ -65,6 +75,7 @@ export default function TimerComponent({
   const finishTimerMutation = useFinishTimer();
   const startTimerMutation = useStartTimer();
   const startStopwatchMutation = useStartStopwatch();
+  const finishActiveTimerMutation = useFinishActiveTimer();
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
@@ -193,6 +204,18 @@ export default function TimerComponent({
           }
         } catch (error) {
           console.error("스톱워치 시작 실패:", error);
+          // 이미 실행 중인 세션이 있는 경우 모달 표시
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (errorMessage.includes("이미") || errorMessage.includes("already") || errorMessage.includes("running")) {
+            setPendingStopwatchConfig({
+              todoId,
+              participationType: groupId ? "GROUP" : "INDIVIDUAL",
+              ...(groupId && { groupId }),
+              isTaskPublic,
+              isTimerPublic,
+            });
+            setActiveSessionModalOpen(true);
+          }
         }
       }
     } else if (mode === "timer") {
@@ -531,6 +554,36 @@ export default function TimerComponent({
     }
   }, [pendingMode, onStop]);
 
+  const handleActiveSessionModalClose = useCallback(() => {
+    setActiveSessionModalOpen(false);
+    setPendingStopwatchConfig(null);
+  }, []);
+
+  const handleActiveSessionModalConfirm = useCallback(async () => {
+    setActiveSessionModalOpen(false);
+    if (pendingStopwatchConfig) {
+      try {
+        // 기존 활성 세션 종료
+        await finishActiveTimerMutation.mutateAsync();
+        // 새 스톱워치 시작
+        const session = await startStopwatchMutation.mutateAsync(pendingStopwatchConfig);
+        setSessionId(session.sessionId);
+        onSessionIdChange?.(session.sessionId);
+        swRef.current?.start();
+        setRunning(true);
+        setIsPaused(false);
+        setIsRunning(true);
+        if (timerContainerRef.current && openPipWindowRef.current) {
+          openPipWindowRef.current();
+        }
+        setPendingStopwatchConfig(null);
+      } catch (error) {
+        console.error("기존 세션 종료 및 새 스톱워치 시작 실패:", error);
+        setPendingStopwatchConfig(null);
+      }
+    }
+  }, [pendingStopwatchConfig, finishActiveTimerMutation, startStopwatchMutation, onSessionIdChange, setIsRunning]);
+
   return (
     <>
       <div data-timer-container-parent>
@@ -638,6 +691,14 @@ export default function TimerComponent({
             onClose={() => setAlertModalOpen(false)}
             type="todoRequired"
           />
+          {activeSessionModalOpen && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <ActiveSessionModal
+                onClose={handleActiveSessionModalClose}
+                onConfirm={handleActiveSessionModalConfirm}
+              />
+            </div>
+          )}
         </>
       )}
     </>
