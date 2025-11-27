@@ -387,7 +387,6 @@ export default function OnboardingPage() {
                 <GuideModal
                     currentStep={currentStep + 1}
                     steps={guideSteps}
-                    onClose={() => setShowGuideModal(false)}
                 />
             )}
         </>
