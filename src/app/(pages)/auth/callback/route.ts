@@ -8,7 +8,23 @@ function getJwtExp(token?: string): number | undefined {
     const json = Buffer.from(payload, "base64").toString("utf8");
     const data = JSON.parse(json);
     if (typeof data?.exp === "number") return data.exp;
-  } catch {}
+  } catch { }
+}
+
+interface JwtPayload {
+  isOnboarding?: boolean;
+  [key: string]: unknown;
+}
+
+function getJwtPayload(token?: string): JwtPayload | null {
+  try {
+    if (!token) return null;
+    const [, payload] = token.split(".");
+    const json = Buffer.from(payload, "base64").toString("utf8");
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(req: Request) {
@@ -55,6 +71,9 @@ export async function GET(req: Request) {
     maxAge: refreshMaxAge,
   });
 
-  const homeUrl = new URL("/", req.url);
-  return NextResponse.redirect(homeUrl);
+  const payload = getJwtPayload(accessToken);
+  const isOnboarding = payload?.isOnboarding ?? true;
+
+  const redirectUrl = new URL(isOnboarding ? "/" : "/onboarding", req.url);
+  return NextResponse.redirect(redirectUrl);
 }

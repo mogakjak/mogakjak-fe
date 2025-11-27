@@ -19,9 +19,10 @@ import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 type PreviewMainProps = {
   state: boolean;
   groupId?: string;
+  isOnboarding?: boolean;
 };
 
-export default function PreviewMain({ state, groupId }: PreviewMainProps) {
+export default function PreviewMain({ state, groupId, isOnboarding = false }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
   const queryClient = useQueryClient();
   const { data: todayTodos = [], isFetched: isTodayTodosFetched } =
@@ -116,6 +117,7 @@ export default function PreviewMain({ state, groupId }: PreviewMainProps) {
             setIsTaskPublic={setIsTaskPublic}
             setIsTimerPublic={setIsTimerPublic}
             currentSessionId={currentSessionId}
+            isOnboarding={isOnboarding}
           />
         </>
       )}

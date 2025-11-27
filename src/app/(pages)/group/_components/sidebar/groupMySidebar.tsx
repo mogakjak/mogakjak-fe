@@ -29,6 +29,7 @@ type GroupMySidebarProps = {
   setIsTaskPublic?: (v: boolean) => void;
   setIsTimerPublic?: (v: boolean) => void;
   currentSessionId?: string | null;
+  isOnboarding?: boolean;
 };
 
 export default function GroupMySidebar({
@@ -38,6 +39,7 @@ export default function GroupMySidebar({
   setIsTaskPublic: externalSetIsTaskPublic,
   setIsTimerPublic: externalSetIsTimerPublic,
   currentSessionId,
+  isOnboarding = false,
 }: GroupMySidebarProps) {
   const [internalIsTaskOpen, setInternalIsTaskOpen] = useState(true);
   const [internalIsTimeOpen, setInternalIsTimeOpen] = useState(true);
@@ -145,7 +147,7 @@ export default function GroupMySidebar({
       categories.map((c) => {
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
-            c.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          c.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         return {
           id: c.id,
@@ -225,7 +227,7 @@ export default function GroupMySidebar({
   const hasTodo = todayTodo || currentTodo || selectedWork;
   return (
     <div className=" bg-white rounded-2xl">
-      <div className="border rounded-lg border-gray-200 p-3">
+      <div className={`border rounded-lg p-3 ${isOnboarding ? 'border-red-200 border-4' : 'border-gray-200'}`}>
         {hasTodo ? (
           <>
             <div className="flex items-center">
@@ -261,9 +263,9 @@ export default function GroupMySidebar({
                 <Icon Svg={Clock} size={24} className={"text-gray-400"} />
                 <h3 className="text-body2-14SB ml-1">
                   {formatSeconds(
-                    todayTodo
-                      ? todayTodo.actualTimeInSeconds
-                      : currentTodo?.actualTimeInSeconds ?? 0
+                    todayTodo?.actualTimeInSeconds ??
+                    currentTodo?.actualTimeInSeconds ??
+                    0
                   )}
                 </h3>
               </div>
@@ -322,9 +324,9 @@ export default function GroupMySidebar({
           <b className="text-black mr-2">목표시간</b>{" "}
           {formatSeconds(
             todayTodo?.targetTimeInSeconds ??
-              currentTodo?.targetTimeInSeconds ??
-              selectedWork?.targetSeconds ??
-              0
+            currentTodo?.targetTimeInSeconds ??
+            selectedWork?.targetSeconds ??
+            0
           )}
         </p>
         <p className="text-caption-12SB text-gray-600">
@@ -356,21 +358,21 @@ export default function GroupMySidebar({
             initialValues={
               todayTodo ?? currentTodo
                 ? (() => {
-                    const todo = todayTodo ?? currentTodo;
-                    if (!todo) return undefined;
-                    const [year, month, day] = todo.date.split("-").map(Number);
-                    return {
-                      categoryId: todo.categoryId,
-                      title: todo.task,
-                      date: new Date(year, month - 1, day),
-                      targetSeconds: todo.targetTimeInSeconds,
-                    };
-                  })()
+                  const todo = todayTodo ?? currentTodo;
+                  if (!todo) return undefined;
+                  const [year, month, day] = todo.date.split("-").map(Number);
+                  return {
+                    categoryId: todo.categoryId,
+                    title: todo.task,
+                    date: new Date(year, month - 1, day),
+                    targetSeconds: todo.targetTimeInSeconds,
+                  };
+                })()
                 : selectedCategoryId
-                ? {
+                  ? {
                     categoryId: selectedCategoryId,
                   }
-                : undefined
+                  : undefined
             }
             onSubmit={handleWorkSubmit}
             onCategorySelect={setSelectedCategoryId}
