@@ -3,6 +3,7 @@
 :root {
   --background: #fafafa;
   --foreground: #171717;
+  color-scheme: light; /* 다크모드 비활성화 */
 }
 
 @theme inline {
@@ -57,16 +58,21 @@
   --leading-140: 1.4;
 }
 
-@media (prefers-color-scheme: dark) {
+/* 다크모드 비활성화  */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+} */
+
+html {
+  color-scheme: light !important; /* 다크모드 비활성화  */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--background) !important;
+  color: var(--foreground) !important;
   font-family: var(--font-sans);
 }
 button {
