@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import clsx from "clsx";
 
 function clamp(n: number, min: number, max: number) {
@@ -16,13 +16,19 @@ export default function DurationField({
   onChange?: (sec: number) => void;
   className?: string;
 }) {
-  const hh = Math.floor(seconds / 3600);
-  const mm = Math.floor((seconds % 3600) / 60);
-  const ss = seconds % 60;
+  const [h, setH] = useState(0);
+  const [m, setM] = useState(0);
+  const [s, setS] = useState(0);
 
-  const [h, setH] = useState(hh);
-  const [m, setM] = useState(mm);
-  const [s, setS] = useState(ss);
+  useEffect(() => {
+    const hh = Math.floor(seconds / 3600);
+    const mm = Math.floor((seconds % 3600) / 60);
+    const ss = seconds % 60;
+
+    setH(hh);
+    setM(mm);
+    setS(ss);
+  }, [seconds]);
 
   const total = useMemo(() => h * 3600 + m * 60 + s, [h, m, s]);
   const invalid = total < 60 || total > 24 * 3600;
@@ -31,9 +37,11 @@ export default function DurationField({
     const th = clamp(nh, 0, 24);
     const tm = clamp(nm, 0, 59);
     const ts = clamp(ns, 0, 59);
+
     setH(th);
     setM(tm);
     setS(ts);
+
     onChange?.(th * 3600 + tm * 60 + ts);
   };
 
@@ -49,6 +57,7 @@ export default function DurationField({
           max={24}
         />
         <span className="text-xl text-neutral-900">:</span>
+
         <input
           type="number"
           value={String(m).padStart(2, "0")}
@@ -58,6 +67,7 @@ export default function DurationField({
           max={59}
         />
         <span className="text-xl text-neutral-900">:</span>
+
         <input
           type="number"
           value={String(s).padStart(2, "0")}
