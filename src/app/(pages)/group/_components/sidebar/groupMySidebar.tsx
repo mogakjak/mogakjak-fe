@@ -63,10 +63,11 @@ export default function GroupMySidebar({
   );
 
   const { categories } = useTodoCategoryController();
-  const { createTodo, updateTodo } = useTodoController();
+  const { createTodo, updateTodo, toggleTodoComplete } = useTodoController();
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
   const queryClient = useQueryClient();
   const prevSessionIdRef = useRef<string | null | undefined>(currentSessionId);
+  const hasAutoCompletedRef = useRef<Set<string>>(new Set()); // 자동 완료 처리한 todo ID 추적
 
   useEffect(() => {
     if (prevSessionIdRef.current && !currentSessionId) {
@@ -101,6 +102,33 @@ export default function GroupMySidebar({
     setSelectedWork,
     setSelectedTodoId,
   });
+  useEffect(() => {
+    const todo = todayTodo ?? currentTodo;
+    if (!todo || !todo.id) return;
+
+    if (todo.isCompleted || hasAutoCompletedRef.current.has(todo.id)) return;
+
+    const progressRate =
+      todo.progressRate !== undefined && todo.progressRate !== null
+        ? todo.progressRate
+        : todo.targetTimeInSeconds > 0
+          ? (todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100
+          : 0;
+
+    if (progressRate >= 100) {
+      hasAutoCompletedRef.current.add(todo.id);
+      toggleTodoComplete(todo.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+          queryClient.invalidateQueries({ queryKey: todoKeys.my() });
+          refetchTodayTodos();
+        })
+        .catch((error) => {
+          console.error("자동 완료 처리 실패:", error);
+          hasAutoCompletedRef.current.delete(todo.id);
+        });
+    }
+  }, [todayTodo, currentTodo, toggleTodoComplete, queryClient, refetchTodayTodos]);
   const formatSeconds = (seconds: number) => {
     const safeSeconds = Math.max(0, seconds);
     const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, "0");
