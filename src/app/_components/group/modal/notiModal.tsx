@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/button";
 import GroupModal from "./groupModal";
 import ToggleButton from "./toggleButton";
@@ -20,13 +20,19 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
   const [hours, setHours] = useState(1);
   const [message, setMessage] = useState("");
 
-  // GET 데이터 → state 초기화
+  // 최초 한 번만 초기값 세팅했는지 여부
+  const isInitialized = useRef(false);
+
+  // GET 데이터 → state 초기화 (처음 로드될 때만)
   useEffect(() => {
     if (!data) return;
+    if (isInitialized.current) return;
 
     setIsAgreed(data.isNotificationAgreed);
     setHours(data.notificationCycle);
     setMessage(data.notificationMessage || "");
+
+    isInitialized.current = true;
   }, [data]);
 
   const { mutateAsync: updateNoti } = useUpdateGroupNotifications(groupId);
@@ -50,6 +56,7 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
     if (!isAgreed) return;
     setHours((prev) => Math.min(99, prev + 1));
   };
+
   const decrease = () => {
     if (!isAgreed) return;
     setHours((prev) => Math.max(1, prev - 1));
@@ -79,24 +86,22 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
             {isLoading
               ? " "
               : isAgreed
-              ? "알림을 받을게요"
-              : "알림을 안 받을래요"}
+                ? "알림을 받을게요"
+                : "알림을 안 받을래요"}
           </p>
         </div>
 
         <p
-          className={`text-body1-16SB mt-7 ${
-            !isAgreed && !isLoading && "text-gray-400"
-          }`}
+          className={`text-body1-16SB mt-7 ${!isAgreed && !isLoading && "text-gray-400"
+            }`}
         >
           알림 주기
         </p>
 
         <div className="mt-3 mb-7 w-full">
           <div
-            className={`flex items-center justify-between px-5 py-1.5 rounded-lg border bg-gray-100 border-gray-200 ${
-              !isAgreed && !isLoading ? "opacity-50" : ""
-            }`}
+            className={`flex items-center justify-between px-5 py-1.5 rounded-lg border bg-gray-100 border-gray-200 ${!isAgreed && !isLoading ? "opacity-50" : ""
+              }`}
           >
             {isLoading ? (
               <div className="flex-1 text-center">
@@ -145,17 +150,15 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
         </div>
 
         <p
-          className={`text-body1-16SB mt-7 ${
-            !isAgreed && !isLoading && "text-gray-400"
-          }`}
+          className={`text-body1-16SB mt-7 ${!isAgreed && !isLoading && "text-gray-400"
+            }`}
         >
           알림 메시지
         </p>
 
         <div
-          className={`bg-gray-100 px-5 py-3 rounded-lg w-full border border-gray-200 mt-3 mb-7 ${
-            !isAgreed && !isLoading ? "opacity-50" : ""
-          }`}
+          className={`bg-gray-100 px-5 py-3 rounded-lg w-full border border-gray-200 mt-3 mb-7 ${!isAgreed && !isLoading ? "opacity-50" : ""
+            }`}
         >
           {isLoading ? (
             <div className="w-full h-5 bg-gray-200 rounded animate-pulse" />
@@ -170,6 +173,7 @@ export default function NotiModal({ onClose, groupId }: NotiModalProps) {
             />
           )}
         </div>
+
         <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
           설정 완료
         </Button>
