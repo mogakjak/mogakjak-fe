@@ -17,5 +17,4 @@ export interface AwardCharacterState {
   level: number;
   name: string;
   imageSrc: string;
-  hours: number;
 }

@@ -5,7 +5,7 @@ import { useCreateFeedback } from "@/app/_hooks/feedback/useCreateFeedback";
 import { useFeedbackTags } from "@/app/_hooks/feedback/useFeedbackTags";
 import { FeedbackTagType } from "@/app/_types/feedback";
 import { useExitGroupSession } from "@/app/_hooks/groups/useExitGroupSession";
-import { getTotalStudyTime } from "@/app/api/mypage/api";
+import { useTotalStudyTime } from "@/app/_hooks/mypage/useTotalStudyTime";
 import { useCheckAward } from "@/app/_hooks/characters/useCheckAward";
 import type { AwardCharacterState } from "@/app/_types/characters";
 
@@ -51,7 +51,11 @@ interface UseReviewPopupParams {
     onExitGroup: () => void;
 }
 
-export function useReviewPopup({ groupId, onClose, onExitGroup }: UseReviewPopupParams) {
+export function useReviewPopup({
+    groupId,
+    onClose,
+    onExitGroup,
+}: UseReviewPopupParams) {
     const emojis: EmojiType[] = ["toobad", "bad", "soso", "good", "sogood"];
 
     const [selectedEmoji, setSelectedEmoji] = useState<EmojiType | null>(null);
@@ -75,6 +79,7 @@ export function useReviewPopup({ groupId, onClose, onExitGroup }: UseReviewPopup
         useCreateFeedback();
     const { mutateAsync: exitSession } = useExitGroupSession();
     const { mutateAsync: checkAward } = useCheckAward();
+    const { refetch: refetchTotalStudyTime } = useTotalStudyTime();
 
     const handleEmojiClick = (emoji: EmojiType) => {
         setSelectedEmoji((prev) => (prev === emoji ? null : emoji));
@@ -104,10 +109,13 @@ export function useReviewPopup({ groupId, onClose, onExitGroup }: UseReviewPopup
                 exitSession(groupId),
             ]);
 
-            const { totalStudyTime } = await getTotalStudyTime();
+            const { data: studyTimeData } = await refetchTotalStudyTime();
+            const totalStudyTime = studyTimeData?.totalStudyTime ?? 0;
+
             const awards = await checkAward({
                 totalStudyTimeInSeconds: totalStudyTime,
             });
+
 
 
             if (awards && awards.length > 0) {
@@ -116,7 +124,6 @@ export function useReviewPopup({ groupId, onClose, onExitGroup }: UseReviewPopup
                     level: first.level,
                     name: first.name,
                     imageSrc: first.mainCharacterImage,
-                    hours: Math.floor(totalStudyTime / 3600),
                 });
                 return;
             }

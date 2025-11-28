@@ -4,26 +4,28 @@ import { getCharacterByLevel } from "@/app/_utils/getCharacterByHours";
 
 interface GainCharacterModalProps {
   onClose: () => void;
+  name: string;
   level: number;
   imageSrc: string;
 }
 
 export default function GainCharacterModal({
   onClose,
+  name,
   level,
   imageSrc,
 }: GainCharacterModalProps) {
 
   const matched = getCharacterByLevel(level);
 
-  const name = matched?.name ?? "캐릭터";
+
   const hours = matched?.hours ?? 0;
   const description = matched?.description ?? "집중하여 캐릭터를 획득했어요!";
 
   return (
     <div className="bg-white rounded-[20px] shadow-lg p-5 flex flex-col items-center">
       <button className="flex ml-auto mb-2" onClick={onClose}>
-        <Image src="/Icons/xmark.svg" width={24} height={24} alt="닫기" />
+        <Image src="/Icons/xmark.svg" width={24} height={24} alt="닫기" aria-label="닫기" />
       </button>
 
       <div className="flex flex-col items-center py-4 px-7">
@@ -38,7 +40,7 @@ export default function GainCharacterModal({
           을 얻었어요.
         </p>
 
-        <div className="text-caption-12R text-gray-700 mt-7 px-4 py-2 rounded-full border bg-gray-100 whitespace-pre-line">
+        <div className="text-caption-12R text-gray-700 mt-7 px-4 py-2 rounded-full border border-gray-200 bg-gray-100 ">
           {description}
         </div>
 

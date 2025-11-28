@@ -59,6 +59,7 @@ export default function ReviewPopup({
           <GainCharacterModal
             level={awardCharacter.level}
             imageSrc={awardCharacter.imageSrc}
+            name={awardCharacter.name}
             onClose={handleAwardModalClose}
           />
         </div>
