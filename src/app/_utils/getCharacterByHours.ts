@@ -13,3 +13,8 @@ export function getCharacterByHours(totalHours: number): CharacterLevelInfo {
   }
   return current;
 }
+
+
+export function getCharacterByLevel(level: number): CharacterLevelInfo | null {
+  return rows.find((c) => c.level === level) ?? null;
+}
