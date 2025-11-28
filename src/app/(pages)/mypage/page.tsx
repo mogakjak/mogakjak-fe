@@ -12,7 +12,7 @@ export default function MyPage() {
   const { data: basket, isLoading } = useCharacterBasket();
 
   return (
-    <div className="w-full max-w-[1440px] h-full pt-9 mb-[60px] mx-auto flex gap-5 items-stretch overflow-x-hidden">
+    <div className="w-full max-w-[1440px] h-full pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
       {isLoading || !basket ? (
         <>
           <section className="flex flex-col gap-5 self-stretch w-[360px] animate-pulse">
