@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useCreateFeedback } from "@/app/_hooks/feedback/useCreateFeedback";
 import { useFeedbackTags } from "@/app/_hooks/feedback/useFeedbackTags";
 import { FeedbackTagType } from "@/app/_types/feedback";
-import { useExitGroupSession } from "@/app/_hooks/groups/useExitGroupSession";
+// import { useExitGroupSession } from "@/app/_hooks/groups/useExitGroupSession"; // 제거됨
 import { useTotalStudyTime } from "@/app/_hooks/mypage/useTotalStudyTime";
 import { useCheckAward } from "@/app/_hooks/characters/useCheckAward";
 import type { AwardCharacterState } from "@/app/_types/characters";
@@ -46,13 +46,11 @@ const emojiToScore = (emoji: EmojiType): number => {
 };
 
 interface UseReviewPopupParams {
-    groupId: string;
     onClose: () => void;
     onExitGroup: () => void;
 }
 
 export function useReviewPopup({
-    groupId,
     onClose,
     onExitGroup,
 }: UseReviewPopupParams) {
@@ -77,7 +75,6 @@ export function useReviewPopup({
     const { data: feedbackTags = [], isPending } = useFeedbackTags(feedbackType);
     const { mutateAsync: createFeedback, isPending: isSubmitting } =
         useCreateFeedback();
-    const { mutateAsync: exitSession } = useExitGroupSession();
     const { mutateAsync: checkAward } = useCheckAward();
     const { refetch: refetchTotalStudyTime } = useTotalStudyTime();
 
@@ -106,7 +103,6 @@ export function useReviewPopup({
                     tagCodes: selectedTags,
                     content: etcText.trim(),
                 }),
-                exitSession(groupId),
             ]);
 
             const { data: studyTimeData } = await refetchTotalStudyTime();

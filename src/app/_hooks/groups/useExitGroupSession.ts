@@ -19,7 +19,6 @@ export const useExitGroupSession = () => {
       // 내 그룹 목록은 업데이트 필요
       queryClient.invalidateQueries({
         queryKey: groupKeys.my(),
-        refetchType: "none",
       });
     },
     onError: (error, groupId) => {

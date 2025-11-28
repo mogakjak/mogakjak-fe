@@ -33,7 +33,7 @@ export default function ReviewPopup({
     handleChangeEtc,
     handleSubmit,
     handleAwardModalClose,
-  } = useReviewPopup({ groupId, onClose, onExitGroup });
+  } = useReviewPopup({ onClose, onExitGroup });
 
   return (
     <>

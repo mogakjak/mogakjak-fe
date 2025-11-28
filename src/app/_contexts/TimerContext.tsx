@@ -20,6 +20,12 @@ interface TimerContextType {
   pendingNavigation: PendingNavigationAction;
   showNavigationModal: (onConfirm: () => void | Promise<void>) => void;
   closeNavigationModal: () => void;
+  currentGroupId: string | null;
+  setCurrentGroupId: (groupId: string | null) => void;
+  navigationInterceptor: ((onConfirm: () => void | Promise<void>) => void) | null;
+  setNavigationInterceptor: (
+    interceptor: ((onConfirm: () => void | Promise<void>) => void) | null
+  ) => void;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -29,6 +35,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [hasSelectedTodo, setHasSelectedTodo] = useState(false);
   const [pendingNavigation, setPendingNavigation] =
     useState<PendingNavigationAction>(null);
+  const [currentGroupId, setCurrentGroupId] = useState<string | null>(null);
+  const [navigationInterceptor, setNavigationInterceptor] = useState<
+    ((onConfirm: () => void | Promise<void>) => void) | null
+  >(null);
 
   const showNavigationModal = useCallback(
     (onConfirm: () => void | Promise<void>) => {
@@ -51,6 +61,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         pendingNavigation,
         showNavigationModal,
         closeNavigationModal,
+        currentGroupId,
+        setCurrentGroupId,
+        navigationInterceptor,
+        setNavigationInterceptor,
       }}
     >
       {children}
