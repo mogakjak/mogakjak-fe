@@ -63,3 +63,8 @@ export type Quote = {
   content: string;
   author: string;
 };
+
+// 총 누적 학습 시간 조회 타입
+export interface TotalStudyTimeResponse {
+  totalStudyTime: number;
+}

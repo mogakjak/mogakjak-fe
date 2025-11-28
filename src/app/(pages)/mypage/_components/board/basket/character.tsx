@@ -20,7 +20,7 @@ export default function Character({
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-100 border border-gray-200">
       {!locked ? (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-3">
           <p className="text-body1-16SB">{`Lv.${level} ${name}`}</p>
           <Image
             src={imageUrl}

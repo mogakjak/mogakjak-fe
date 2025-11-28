@@ -12,3 +12,9 @@ export interface CheckAwardReq {
 }
 
 export type CheckAwardRes = CharacterAwardItem[];
+
+export interface AwardCharacterState {
+  level: number;
+  name: string;
+  imageSrc: string;
+}
