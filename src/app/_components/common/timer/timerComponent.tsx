@@ -58,6 +58,7 @@ export default function TimerComponent({
     isTaskPublic?: boolean;
     isTimerPublic?: boolean;
   } | null>(null);
+
   const [pomodoroConfig, setPomodoroConfig] = useState<{
     focusSeconds: number;
     breakSeconds: number;
@@ -65,7 +66,15 @@ export default function TimerComponent({
   } | null>(null);
   const [currentPhase, setCurrentPhase] = useState<"FOCUS" | "BREAK">("FOCUS");
   const [currentRound, setCurrentRound] = useState<number>(1);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // 🔹 sessionId를 state + ref 모두로 관리 (ref는 항상 최신값 유지용)
+  const [sessionIdState, _setSessionIdState] = useState<string | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const setSessionId = (value: string | null) => {
+    sessionIdRef.current = value;
+    _setSessionIdState(value);
+  };
+
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const { setIsRunning } = useTimer();
@@ -80,10 +89,27 @@ export default function TimerComponent({
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
   const cdRef = useRef<CountdownHandle>(null);
-  const timerContainerRef = useRef<HTMLElement>(null);
+  const timerContainerRef = useRef<HTMLElement | null>(null);
   const openPipWindowRef = useRef<(() => Promise<boolean>) | null>(null);
   const isInPipRef = useRef<boolean>(false);
 
+  const { isInPip, openPipWindow, closePipWindow } = usePictureInPicture({
+    containerRef: timerContainerRef,
+    isRunning: running,
+  });
+
+  openPipWindowRef.current = openPipWindow;
+  isInPipRef.current = isInPip;
+
+  const handlePipToggle = useCallback(() => {
+    if (isInPip) {
+      closePipWindow();
+    } else {
+      openPipWindow();
+    }
+  }, [isInPip, openPipWindow, closePipWindow]);
+
+  // 🍅 뽀모도로 시작
   const handlePomodoroStart = useCallback(
     async (focusSeconds: number, breakSeconds: number, repeatCount: number) => {
       setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
@@ -107,10 +133,15 @@ export default function TimerComponent({
           isTaskPublic,
           isTimerPublic,
         });
+
+        // ✅ 여기서 sessionId를 ref + state 모두에 저장
         setSessionId(session.sessionId);
         onSessionIdChange?.(session.sessionId);
+
+        // 첫 FOCUS 라운드 시작
         pomoRef.current?.reset(focusSeconds / 60);
         pomoRef.current?.start();
+
         setRunning(true);
         setIsPaused(false);
         setIsRunning(true);
@@ -137,6 +168,7 @@ export default function TimerComponent({
     ]
   );
 
+  // ▶ 시작
   const onStart = useCallback(async () => {
     if (!todoId) {
       setAlertModalOpen(true);
@@ -144,9 +176,9 @@ export default function TimerComponent({
     }
 
     if (mode === "pomodoro") {
-      if (isPaused && sessionId) {
+      if (isPaused && sessionIdRef.current) {
         try {
-          await resumeTimerMutation.mutateAsync(sessionId);
+          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           pomoRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -165,10 +197,9 @@ export default function TimerComponent({
         setPomodoroModalOpen(true);
       }
     } else if (mode === "stopwatch") {
-      if (isPaused && sessionId) {
-        // 재개
+      if (isPaused && sessionIdRef.current) {
         try {
-          await resumeTimerMutation.mutateAsync(sessionId);
+          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           swRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -184,7 +215,6 @@ export default function TimerComponent({
           console.error("스톱워치 재개 실패:", error);
         }
       } else {
-        // 새로 시작
         try {
           const session = await startStopwatchMutation.mutateAsync({
             todoId,
@@ -204,9 +234,12 @@ export default function TimerComponent({
           }
         } catch (error) {
           console.error("스톱워치 시작 실패:", error);
-          // 이미 실행 중인 세션이 있는 경우 모달 표시
           const errorMessage = error instanceof Error ? error.message : String(error);
-          if (errorMessage.includes("이미") || errorMessage.includes("already") || errorMessage.includes("running")) {
+          if (
+            errorMessage.includes("이미") ||
+            errorMessage.includes("already") ||
+            errorMessage.includes("running")
+          ) {
             setPendingStopwatchConfig({
               todoId,
               participationType: groupId ? "GROUP" : "INDIVIDUAL",
@@ -219,10 +252,9 @@ export default function TimerComponent({
         }
       }
     } else if (mode === "timer") {
-      if (isPaused && sessionId) {
-        // 재개
+      if (isPaused && sessionIdRef.current) {
         try {
-          await resumeTimerMutation.mutateAsync(sessionId);
+          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           cdRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -238,177 +270,187 @@ export default function TimerComponent({
           console.error("타이머 재개 실패:", error);
         }
       } else {
-        // 새로 시작 (모달 열기)
         setTimerModalOpen(true);
       }
     }
   }, [
     mode,
     isPaused,
-    sessionId,
     resumeTimerMutation,
     startStopwatchMutation,
     todoId,
     groupId,
     setIsRunning,
-    pomoRef,
-    swRef,
-    cdRef,
-    timerContainerRef,
-    openPipWindowRef,
-    isInPipRef,
     onSessionIdChange,
     isTaskPublic,
     isTimerPublic,
   ]);
 
+  // ⏸ 일시정지
   const onPause = useCallback(async () => {
-    if (mode === "pomodoro") {
-      if (sessionId) {
-        try {
-          await pauseTimerMutation.mutateAsync(sessionId);
-          pomoRef.current?.pause();
-          setRunning(false);
-          setIsPaused(true);
-          setIsRunning(false);
-        } catch (error) {
-          console.error("타이머 정지 실패:", error);
-        }
-      } else {
-        // sessionId가 없으면 그냥 로컬만 정지
-        pomoRef.current?.pause();
-        setRunning(false);
-        setIsPaused(true);
-        setIsRunning(false);
-      }
-    } else if (mode === "stopwatch") {
-      if (sessionId) {
-        try {
-          await pauseTimerMutation.mutateAsync(sessionId);
-          swRef.current?.pause();
-          setRunning(false);
-          setIsPaused(true);
-          setIsRunning(false);
-        } catch (error) {
-          console.error("스톱워치 정지 실패:", error);
-        }
-      } else {
-        // sessionId가 없으면 그냥 로컬만 정지
-        swRef.current?.pause();
-        setRunning(false);
-        setIsPaused(true);
-        setIsRunning(false);
-      }
-    } else if (mode === "timer") {
-      if (sessionId) {
-        try {
-          await pauseTimerMutation.mutateAsync(sessionId);
-          cdRef.current?.pause();
-          setRunning(false);
-          setIsPaused(true);
-          setIsRunning(false);
-        } catch (error) {
-          console.error("타이머 정지 실패:", error);
-        }
-      } else {
-        // sessionId가 없으면 그냥 로컬만 정지
-        cdRef.current?.pause();
-        setRunning(false);
-        setIsPaused(true);
-        setIsRunning(false);
-      }
-    }
-  }, [mode, sessionId, pauseTimerMutation, setIsRunning]);
+    const effectiveSessionId = sessionIdRef.current;
 
+    if (!effectiveSessionId) {
+      // sessionId 없이 로컬 타이머만 사용하는 경우
+      if (mode === "pomodoro") pomoRef.current?.pause();
+      else if (mode === "stopwatch") swRef.current?.pause();
+      else cdRef.current?.pause();
+      setRunning(false);
+      setIsPaused(true);
+      setIsRunning(false);
+      return;
+    }
+
+    try {
+      await pauseTimerMutation.mutateAsync(effectiveSessionId);
+      if (mode === "pomodoro") pomoRef.current?.pause();
+      else if (mode === "stopwatch") swRef.current?.pause();
+      else cdRef.current?.pause();
+      setRunning(false);
+      setIsPaused(true);
+      setIsRunning(false);
+    } catch (error) {
+      console.error("타이머 정지 실패:", error);
+    }
+  }, [mode, pauseTimerMutation, setIsRunning]);
+
+  // ⏹ 종료 (수동 종료 + 자동 종료 공통 진입점)
   const onStop = useCallback(async () => {
+    const effectiveSessionId = sessionIdRef.current;
+
+
+
     if (mode === "pomodoro") {
-      if (sessionId) {
-        // sessionId가 있으면 API 호출
+      if (effectiveSessionId) {
         try {
-          await finishTimerMutation.mutateAsync(sessionId);
-          pomoRef.current?.stop();
-          setPomodoroConfig(null);
-          setCurrentPhase("FOCUS");
-          setCurrentRound(1);
-          setSessionId(null);
-          onSessionIdChange?.(null);
-          setIsPaused(false);
-          setRunning(false);
-          setIsRunning(false);
+
+          await finishTimerMutation.mutateAsync(effectiveSessionId);
         } catch (error) {
           console.error("타이머 종료 실패:", error);
         }
       } else {
-        // sessionId가 없으면 그냥 상태만 초기화
-        pomoRef.current?.stop();
-        setPomodoroConfig(null);
-        setCurrentPhase("FOCUS");
-        setCurrentRound(1);
-        setIsPaused(false);
-        setRunning(false);
-        setIsRunning(false);
+        console.warn(
+          "[onStop] pomodoro 종료 시 sessionId 없음 - 이미 종료된 세션일 수 있음"
+        );
       }
-    } else if (mode === "stopwatch") {
-      if (sessionId) {
-        // sessionId가 있으면 API 호출
+
+      pomoRef.current?.stop();
+      setPomodoroConfig(null);
+      setCurrentPhase("FOCUS");
+      setCurrentRound(1);
+      setSessionId(null);
+      onSessionIdChange?.(null);
+      setIsPaused(false);
+      setRunning(false);
+      setIsRunning(false);
+      return;
+    }
+
+    if (mode === "stopwatch") {
+      if (effectiveSessionId) {
         try {
-          await finishTimerMutation.mutateAsync(sessionId);
-          swRef.current?.stop();
-          setSessionId(null);
-          onSessionIdChange?.(null);
-          setIsPaused(false);
-          setRunning(false);
-          setIsRunning(false);
+
+          await finishTimerMutation.mutateAsync(effectiveSessionId);
         } catch (error) {
           console.error("스톱워치 종료 실패:", error);
         }
-      } else {
-        // sessionId가 없으면 그냥 상태만 초기화
-        swRef.current?.stop();
-        setIsPaused(false);
-        setRunning(false);
-        setIsRunning(false);
       }
-    } else if (mode === "timer") {
-      if (sessionId) {
-        // sessionId가 있으면 API 호출
-        try {
-          await finishTimerMutation.mutateAsync(sessionId);
-          cdRef.current?.reset();
-          setSessionId(null);
-          onSessionIdChange?.(null);
-          setIsPaused(false);
-          setRunning(false);
-          setIsRunning(false);
-        } catch (error) {
-          console.error("타이머 종료 실패:", error);
+      swRef.current?.stop();
+      setSessionId(null);
+      onSessionIdChange?.(null);
+      setIsPaused(false);
+      setRunning(false);
+      setIsRunning(false);
+      return;
+    }
+
+    // mode === "timer"
+    if (effectiveSessionId) {
+      try {
+        await finishTimerMutation.mutateAsync(effectiveSessionId);
+      } catch (error) {
+        console.error("타이머 종료 실패:", error);
+      }
+    }
+    cdRef.current?.reset();
+    setSessionId(null);
+    onSessionIdChange?.(null);
+    setIsPaused(false);
+    setRunning(false);
+    setIsRunning(false);
+  }, [
+    mode,
+    sessionIdState,
+    finishTimerMutation,
+    setIsRunning,
+    onSessionIdChange,
+  ]);
+
+  // 🍅 뽀모도로 한 phase(FOCUS/BREAK) 완료 시
+  const handlePomodoroComplete = useCallback(
+    async () => {
+
+
+      if (!pomodoroConfig) return;
+
+      const { focusSeconds, breakSeconds, repeatCount } = pomodoroConfig;
+
+      if (currentPhase === "FOCUS") {
+        // 아직 마지막 라운드가 아니면 → BREAK 시작
+        if (currentRound < repeatCount) {
+          const breakMinutes = breakSeconds / 60;
+
+          setCurrentPhase("BREAK");
+          setRunning(true);
+          setIsRunning(true);
+
+
+
+          pomoRef.current?.reset(breakMinutes);
+          pomoRef.current?.start();
+          return;
         }
-      } else {
-        // sessionId가 없으면 그냥 상태만 초기화
-        cdRef.current?.reset();
-        setIsPaused(false);
-        setRunning(false);
-        setIsRunning(false);
+
+        //마지막 FOCUS 라운드 끝난 시점 → onStop 호출 (finishTimer까지)
+        await onStop();
+        return;
       }
-    }
-  }, [mode, sessionId, finishTimerMutation, setIsRunning, onSessionIdChange]);
 
-  const { isInPip, openPipWindow, closePipWindow } = usePictureInPicture({
-    containerRef: timerContainerRef,
-    isRunning: running,
-  });
+      // BREAK가 끝난 경우 → 다음 FOCUS 라운드 시작
+      const nextRound = currentRound + 1;
 
-  openPipWindowRef.current = openPipWindow;
-  isInPipRef.current = isInPip;
+      if (nextRound > repeatCount) {
 
-  const handlePipToggle = useCallback(() => {
-    if (isInPip) {
-      closePipWindow();
+        await onStop();
+        return;
+      }
+
+      setCurrentPhase("FOCUS");
+      setCurrentRound(nextRound);
+      setRunning(true);
+      setIsRunning(true);
+
+
+
+      const focusMinutes = focusSeconds / 60;
+      pomoRef.current?.reset(focusMinutes);
+      pomoRef.current?.start();
+    },
+    [pomodoroConfig, currentPhase, currentRound, onStop, setIsRunning]
+  );
+
+  // 모드 전환 (타이머/뽀모도로/스톱워치)
+  const onSwitch = (m: Mode) => {
+    if (sessionIdRef.current) {
+      setTimerEndModalOpen(true);
+      setPendingMode(m);
     } else {
-      openPipWindow();
+      onStop();
+      setMode(m);
     }
-  }, [isInPip, openPipWindow, closePipWindow]);
+  };
 
+  // 새로고침/탭 닫기 경고
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -427,64 +469,7 @@ export default function TimerComponent({
     };
   }, [running, isInPip]);
 
-  const handlePomodoroComplete = useCallback(() => {
-    if (!pomodoroConfig) return;
-    if (currentPhase === "FOCUS") {
-      if (currentRound <= pomodoroConfig.repeatCount) {
-        setCurrentPhase("BREAK");
-        setRunning(true);
-        setIsRunning(true);
-      } else {
-        // 모든 라운드가 끝났을 때
-        setRunning(false);
-        setPomodoroConfig(null);
-        setCurrentPhase("FOCUS");
-        setCurrentRound(1);
-        setIsRunning(false);
-      }
-    } else {
-      setCurrentPhase("FOCUS");
-      setCurrentRound((prev) => prev + 1);
-      setRunning(true);
-      setIsRunning(true);
-    }
-  }, [pomodoroConfig, currentPhase, currentRound, setIsRunning]);
-  const phaseChangeRef = useRef<string | null>(null);
-  useEffect(() => {
-    if (mode === "pomodoro" && running && pomodoroConfig && pomoRef.current) {
-      const phaseKey = `${currentPhase}-${currentRound}`;
-      if (
-        phaseChangeRef.current !== phaseKey &&
-        phaseChangeRef.current !== null
-      ) {
-        const timer = setTimeout(() => {
-          if (pomoRef.current && pomodoroConfig) {
-            const minutes =
-              currentPhase === "FOCUS"
-                ? pomodoroConfig.focusSeconds / 60
-                : pomodoroConfig.breakSeconds / 60;
-            pomoRef.current.reset(minutes);
-            pomoRef.current.start();
-          }
-        }, 100);
-        phaseChangeRef.current = phaseKey;
-        return () => clearTimeout(timer);
-      } else if (phaseChangeRef.current === null) {
-        phaseChangeRef.current = phaseKey;
-      }
-    }
-  }, [mode, running, currentPhase, currentRound, pomodoroConfig]);
-
-  const onSwitch = (m: Mode) => {
-    if (sessionId) {
-      setTimerEndModalOpen(true);
-      setPendingMode(m);
-    } else {
-      onStop();
-      setMode(m);
-    }
-  };
-
+  // 본문 UI
   const body = useMemo(() => {
     if (mode === "pomodoro") {
       const minutes = pomodoroConfig
@@ -492,9 +477,11 @@ export default function TimerComponent({
           ? pomodoroConfig.focusSeconds / 60
           : pomodoroConfig.breakSeconds / 60
         : 0;
+
       const key = pomodoroConfig
         ? `pomodoro-${currentPhase}-${currentRound}-${pomodoroConfig.focusSeconds}-${pomodoroConfig.breakSeconds}`
         : "pomodoro-default";
+
       return (
         <div className="w-full h-full grid place-items-center">
           <PomodoroDial
@@ -508,6 +495,7 @@ export default function TimerComponent({
         </div>
       );
     }
+
     if (mode === "stopwatch") {
       return (
         <div className="w-full h-full grid place-items-center">
@@ -515,6 +503,8 @@ export default function TimerComponent({
         </div>
       );
     }
+
+    // 일반 타이머: onComplete 시에도 onStop 통해 finishTimer 호출
     return (
       <div className="w-full h-full grid place-items-center">
         <Countdown
@@ -524,9 +514,8 @@ export default function TimerComponent({
           minutes={0}
           seconds={0}
           autoStart={false}
-          onComplete={() => {
-            setRunning(false);
-            setIsRunning(false);
+          onComplete={async () => {
+            await onStop();
           }}
         />
       </div>
@@ -537,7 +526,7 @@ export default function TimerComponent({
     currentPhase,
     currentRound,
     handlePomodoroComplete,
-    setIsRunning,
+    onStop,
   ]);
 
   const handleTimerEndModalClose = useCallback(() => {
@@ -566,7 +555,9 @@ export default function TimerComponent({
         // 기존 활성 세션 종료
         await finishActiveTimerMutation.mutateAsync();
         // 새 스톱워치 시작
-        const session = await startStopwatchMutation.mutateAsync(pendingStopwatchConfig);
+        const session = await startStopwatchMutation.mutateAsync(
+          pendingStopwatchConfig
+        );
         setSessionId(session.sessionId);
         onSessionIdChange?.(session.sessionId);
         swRef.current?.start();
@@ -582,18 +573,20 @@ export default function TimerComponent({
         setPendingStopwatchConfig(null);
       }
     }
-  }, [pendingStopwatchConfig, finishActiveTimerMutation, startStopwatchMutation, onSessionIdChange, setIsRunning]);
+  }, [
+    pendingStopwatchConfig,
+    finishActiveTimerMutation,
+    startStopwatchMutation,
+    onSessionIdChange,
+    setIsRunning,
+  ]);
 
   return (
     <>
       <div data-timer-container-parent>
         <section
           ref={(el) => {
-            if (el) {
-              (
-                timerContainerRef as React.MutableRefObject<HTMLElement | null>
-              ).current = el;
-            }
+            timerContainerRef.current = el;
           }}
           className={clsx("w-full mx-auto space-y-4 mt-5", className)}
         >
@@ -662,7 +655,6 @@ export default function TimerComponent({
                 const minutes = Math.floor((targetSeconds % 3600) / 60);
                 const secs = targetSeconds % 60;
                 cdRef.current?.setTime(hours, minutes, secs);
-                // setTime 후 상태 업데이트를 기다리기 위해 setTimeout 사용
                 setTimeout(() => {
                   if (cdRef.current) {
                     cdRef.current.start();
