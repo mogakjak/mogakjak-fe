@@ -4,6 +4,7 @@ import type {
   CharacterGuideItem,
   CharacterBasket,
   Profile,
+  TotalStudyTimeResponse,
 } from "../../_types/mypage";
 import { request } from "../request";
 
@@ -25,3 +26,9 @@ export const getCharacterBasket = () =>
   request<CharacterBasket>(MYPAGE_BASE, "/character-basket", { method: "GET" });
 
 export const getProfile = () => request<Profile>(MYPAGE_BASE, "/profile", { method: "GET" });
+
+
+export const getTotalStudyTime = () =>
+  request<TotalStudyTimeResponse>(MYPAGE_BASE, "/total-study-time", {
+    method: "GET",
+  });
