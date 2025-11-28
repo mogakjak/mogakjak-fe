@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/button";
 import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
@@ -14,11 +14,13 @@ import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import { useFinishGroupTimer } from "@/app/_hooks/timers/useFinishGroupTimer";
+import { useTimer } from "@/app/_contexts/TimerContext";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
+import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExitGuard";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -43,11 +45,66 @@ export default function GroupPage({
   const [hasReceivedWebSocketUpdate, setHasReceivedWebSocketUpdate] =
     useState(false);
   const [initialMemberStatusesSize, setInitialMemberStatusesSize] = useState(0);
+  const [pendingRoute, setPendingRoute] = useState<(() => void) | null>(null);
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
     sessionId || ""
   );
+
+  const { setNavigationInterceptor } = useTimer();
+  const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
+
+
+
+  // 네비게이션 인터셉터 등록
+  useEffect(() => {
+    // 중요: 함수를 state로 저장할 때는 () => func 형태로 전달해야 함
+    setNavigationInterceptor(() => (onConfirm: () => void | Promise<void>) => {
+      setPendingRoute(() => onConfirm);
+      if (timerStatus === "running" || timerStatus === "paused") {
+        setOpenTimerEndModal(true);
+      } else {
+        setOpenReview(true);
+      }
+    });
+    return () => setNavigationInterceptor(null);
+  }, [setNavigationInterceptor, timerStatus]);
+
+  // 뒤로가기 방지 및 모달 띄우기
+  useEffect(() => {
+    // 마운트 시 현재 상태를 히스토리에 추가 (뒤로가기 함정)
+    history.pushState(null, "", location.href);
+
+    const handlePopState = () => {
+      // 뒤로가기를 누르면 이 이벤트가 발생함
+      // 다시 현재 상태를 push하여 페이지 이동을 막음
+      history.pushState(null, "", location.href);
+
+      // 모달 띄우기 로직 실행
+      if (timerStatus === "running" || timerStatus === "paused") {
+        setOpenTimerEndModal(true);
+      } else {
+        setOpenReview(true);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [timerStatus]);
+
+  // 최종 나가기 처리 (리뷰 팝업 등에서 호출)
+  const handleFinalExit = useCallback(async () => {
+    await exitSessionOnce();
+    if (pendingRoute) {
+      pendingRoute();
+    } else {
+      onExitGroup();
+    }
+  }, [exitSessionOnce, pendingRoute, onExitGroup]);
 
   // 그룹 멤버 상태 관리 훅
   const { memberStatuses, isConnected } = useGroupMemberStatus({
@@ -322,7 +379,7 @@ export default function GroupPage({
               sessionId={sessionId || ""}
               groupId={groupData.groupId}
               onClose={() => setOpenReview(false)}
-              onExitGroup={onExitGroup}
+              onExitGroup={handleFinalExit}
             />
           </div>
         </div>
