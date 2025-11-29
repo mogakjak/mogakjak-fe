@@ -14,6 +14,7 @@ import type { GroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupM
 import AlertModal from "@/app/_components/common/timer/alertModal";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { useBlockGroupTimerNavigation } from "@/app/_hooks/block/useBlockGroupTimerNavigation";
+import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 
 // 이미지 관리
 import StartIcon from "/Icons/start.svg";
@@ -62,6 +63,10 @@ export default function GroupTimer({
   useEffect(() => {
     setAccumulatedDuration(initialAccumulatedDuration);
   }, [initialAccumulatedDuration]);
+
+  // 브라우저 알림 훅
+  const { isSupported, permission, requestPermission, showNotification } =
+    useBrowserNotification();
 
   // 서버에서 받은 시간이 변경되면 클라이언트 경과 시간 동기화
   useEffect(() => {
@@ -192,6 +197,33 @@ export default function GroupTimer({
             setStatus("idle");
             setSessionId(null);
             onSessionIdChange?.(null);
+
+            // 그룹 타이머 종료 시 브라우저 알림 표시
+            if (isSupported) {
+              const title = "그룹 타이머가 종료되었어요";
+              const body = "함께 하던 그룹 타이머가 종료되었습니다.";
+
+              if (permission === "granted") {
+                showNotification(title, {
+                  body,
+                  icon: "/chorme/notificationIcon.png",
+                  badge: "/chorme/notificationIcon.png",
+                  tag: `group-timer-finish-${groupId}-${event.sessionId}`,
+                });
+              } else if (permission === "default") {
+                // 아직 권한 요청 전이면 한 번 요청 후 알림 시도
+                requestPermission().then((granted) => {
+                  if (granted) {
+                    showNotification(title, {
+                      body,
+                      icon: "/chorme/notificationIcon.png",
+                      badge: "/chorme/notificationIcon.png",
+                      tag: `group-timer-finish-${groupId}-${event.sessionId}`,
+                    });
+                  }
+                });
+              }
+            }
           }
           break;
 
