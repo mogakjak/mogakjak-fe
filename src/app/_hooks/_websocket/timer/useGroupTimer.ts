@@ -30,7 +30,7 @@ export function useGroupTimer({
   groupId,
   enabled = true,
   onEvent,
-  connectDelay = 500, // 그룹 페이지는 실시간이 중요하므로 짧은 지연
+  connectDelay = 0, // 그룹 페이지는 실시간이 중요하므로 즉시 연결
   waitForLoad = false,
 }: UseGroupTimerOptions) {
   return useWebSocket<GroupTimerEvent>({

@@ -40,7 +40,7 @@ export default function TodoPage() {
     return categories.map((category) => {
       const baseToken =
         CATEGORY_COLOR_TOKEN_BY_NAME[
-          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+        category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
         ] ?? "category-1-red";
       return {
         id: category.id,
@@ -57,7 +57,7 @@ export default function TodoPage() {
       .map((category) => {
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         return {
           id: String(category.id),
@@ -91,7 +91,7 @@ export default function TodoPage() {
 
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         const colorToken = `bg-${baseToken}`;
 
