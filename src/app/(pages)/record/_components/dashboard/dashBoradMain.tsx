@@ -1,6 +1,11 @@
+"use client";
+
+import { useRecordDashboard } from "@/app/_hooks/records/useRecordDashboard";
 import DashBorad from "./dashBorad";
 
 export default function DashBoradMain() {
+  const { isPending } = useRecordDashboard("TODAY");
+
   return (
     <div className="w-full">
       <div className="flex items-center gap-5 mb-5 mt-12">
@@ -10,7 +15,11 @@ export default function DashBoradMain() {
         </p>
       </div>
 
-      <DashBorad />
+      {isPending ? (
+        <div className="w-full h-[400px] bg-white rounded-[20px] shadow-sm animate-pulse" />
+      ) : (
+        <DashBorad />
+      )}
     </div>
   );
 }

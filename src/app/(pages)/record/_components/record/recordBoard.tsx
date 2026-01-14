@@ -66,58 +66,52 @@ export default function RecordBoard() {
 
   return (
     <div className="w-full bg-white rounded-[20px] px-10 py-10">
-      {isPending ? (
-        <div className="w-full h-[230px] bg-gray-100 rounded-[20px] animate-pulse" />
-      ) : (
-        <>
-          <div className="flex justify-center w-full">
-            <div className="pt-7 text-body2-14SB flex flex-col justify-between text-gray-800 mr-4">
-              {WEEKDAY_LABELS_MON.map((lab) => (
-                <div key={lab} className="flex items-center">
-                  {lab}
-                </div>
-              ))}
+      <div className="flex justify-center w-full">
+        <div className="pt-7 text-body2-14SB flex flex-col justify-between text-gray-800 mr-4">
+          {WEEKDAY_LABELS_MON.map((lab) => (
+            <div key={lab} className="flex items-center">
+              {lab}
             </div>
+          ))}
+        </div>
 
-            <div className="flex flex-col">
-              <div className="mb-2 flex gap-20">
-                {MONTH_LABELS.map((m) => (
-                  <p
-                    key={m}
-                    className="text-center text-body2-14SB text-gray-800"
-                  >
-                    {m}
-                  </p>
-                ))}
-              </div>
-
-              <div className="flex gap-1.5">
-                {Array.from({ length: COLS }).map((_, colIdx) => (
-                  <div key={colIdx} className="flex flex-col gap-1.5">
-                    {Array.from({ length: ROWS }).map((__, rowIdx) => {
-                      const seconds = grid[colIdx][rowIdx] ?? 0;
-                      const level = secondsToLevel(seconds);
-
-                      return (
-                        <div
-                          key={rowIdx}
-                          className="flex items-center justify-center"
-                        >
-                          <RecordToolTip label={formatHMS(seconds)}>
-                            <RecordDot level={level} />
-                          </RecordToolTip>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
+        <div className="flex flex-col">
+          <div className="mb-2 flex gap-20">
+            {MONTH_LABELS.map((m) => (
+              <p
+                key={m}
+                className="text-center text-body2-14SB text-gray-800"
+              >
+                {m}
+              </p>
+            ))}
           </div>
 
-          <RecordLegend />
-        </>
-      )}
+          <div className="flex gap-1.5">
+            {Array.from({ length: COLS }).map((_, colIdx) => (
+              <div key={colIdx} className="flex flex-col gap-1.5">
+                {Array.from({ length: ROWS }).map((__, rowIdx) => {
+                  const seconds = grid[colIdx][rowIdx] ?? 0;
+                  const level = secondsToLevel(seconds);
+
+                  return (
+                    <div
+                      key={rowIdx}
+                      className="flex items-center justify-center"
+                    >
+                      <RecordToolTip label={formatHMS(seconds)}>
+                        <RecordDot level={level} />
+                      </RecordToolTip>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <RecordLegend />
     </div>
   );
 }

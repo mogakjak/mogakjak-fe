@@ -1,8 +1,11 @@
 "use client";
 
+import { useDailyRecords } from "@/app/_hooks/records/useDailyRecords";
 import RecordBoard from "./recordBoard";
 
 export default function RecordMain() {
+  const { isPending } = useDailyRecords();
+
   return (
     <div className="w-full mt-[60px]">
       <div className="flex items-center gap-5 mb-5">
@@ -11,7 +14,11 @@ export default function RecordMain() {
           모든 몰입 여정을 하나의 캘린더에서 확인해 보세요.
         </p>
       </div>
-      <RecordBoard />
+      {isPending ? (
+        <div className="w-full h-[230px] bg-white rounded-[20px] shadow-sm animate-pulse" />
+      ) : (
+        <RecordBoard />
+      )}
     </div>
   );
 }
