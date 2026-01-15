@@ -44,9 +44,12 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     enabled: true,
   });
 
+  const [isEntering, setIsEntering] = useState(false);
+
   const totalCount = members.length;
 
   const handleEnter = () => {
+    setIsEntering(true);
     router.push(`/group/${groupId}`);
   };
 
@@ -92,8 +95,12 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             {activeCount}/{totalCount} 명
           </span>
         </div>
-        <HomeButton variant="primary" onClick={handleEnter}>
-          참여하기
+        <HomeButton
+          variant="primary"
+          onClick={handleEnter}
+          disabled={isEntering}
+        >
+          {isEntering ? "참여 중..." : "참여하기"}
         </HomeButton>
       </div>
     </div>
