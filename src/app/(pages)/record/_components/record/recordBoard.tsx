@@ -36,7 +36,7 @@ const COLS = 53;
 const ROWS = 7;
 
 export default function RecordBoard() {
-  const { data, isPending } = useDailyRecords();
+  const { data } = useDailyRecords();
 
   const grid = useMemo(() => {
     const baseGrid = Array.from({ length: COLS }, () =>

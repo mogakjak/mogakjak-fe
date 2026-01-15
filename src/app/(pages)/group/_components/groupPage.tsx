@@ -334,7 +334,6 @@ export default function GroupPage({
             <ReviewPopup
               groupName={groupData.name}
               sessionId={sessionId || ""}
-              groupId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={handleFinalExit}
             />

@@ -67,12 +67,10 @@ export default function TimerComponent({
   const [currentPhase, setCurrentPhase] = useState<"FOCUS" | "BREAK">("FOCUS");
   const [currentRound, setCurrentRound] = useState<number>(1);
 
-  // 🔹 sessionId를 state + ref 모두로 관리 (ref는 항상 최신값 유지용)
-  const [sessionIdState, _setSessionIdState] = useState<string | null>(null);
+  // 🔹 sessionId를 ref로 관리 (콜백에서 항상 최신값 유지용)
   const sessionIdRef = useRef<string | null>(null);
   const setSessionId = (value: string | null) => {
     sessionIdRef.current = value;
-    _setSessionIdState(value);
   };
 
   const [isPaused, setIsPaused] = useState<boolean>(false);
@@ -380,7 +378,6 @@ export default function TimerComponent({
     setIsRunning(false);
   }, [
     mode,
-    sessionIdState,
     finishTimerMutation,
     setIsRunning,
     onSessionIdChange,

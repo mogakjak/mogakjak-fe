@@ -7,14 +7,12 @@ import { useReviewPopup } from "@/app/_hooks/characters/useReviewPopup";
 interface ReviewPopupProps {
   groupName: string;
   sessionId: string;
-  groupId: string;
   onClose: () => void;
   onExitGroup: () => void;
 }
 
 export default function ReviewPopup({
   groupName,
-  groupId,
   onClose,
   onExitGroup,
 }: ReviewPopupProps) {
