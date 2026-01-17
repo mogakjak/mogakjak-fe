@@ -16,10 +16,6 @@ export default function HeaderButton({ text, href }: HeaderButtonProps) {
   const [isPending, startTransition] = useTransition();
   const isActive = pathname === href;
 
-  // 페이지 미리 로드 (성능 최적화)
-  useEffect(() => {
-    router.prefetch(href);
-  }, [router, href]);
 
   const { handleClick } = useBlockNavigation(() => {
     startTransition(() => {
