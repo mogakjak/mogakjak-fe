@@ -28,19 +28,19 @@ function getKoreanDateLabel(d = new Date()) {
 export default function TodoPage() {
   const [filter, setFilter] = useState<DayFilter>("today");
   const [selectedId, setSelectedId] = useState<string>("all");
-  const { categories, createCategory, deleteCategory, reorderCategories } =
+  const { categories, createCategory, deleteCategory, reorderCategories, isLoading: isCatLoading } =
     useTodoCategoryController();
-  const { todayTodos, createTodo, updateTodo, deleteTodo, toggleTodoComplete } =
+  const { todayTodos, createTodo, updateTodo, deleteTodo, toggleTodoComplete, isLoading: isTodoLoading } =
     useTodoController();
 
-  const { data: myTodos = [] } = useMyTodos();
+  const { data: myTodos = [], isLoading: isMyTodosLoading } = useMyTodos();
 
   const dateLabel = useMemo(() => getKoreanDateLabel(), []);
   const sidebarCategories = useMemo<CatType[]>(() => {
     return categories.map((category) => {
       const baseToken =
         CATEGORY_COLOR_TOKEN_BY_NAME[
-          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+        category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
         ] ?? "category-1-red";
       return {
         id: category.id,
@@ -57,7 +57,7 @@ export default function TodoPage() {
       .map((category) => {
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         return {
           id: String(category.id),
@@ -91,7 +91,7 @@ export default function TodoPage() {
 
         const baseToken =
           CATEGORY_COLOR_TOKEN_BY_NAME[
-            category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
+          category.color as keyof typeof CATEGORY_COLOR_TOKEN_BY_NAME
           ] ?? "category-1-red";
         const colorToken = `bg-${baseToken}`;
 
@@ -235,33 +235,51 @@ export default function TodoPage() {
     [todayTodos, myTodos, filter, toggleTodoComplete]
   );
 
+  const isLoading = isCatLoading || isTodoLoading || isMyTodosLoading;
+
   return (
     <div className="w-full max-w-[1440px] min-h-[calc(100vh-110px)] pt-9 mx-auto flex gap-5 items-stretch overflow-x-hidden">
       <section className="flex flex-col gap-5 self-stretch">
-        <CategorySidebar
-          filter={filter}
-          onChangeFilter={setFilter}
-          categories={sidebarCategories}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onCreateCategory={handleCreateCategory}
-          onDeleteCategory={handleDeleteCategory}
-          onReorderCategories={handleReorderCategories}
-        />
+        {isLoading ? (
+          <div className="w-[360px] h-full min-h-[600px] bg-white rounded-[24px] animate-pulse" />
+        ) : (
+          <CategorySidebar
+            filter={filter}
+            onChangeFilter={setFilter}
+            categories={sidebarCategories}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            onCreateCategory={handleCreateCategory}
+            onDeleteCategory={handleDeleteCategory}
+            onReorderCategories={handleReorderCategories}
+          />
+        )}
       </section>
 
       <section className="w-full self-stretch">
-        <TodoSection
-          filter={filter}
-          dateLabel={dateLabel}
-          categories={todoListCategories}
-          allCategories={allCategoryOptions}
-          onCreateTodo={handleCreateTodo}
-          onUpdateTodo={handleUpdateTodo}
-          onDeleteTodo={handleDeleteTodo}
-          onToggleTodo={handleToggleTodo}
-          onCategorySelect={setSelectedId}
-        />
+        {isLoading ? (
+          <div className="w-full h-full flex flex-col gap-4">
+            <div className="w-full h-8 bg-gray-200 animate-pulse rounded-md mb-2 max-w-[200px]" />
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="w-full h-40 bg-white rounded-[24px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : (
+          <TodoSection
+            filter={filter}
+            dateLabel={dateLabel}
+            categories={todoListCategories}
+            allCategories={allCategoryOptions}
+            onCreateTodo={handleCreateTodo}
+            onUpdateTodo={handleUpdateTodo}
+            onDeleteTodo={handleDeleteTodo}
+            onToggleTodo={handleToggleTodo}
+            onCategorySelect={setSelectedId}
+          />
+        )}
       </section>
     </div>
   );

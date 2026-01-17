@@ -42,9 +42,6 @@ export default function GroupPage({
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
-  const [hasReceivedWebSocketUpdate, setHasReceivedWebSocketUpdate] =
-    useState(false);
-  const [initialMemberStatusesSize, setInitialMemberStatusesSize] = useState(0);
   const [pendingRoute, setPendingRoute] = useState<(() => void) | null>(null);
 
   const finishGroupTimerMutation = useFinishGroupTimer(
@@ -55,7 +52,7 @@ export default function GroupPage({
   const { setNavigationInterceptor } = useTimer();
   const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
 
-
+  const { token } = useAuthState();
 
   // 네비게이션 인터셉터 등록
   useEffect(() => {
@@ -111,41 +108,6 @@ export default function GroupPage({
     groupId: groupData.groupId,
     groupData,
   });
-  //websocket 연결 이후 상태 체크
-  useEffect(() => {
-    if (!isConnected) {
-      setHasReceivedWebSocketUpdate(false);
-      setInitialMemberStatusesSize(0);
-      return;
-    }
-
-    if (initialMemberStatusesSize === 0 && memberStatuses.size > 0) {
-      setInitialMemberStatusesSize(memberStatuses.size);
-    }
-
-    if (
-      isConnected &&
-      memberStatuses.size > 0 &&
-      initialMemberStatusesSize > 0
-    ) {
-      const hasRealUpdate = Array.from(memberStatuses.values()).some(
-        (status) => {
-          return (
-            status.enteredAt !== undefined ||
-            status.personalTimerSeconds !== null ||
-            status.todoTitle !== null ||
-            status.cheerCount !== 0
-          );
-        }
-      );
-
-      if (hasRealUpdate) {
-        setHasReceivedWebSocketUpdate(true);
-      }
-    }
-  }, [isConnected, memberStatuses, initialMemberStatusesSize]);
-
-  const { token } = useAuthState();
 
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
@@ -187,17 +149,12 @@ export default function GroupPage({
   }, [memberStatuses, currentUserId]);
 
   const isMemberStatusLoaded = useMemo(() => {
-    if (!isConnected) return false;
-    if (!hasReceivedWebSocketUpdate) return false;
-    const allMembersHaveStatus = groupData.members.every((member) =>
-      memberStatuses.has(member.userId)
-    );
-    return allMembersHaveStatus;
+    // WebSocket 연결 여부와 상관없이 기본 데이터가 있으면 로드된 것으로 간주하되,
+    // WebSocket 업데이트가 오면 실시간 정보를 덧씌움
+    if (!isConnected) return true; // 연결 중이어도 이미 groupData가 있으므로 true
+    return true;
   }, [
     isConnected,
-    hasReceivedWebSocketUpdate,
-    memberStatuses,
-    groupData.members,
   ]);
 
   const participatingMemberCount = useMemo(() => {
@@ -377,7 +334,6 @@ export default function GroupPage({
             <ReviewPopup
               groupName={groupData.name}
               sessionId={sessionId || ""}
-              groupId={groupData.groupId}
               onClose={() => setOpenReview(false)}
               onExitGroup={handleFinalExit}
             />

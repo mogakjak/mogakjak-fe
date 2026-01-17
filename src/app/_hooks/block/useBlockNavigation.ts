@@ -24,6 +24,8 @@ export function useBlockNavigation(onNavigate: () => void | Promise<void>): {
         showNavigationModal(onNavigate);
         return;
       }
+      e.preventDefault();
+      e.stopPropagation();
       onNavigate();
     },
     [isRunning, showNavigationModal, onNavigate, navigationInterceptor]
