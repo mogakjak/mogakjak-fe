@@ -9,7 +9,7 @@ export default function TimerSelected({
   value = "pomodoro",
   onChange,
   size = "custom",
-  className = "text-body2-14SB h-8 text-base rounded-lg w-full",
+  className = "text-body2-14SB h-7 text-base rounded-lg w-full",
 }: {
   value?: Mode;
   onChange?: (v: Mode) => void;

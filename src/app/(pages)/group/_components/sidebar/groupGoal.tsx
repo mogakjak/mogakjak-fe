@@ -69,8 +69,11 @@ export default function GroupGoal({ data }: GroupGoalProps) {
       <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl ">
         <div className="flex items-center justify-between">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
-          <SidebarButton className="px-7" onClick={() => setOpenNoti(true)}>
-            <Icon Svg={Notification} size={24} className="text-black" />
+          <SidebarButton
+            className="px-7 py-2"
+            onClick={() => setOpenNoti(true)}
+          >
+            <Icon Svg={Notification} size={24} className="text-gray-800" />
             집중 체크 알림
           </SidebarButton>
         </div>
@@ -104,7 +107,13 @@ export default function GroupGoal({ data }: GroupGoalProps) {
 
               <input
                 type="text"
-                value={isMinFocused ? (goalMin === 0 ? "" : goalMin.toString()) : goalMin.toString().padStart(2, '0')}
+                value={
+                  isMinFocused
+                    ? goalMin === 0
+                      ? ""
+                      : goalMin.toString()
+                    : goalMin.toString().padStart(2, "0")
+                }
                 onChange={handleMinChange}
                 onFocus={() => setIsMinFocused(true)}
                 onBlur={() => setIsMinFocused(false)}

@@ -53,7 +53,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
           className="text-body2-14R text-gray-500 underline"
           onClick={handleLogout}
         >
-          로그아웃
+          계정설정
         </button>
       </div>
 

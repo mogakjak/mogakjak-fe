@@ -14,7 +14,10 @@ type Props = {
   showHandle?: boolean;
   editable?: boolean;
   onSelect?: () => void;
-  onRename?: (newName: string, reason: "enter" | "blur") => Promise<boolean | void> | boolean | void;
+  onRename?: (
+    newName: string,
+    reason: "enter" | "blur",
+  ) => Promise<boolean | void> | boolean | void;
   onDelete?: (id: string) => void;
   onMoveUp?: (id: string) => void;
   onMoveDown?: (id: string) => void;
@@ -37,7 +40,9 @@ export default function CategoryRow({
   onReorder,
   allowEdit = true,
 }: Props) {
-  const [isEditing, setIsEditing] = useState<boolean>(allowEdit && (editable ?? false));
+  const [isEditing, setIsEditing] = useState<boolean>(
+    allowEdit && (editable ?? false),
+  );
   const [value, setValue] = useState(label);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const ignoreBlurOnCommit = useRef(false);
@@ -45,7 +50,10 @@ export default function CategoryRow({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const handleRef = useRef<HTMLButtonElement | null>(null);
-  const [menuPos, setMenuPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number }>({
+    left: 0,
+    top: 0,
+  });
 
   useEffect(() => {
     if (isEditing) inputRef.current?.focus();
@@ -108,7 +116,8 @@ export default function CategoryRow({
     const closeOnOutside = (e: MouseEvent) => {
       const t = e.target as Node;
       if (!menuRef.current || !handleRef.current) return;
-      if (!menuRef.current.contains(t) && !handleRef.current.contains(t)) setMenuOpen(false);
+      if (!menuRef.current.contains(t) && !handleRef.current.contains(t))
+        setMenuOpen(false);
     };
     const onScroll = () => calcMenuPos();
     const onResize = () => calcMenuPos();
@@ -126,7 +135,10 @@ export default function CategoryRow({
 
   return (
     <div
-      className={clsx("relative inline-flex items-center gap-1 w-full", showHandle && "drag-target")}
+      className={clsx(
+        "relative inline-flex items-center gap-1 w-full",
+        showHandle && "drag-target",
+      )}
       draggable={!!showHandle}
       onDragStart={(e) => {
         if (!showHandle) return;
@@ -152,8 +164,8 @@ export default function CategoryRow({
           if (allowEdit) setIsEditing(true);
         }}
         className={clsx(
-          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all outline-1",
-          selected ? "outline-red-500" : "outline-gray-200",
+          "w-full h-11 rounded-lg inline-flex items-stretch overflow-hidden text-left transition-all border-[1.5px]",
+          selected ? "border-red-200" : "border-gray-200",
         )}
       >
         <div className={clsx("w-3 h-full", colorToken)} />
@@ -174,7 +186,9 @@ export default function CategoryRow({
             <span
               className={clsx(
                 "text-base leading-snug truncate cursor-text",
-                selected ? "text-neutral-900 font-semibold" : "text-neutral-700",
+                selected
+                  ? "text-neutral-900 font-semibold"
+                  : "text-neutral-700",
               )}
             >
               {value || "새로운 카테고리"}
@@ -193,7 +207,13 @@ export default function CategoryRow({
               className="w-6 h-6 grid place-items-center"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <Image src="/Icons/drag.svg" alt="drag handle" width={24} height={24} className="w-6 h-6" />
+              <Image
+                src="/Icons/drag.svg"
+                alt="drag handle"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+              />
             </button>
 
             {menuOpen &&
@@ -212,8 +232,16 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/Icons/categoryUp.svg" alt="위로" width={24} height={24} className="w-6 h-6" />
-                    <span className="text-neutral-700 text-sm leading-tight">위로 옮기기</span>
+                    <Image
+                      src="/Icons/categoryUp.svg"
+                      alt="위로"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
+                    <span className="text-neutral-700 text-sm leading-tight">
+                      위로 옮기기
+                    </span>
                   </button>
 
                   <button
@@ -224,8 +252,16 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/Icons/delete.svg" alt="삭제" width={24} height={24} className="w-6 h-6" />
-                    <span className="text-neutral-700 text-sm leading-tight">삭제하기</span>
+                    <Image
+                      src="/Icons/delete.svg"
+                      alt="삭제"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
+                    <span className="text-neutral-700 text-sm leading-tight">
+                      삭제하기
+                    </span>
                   </button>
 
                   <button
@@ -236,8 +272,16 @@ export default function CategoryRow({
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
-                    <Image src="/Icons/categoryDown.svg" alt="아래로" width={24} height={24} className="w-6 h-6" />
-                    <span className="text-neutral-700 text-sm leading-tight">아래로 옮기기</span>
+                    <Image
+                      src="/Icons/categoryDown.svg"
+                      alt="아래로"
+                      width={24}
+                      height={24}
+                      className="w-6 h-6"
+                    />
+                    <span className="text-neutral-700 text-sm leading-tight">
+                      아래로 옮기기
+                    </span>
                   </button>
                 </div>,
                 document.body,

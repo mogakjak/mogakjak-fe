@@ -320,8 +320,8 @@ export default function GroupMySidebar({
       </div>
 
       <div className="flex flex-col gap-1 mt-2 bg-gray-100 rounded-lg px-4 py-3">
-        <p className="text-caption-12SB text-gray-600">
-          <b className="text-black mr-2">목표시간</b>{" "}
+        <p className="text-14 text-medium text-gray-600">
+          <b className="text-black mr-2 text-body2-14SB">목표시간</b>{" "}
           {formatSeconds(
             todayTodo?.targetTimeInSeconds ??
             currentTodo?.targetTimeInSeconds ??
@@ -329,15 +329,15 @@ export default function GroupMySidebar({
             0
           )}
         </p>
-        <p className="text-caption-12SB text-gray-600">
-          <b className="text-black mr-2">현재 달성률</b>{" "}
-          {(() => { 
+        <p className="text-14 text-medium text-gray-600">
+          <b className="text-black mr-2 text-body2-14SB">현재 달성률</b>{" "}
+          {(() => {
             const todo = todayTodo ?? currentTodo;
-            
+
             if (todo?.progressRate !== undefined && todo.progressRate !== null) {
               return Math.round(todo.progressRate);
             }
-            
+
             if (todo && todo.targetTimeInSeconds > 0) {
               return Math.round(
                 (todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100

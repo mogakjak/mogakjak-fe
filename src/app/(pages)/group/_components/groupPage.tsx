@@ -46,7 +46,7 @@ export default function GroupPage({
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
-    sessionId || ""
+    sessionId || "",
   );
 
   const { setNavigationInterceptor } = useTimer();
@@ -122,7 +122,7 @@ export default function GroupPage({
         onError: (error) => {
           console.error("응원 보내기 실패:", error);
         },
-      }
+      },
     );
   };
 
@@ -136,7 +136,7 @@ export default function GroupPage({
           level: status.level,
           status: status,
         };
-      }
+      },
     );
 
     if (!currentUserId) return membersWithStatus;
@@ -153,13 +153,11 @@ export default function GroupPage({
     // WebSocket 업데이트가 오면 실시간 정보를 덧씌움
     if (!isConnected) return true; // 연결 중이어도 이미 groupData가 있으므로 true
     return true;
-  }, [
-    isConnected,
-  ]);
+  }, [isConnected]);
 
   const participatingMemberCount = useMemo(() => {
     return Array.from(memberStatuses.values()).filter(
-      (status) => status.participationStatus !== "NOT_PARTICIPATING"
+      (status) => status.participationStatus !== "NOT_PARTICIPATING",
     ).length;
   }, [memberStatuses]);
 
@@ -179,7 +177,9 @@ export default function GroupPage({
   return (
     <div className="flex flex-col items-center w-full gap-5">
       <div className="flex gap-5 w-full">
-        <div className={`flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl ${onboardingStep === 1 ? 'border-4 border-red-200' : ''}`}>
+        <div
+          className={`flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl ${onboardingStep === 1 ? "border-4 border-red-200" : ""}`}
+        >
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer
             groupId={groupData.groupId}
@@ -189,7 +189,9 @@ export default function GroupPage({
             memberStatuses={memberStatuses}
           />
         </div>
-        <div className={`w-full ${onboardingStep === 2 ? ' rounded-2xl border-4 border-red-200' : ''}`}>
+        <div
+          className={`w-full ${onboardingStep === 2 ? " rounded-2xl border-4 border-red-200" : ""}`}
+        >
           <GroupGoal data={groupData}></GroupGoal>
         </div>
       </div>
@@ -201,10 +203,10 @@ export default function GroupPage({
             {groupData.members.length}
           </p>
           <SidebarButton
-            className={`px-5 cursor-pointer ${onboardingStep === 3 ? 'border-4 border-red-200' : ''}`}
+            className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200" : ""}`}
             onClick={() => setOpenInviteModal(true)}
           >
-            <Icon Svg={Add} size={24} className="text-black" />
+            <Icon Svg={Add} size={24} className="text-gray-800" />
             그룹원 추가하기
           </SidebarButton>
         </div>
@@ -241,7 +243,7 @@ export default function GroupPage({
                 // null이나 undefined이면 undefined로, 숫자(0 포함)면 그대로 전달
                 const activeTime =
                   status.personalTimerSeconds !== null &&
-                    status.personalTimerSeconds !== undefined
+                  status.personalTimerSeconds !== undefined
                     ? status.personalTimerSeconds
                     : undefined;
 
@@ -250,13 +252,20 @@ export default function GroupPage({
                 // 최근 참여 일수
                 const lastActiveAt = status.daysSinceLastParticipation
                   ? new Date(
-                    Date.now() -
-                    status.daysSinceLastParticipation * 24 * 60 * 60 * 1000
-                  )
+                      Date.now() -
+                        status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
+                    )
                   : undefined;
 
                 return (
-                  <div key={member.userId} className={isCurrentUser && onboardingStep === 0 ? "border-4 border-red-200 rounded-[20px]" : ""}>
+                  <div
+                    key={member.userId}
+                    className={
+                      isCurrentUser && onboardingStep === 0
+                        ? "border-4 border-red-200 rounded-[20px]"
+                        : ""
+                    }
+                  >
                     <GroupFriendField
                       status={displayStatus}
                       friendName={member.nickname}

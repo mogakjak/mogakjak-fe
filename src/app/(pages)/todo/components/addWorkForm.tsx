@@ -44,12 +44,12 @@ export default function AddWorkForm({
   className?: string;
 }) {
   const [categoryId, setCategoryId] = useState<string>(
-    initialValues?.categoryId ?? ""
+    initialValues?.categoryId ?? "",
   );
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [date, setDate] = useState<Date>(initialValues?.date ?? defaultDate);
   const [target, setTarget] = useState<number>(
-    initialValues?.targetSeconds ?? 0
+    initialValues?.targetSeconds ?? 0,
   );
   const prevInitialValuesRef = useRef<string>("");
 
@@ -85,7 +85,7 @@ export default function AddWorkForm({
     <div
       className={clsx(
         "w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0_0_20px_0_rgba(0,0,0,0.15)] inline-flex flex-col items-end gap-2",
-        className
+        className,
       )}
     >
       <button
@@ -108,8 +108,8 @@ export default function AddWorkForm({
           {type == "select"
             ? "몰입할 일을 선택해 보세요!"
             : type == "edit"
-            ? "할 일을 수정해 보세요!"
-            : "할 일을 등록해 보세요!"}
+              ? "할 일을 수정해 보세요!"
+              : "할 일을 등록해 보세요!"}
         </div>
 
         <div className="self-stretch flex flex-col gap-5">
@@ -139,7 +139,7 @@ export default function AddWorkForm({
                   // 선택된 할일이 filteredTodayTodos에 있으면 해당 정보로 폼 채우기
                   if (filteredTodayTodos && selectedTask) {
                     const selectedTodo = filteredTodayTodos.find(
-                      (todo) => todo.task === selectedTask
+                      (todo) => todo.task === selectedTask,
                     );
                     if (selectedTodo) {
                       setCategoryId(selectedTodo.categoryId);
@@ -170,7 +170,7 @@ export default function AddWorkForm({
             <div className="text-neutral-900 text-base font-semibold leading-snug">
               목표 달성 시간
             </div>
-            <div className="text-zinc-600 text-sm leading-tight">
+            <div className="text-zinc-600 text-sm leading-tight mb-[12px]">
               언제든 수정 가능하니 부담없이 설정해 보세요
             </div>
             <DurationField seconds={target} onChange={setTarget} />
@@ -194,7 +194,7 @@ export default function AddWorkForm({
               "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
               isValid
                 ? "bg-red-500 text-neutral-50"
-                : "bg-gray-200 text-gray-400"
+                : "bg-gray-200 text-gray-400",
             )}
           >
             할 일 선택
@@ -216,7 +216,7 @@ export default function AddWorkForm({
               "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center",
               isValid
                 ? "bg-red-500 text-neutral-50"
-                : "bg-gray-200 text-gray-400"
+                : "bg-gray-200 text-gray-400",
             )}
           >
             {type == "edit" ? "할 일 수정" : "할 일 추가"}

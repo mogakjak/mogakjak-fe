@@ -34,7 +34,7 @@ export default function TimerButtons({
         <Button
           variant="primary2"
           size="custom"
-          className="text-body2-14SB h-9 text-base rounded-lg w-full pt-1"
+          className="text-body2-14SB h-8 text-base rounded-lg w-full pt-1"
           onClick={onStart}
           leftIcon={null}
           data-pip-action="start"
@@ -87,7 +87,7 @@ export default function TimerButtons({
           variant="slate600"
           className={clsx(
             " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1",
-            isBreakPhase && "bg-gray600 hover:bg-gray600/90"
+            isBreakPhase && "bg-gray600 hover:bg-gray600/90",
           )}
           size="custom"
           onClick={onPause}
@@ -109,7 +109,7 @@ export default function TimerButtons({
         <Button
           variant="primary2"
           className={clsx(
-            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1"
+            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1",
           )}
           size="custom"
           onClick={onStop}
