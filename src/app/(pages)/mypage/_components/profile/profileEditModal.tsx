@@ -91,7 +91,7 @@ export default function ProfileEditModal({
         <div className="relative mb-5">
           <div className="w-[120px] h-[120px] rounded-full border-2 border-gray-300 bg-gray-200 flex items-center justify-center overflow-hidden">
             <Image
-              src={profileImage || "/profileDefault.svg"}
+              src={profileImage || "/profileTab.svg"}
               alt="기본 이미지"
               fill
               className="object-cover rounded-full"

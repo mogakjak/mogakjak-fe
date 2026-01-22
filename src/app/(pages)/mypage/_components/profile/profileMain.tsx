@@ -66,7 +66,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
             height={130}
             className="rounded-full object-cover"
             style={{ aspectRatio: "1 / 1" }}
-            onError={() => setProfileImage("/profileDefault.svg")}
+            onError={() => setProfileImage("/profile.svg")}
           />
         </div>
         <div className="flex flex-col gap-1 text-center mt-5 mb-6">
