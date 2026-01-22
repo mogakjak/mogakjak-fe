@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useBlockNavigation } from "@/app/_hooks/block/useBlockNavigation";
-import { useEffect, useTransition } from "react";
+import { useTransition } from "react";
 import Link from "next/link";
 
 interface HeaderButtonProps {

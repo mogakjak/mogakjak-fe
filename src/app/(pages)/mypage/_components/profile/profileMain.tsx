@@ -53,7 +53,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
           className="text-body2-14R text-gray-500 underline"
           onClick={handleLogout}
         >
-          로그아웃
+          계정설정
         </button>
       </div>
 
@@ -66,7 +66,7 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
             height={130}
             className="rounded-full object-cover"
             style={{ aspectRatio: "1 / 1" }}
-            onError={() => setProfileImage("/profileDefault.svg")}
+            onError={() => setProfileImage("/profile.svg")}
           />
         </div>
         <div className="flex flex-col gap-1 text-center mt-5 mb-6">

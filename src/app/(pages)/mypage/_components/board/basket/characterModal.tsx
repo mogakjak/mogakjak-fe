@@ -35,7 +35,7 @@ export default function CharacterModal({ onClose }: CharacterModalProps) {
                     <td className="py-[13px] text-gray-800">
                       {item.level === 1 ? "회원가입" : `${item.hours}시간`}
                     </td>
-                    <td className="py-[13px] pr-4 text-left text-red-500">
+                    <td className="py-[13px] pr-4 text-left text-black">
                       {item.name}
                     </td>
                   </tr>

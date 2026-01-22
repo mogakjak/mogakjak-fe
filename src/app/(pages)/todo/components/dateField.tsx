@@ -78,11 +78,11 @@ export default function DateField({
           {fmtKoreanDate(value)}
         </span>
         <Image
-          src="/Icons/calendarGray.svg"
+          src="/Icons/calendar.svg"
           alt="달력"
           width={24}
           height={24}
-          className="w-6 h-6 opacity-70"
+          className="w-6 h-6"
         />
       </button>
 
@@ -161,8 +161,8 @@ export default function DateField({
                         isSelected
                           ? "bg-red-500 text-neutral-50 font-semibold"
                           : isToday
-                          ? " text-red-500"
-                          : "hover:bg-red-100 hover:text-red-500",
+                            ? " text-red-500"
+                            : "hover:bg-red-100 hover:text-red-500",
                       )}
                     >
                       <span className="text-base leading-snug">

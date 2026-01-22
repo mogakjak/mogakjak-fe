@@ -31,7 +31,7 @@ const VARIANT_CLASS: Record<Variant, string> = {
   slate600: "bg-zinc-600 text-neutral-50 hover:opacity-95 active:opacity-90",
   muted: "bg-gray-200 text-gray-700 hover:bg-gray-200 active:opacity-95",
   selected:
-    "bg-neutral-50 text-red-500 outline outline-1 outline-offset-[-1px] outline-red-500",
+    "bg-red-50 text-red-500 outline outline-1 outline-offset-[-1px] outline-red-500",
 };
 
 const SIZE_CLASS: Record<Size, string> = {

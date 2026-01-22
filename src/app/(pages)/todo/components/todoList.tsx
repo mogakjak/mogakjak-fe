@@ -57,6 +57,9 @@ function CategoryHeader({
             onClick={onAdd}
             className="p-1 rounded-lg flex justify-start items-center gap-2"
           >
+            <span className="text-zinc-600 text-sm leading-tight">
+              할 일 추가하기
+            </span>
             <Image
               src="/Icons/plusRed.svg"
               alt="추가"
@@ -64,9 +67,6 @@ function CategoryHeader({
               width={24}
               height={24}
             />
-            <span className="text-zinc-600 text-sm leading-tight">
-              할 일 추가하기
-            </span>
           </button>
         </div>
       </div>
@@ -101,11 +101,14 @@ export default function TodoList({
   className,
 }: TodoListProps) {
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
-    categories.reduce((acc, c) => {
-      // 할일이 있으면 expanded ?? true, 없으면 false
-      acc[c.id] = c.items.length > 0 ? (c.expanded ?? true) : false;
-      return acc;
-    }, {} as Record<string | number, boolean>)
+    categories.reduce(
+      (acc, c) => {
+        // 할일이 있으면 expanded ?? true, 없으면 false
+        acc[c.id] = c.items.length > 0 ? (c.expanded ?? true) : false;
+        return acc;
+      },
+      {} as Record<string | number, boolean>,
+    ),
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"add" | "edit">("add");
@@ -125,7 +128,8 @@ export default function TodoList({
       const next = { ...prev };
       let changed = false;
       categories.forEach((cat) => {
-        const shouldBeOpen = cat.items.length > 0 ? (cat.expanded ?? true) : false;
+        const shouldBeOpen =
+          cat.items.length > 0 ? (cat.expanded ?? true) : false;
         if (!(cat.id in next) || next[cat.id] !== shouldBeOpen) {
           next[cat.id] = shouldBeOpen;
           changed = true;
@@ -211,12 +215,13 @@ export default function TodoList({
       <div
         className={clsx(
           "w-full inline-flex flex-col items-stretch gap-6 pt-7",
-          className
+          className,
         )}
       >
         <div className="self-stretch flex flex-col justify-start items-start gap-4">
           {categories.map((cat) => {
-            const expanded = cat.items.length > 0 ? (openMap[cat.id] ?? true) : false;
+            const expanded =
+              cat.items.length > 0 ? (openMap[cat.id] ?? true) : false;
             return (
               <Fragment key={cat.id}>
                 <CategoryHeader
@@ -269,16 +274,19 @@ export default function TodoList({
             initialValues={
               editingTodo
                 ? {
-                    categoryId: editingTodo.categoryId,
-                    title: editingTodo.title,
-                    date: editingTodo.date instanceof Date ? editingTodo.date : new Date(editingTodo.date),
-                    targetSeconds: editingTodo.targetSeconds,
-                  }
+                  categoryId: editingTodo.categoryId,
+                  title: editingTodo.title,
+                  date:
+                    editingTodo.date instanceof Date
+                      ? editingTodo.date
+                      : new Date(editingTodo.date),
+                  targetSeconds: editingTodo.targetSeconds,
+                }
                 : selectedCategoryId
-                ? {
+                  ? {
                     categoryId: String(selectedCategoryId),
                   }
-                : undefined
+                  : undefined
             }
             onSubmit={handleSubmit}
             onCategorySelect={onCategorySelect}

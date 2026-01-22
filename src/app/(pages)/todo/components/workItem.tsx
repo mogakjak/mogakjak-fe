@@ -2,7 +2,12 @@
 
 import { useMemo } from "react";
 import clsx from "clsx";
+import Icon from "@/app/_components/common/Icons";
 import Image from "next/image";
+
+// 이미지 관리
+import EditIcon from "/Icons/edit.svg";
+import DeleteIcon from "/Icons/delete.svg";
 
 export type WorkItemProps = {
   id?: string;
@@ -57,7 +62,7 @@ export default function WorkItem({
   return (
     <div
       className={clsx(
-        "w-full h-36 pl-4 pr-5 py-4 bg-gray-100 rounded-xl",
+        "w-full h-36 px-5 py-4 bg-gray-100 rounded-xl",
         "outline-1 outline-gray-200",
         "inline-flex justify-start items-start gap-4 overflow-hidden",
         className,
@@ -66,24 +71,7 @@ export default function WorkItem({
       role="group"
       aria-label="work item"
     >
-      <button
-        type="button"
-        aria-pressed={completed}
-        aria-label={completed ? "완료 해제" : "완료 처리"}
-        onClick={() => onToggleCompleted?.(!completed)}
-        className={clsx(
-          "w-6 h-6 relative overflow-hidden shrink-0 rounded-[4px]",
-          "outline-none",
-        )}
-      >
-        <Image
-          src={completed ? "/Icons/checkboxSelected.svg" : "/Icons/checkboxDefault.svg"}
-          alt={completed ? "체크됨" : "미체크"}
-          className="w-6 h-6"
-          width={24}
-          height={24}
-        />
-      </button>
+
 
       <div className={clsx("flex-1 inline-flex flex-col justify-start items-start gap-5", completed && "opacity-50")}>
         <div className="self-stretch inline-flex justify-between items-center">
@@ -91,43 +79,62 @@ export default function WorkItem({
             <div className="text-zinc-500 text-xs font-normal leading-none">
               {toDateLabel(date)}
             </div>
-            <div
-              className={clsx(
-                "text-neutral-700 text-base font-semibold leading-snug",
-                completed && "line-through",
-              )}
-            >
-              {title}
+            <div className="flex items-center gap-2">
+              <div
+                className={clsx(
+                  "text-neutral-700 text-base font-semibold leading-snug",
+                  completed && "line-through",
+                )}
+              >
+                {title}
+              </div>
+              <button
+                type="button"
+                aria-pressed={completed}
+                aria-label={completed ? "완료 해제" : "완료 처리"}
+                onClick={() => onToggleCompleted?.(!completed)}
+                className={clsx(
+                  "w-6 h-6 relative overflow-hidden shrink-0 rounded-[4px]",
+                  "outline-none",
+                )}
+              >
+                <Image
+                  src={completed ? "/Icons/checkboxSelected.svg" : "/Icons/checkboxDefault.svg"}
+                  alt={completed ? "체크됨" : "미체크"}
+                  className="w-6 h-6"
+                  width={24}
+                  height={24}
+                />
+              </button>
             </div>
           </div>
-
           <div className="flex justify-end items-center gap-4">
             <button type="button" onClick={onEdit} aria-label="편집" className="w-6 h-6 relative overflow-hidden">
-              <Image src="/Icons/edit.svg" alt="편집" className="w-6 h-6" width={24} height={24} />
+              <Icon Svg={EditIcon} size={24} className="w-6 h-6 text-gray-600" />
             </button>
             <button type="button" onClick={onDelete} aria-label="삭제" className="w-6 h-6 relative overflow-hidden">
-              <Image src="/Icons/delete.svg" alt="삭제" className="w-6 h-6" width={24} height={24} />
+              <Icon Svg={DeleteIcon} size={24} className="w-6 h-6 text-gray-600" />
             </button>
           </div>
         </div>
 
         <div className="self-stretch flex flex-col justify-start items-start gap-2">
           <div className="self-stretch inline-flex justify-between items-center">
-            <div className="text-red-500 text-base font-semibold leading-snug">
+            <div className="text-gray-700 text-base font-semibold leading-snug">
               {percentLabel}
             </div>
 
             <div className="flex justify-start items-center gap-7">
               <div className="flex justify-start items-center gap-2">
-                <div className="text-zinc-700 text-sm font-normal leading-tight">목표 달성 시간</div>
-                <div className="text-zinc-500 text-sm font-normal leading-tight">
+                <div className="text-gray-700 text-sm font-semibold leading-tight">목표 달성 시간</div>
+                <div className="text-gray-500 text-sm font-regular leading-tight">
                   {toHHMMSS(safeTarget)}
                 </div>
               </div>
 
               <div className="flex justify-start items-center gap-2">
-                <div className="text-zinc-700 text-sm font-normal leading-tight">현재 달성 시간</div>
-                <div className="text-zinc-500 text-sm font-normal leading-tight">
+                <div className="text-gray-700 text-sm font-semibold leading-tight">현재 달성 시간</div>
+                <div className="text-gray-500 text-sm font-regular leading-tight">
                   {toHHMMSS(displayCurrent)}
                 </div>
               </div>

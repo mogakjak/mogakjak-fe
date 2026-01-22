@@ -11,7 +11,7 @@ export default function ProfileInfo({ title, content }: ProfileInfoProps) {
       }
     >
       <p className="text-black">{title}</p>
-      <p className="text-red-500">{content}</p>
+      <p className="text-black">{content}</p>
     </div>
   );
 }

@@ -25,8 +25,8 @@ export default function Character({
           <Image
             src={imageUrl}
             alt={name}
-            width={100}
-            height={100}
+            width={120}
+            height={120}
             className="object-contain"
           />
           <p className="text-caption-12R text-gray-600 text-center whitespace-pre-line">

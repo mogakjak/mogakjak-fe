@@ -253,7 +253,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
           </div>
 
           <div className="w-full flex flex-col gap-4">
-            <div className="inline-flex justify-start items-start gap-4">
+            <div className="inline-flex justify-start items-center gap-4">
               <div className="text-neutral-900 text-base font-semibold leading-6">
                 링크로 메이트 초대하기
               </div>

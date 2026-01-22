@@ -49,7 +49,7 @@ export default function CategorySelect({
         <span
           className={clsx(
             "text-sm leading-tight",
-            selected ? "text-neutral-900" : "text-zinc-500"
+            selected ? "text-neutral-900" : "text-zinc-500",
           )}
         >
           {selected ? selected.name : placeholder}
@@ -78,9 +78,7 @@ export default function CategorySelect({
                   }}
                   className={clsx(
                     "h-10 w-full px-4 py-2 rounded-lg inline-flex items-center gap-2",
-                    active
-                      ? "bg-rose-50 text-orange-800"
-                      : "bg-neutral-50 text-neutral-700"
+                    active ? "bg-red-50" : "bg-neutral-50 hover:bg-gray-100",
                   )}
                 >
                   <span
@@ -98,7 +96,7 @@ export default function CategorySelect({
                       o.colorToken === "category-6-blue" &&
                         "bg-category-6-blue",
                       o.colorToken === "category-7-purple" &&
-                        "bg-category-7-purple"
+                        "bg-category-7-purple",
                     )}
                   />
                   <span className="text-sm leading-tight">{o.name}</span>

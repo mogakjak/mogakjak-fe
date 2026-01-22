@@ -47,32 +47,32 @@ export default function DurationField({
 
   return (
     <div className={clsx("w-full", className)}>
-      <div className="px-10 py-5 bg-gray-100 rounded-xl outline-1 outline-gray-200 flex items-center justify-center gap-2">
+      <div className="text-heading4-20SB px-10 py-5 bg-gray-100 rounded-xl outline-1 outline-gray-200 flex items-center justify-center gap-0.5">
         <input
           type="number"
           value={String(h).padStart(2, "0")}
           onChange={(e) => sync(parseInt(e.target.value || "0", 10), m, s)}
-          className="w-12 bg-transparent text-center text-xl leading-7 text-neutral-900 outline-none"
+          className="w-8 bg-transparent text-center leading-7 text-gray-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           min={0}
           max={24}
         />
-        <span className="text-xl text-neutral-900">:</span>
+        <span className=" text-gray-500">:</span>
 
         <input
           type="number"
           value={String(m).padStart(2, "0")}
           onChange={(e) => sync(h, parseInt(e.target.value || "0", 10), s)}
-          className="w-12 bg-transparent text-center text-xl leading-7 text-neutral-900 outline-none"
+          className="w-8 bg-transparent text-center leading-7 text-gray-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           min={0}
           max={59}
         />
-        <span className="text-xl text-neutral-900">:</span>
+        <span className=" text-gray-500">:</span>
 
         <input
           type="number"
           value={String(s).padStart(2, "0")}
           onChange={(e) => sync(h, m, parseInt(e.target.value || "0", 10))}
-          className="w-12 bg-transparent text-center text-xl leading-7 text-neutral-900 outline-none"
+          className="w-8 bg-transparent text-center leading-7 text-gray-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           min={0}
           max={59}
         />
