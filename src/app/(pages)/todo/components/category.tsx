@@ -26,6 +26,7 @@ function Category({
   onSelect,
   className,
   onCreateCategory,
+  onUpdateCategory,
   onDeleteCategory,
   onReorderCategories,
 }: {
@@ -36,6 +37,7 @@ function Category({
   onSelect?: (id: string) => void;
   className?: string;
   onCreateCategory?: (payload: { name: string; colorToken: string }) => Promise<CreateCategoryResult>;
+  onUpdateCategory?: (payload: { id: string; name: string; colorToken: string }) => Promise<void>;
   onDeleteCategory?: (categoryId: string) => Promise<void>;
   onReorderCategories?: (categoryIds: string[]) => Promise<void>;
 }) {
@@ -64,7 +66,7 @@ function Category({
           merged.push(item);
         }
       }
-      
+
       return merged;
     });
   }, [categories]);
@@ -101,10 +103,10 @@ function Category({
         prev.map((c) =>
           c.id === id
             ? {
-                ...c,
-                name: trimmed,
-                isSaving: true,
-              }
+              ...c,
+              name: trimmed,
+              isSaving: true,
+            }
             : c,
         ),
       );
@@ -117,12 +119,12 @@ function Category({
             prev.map((c) =>
               c.id === id
                 ? {
-                    id: serverId,
-                    name: created.name,
-                    colorToken: nextColorToken,
-                    isNew: false,
-                    isSaving: false,
-                  }
+                  id: serverId,
+                  name: created.name,
+                  colorToken: nextColorToken,
+                  isNew: false,
+                  isSaving: false,
+                }
                 : c,
             ),
           );
@@ -140,7 +142,47 @@ function Category({
       return true;
     }
 
-    setEditingId(null);
+    // 기존 카테고리 수정
+    if (reason !== "enter") {
+      setEditingId(null);
+      return true;
+    }
+
+    if (!trimmed || trimmed === target.name) {
+      setEditingId(null);
+      return true;
+    }
+
+    const prevName = target.name;
+    setCategoryList((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, name: trimmed, isSaving: true } : c
+      )
+    );
+
+    try {
+      await onUpdateCategory?.({
+        id,
+        name: trimmed,
+        colorToken: target.colorToken,
+      });
+      setCategoryList((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, isSaving: false } : c
+        )
+      );
+      setEditingId(null);
+      return true;
+    } catch (error) {
+      console.error("카테고리 수정에 실패했습니다.", error);
+      setCategoryList((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, name: prevName, isSaving: false } : c
+        )
+      );
+      setEditingId(null);
+      return false;
+    }
     return true;
   };
 
@@ -208,7 +250,7 @@ function Category({
         className,
       )}
     >
-      <h2 className="text-xl font-semibold text-neutral-900 leading-7">ToDo</h2>
+      <h2 className="text-xl font-semibold text-neutral-900 leading-7">할 일</h2>
 
       <div className="flex flex-col gap-5 flex-1 overflow-y-auto">
         <div className="flex gap-2 my-2 mx-0.5">
@@ -257,7 +299,7 @@ function Category({
                 showHandle
                 editable={editingId === c.id}
                 onRename={(newName, reason) => handleRename(c.id, newName, reason)}
-                allowEdit={c.isNew === true && !c.isSaving}
+                allowEdit={!c.isSaving}
                 onDelete={handleDelete}
                 onMoveUp={moveUp}
                 onMoveDown={moveDown}

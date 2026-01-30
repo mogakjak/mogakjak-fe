@@ -106,10 +106,10 @@ export default function AddWorkForm({
       <div className="self-stretch p-5 flex flex-col items-center gap-7">
         <div className="self-stretch text-center text-neutral-900 text-xl font-semibold leading-7">
           {type == "select"
-            ? "몰입할 일을 선택해 보세요!"
+            ? "몰입할 작업을 선택해 보세요!"
             : type == "edit"
-              ? "할 일을 수정해 보세요!"
-              : "할 일을 등록해 보세요!"}
+              ? "작업을 수정해 보세요!"
+              : "작업을 등록해 보세요!"}
         </div>
 
         <div className="self-stretch flex flex-col gap-5">
@@ -129,7 +129,7 @@ export default function AddWorkForm({
 
           <div className="flex flex-col gap-3">
             <div className="text-neutral-900 text-base font-semibold leading-snug">
-              할 일
+              작업
             </div>
             {type == "select" ? (
               <WorkSelectField
@@ -219,7 +219,7 @@ export default function AddWorkForm({
                 : "bg-gray-200 text-gray-400",
             )}
           >
-            {type == "edit" ? "할 일 수정" : "할 일 추가"}
+            {type == "edit" ? "작업 수정" : "작업 추가"}
           </button>
         )}
       </div>

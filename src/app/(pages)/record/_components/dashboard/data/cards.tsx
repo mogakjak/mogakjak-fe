@@ -58,7 +58,7 @@ export default function Cards({
           />
 
           <DataCard
-            title="완료한 할 일"
+            title="완료한 작업"
             value={`${doneTasks}개`}
             accent="orange"
           />

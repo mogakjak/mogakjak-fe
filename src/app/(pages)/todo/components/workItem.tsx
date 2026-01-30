@@ -51,12 +51,11 @@ export default function WorkItem({
 }: WorkItemProps) {
   const safeTarget = Math.max(0, targetSeconds || 0);
   const baseCurrent = Math.max(0, currentSeconds || 0);
-  const displayCurrent = completed ? safeTarget : Math.min(baseCurrent, safeTarget);
   const percentNum = useMemo(() => {
     if (completed) return 100;
     if (safeTarget === 0) return 0;
-    return Math.min(100, Math.round((displayCurrent / safeTarget) * 100));
-  }, [completed, displayCurrent, safeTarget]);
+    return Math.min(100, Math.round((baseCurrent / safeTarget) * 100));
+  }, [completed, baseCurrent, safeTarget]);
   const percentLabel = `${percentNum}%`;
 
   return (
@@ -135,7 +134,7 @@ export default function WorkItem({
               <div className="flex justify-start items-center gap-2">
                 <div className="text-gray-700 text-sm font-semibold leading-tight">현재 달성 시간</div>
                 <div className="text-gray-500 text-sm font-regular leading-tight">
-                  {toHHMMSS(displayCurrent)}
+                  {toHHMMSS(baseCurrent)}
                 </div>
               </div>
             </div>

@@ -86,7 +86,7 @@ export default function TimerButtons({
         <Button
           variant="slate600"
           className={clsx(
-            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1",
+            " text-body2-14SB h-8 text-base rounded-lg w-full flex-1 pt-1",
             isBreakPhase && "bg-gray600 hover:bg-gray600/90",
           )}
           size="custom"
@@ -109,7 +109,7 @@ export default function TimerButtons({
         <Button
           variant="primary2"
           className={clsx(
-            " text-body2-14SB h-9 text-base rounded-lg w-full flex-1 pt-1",
+            " text-body2-14SB h-8 text-base rounded-lg w-full flex-1 pt-1",
           )}
           size="custom"
           onClick={onStop}
@@ -131,7 +131,7 @@ export default function TimerButtons({
       {onPipToggle && !isInPip && (
         <button
           onClick={onPipToggle}
-          className="self-stretch h-9 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
+          className="self-stretch h-8 pl-2 pr-2.5 py-1 bg-zinc-600 rounded-lg inline-flex justify-center items-center gap-1 overflow-hidden"
         >
           <div className="w-6 h-6 relative overflow-hidden">
             <Image

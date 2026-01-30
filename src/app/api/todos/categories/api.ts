@@ -24,40 +24,12 @@ export const getTodoCategories = () => request<TodoCategory[]>(TODO_BASE, "/cate
 export const createTodoCategory = (payload: CreateTodoCategoryPayload) =>
   request<TodoCategory>(TODO_BASE, "/categories", { method: "POST", body: JSON.stringify(payload) });
 
-const isMethodNotAllowed = (error: unknown) =>
-  error instanceof Error && /405/.test(error.message);
-
 export const updateTodoCategory = async ({ categoryId, ...rest }: UpdateTodoCategoryPayload) => {
-  const basePayload = JSON.stringify({ categoryId, ...rest });
-  const pathPayload = JSON.stringify(rest);
-
-  try {
-    return await request<TodoCategory>(TODO_BASE, "/categories", {
-      method: "PATCH",
-      body: basePayload,
-    });
-  } catch (error) {
-    if (!isMethodNotAllowed(error)) {
-      try {
-        return await request<TodoCategory>(TODO_BASE, `/categories/${categoryId}`, {
-          method: "PATCH",
-          body: pathPayload,
-        });
-      } catch (innerError) {
-        if (isMethodNotAllowed(innerError)) {
-          return request<TodoCategory>(TODO_BASE, `/categories/${categoryId}`, {
-            method: "PUT",
-            body: pathPayload,
-          });
-        }
-        throw innerError;
-      }
-    }
-    return request<TodoCategory>(TODO_BASE, `/categories/${categoryId}`, {
-      method: "PUT",
-      body: pathPayload,
-    });
-  }
+  const payload = JSON.stringify({ categoryId, ...rest });
+  return await request<TodoCategory>(TODO_BASE, "/categories", {
+    method: "PUT",
+    body: payload,
+  });
 };
 
 export const reorderTodoCategories = (payload: ReorderTodoCategoriesPayload) =>
