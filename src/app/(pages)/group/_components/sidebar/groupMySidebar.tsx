@@ -65,7 +65,7 @@ export default function GroupMySidebar({
   );
 
   const { categories } = useTodoCategoryController();
-  const { createTodo, updateTodo, toggleTodoComplete } = useTodoController();
+  const { createTodo, updateTodo } = useTodoController();
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
   const queryClient = useQueryClient();
   const prevSessionIdRef = useRef<string | null | undefined>(currentSessionId);
