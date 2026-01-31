@@ -58,7 +58,7 @@ function CategoryHeader({
             className="p-1 rounded-lg flex justify-start items-center gap-2"
           >
             <span className="text-zinc-600 text-sm leading-tight">
-              할 일 추가하기
+              작업 추가하기
             </span>
             <Image
               src="/Icons/plusRed.svg"

@@ -8,7 +8,7 @@ interface AlertModalProps {
 
 const MODAL_CONTENT = {
   todoRequired: {
-    title: "할 일을 먼저 설정해 주세요!",
+    title: "작업을 먼저 설정해 주세요!",
     description: (
       <>
         어떤 일에 몰입하실 건가요?

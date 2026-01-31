@@ -146,8 +146,8 @@ export default function GroupMemberState({
         ? `"${task}" 하는 중`
         : "뭔가 하는 중"
       : status === "rest"
-      ? "잠시 쉬어갈래요"
-      : "몰입에 참여하지 않았어요";
+        ? "잠시 쉬어갈래요"
+        : "몰입에 참여하지 않았어요";
 
   // 누적 시간 표시
   // activeTime이 null이거나 undefined이면 비공개로 간주하여 "참여 중" 등으로 표시
@@ -160,10 +160,10 @@ export default function GroupMemberState({
       ? `최근 참여시간 ${diffMin}분전`
       : `${formatTime(effectiveActive)}`
     : status === "active"
-    ? "참여 중"
-    : status === "rest"
-    ? "휴식 중"
-    : `최근 참여시간 ${diffDay}일전`;
+      ? "참여 중"
+      : status === "rest"
+        ? "휴식 중"
+        : `최근 참여시간 ${diffDay}일전`;
 
   return (
     <div className="flex flex-col text-body2-14SB gap-1">
@@ -171,30 +171,28 @@ export default function GroupMemberState({
         <Icon
           Svg={statusIcon}
           size={20}
-          className={`${
-            status == "active"
+          className={`${status == "active"
               ? "text-black"
               : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
-          }`}
+                ? "text-gray-600 "
+                : "text-gray-500"
+            }`}
         />
         <p
-          className={`truncate ${
-            status == "active"
+          title={line1}
+          className={`truncate ${status == "active"
               ? "text-black"
               : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
-          }`}
+                ? "text-gray-600 "
+                : "text-gray-500"
+            }`}
         >
           {line1}
         </p>
       </div>
       <p
-        className={`flex items-center gap-2 ${
-          status == "active" ? "text-black" : "text-gray-400"
-        }`}
+        className={`flex items-center gap-2 ${status == "active" ? "text-black" : "text-gray-400"
+          }`}
       >
         <Icon
           Svg={StopWatch}

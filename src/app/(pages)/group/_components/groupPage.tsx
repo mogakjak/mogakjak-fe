@@ -243,7 +243,7 @@ export default function GroupPage({
                 // null이나 undefined이면 undefined로, 숫자(0 포함)면 그대로 전달
                 const activeTime =
                   status.personalTimerSeconds !== null &&
-                  status.personalTimerSeconds !== undefined
+                    status.personalTimerSeconds !== undefined
                     ? status.personalTimerSeconds
                     : undefined;
 
@@ -252,9 +252,9 @@ export default function GroupPage({
                 // 최근 참여 일수
                 const lastActiveAt = status.daysSinceLastParticipation
                   ? new Date(
-                      Date.now() -
-                        status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
-                    )
+                    Date.now() -
+                    status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
+                  )
                   : undefined;
 
                 return (
@@ -316,7 +316,7 @@ export default function GroupPage({
             <TimerEndModal
               onClose={() => setOpenTimerEndModal(false)}
               onConfirm={async () => {
-                if (sessionId) {
+                if (sessionId && participatingMemberCount <= 1) {
                   try {
                     await finishGroupTimerMutation.mutateAsync();
                     setOpenTimerEndModal(false);

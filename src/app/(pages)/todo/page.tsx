@@ -28,7 +28,7 @@ function getKoreanDateLabel(d = new Date()) {
 export default function TodoPage() {
   const [filter, setFilter] = useState<DayFilter>("today");
   const [selectedId, setSelectedId] = useState<string>("all");
-  const { categories, createCategory, deleteCategory, reorderCategories, isLoading: isCatLoading } =
+  const { categories, createCategory, updateCategory, deleteCategory, reorderCategories, isLoading: isCatLoading } =
     useTodoCategoryController();
   const { todayTodos, createTodo, updateTodo, deleteTodo, toggleTodoComplete, isLoading: isTodoLoading } =
     useTodoController();
@@ -130,6 +130,14 @@ export default function TodoPage() {
       };
     },
     [createCategory]
+  );
+
+  const handleUpdateCategory = useCallback(
+    async ({ id, name, colorToken }: { id: string; name: string; colorToken: string }) => {
+      const color = CATEGORY_COLOR_NAME_BY_TOKEN[colorToken] ?? "RED";
+      await updateCategory({ categoryId: id, name, color });
+    },
+    [updateCategory]
   );
 
   const handleDeleteCategory = useCallback(
@@ -250,6 +258,7 @@ export default function TodoPage() {
             selectedId={selectedId}
             onSelect={setSelectedId}
             onCreateCategory={handleCreateCategory}
+            onUpdateCategory={handleUpdateCategory}
             onDeleteCategory={handleDeleteCategory}
             onReorderCategories={handleReorderCategories}
           />

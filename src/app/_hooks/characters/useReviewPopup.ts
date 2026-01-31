@@ -92,18 +92,18 @@ export function useReviewPopup({
     const handleChangeEtc = (value: string) => setEtcText(value);
 
     const handleSubmit = async () => {
-        if (!selectedEmoji) return;
-
         try {
-            const score = emojiToScore(selectedEmoji);
+            if (selectedEmoji) {
+                const score = emojiToScore(selectedEmoji);
 
-            await Promise.all([
-                createFeedback({
-                    score,
-                    tagCodes: selectedTags,
-                    content: etcText.trim(),
-                }),
-            ]);
+                await Promise.all([
+                    createFeedback({
+                        score,
+                        tagCodes: selectedTags,
+                        content: etcText.trim(),
+                    }),
+                ]);
+            }
 
             const { data: studyTimeData } = await refetchTotalStudyTime();
             const totalStudyTime = studyTimeData?.totalStudyTime ?? 0;

@@ -10,7 +10,7 @@ interface WorkSelectFieldProps {
   todayTodos?: Todo[];
 }
 
-const initialCategories = ["공부", "운동", "업무", "독서"];
+const initialCategories: string[] = [];
 
 export default function WorkSelectField({
   value,
@@ -79,9 +79,8 @@ export default function WorkSelectField({
         className="self-stretch h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-gray-200 inline-flex justify-between items-center"
       >
         <span
-          className={`text-body2-14R ${
-            value ? "text-neutral-900" : "text-gray-400"
-          }`}
+          className={`text-body2-14R ${value ? "text-neutral-900" : "text-gray-400"
+            }`}
         >
           {value || "할 일을 선택해 주세요."}
         </span>
@@ -121,7 +120,7 @@ export default function WorkSelectField({
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
                 onKeyDown={handleAddNew}
-                placeholder="새 할 일 추가"
+                placeholder="새 작업 추가"
                 className="w-full outline-none text-body2-14R"
                 onClick={(e) => e.stopPropagation()}
               />

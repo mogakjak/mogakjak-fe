@@ -39,7 +39,7 @@ export default function TodoSection({
       {isToday ? (
         <div className="flex items-baseline gap-3 mb-0">
           <h2 className="text-neutral-900 text-xl font-semibold font-['Pretendard'] leading-7">
-            오늘의 투두리스트
+            전체 작업 목록
           </h2>
           {dateLabel && (
             <span className="text-gray-400 text-base font-semibold font-['Pretendard'] leading-snug">

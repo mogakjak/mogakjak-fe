@@ -5,13 +5,15 @@ import { useTodoCategories } from "./useTodoCategories";
 import { useCreateTodoCategory } from "./useCreateTodoCategory";
 import { useDeleteTodoCategory } from "./useDeleteTodoCategory";
 import { useReorderTodoCategories } from "./useReorderTodoCategories";
+import { useUpdateTodoCategory } from "./useUpdateTodoCategory";
 
-const DEFAULT_CATEGORY_NAME = "오늘 할 일";
+const DEFAULT_CATEGORY_NAME = "기본";
 const DEFAULT_CATEGORY_COLOR = "RED" as const;
 
 export const useTodoCategoryController = () => {
   const { data: categories = [], isLoading, isError, error } = useTodoCategories();
   const createMutation = useCreateTodoCategory();
+  const updateMutation = useUpdateTodoCategory();
   const deleteMutation = useDeleteTodoCategory();
   const reorderMutation = useReorderTodoCategories();
   const hasCheckedDefaultCategory = useRef(false);
@@ -21,15 +23,15 @@ export const useTodoCategoryController = () => {
     if (isLoading || hasCheckedDefaultCategory.current || isCreatingDefaultCategory.current) return;
     const defaultCategories = categories.filter(
       (category) => category.name === DEFAULT_CATEGORY_NAME
-    );  
+    );
     if (defaultCategories.length > 0) {
       hasCheckedDefaultCategory.current = true;
       return;
-    } 
+    }
     if (!createMutation.isPending && !isCreatingDefaultCategory.current) {
       isCreatingDefaultCategory.current = true;
       hasCheckedDefaultCategory.current = true;
-      
+
       createMutation.mutateAsync({
         name: DEFAULT_CATEGORY_NAME,
         color: DEFAULT_CATEGORY_COLOR,
@@ -39,7 +41,7 @@ export const useTodoCategoryController = () => {
         })
         .catch((error) => {
           console.error("기본 카테고리 생성 실패:", error);
-          hasCheckedDefaultCategory.current = false; 
+          hasCheckedDefaultCategory.current = false;
           isCreatingDefaultCategory.current = false;
         });
     }
@@ -51,9 +53,11 @@ export const useTodoCategoryController = () => {
     isError,
     error,
     createCategory: createMutation.mutateAsync,
+    updateCategory: updateMutation.mutateAsync,
     deleteCategory: deleteMutation.mutateAsync,
     reorderCategories: reorderMutation.mutateAsync,
     createStatus: createMutation.status,
+    updateStatus: updateMutation.status,
     deleteStatus: deleteMutation.status,
     reorderStatus: reorderMutation.status,
   };
