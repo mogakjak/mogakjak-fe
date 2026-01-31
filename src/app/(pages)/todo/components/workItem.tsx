@@ -40,7 +40,6 @@ function toHHMMSS(total: number) {
 }
 
 export default function WorkItem({
-  id,
   date,
   title,
   targetSeconds,
