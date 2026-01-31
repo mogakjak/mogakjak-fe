@@ -30,7 +30,7 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
     <div className="w-full p-9 pb-0 bg-white rounded-[20px]">
       <div className="flex justify-between mb-2">
         <h2 className="text-heading4-20SB text-black">
-          모각작 함께 몰입하는 시간
+          모여서 각자 작업하는 시간
         </h2>
         <Button
           variant="secondary"
