@@ -30,13 +30,18 @@ export default function ProfileActive({
   return (
     <div className={`relative ${sizeClass[size]} ${className}`}>
       <div className="absolute inset-0 rounded-full bg-gray-100 border border-gray-200 overflow-hidden z-0">
-        <Image src={imageSrc} alt={name} fill className="object-cover" />
+        <Image
+          src={imageSrc}
+          alt={name}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
+        />
       </div>
 
       <div
-        className={`absolute bottom-0 right-0 rounded-full border-2 border-white z-5 ${
-          dotSizeClass[size]
-        } ${active ? "bg-green-600" : "bg-gray-400"}`}
+        className={`absolute bottom-0 right-0 rounded-full border-2 border-white z-5 ${dotSizeClass[size]
+          } ${active ? "bg-green-600" : "bg-gray-400"}`}
       />
     </div>
   );

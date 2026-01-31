@@ -11,6 +11,23 @@ import { useRouter } from "next/navigation";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 
+
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  useClick,
+  useDismiss,
+  useRole,
+  useInteractions,
+} from "@floating-ui/react";
+import LeavePopup from "./leavePopup";
+import LeaveGroupModal from "./leaveGroupModal";
+import { useLeaveGroup } from "@/app/_hooks/groups/useLeaveGroup";
+
+
 type GroupRoomProps = {
   group: MyGroup;
 };
@@ -18,6 +35,7 @@ type GroupRoomProps = {
 export default function GroupRoom({ group }: GroupRoomProps) {
   const router = useRouter();
   const { groupId, groupName, imageUrl, members } = group;
+  const { mutate: leaveGroupMutate } = useLeaveGroup();
 
   // 그룹 타이머 상태 관리
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -45,12 +63,40 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   });
 
   const [isEntering, setIsEntering] = useState(false);
+  const [openPopup, setOpenPopup] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: openPopup,
+    onOpenChange: setOpenPopup,
+    placement: "left",
+    whileElementsMounted: autoUpdate,
+    middleware: [offset(8), flip(), shift()],
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const role = useRole(context);
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+    role,
+  ]);
 
   const totalCount = members.length;
 
   const handleEnter = () => {
     setIsEntering(true);
     router.push(`/group/${groupId}`);
+  };
+
+  const handleLeaveGroup = () => {
+    leaveGroupMutate(groupId, {
+      onSuccess: () => {
+        setOpenModal(false);
+      },
+    });
   };
 
   return (
@@ -95,14 +141,50 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             {activeCount}/{totalCount} 명
           </span>
         </div>
-        <HomeButton
-          variant="primary"
-          onClick={handleEnter}
-          disabled={isEntering}
-        >
-          {isEntering ? "참여 중..." : "참여하기"}
-        </HomeButton>
+        <div className="flex items-center gap-2">
+          <HomeButton
+            variant="primary"
+            onClick={handleEnter}
+            disabled={isEntering}
+          >
+            {isEntering ? "참여 중..." : "참여하기"}
+          </HomeButton>
+
+          <button
+            ref={refs.setReference}
+            {...getReferenceProps()}
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Image src={"/Icons/menuKebab.svg"} alt="menuKebab" width={24} height={24} />
+          </button>
+
+          {openPopup && (
+            <div
+              ref={refs.setFloating}
+              style={floatingStyles}
+              {...getFloatingProps()}
+              className="z-[70]"
+            >
+              <LeavePopup
+                onLeaveClick={() => {
+                  setOpenPopup(false);
+                  setOpenModal(true);
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
+
+      {openModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
+          <LeaveGroupModal
+            groupName={groupName}
+            onClose={() => setOpenModal(false)}
+            onConfirm={handleLeaveGroup}
+          />
+        </div>
+      )}
     </div>
   );
 }

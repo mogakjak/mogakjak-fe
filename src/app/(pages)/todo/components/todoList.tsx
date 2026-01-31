@@ -7,6 +7,7 @@ import Image from "next/image";
 import AddWorkForm, { AddWorkPayload } from "./addWorkForm";
 import type { CategoryOption } from "./categorySelect";
 import type { Category } from "@/app/_types/category";
+import SimpleToast from "@/app/_components/common/SimpleToast";
 
 export type TodoListProps = {
   dateLabel?: string;
@@ -110,6 +111,18 @@ export default function TodoList({
       {} as Record<string | number, boolean>,
     ),
   );
+  const [toast, setToast] = useState<{ isVisible: boolean; message: string }>({
+    isVisible: false,
+    message: "",
+  });
+
+  const triggerToast = (message: string) => {
+    setToast({ isVisible: true, message });
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
+  };
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"add" | "edit">("add");
   const [selectedCategoryId, setSelectedCategoryId] = useState<
@@ -210,8 +223,18 @@ export default function TodoList({
     }));
   }, [categories, allCategories]);
 
+  const totalItemsCount = useMemo(
+    () => categories.reduce((sum, cat) => sum + cat.items.length, 0),
+    [categories],
+  );
+
   return (
     <>
+      <SimpleToast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        position="top"
+      />
       <div
         className={clsx(
           "w-full inline-flex flex-col items-stretch gap-6 pt-7",
@@ -255,6 +278,22 @@ export default function TodoList({
                             onDeleteTodo?.(w.id);
                           }
                         }}
+                        onDoToday={() => {
+                          if (w.id) {
+                            onUpdateTodo?.({
+                              todoId: w.id,
+                              categoryId: String(cat.id),
+                              title: w.title,
+                              date: new Date(),
+                              targetSeconds: w.targetSeconds,
+                            });
+                            const displayTitle =
+                              w.title.length > 15
+                                ? w.title.slice(0, 15) + "..."
+                                : w.title;
+                            triggerToast(`${displayTitle}을 오늘로 가져왔습니다.`);
+                          }
+                        }}
                         className="self-stretch w-full"
                       />
                     ))}
@@ -264,6 +303,13 @@ export default function TodoList({
             );
           })}
         </div>
+        {totalItemsCount === 0 && (
+          <div className="flex flex-col items-center justify-center py-50 px-4 text-center">
+            <p className="text-gray-600 text-body1-16SB whitespace-pre-wrap">
+              오늘 등록된 작업이 없어요!{"\n"}지금 바로 몰입할 작업을 추가해 보세요.
+            </p>
+          </div>
+        )}
       </div>
 
       {modalOpen && (
