@@ -7,6 +7,7 @@ import { useMates } from "@/app/_hooks/groups/useMates";
 import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
+import SimpleToast from "@/app/_components/common/SimpleToast";
 
 interface InviteModalProps {
   onClose: () => void;
@@ -113,24 +114,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
 
   return (
     <>
-      {showToast && (
-        <div className="fixed inset-0 flex items-center justify-center z-60 pointer-events-none">
-          <div className="w-96 h-9 px-4 py-1.5 bg-zinc-600/80 rounded shadow-[0px_0px_12px_0px_rgba(0,0,0,0.15)] backdrop-blur-sm inline-flex justify-start items-center gap-2 overflow-hidden">
-            <div className="w-6 h-6 relative overflow-hidden">
-              <Image
-                src="/Icons/checkGreen.svg"
-                alt="체크"
-                width={24}
-                height={24}
-                className="w-full h-full"
-              />
-            </div>
-            <div className="text-neutral-50 text-sm font-normal leading-5">
-              초대링크가 복사되었어요.
-            </div>
-          </div>
-        </div>
-      )}
+      <SimpleToast isVisible={showToast} message="초대링크가 복사되었어요." />
       <div className="w-[516px] p-5 bg-neutral-50 rounded-[20px] shadow-[0px_0px_28px_0px_rgba(0,0,0,0.15)]">
         <button
           className="flex ml-auto mb-2"

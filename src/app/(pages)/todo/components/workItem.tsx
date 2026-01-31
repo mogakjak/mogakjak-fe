@@ -19,6 +19,7 @@ export type WorkItemProps = {
   onToggleCompleted?: (next: boolean) => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onDoToday?: () => void;
   className?: string;
 };
 
@@ -39,6 +40,7 @@ function toHHMMSS(total: number) {
 }
 
 export default function WorkItem({
+  id,
   date,
   title,
   targetSeconds,
@@ -47,6 +49,7 @@ export default function WorkItem({
   onToggleCompleted,
   onEdit,
   onDelete,
+  onDoToday,
   className,
 }: WorkItemProps) {
   const safeTarget = Math.max(0, targetSeconds || 0);
@@ -57,6 +60,16 @@ export default function WorkItem({
     return Math.min(100, Math.round((baseCurrent / safeTarget) * 100));
   }, [completed, baseCurrent, safeTarget]);
   const percentLabel = `${percentNum}%`;
+
+  const isToday = useMemo(() => {
+    const today = new Date();
+    const targetDate = new Date(date);
+    return (
+      today.getFullYear() === targetDate.getFullYear() &&
+      today.getMonth() === targetDate.getMonth() &&
+      today.getDate() === targetDate.getDate()
+    );
+  }, [date]);
 
   return (
     <div
@@ -70,8 +83,6 @@ export default function WorkItem({
       role="group"
       aria-label="work item"
     >
-
-
       <div className={clsx("flex-1 inline-flex flex-col justify-start items-start gap-5", completed && "opacity-50")}>
         <div className="self-stretch inline-flex justify-between items-center">
           <div className="inline-flex flex-col justify-start items-start gap-1">
@@ -107,13 +118,28 @@ export default function WorkItem({
               </button>
             </div>
           </div>
-          <div className="flex justify-end items-center gap-4">
-            <button type="button" onClick={onEdit} aria-label="편집" className="w-6 h-6 relative overflow-hidden">
-              <Icon Svg={EditIcon} size={24} className="w-6 h-6 text-gray-600" />
-            </button>
-            <button type="button" onClick={onDelete} aria-label="삭제" className="w-6 h-6 relative overflow-hidden">
-              <Icon Svg={DeleteIcon} size={24} className="w-6 h-6 text-gray-600" />
-            </button>
+
+          <div className="flex items-center gap-2">
+            {!completed && !isToday && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDoToday?.();
+                }}
+                className="px-4 py-2 bg-gray-200 border border-gray-300 rounded-lg text-body2-14SB"
+              >
+                오늘 하기
+              </button>
+            )}
+            <div className="flex justify-end items-center gap-4">
+              <button type="button" onClick={onEdit} aria-label="편집" className="w-6 h-6 relative overflow-hidden">
+                <Icon Svg={EditIcon} size={24} className="w-6 h-6 text-gray-600" />
+              </button>
+              <button type="button" onClick={onDelete} aria-label="삭제" className="w-6 h-6 relative overflow-hidden">
+                <Icon Svg={DeleteIcon} size={24} className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
           </div>
         </div>
 
