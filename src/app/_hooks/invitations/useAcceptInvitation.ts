@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postAcceptInvitation } from "@/app/api/invitations/api";
 import { invitationKeys } from "@/app/api/invitations/keys";
+import { groupKeys } from "@/app/api/groups/keys";
 
 export const useAcceptInvitation = () => {
   const queryClient = useQueryClient();
@@ -11,9 +12,8 @@ export const useAcceptInvitation = () => {
     mutationFn: (invitationId) => postAcceptInvitation(invitationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invitationKeys.my() });
-      // 그룹 목록도 갱신
-      queryClient.invalidateQueries({ queryKey: ["groups", "my"] });
+      // 초대 수락 후 갱신
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
     },
   });
 };
-
