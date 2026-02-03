@@ -126,8 +126,9 @@ export default function WorkItem({
                   e.stopPropagation();
                   onDoToday?.();
                 }}
-                className="px-4 py-2 bg-gray-200 border border-gray-300 rounded-lg text-body2-14SB"
+                className="px-4 py-2 bg-gray-200 border border-gray-300 rounded-lg text-body2-14SB flex items-center gap-2"
               >
+                <Image src="/Icons/right.svg" alt="오늘 하기" width={16} height={16} />
                 오늘 하기
               </button>
             )}
