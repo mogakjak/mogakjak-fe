@@ -20,6 +20,9 @@ export type WorkItemProps = {
   onEdit?: () => void;
   onDelete?: () => void;
   onDoToday?: () => void;
+  onDragStart?: (todoId: string, categoryId: string) => void;
+  onDragEnd?: () => void;
+  currentCategoryId?: string;
   className?: string;
 };
 
@@ -40,6 +43,7 @@ function toHHMMSS(total: number) {
 }
 
 export default function WorkItem({
+  id,
   date,
   title,
   targetSeconds,
@@ -49,6 +53,9 @@ export default function WorkItem({
   onEdit,
   onDelete,
   onDoToday,
+  onDragStart,
+  onDragEnd,
+  currentCategoryId,
   className,
 }: WorkItemProps) {
   const safeTarget = Math.max(0, targetSeconds || 0);
@@ -70,17 +77,33 @@ export default function WorkItem({
     );
   }, [date]);
 
+  const dragId = id ? `todo-${id}` : undefined;
+  const canDrag = !completed && !!id && !!currentCategoryId && !!onDragStart;
+
   return (
     <div
       className={clsx(
         "w-full h-36 px-5 py-4 bg-gray-100 rounded-xl",
         "outline-1 outline-gray-200",
         "inline-flex justify-start items-start gap-4 overflow-hidden",
+        canDrag && "cursor-move",
         className,
       )}
       data-property-1={completed ? "finished" : "Default"}
       role="group"
       aria-label="work item"
+      draggable={canDrag}
+      onDragStart={(e) => {
+        if (!canDrag || !id || !currentCategoryId) return;
+        e.dataTransfer.setData("text/plain", dragId!);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart(id, currentCategoryId);
+      }}
+      onDragEnd={() => {
+        if (canDrag) {
+          onDragEnd?.();
+        }
+      }}
     >
       <div className={clsx("flex-1 inline-flex flex-col justify-start items-start gap-5", completed && "opacity-50")}>
         <div className="self-stretch inline-flex justify-between items-center">

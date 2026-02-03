@@ -8,6 +8,7 @@ import AddWorkForm, { AddWorkPayload } from "./addWorkForm";
 import type { CategoryOption } from "./categorySelect";
 import type { Category } from "@/app/_types/category";
 import SimpleToast from "@/app/_components/common/SimpleToast";
+import { useTodoDragAndDrop } from "@/app/_hooks/todo/useTodoDragAndDrop";
 
 export type TodoListProps = {
   dateLabel?: string;
@@ -39,15 +40,42 @@ function CategoryHeader({
   expanded,
   onToggle,
   onAdd,
+  onDrop,
+  onDragEnter,
+  onDragLeave,
+  isDragOver,
 }: {
   category: Category;
   expanded: boolean;
   onToggle: () => void;
   onAdd?: () => void;
+  onDrop?: (e: React.DragEvent) => void;
+  onDragEnter?: () => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  isDragOver?: boolean;
 }) {
   return (
     <div className="self-stretch inline-flex justify-start items-center gap-1">
-      <div className="flex-1 h-11 rounded-lg outline-1 outline-gray-200 flex justify-start items-center overflow-hidden">
+      <div
+        className={clsx(
+          "flex-1 h-11 rounded-lg outline-1 outline-gray-200 flex justify-start items-center overflow-hidden transition-colors",
+          isDragOver && "outline-2 outline-blue-400 bg-blue-50",
+        )}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          onDragEnter?.();
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            onDragLeave?.(e);
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        }}
+        onDrop={onDrop}
+      >
         <div className={clsx("w-3 self-stretch", category.barColorClass)} />
         <div className="flex-1 self-stretch px-4 py-2.5 bg-gray-100 flex justify-between items-center overflow-hidden">
           <div className="text-neutral-900 text-base font-semibold leading-snug">
@@ -135,6 +163,19 @@ export default function TodoList({
     date: Date | string;
     targetSeconds: number;
   } | null>(null);
+
+  const {
+    draggedTodo,
+    dragOverCategoryId,
+    setDragOverCategoryId,
+    handleDragStart,
+    handleDragEnd,
+    handleDropOnCategory,
+  } = useTodoDragAndDrop({
+    categories,
+    onUpdateTodo,
+    onToast: triggerToast,
+  });
 
   useEffect(() => {
     setOpenMap((prev) => {
@@ -252,13 +293,54 @@ export default function TodoList({
                   expanded={expanded}
                   onToggle={() => toggle(cat.id)}
                   onAdd={() => handleAddClick(cat.id)}
+                  onDrop={(e) => handleDropOnCategory(e, cat.id)}
+                  onDragEnter={() => {
+                    if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                      setDragOverCategoryId(cat.id);
+                    }
+                  }}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setDragOverCategoryId(null);
+                    }
+                  }}
+                  isDragOver={dragOverCategoryId === cat.id}
                 />
                 {expanded && (
-                  <div className="self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2">
+                  <div
+                    className={clsx(
+                      "self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2",
+                      dragOverCategoryId === cat.id && "bg-blue-50 rounded-lg p-2",
+                    )}
+                    onDragEnter={() => {
+                      if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                        setDragOverCategoryId(cat.id);
+                      }
+                    }}
+                    onDragLeave={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setDragOverCategoryId(null);
+                      }
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                        setDragOverCategoryId(cat.id);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      handleDropOnCategory(e, cat.id);
+                    }}
+                  >
                     {cat.items.map((w, idx) => (
                       <WorkItem
                         key={w.id ?? `${cat.id}-${idx}`}
                         {...w}
+                        currentCategoryId={String(cat.id)}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
                         onToggleCompleted={(next) =>
                           w.id ? onToggleTodo?.(w.id, next) : undefined
                         }
