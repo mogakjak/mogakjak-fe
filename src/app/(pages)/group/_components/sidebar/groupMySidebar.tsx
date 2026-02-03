@@ -115,7 +115,7 @@ export default function GroupMySidebar({
 
   const liveActualSeconds = useLiveTimer({
     serverSeconds: serverActualSeconds,
-    isRunning: isRunning,
+    isRunning: isRunning && !!currentSessionId,
   });
 
   const formatSeconds = (seconds: number) => {

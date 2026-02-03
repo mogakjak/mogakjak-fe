@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import Icon from "../../../../_components/common/Icons";
 import { useStartGroupTimer } from "@/app/_hooks/timers/useStartGroupTimer";
 import { usePauseGroupTimer } from "@/app/_hooks/timers/usePauseGroupTimer";
@@ -42,6 +42,16 @@ export default function GroupTimer({
   const [status, setStatus] = useState<Status>("idle");
   const { setIsRunning } = useTimer();
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const isStoppingRef = useRef(false);
+  const isStartingRef = useRef(false);
+
+  // 세션 ID가 바뀌면 중복 방지 플래그 초기화
+  useEffect(() => {
+    if (sessionId) {
+      isStoppingRef.current = false;
+      isStartingRef.current = false;
+    }
+  }, [sessionId]);
 
   useEffect(() => {
     onStatusChange?.(status);
@@ -283,36 +293,19 @@ export default function GroupTimer({
     return count;
   }, [memberStatuses]);
 
-  // 자동 시작 조건 확인: 2명 이상 접속 중이고 1명이라도 개인 타이머를 시작하면 자동 시작
-  useEffect(() => {
-    if (
-      status === "idle" &&
-      !startGroupTimerMutation.isPending &&
-      connectedMemberCount >= 2 &&
-      activeParticipantCount >= 1
-    ) {
-      handleStart();
-    }
-  }, [status, connectedMemberCount, activeParticipantCount, startGroupTimerMutation.isPending]);
-
-  // 타이머 실행 중 참여자가 1명 이하가 되면 자동 종료
-  useEffect(() => {
-    if (status === "running" && sessionId && connectedMemberCount <= 1) {
-      // 자동 종료
-      finishGroupTimerMutation.mutateAsync().catch((error) => {
-        console.error("그룹 타이머 자동 종료 실패:", error);
-      });
-    }
-  }, [status, sessionId, connectedMemberCount, finishGroupTimerMutation]);
-
-  const handleStart = async () => {
+  const handleStart = useCallback(async () => {
     // 참여자가 2명 미만이면 AlertModal 띄우고 타이머 시작 막기
     if (connectedMemberCount < 2) {
       setLimitOpen(true);
       return; // 타이머 시작을 완전히 막음
     }
 
+    if (startGroupTimerMutation.isPending || isStartingRef.current || status !== "idle") {
+      return;
+    }
+
     try {
+      isStartingRef.current = true;
       setSessionId(null);
       onSessionIdChange?.(null);
 
@@ -322,10 +315,23 @@ export default function GroupTimer({
         groupId,
       });
       // WebSocket 이벤트로 상태가 업데이트됨
-    } catch (error) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      // 이미 진행 중인 세션이 있는 경우 (충돌) 무시
+      if (msg.includes("이미 실행 중") || msg.includes("409")) {
+        console.warn("그룹 타이머가 이미 다른 멤버에 의해 시작되었습니다.");
+        return;
+      }
       console.error("그룹 타이머 시작 실패:", error);
+      isStartingRef.current = false;
     }
-  };
+  }, [
+    connectedMemberCount,
+    startGroupTimerMutation,
+    status,
+    onSessionIdChange,
+    groupId,
+  ]);
 
   const handlePause = async () => {
     if (!sessionId) return;
@@ -356,6 +362,41 @@ export default function GroupTimer({
       console.error("그룹 타이머 종료 실패:", error);
     }
   };
+
+  // 자동 시작 조건 확인: 2명 이상 접속 중이고 1명이라도 개인 타이머를 시작하면 자동 시작
+  useEffect(() => {
+    if (
+      status === "idle" &&
+      !startGroupTimerMutation.isPending &&
+      connectedMemberCount >= 2 &&
+      activeParticipantCount >= 1
+    ) {
+      handleStart();
+    }
+  }, [status, connectedMemberCount, activeParticipantCount, startGroupTimerMutation.isPending, handleStart]);
+
+  // 타이머 실행 중 참여자가 1명 이하가 되거나, 아무도 개인 타이머를 켜지 않으면 자동 종료
+  useEffect(() => {
+    if (
+      status === "running" &&
+      sessionId &&
+      !finishGroupTimerMutation.isPending &&
+      !isStoppingRef.current &&
+      (connectedMemberCount <= 1 || activeParticipantCount === 0)
+    ) {
+      isStoppingRef.current = true;
+      // 자동 종료
+      finishGroupTimerMutation.mutateAsync().catch((error) => {
+        // 이미 종료된 세션인 경우(404 or specific message)는 무시
+        if (error.message?.includes("존재하지 않습니다") || error.message?.includes("404")) {
+          console.warn("그룹 타이머가 이미 종료되었습니다.");
+          return;
+        }
+        console.error("그룹 타이머 자동 종료 실패:", error);
+        isStoppingRef.current = false;
+      });
+    }
+  }, [status, sessionId, connectedMemberCount, activeParticipantCount, finishGroupTimerMutation]);
 
   return (
     <div className="w-full flex flex-col gap-3">
