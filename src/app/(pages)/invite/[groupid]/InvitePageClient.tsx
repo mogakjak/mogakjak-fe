@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useJoinGroup } from "@/app/_hooks/groups/useJoinGroup";
@@ -25,6 +25,28 @@ export default function InvitePageClient({
     isError,
     error,
   } = useJoinGroup();
+
+  const isExpired = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    
+    if (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const lowerMessage = errorMessage.toLowerCase();
+      
+      if (
+        errorMessage.includes("그룹을 찾을 수 없습니다") ||
+        errorMessage.includes("그룹을 찾을 수 없음") ||
+        errorMessage.includes("Group not found") ||
+        errorMessage.includes("group not found") ||
+        lowerMessage.includes("not found") ||
+        lowerMessage.includes("404")
+      ) {
+        return true;
+      }
+    }
+    
+    return false;
+  }, [error]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -56,8 +78,9 @@ export default function InvitePageClient({
 
   // 모바일에서는 항상 초대 안내 화면만 보여주고,
   // 이미 가입된 멤버든 아니든 joinGroup 결과와 상관없이 동일 UI 유지
+  // 만료된 링크인 경우 만료 UI 표시
   if (isMobile) {
-    return <MobileHomePage groupName={groupName} />;
+    return <MobileHomePage groupName={groupName} isExpired={isExpired} />;
   }
 
   // 실패 처리 UI
