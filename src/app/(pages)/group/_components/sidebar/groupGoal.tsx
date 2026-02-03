@@ -66,7 +66,7 @@ export default function GroupGoal({ data }: GroupGoalProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 bg-white px-8 py-6 rounded-2xl ">
+      <div className="flex flex-col justify-between h-full bg-white px-8 py-6 rounded-2xl ">
         <div className="flex items-center justify-between">
           <h3 className="text-heading4-20SB text-black">그룹 공동 목표</h3>
           <SidebarButton
@@ -78,7 +78,7 @@ export default function GroupGoal({ data }: GroupGoalProps) {
           </SidebarButton>
         </div>
 
-        <div className="flex gap-10 items-center justify-center mt-4">
+        <div className="flex gap-10 items-center justify-center mt-4 mb-2">
           <div className="flex flex-col items-center">
             <p className="text-body2-14R text-gray-600">목표 시간</p>
 

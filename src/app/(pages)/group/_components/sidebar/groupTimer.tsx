@@ -258,8 +258,8 @@ export default function GroupTimer({
     },
   });
 
-  // NOT_PARTICIPATING이 아닌 멤버 수 계산
-  const activeParticipantCount = useMemo(() => {
+  // NOT_PARTICIPATING이 아닌 멤버 수 계산 (실제 접속 중인 인원)
+  const connectedMemberCount = useMemo(() => {
     if (!memberStatuses) return 0;
     let count = 0;
     memberStatuses.forEach((member) => {
@@ -270,19 +270,44 @@ export default function GroupTimer({
     return count;
   }, [memberStatuses]);
 
+  // 개인 타이머를 실행 중인 멤버 수 계산
+  const activeParticipantCount = useMemo(() => {
+    if (!memberStatuses) return 0;
+    let count = 0;
+    memberStatuses.forEach((member) => {
+      // PARTICIPATING 상태는 개인 타이머가 실행 중인 상태를 의미함
+      if (member.participationStatus === "PARTICIPATING") {
+        count++;
+      }
+    });
+    return count;
+  }, [memberStatuses]);
+
+  // 자동 시작 조건 확인: 2명 이상 접속 중이고 1명이라도 개인 타이머를 시작하면 자동 시작
+  useEffect(() => {
+    if (
+      status === "idle" &&
+      !startGroupTimerMutation.isPending &&
+      connectedMemberCount >= 2 &&
+      activeParticipantCount >= 1
+    ) {
+      handleStart();
+    }
+  }, [status, connectedMemberCount, activeParticipantCount, startGroupTimerMutation.isPending]);
+
   // 타이머 실행 중 참여자가 1명 이하가 되면 자동 종료
   useEffect(() => {
-    if (status === "running" && sessionId && activeParticipantCount <= 1) {
+    if (status === "running" && sessionId && connectedMemberCount <= 1) {
       // 자동 종료
       finishGroupTimerMutation.mutateAsync().catch((error) => {
         console.error("그룹 타이머 자동 종료 실패:", error);
       });
     }
-  }, [status, sessionId, activeParticipantCount, finishGroupTimerMutation]);
+  }, [status, sessionId, connectedMemberCount, finishGroupTimerMutation]);
 
   const handleStart = async () => {
     // 참여자가 2명 미만이면 AlertModal 띄우고 타이머 시작 막기
-    if (activeParticipantCount < 2) {
+    if (connectedMemberCount < 2) {
       setLimitOpen(true);
       return; // 타이머 시작을 완전히 막음
     }
@@ -337,16 +362,14 @@ export default function GroupTimer({
       <div className="w-full flex items-center gap-5">
         <div className="w-[346px] h-[108px] flex flex-col justify-center items-center rounded-2xl bg-gray-100 border border-gray-200">
           <p
-            className={`text-heading1-32B whitespace-nowrap ${
-              status === "running" ? "text-gray-800" : "text-gray-400"
-            }`}
+            className={`text-heading1-32B whitespace-nowrap ${status === "running" ? "text-gray-800" : "text-gray-400"
+              }`}
           >
             {formatTime(elapsedSeconds)}
           </p>
           <p
-            className={`text-body1-16M ${
-              status === "running" ? "text-gray-800" : "text-gray-400"
-            }`}
+            className={`text-body1-16M ${status === "running" ? "text-gray-800" : "text-gray-400"
+              }`}
           >
             누적 시간 {formatTime(totalSeconds)}
           </p>
