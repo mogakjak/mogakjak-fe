@@ -236,11 +236,6 @@ export default function GroupPage({
                 } else {
                   displayStatus = "end";
                 }
-
-                // 초 단위 값을 그대로 전달하면 됩니다.
-                // 공개 여부에 따라 null이면 undefined로 전달 (비공개일 때 "참여 중" 표시)
-                // 백엔드에서 null을 보내면 비공개, 숫자(0 포함)를 보내면 공개
-                // null이나 undefined이면 undefined로, 숫자(0 포함)면 그대로 전달
                 const activeTime =
                   status.personalTimerSeconds !== null &&
                     status.personalTimerSeconds !== undefined

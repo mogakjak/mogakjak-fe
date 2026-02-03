@@ -21,6 +21,7 @@ import { useStartStopwatch } from "@/app/_hooks/timers/useStartStopwatch";
 import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
+import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
@@ -67,7 +68,6 @@ export default function TimerComponent({
   const [currentPhase, setCurrentPhase] = useState<"FOCUS" | "BREAK">("FOCUS");
   const [currentRound, setCurrentRound] = useState<number>(1);
 
-  // 🔹 sessionId를 ref로 관리 (콜백에서 항상 최신값 유지용)
   const sessionIdRef = useRef<string | null>(null);
   const setSessionId = (value: string | null) => {
     sessionIdRef.current = value;
@@ -95,6 +95,8 @@ export default function TimerComponent({
     containerRef: timerContainerRef,
     isRunning: running,
   });
+  const { isSupported, permission, requestPermission, showNotification } =
+    useBrowserNotification();
 
   openPipWindowRef.current = openPipWindow;
   isInPipRef.current = isInPip;
@@ -107,7 +109,6 @@ export default function TimerComponent({
     }
   }, [isInPip, openPipWindow, closePipWindow]);
 
-  // 🍅 뽀모도로 시작
   const handlePomodoroStart = useCallback(
     async (focusSeconds: number, breakSeconds: number, repeatCount: number) => {
       setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
@@ -131,12 +132,8 @@ export default function TimerComponent({
           isTaskPublic,
           isTimerPublic,
         });
-
-        // ✅ 여기서 sessionId를 ref + state 모두에 저장
         setSessionId(session.sessionId);
-        onSessionIdChange?.(session.sessionId);
-
-        // 첫 FOCUS 라운드 시작
+        onSessionIdChange?.(session.sessionId); 
         pomoRef.current?.reset(focusSeconds / 60);
         pomoRef.current?.start();
 
@@ -166,7 +163,6 @@ export default function TimerComponent({
     ]
   );
 
-  // ▶ 시작
   const onStart = useCallback(async () => {
     if (!todoId) {
       setAlertModalOpen(true);
@@ -284,7 +280,6 @@ export default function TimerComponent({
     isTimerPublic,
   ]);
 
-  // ⏸ 일시정지
   const onPause = useCallback(async () => {
     const effectiveSessionId = sessionIdRef.current;
 
@@ -311,8 +306,6 @@ export default function TimerComponent({
       console.error("타이머 정지 실패:", error);
     }
   }, [mode, pauseTimerMutation, setIsRunning]);
-
-  // ⏹ 종료 (수동 종료 + 자동 종료 공통 진입점)
   const onStop = useCallback(async () => {
     const effectiveSessionId = sessionIdRef.current;
 
@@ -383,7 +376,6 @@ export default function TimerComponent({
     onSessionIdChange,
   ]);
 
-  // 🍅 뽀모도로 한 phase(FOCUS/BREAK) 완료 시
   const handlePomodoroComplete = useCallback(
     async () => {
 
@@ -393,7 +385,6 @@ export default function TimerComponent({
       const { focusSeconds, breakSeconds, repeatCount } = pomodoroConfig;
 
       if (currentPhase === "FOCUS") {
-        // 아직 마지막 라운드가 아니면 → BREAK 시작
         if (currentRound < repeatCount) {
           const breakMinutes = breakSeconds / 60;
 
@@ -408,17 +399,66 @@ export default function TimerComponent({
           return;
         }
 
-        //마지막 FOCUS 라운드 끝난 시점 → onStop 호출 (finishTimer까지)
         await onStop();
+        
+        if (isSupported) {
+          const title = "뽀모도로가 완료되었어요";
+          const body = "모든 집중 시간을 완료했습니다!";
+
+          if (permission === "granted") {
+            showNotification(title, {
+              body,
+              icon: "/chorme/notificationIcon.png",
+              badge: "/chorme/notificationIcon.png",
+              tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+            });
+          } else if (permission === "default") {
+            requestPermission().then((granted) => {
+              if (granted) {
+                showNotification(title, {
+                  body,
+                  icon: "/chorme/notificationIcon.png",
+                  badge: "/chorme/notificationIcon.png",
+                  tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+                });
+              }
+            });
+          }
+        }
+        
         return;
       }
 
-      // BREAK가 끝난 경우 → 다음 FOCUS 라운드 시작
       const nextRound = currentRound + 1;
 
       if (nextRound > repeatCount) {
-
         await onStop();
+        
+        if (isSupported) {
+          const title = "뽀모도로가 완료되었어요";
+          const body = "모든 집중 시간을 완료했습니다!";
+
+          if (permission === "granted") {
+            showNotification(title, {
+              body,
+              icon: "/chorme/notificationIcon.png",
+              badge: "/chorme/notificationIcon.png",
+              tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+            });
+          } else if (permission === "default") {
+            requestPermission().then((granted) => {
+              if (granted) {
+                showNotification(title, {
+                  body,
+                  icon: "/chorme/notificationIcon.png",
+                  badge: "/chorme/notificationIcon.png",
+                  tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+                });
+              }
+            });
+          }
+        }
+        
         return;
       }
 
@@ -433,10 +473,19 @@ export default function TimerComponent({
       pomoRef.current?.reset(focusMinutes);
       pomoRef.current?.start();
     },
-    [pomodoroConfig, currentPhase, currentRound, onStop, setIsRunning]
+    [
+      pomodoroConfig,
+      currentPhase,
+      currentRound,
+      onStop,
+      setIsRunning,
+      isSupported,
+      permission,
+      requestPermission,
+      showNotification,
+    ]
   );
 
-  // 모드 전환 (타이머/뽀모도로/스톱워치)
   const onSwitch = (m: Mode) => {
     if (sessionIdRef.current) {
       setTimerEndModalOpen(true);
@@ -447,7 +496,6 @@ export default function TimerComponent({
     }
   };
 
-  // 새로고침/탭 닫기 경고
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -466,7 +514,6 @@ export default function TimerComponent({
     };
   }, [running, isInPip]);
 
-  // 본문 UI
   const body = useMemo(() => {
     if (mode === "pomodoro") {
       const minutes = pomodoroConfig
@@ -501,7 +548,6 @@ export default function TimerComponent({
       );
     }
 
-    // 일반 타이머: onComplete 시에도 onStop 통해 finishTimer 호출
     return (
       <div className="w-full h-full grid place-items-center">
         <Countdown
@@ -513,6 +559,31 @@ export default function TimerComponent({
           autoStart={false}
           onComplete={async () => {
             await onStop();
+            
+            if (isSupported) {
+              const title = "타이머가 끝났습니다!";
+              const body = "목표를 달성하셨나요? 다 마쳤다면 종료 버튼을, 시간이 더 필요하다면 타이머를 다시 시작해 보세요.";
+
+              if (permission === "granted") {
+                showNotification(title, {
+                  body,
+                  icon: "/chorme/notificationIcon.png",
+                  badge: "/chorme/notificationIcon.png",
+                  tag: `timer-complete-${sessionIdRef.current || Date.now()}`,
+                });
+              } else if (permission === "default") {
+                requestPermission().then((granted) => {
+                  if (granted) {
+                    showNotification(title, {
+                      body,
+                      icon: "/chorme/notificationIcon.png",
+                      badge: "/chorme/notificationIcon.png",
+                      tag: `timer-complete-${sessionIdRef.current || Date.now()}`,
+                    });
+                  }
+                });
+              }
+            }
           }}
         />
       </div>
@@ -524,6 +595,10 @@ export default function TimerComponent({
     currentRound,
     handlePomodoroComplete,
     onStop,
+    isSupported,
+    permission,
+    requestPermission,
+    showNotification,
   ]);
 
   const handleTimerEndModalClose = useCallback(() => {
