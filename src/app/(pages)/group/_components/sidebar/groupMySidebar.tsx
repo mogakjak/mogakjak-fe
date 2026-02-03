@@ -21,6 +21,8 @@ import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo } from "@/app/_types/todo";
 import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
+import { useTimer } from "@/app/_contexts/TimerContext";
+import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
 
 type GroupMySidebarProps = {
   state: boolean;
@@ -64,6 +66,8 @@ export default function GroupMySidebar({
     null
   );
 
+  const { isRunning } = useTimer();
+
   const { categories } = useTodoCategoryController();
   const { createTodo, updateTodo } = useTodoController();
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
@@ -103,6 +107,15 @@ export default function GroupMySidebar({
     setCurrentTodo,
     setSelectedWork,
     setSelectedTodoId,
+  });
+
+  const serverActualSeconds = useMemo(() => {
+    return todayTodo?.actualTimeInSeconds ?? currentTodo?.actualTimeInSeconds ?? 0;
+  }, [todayTodo, currentTodo]);
+
+  const liveActualSeconds = useLiveTimer({
+    serverSeconds: serverActualSeconds,
+    isRunning: isRunning && !!currentSessionId,
   });
 
   const formatSeconds = (seconds: number) => {
@@ -239,11 +252,7 @@ export default function GroupMySidebar({
               <div className="flex items-center">
                 <Icon Svg={Clock} size={24} className={"text-gray-400"} />
                 <h3 className="text-body2-14SB ml-1">
-                  {formatSeconds(
-                    todayTodo?.actualTimeInSeconds ??
-                    currentTodo?.actualTimeInSeconds ??
-                    0
-                  )}
+                  {formatSeconds(liveActualSeconds)}
                 </h3>
               </div>
               {state && (

@@ -7,6 +7,8 @@ import Image from "next/image";
 import AddWorkForm, { AddWorkPayload } from "./addWorkForm";
 import type { CategoryOption } from "./categorySelect";
 import type { Category } from "@/app/_types/category";
+import SimpleToast from "@/app/_components/common/SimpleToast";
+import { useTodoDragAndDrop } from "@/app/_hooks/todo/useTodoDragAndDrop";
 
 export type TodoListProps = {
   dateLabel?: string;
@@ -38,15 +40,42 @@ function CategoryHeader({
   expanded,
   onToggle,
   onAdd,
+  onDrop,
+  onDragEnter,
+  onDragLeave,
+  isDragOver,
 }: {
   category: Category;
   expanded: boolean;
   onToggle: () => void;
   onAdd?: () => void;
+  onDrop?: (e: React.DragEvent) => void;
+  onDragEnter?: () => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  isDragOver?: boolean;
 }) {
   return (
     <div className="self-stretch inline-flex justify-start items-center gap-1">
-      <div className="flex-1 h-11 rounded-lg outline-1 outline-gray-200 flex justify-start items-center overflow-hidden">
+      <div
+        className={clsx(
+          "flex-1 h-11 rounded-lg outline-1 outline-gray-200 flex justify-start items-center overflow-hidden transition-colors",
+          isDragOver && "outline-2 outline-blue-400 bg-blue-50",
+        )}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          onDragEnter?.();
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            onDragLeave?.(e);
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+        }}
+        onDrop={onDrop}
+      >
         <div className={clsx("w-3 self-stretch", category.barColorClass)} />
         <div className="flex-1 self-stretch px-4 py-2.5 bg-gray-100 flex justify-between items-center overflow-hidden">
           <div className="text-neutral-900 text-base font-semibold leading-snug">
@@ -110,6 +139,18 @@ export default function TodoList({
       {} as Record<string | number, boolean>,
     ),
   );
+  const [toast, setToast] = useState<{ isVisible: boolean; message: string }>({
+    isVisible: false,
+    message: "",
+  });
+
+  const triggerToast = (message: string) => {
+    setToast({ isVisible: true, message });
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
+  };
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"add" | "edit">("add");
   const [selectedCategoryId, setSelectedCategoryId] = useState<
@@ -122,6 +163,19 @@ export default function TodoList({
     date: Date | string;
     targetSeconds: number;
   } | null>(null);
+
+  const {
+    draggedTodo,
+    dragOverCategoryId,
+    setDragOverCategoryId,
+    handleDragStart,
+    handleDragEnd,
+    handleDropOnCategory,
+  } = useTodoDragAndDrop({
+    categories,
+    onUpdateTodo,
+    onToast: triggerToast,
+  });
 
   useEffect(() => {
     setOpenMap((prev) => {
@@ -210,8 +264,18 @@ export default function TodoList({
     }));
   }, [categories, allCategories]);
 
+  const totalItemsCount = useMemo(
+    () => categories.reduce((sum, cat) => sum + cat.items.length, 0),
+    [categories],
+  );
+
   return (
     <>
+      <SimpleToast
+        isVisible={toast.isVisible}
+        message={toast.message}
+        position="top"
+      />
       <div
         className={clsx(
           "w-full inline-flex flex-col items-stretch gap-6 pt-7",
@@ -229,13 +293,54 @@ export default function TodoList({
                   expanded={expanded}
                   onToggle={() => toggle(cat.id)}
                   onAdd={() => handleAddClick(cat.id)}
+                  onDrop={(e) => handleDropOnCategory(e, cat.id)}
+                  onDragEnter={() => {
+                    if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                      setDragOverCategoryId(cat.id);
+                    }
+                  }}
+                  onDragLeave={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setDragOverCategoryId(null);
+                    }
+                  }}
+                  isDragOver={dragOverCategoryId === cat.id}
                 />
                 {expanded && (
-                  <div className="self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2">
+                  <div
+                    className={clsx(
+                      "self-stretch pl-4 pr-7 flex flex-col justify-start items-start gap-2",
+                      dragOverCategoryId === cat.id && "bg-blue-50 rounded-lg p-2",
+                    )}
+                    onDragEnter={() => {
+                      if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                        setDragOverCategoryId(cat.id);
+                      }
+                    }}
+                    onDragLeave={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setDragOverCategoryId(null);
+                      }
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                        setDragOverCategoryId(cat.id);
+                      }
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      handleDropOnCategory(e, cat.id);
+                    }}
+                  >
                     {cat.items.map((w, idx) => (
                       <WorkItem
                         key={w.id ?? `${cat.id}-${idx}`}
                         {...w}
+                        currentCategoryId={String(cat.id)}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
                         onToggleCompleted={(next) =>
                           w.id ? onToggleTodo?.(w.id, next) : undefined
                         }
@@ -255,6 +360,22 @@ export default function TodoList({
                             onDeleteTodo?.(w.id);
                           }
                         }}
+                        onDoToday={() => {
+                          if (w.id) {
+                            onUpdateTodo?.({
+                              todoId: w.id,
+                              categoryId: String(cat.id),
+                              title: w.title,
+                              date: new Date(),
+                              targetSeconds: w.targetSeconds,
+                            });
+                            const displayTitle =
+                              w.title.length > 15
+                                ? w.title.slice(0, 15) + "..."
+                                : w.title;
+                            triggerToast(`${displayTitle}을 오늘로 가져왔습니다.`);
+                          }
+                        }}
                         className="self-stretch w-full"
                       />
                     ))}
@@ -264,6 +385,13 @@ export default function TodoList({
             );
           })}
         </div>
+        {totalItemsCount === 0 && (
+          <div className="flex flex-col items-center justify-center py-50 px-4 text-center">
+            <p className="text-gray-600 text-body1-16SB whitespace-pre-wrap">
+              오늘 등록된 작업이 없어요!{"\n"}지금 바로 몰입할 작업을 추가해 보세요.
+            </p>
+          </div>
+        )}
       </div>
 
       {modalOpen && (
