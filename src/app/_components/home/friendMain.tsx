@@ -57,7 +57,7 @@ export default function FriendMain({ groups }: FriendMainProps) {
 
   return (
     <div className="px-10 pt-10 bg-white rounded-[20px] self-stretch flex flex-col flex-1">
-      <h2 className="text-heading4-20SB text-black">내 모각작 메이트</h2>
+      <h2 className="text-heading4-20SB text-black">메이트들의 집중 현황</h2>
 
       <section className="flex justify-between items-center mt-4">
         <DropdownList

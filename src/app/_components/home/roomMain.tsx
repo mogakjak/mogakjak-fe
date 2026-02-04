@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import GroupRoom from "./room/groupRoom";
 import { Button } from "@/components/button";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
 import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
-import { groupKeys } from "@/app/api/groups/keys";
 
 type RoomMainProps = {
   isPending: boolean;
@@ -21,12 +19,9 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [createdGroupId, setCreatedGroupId] = useState<string | undefined>();
 
-  const queryClient = useQueryClient();
   const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
 
   const handleGroupCreateSuccess = (groupId: string) => {
-    // 그룹 생성 후 갱신 
-    queryClient.invalidateQueries({ queryKey: groupKeys.my() });
     setCreatedGroupId(groupId);
     setInviteModalOpen(true);
   };
@@ -35,7 +30,7 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
     <div className="w-full p-9 pb-0 bg-white rounded-[20px]">
       <div className="flex justify-between mb-2">
         <h2 className="text-heading4-20SB text-black">
-          모여서 각자 작업하는 시간
+          모각작 함께 몰입하는 시간
         </h2>
         <Button
           variant="secondary"
