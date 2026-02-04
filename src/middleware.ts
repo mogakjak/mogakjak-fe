@@ -65,11 +65,14 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/login",
-    "/landing",
-    "/auth/callback/:path*",
-    "/",
-    "/dashboard/:path*",
-    "/rooms/:path*",
+    /*
+     * 아래 경로들을 제외한 모든 요청 경로에 대해 미들웨어 실행:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - 모든 확장자 파일 (png, jpg, svg 등)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js|map|txt|webp|woff2?)$).*)",
   ],
 };

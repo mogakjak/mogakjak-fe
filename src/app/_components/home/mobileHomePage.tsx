@@ -18,11 +18,35 @@ const features = [
 
 interface MobileHomePageProps {
   groupName?: string;
+  isExpired?: boolean;
 }
 
 export default function MobileHomePage({
   groupName = "모각작",
+  isExpired = false,
 }: MobileHomePageProps) {
+  if (isExpired) {
+    return (
+      <main className="w-full py-7 min-h-screen flex flex-col items-center justify-center">
+        <div className="inline-flex flex-col justify-start items-center gap-4 mt-8">
+          <div className="w-48 h-48 relative overflow-hidden flex items-center justify-center">
+            <Image
+              src="/Icons/post.svg"
+              alt="우편함"
+              width={192}
+              height={192}
+            />
+          </div>
+          <div className="text-center justify-center text-zinc-600 text-sm font-normal font-['Pretendard'] leading-5">
+            초대 링크가 만료되었어요.
+            <br />
+            새로운 링크를 받아 다시 접속해 주세요.
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="w-full py-7 min-h-screen flex flex-col items-center justify-evenly">
       <Image
