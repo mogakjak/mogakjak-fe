@@ -53,7 +53,9 @@ export default function ForkPopup({
     // 첫 번째 그룹이 CommonGroup인지 확인
     const firstGroup = groups[0];
     if ("groupId" in firstGroup) {
-      return (groups as CommonGroup[]).map(convertToForkGroup);
+      return (groups as CommonGroup[])
+        .filter((group) => group.targetParticipationStatus !== "PARTICIPATING")
+        .map(convertToForkGroup);
     }
     return groups as ForkGroup[];
   }, [groups]);
@@ -145,7 +147,7 @@ export default function ForkPopup({
                     "bg-gray-100 cursor-pointer transition-colors",
                     "hover:bg-rose-50",
                     isSelected &&
-                      "bg-rose-50 outline-1 outline-offset-[-1px] outline-red-500"
+                      "bg-rose-50 outline-1 -outline-offset-1 outline-red-500"
                   )}
                   onClick={() => handleSelect(g)}
                 >
