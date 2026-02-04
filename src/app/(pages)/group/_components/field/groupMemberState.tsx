@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { formatTime } from "@/app/_utils/formatTime";
-import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
 import Icon from "../../../../_components/common/Icons";
 
 // 아이콘
@@ -47,11 +46,44 @@ export default function GroupMemberState({
     }
   }, [lastActiveAt]);
 
-  // 클라이언트에서 추적하는 활성 시간
-  const clientActiveTime = useLiveTimer({
-    serverSeconds: serverActiveTime,
-    isRunning: status === "active" && activeTime !== null && activeTime !== undefined,
-  });
+  // 클라이언트에서 추적하는 활성 시간 (서버 신호와 동기화)
+  const [clientActiveTime, setClientActiveTime] = useState(serverActiveTime);
+  const [serverSyncTime, setServerSyncTime] = useState(Date.now());
+
+  // 서버에서 받은 activeTime이 변경되면 동기화
+  // activeTime이 null이거나 undefined이면 동기화하지 않음
+  useEffect(() => {
+    if (
+      (status === "active" || status === "rest") &&
+      activeTime !== null &&
+      activeTime !== undefined
+    ) {
+      setClientActiveTime(serverActiveTime);
+      setServerSyncTime(Date.now());
+    }
+  }, [serverActiveTime, status, activeTime]);
+
+  // active 상태일 때만 클라이언트에서 시간 증가 (rest는 휴식이므로 증가하지 않음)
+  // activeTime이 null이거나 undefined이면 시간 증가하지 않음
+  useEffect(() => {
+    if (
+      status !== "active" ||
+      activeTime === null ||
+      activeTime === undefined
+    ) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setClientActiveTime(() => {
+        // 서버에서 받은 시간 + 경과 시간 (초 단위)
+        const elapsedSeconds = Math.floor((Date.now() - serverSyncTime) / 1000);
+        return serverActiveTime + elapsedSeconds;
+      });
+    }, 1000); // 1초마다 업데이트
+
+    return () => clearInterval(interval);
+  }, [status, serverActiveTime, serverSyncTime, activeTime]);
 
   // lastActiveAt으로부터 경과 시간 계산 (end 상태일 때)
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
@@ -140,19 +172,19 @@ export default function GroupMemberState({
           Svg={statusIcon}
           size={20}
           className={`${status == "active"
-            ? "text-black"
-            : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
+              ? "text-black"
+              : status == "rest"
+                ? "text-gray-600 "
+                : "text-gray-500"
             }`}
         />
         <p
           title={line1}
           className={`truncate ${status == "active"
-            ? "text-black"
-            : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
+              ? "text-black"
+              : status == "rest"
+                ? "text-gray-600 "
+                : "text-gray-500"
             }`}
         >
           {line1}

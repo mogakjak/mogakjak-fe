@@ -29,15 +29,6 @@ export default function TimerSelected({
       </Button>
 
       <Button
-        variant={value === "timer" ? "selected" : "muted"}
-        onClick={() => onChange?.("timer")}
-        size={size}
-        aria-pressed={value === "timer"}
-        className={className}
-      >
-        타이머
-      </Button>
-      <Button
         variant={value === "stopwatch" ? "selected" : "muted"}
         onClick={() => onChange?.("stopwatch")}
         aria-pressed={value === "stopwatch"}
@@ -45,6 +36,16 @@ export default function TimerSelected({
         className={className}
       >
         스톱워치
+      </Button>
+
+      <Button
+        variant={value === "timer" ? "selected" : "muted"}
+        onClick={() => onChange?.("timer")}
+        size={size}
+        aria-pressed={value === "timer"}
+        className={className}
+      >
+        타이머
       </Button>
     </div>
   );
