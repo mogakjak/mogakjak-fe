@@ -10,9 +10,8 @@ import { MyGroup } from "@/app/_types/groups";
 import { useRouter } from "next/navigation";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
-import { getAuthToken } from "@/app/api/auth/getAuthToken";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
-import { useQuery } from "@tanstack/react-query";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
 
 
 import {
@@ -41,10 +40,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   const { mutate: leaveGroupMutate } = useLeaveGroup();
 
   // 토큰에서 userId 추출
-  const { data: token } = useQuery({
-    queryKey: ["auth", "token"],
-    queryFn: getAuthToken,
-  });
+  const { token } = useAuthState();
   const currentUserId = getUserIdFromToken(token);
 
   // 본인이 HOST인지 확인
