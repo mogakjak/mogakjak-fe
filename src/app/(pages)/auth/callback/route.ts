@@ -13,6 +13,7 @@ function getJwtExp(token?: string): number | undefined {
 
 interface JwtPayload {
   isOnboarding?: boolean;
+  isFirstVisit?: boolean;
   [key: string]: unknown;
 }
 
@@ -72,8 +73,14 @@ export async function GET(req: Request) {
   });
 
   const payload = getJwtPayload(accessToken);
-  const isOnboarding = payload?.isOnboarding ?? true;
 
-  const redirectUrl = new URL(isOnboarding ? "/" : "/onboarding", req.url);
+  // Use isFirstVisit check. Default to false if missing to be safe
+  const isFirstVisit = payload?.isFirstVisit === true;
+
+  // If First Visit -> Agreements
+  // Else -> Home
+  const destination = isFirstVisit ? "/agreements" : "/";
+
+  const redirectUrl = new URL(destination, req.url);
   return NextResponse.redirect(redirectUrl);
 }

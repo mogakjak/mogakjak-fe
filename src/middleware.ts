@@ -38,6 +38,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname === "/agreements") {
+    return NextResponse.next();
+  }
+
   if (pathname === "/login") {
     if (accessValid || refreshValid) {
       const url = nextUrl.clone();

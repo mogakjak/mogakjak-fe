@@ -138,7 +138,6 @@ export default function GroupPage({
         };
       },
     );
-
     if (!currentUserId) return membersWithStatus;
 
     return [...membersWithStatus].sort((a, b) => {
@@ -271,6 +270,7 @@ export default function GroupPage({
                       lastActiveAt={lastActiveAt}
                       profileUrl={member.profileUrl}
                       isCurrentUser={member.userId === currentUserId}
+                      isHost={status.role === "HOST"}
                       cheerCount={status.cheerCount || 0}
                       userId={member.userId}
                       groupId={groupData.groupId}

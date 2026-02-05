@@ -7,6 +7,7 @@ type PreviewCharacterProps = {
   state: boolean;
   nickname: string;
   character: Character;
+  isHost?: boolean;
   cheerCount?: number;
 };
 
@@ -14,16 +15,22 @@ export default function PreviewCharacter({
   state,
   nickname,
   character,
+  isHost = false,
   cheerCount = 0,
 }: PreviewCharacterProps) {
   return (
     <div className="flex flex-col mb-1">
       <div className="flex justify-between mb-1">
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           <p className="text-heading4-20SB max-w-[150px] truncate">
             {nickname}
           </p>
           <span className="text-heading4-20SB">(나)</span>
+          {isHost && (
+            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-caption-12M rounded-md">
+              방장
+            </span>
+          )}
         </div>
         {state && <CheerUp cheerCount={cheerCount} />}
       </div>

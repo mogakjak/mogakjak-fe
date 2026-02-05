@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useOnboardingRedirect } from "@/app/_hooks/users/useOnboardingRedirect";
 
 const features = [
   {
@@ -25,6 +28,10 @@ export default function MobileHomePage({
   groupName = "모각작",
   isExpired = false,
 }: MobileHomePageProps) {
+  const { shouldRender } = useOnboardingRedirect();
+
+  if (!shouldRender) return null;
+
   if (isExpired) {
     return (
       <main className="w-full py-7 min-h-screen flex flex-col items-center justify-center">
