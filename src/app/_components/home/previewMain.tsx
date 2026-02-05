@@ -59,6 +59,13 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     return myStatus?.cheerCount || 0;
   }, [currentUserId, memberStatuses]);
 
+  // 현재 사용자가 방장인지 확인
+  const isHost = useMemo(() => {
+    if (!currentUserId || !memberStatuses) return false;
+    const myStatus = memberStatuses.get(currentUserId);
+    return myStatus?.role === "HOST";
+  }, [currentUserId, memberStatuses]);
+
   const savedTodoId =
     typeof window !== "undefined"
       ? localStorage.getItem("groupMySidebar_selectedTodoId")
@@ -102,6 +109,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
           nickname={profile.nickname}
           character={profile.character}
           cheerCount={myCheerCount}
+          isHost={isHost}
         />
       )}
 
