@@ -11,6 +11,7 @@ export type Mate = {
   profileUrl: string;
   level: number;
   groupNames: string[];
+  role?: "HOST" | "MEMBER"; // 그룹 내 역할
   isActive?: boolean; // 활동 중 여부 (웹사이트 접속 중이거나 개인 타이머 실행 중)
   lastActivityAt?: string | null; // 마지막 활동 시간 (ISO 8601 형식)
 };

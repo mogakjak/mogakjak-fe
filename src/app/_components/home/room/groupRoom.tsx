@@ -10,6 +10,9 @@ import { MyGroup } from "@/app/_types/groups";
 import { useRouter } from "next/navigation";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
+import { getAuthToken } from "@/app/api/auth/getAuthToken";
+import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
+import { useQuery } from "@tanstack/react-query";
 
 
 import {
@@ -36,6 +39,18 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   const router = useRouter();
   const { groupId, groupName, imageUrl, members } = group;
   const { mutate: leaveGroupMutate } = useLeaveGroup();
+
+  // 토큰에서 userId 추출
+  const { data: token } = useQuery({
+    queryKey: ["auth", "token"],
+    queryFn: getAuthToken,
+  });
+  const currentUserId = getUserIdFromToken(token);
+
+  // 본인이 HOST인지 확인
+  const isHost = currentUserId && members.some(
+    (member) => member.userId === currentUserId && member.role === "HOST"
+  );
 
   // 그룹 타이머 상태 관리
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -124,7 +139,14 @@ export default function GroupRoom({ group }: GroupRoomProps) {
       </div>
 
       <div className="flex flex-col gap-2 ml-5">
-        <p className="text-heading4-20SB text-black">{groupName}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-heading4-20SB text-black">{groupName}</p>
+          {isHost && (
+            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-caption-12M rounded-md">
+              방장
+            </span>
+          )}
+        </div>
         <StateButton state={isTimerRunning} />
       </div>
 
