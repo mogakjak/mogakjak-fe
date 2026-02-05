@@ -99,10 +99,17 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     });
   };
 
+  // imageUrl이 유효한지 확인 (빈 문자열이 아니고, /, http://, https://로 시작하는지)
+  const isValidImageUrl = imageUrl && (
+    imageUrl.startsWith("/") ||
+    imageUrl.startsWith("http://") ||
+    imageUrl.startsWith("https://")
+  );
+
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
       <div className="relative w-[84px] h-[84px] rounded-lg bg-red-200 overflow-hidden">
-        {imageUrl ? (
+        {isValidImageUrl ? (
           <Image
             src={imageUrl}
             alt="groupImage"

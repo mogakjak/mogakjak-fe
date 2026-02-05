@@ -1,4 +1,9 @@
+"use client";
+
 import Image from "next/image";
+import { useOnboarding } from "@/app/_hooks/users/useOnboarding";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const features = [
   {
@@ -25,6 +30,17 @@ export default function MobileHomePage({
   groupName = "모각작",
   isExpired = false,
 }: MobileHomePageProps) {
+  const router = useRouter();
+  const { data: onboarding } = useOnboarding();
+
+  useEffect(() => {
+    if (onboarding && onboarding.isFirstVisit === true) {
+      router.push("/onboarding");
+    }
+  }, [onboarding, router]);
+
+  if (onboarding && onboarding.isFirstVisit === true) return null;
+
   if (isExpired) {
     return (
       <main className="w-full py-7 min-h-screen flex flex-col items-center justify-center">

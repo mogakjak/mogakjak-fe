@@ -24,9 +24,9 @@ function buildAuthorizeUrl(provider: Provider): string {
     typeof window !== "undefined"
       ? window.location.origin
       : process.env.NEXT_PUBLIC_SITE_ORIGIN ||
-        (process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : "http://localhost:3000");
+      (process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
 
   // 우선순위: NEXT_PUBLIC_REDIRECT_URI(있으면 그대로) > runtimeOrigin
   // 백엔드가 콜백 경로를 자동으로 붙이는 환경이라면 호스트만 전달되도록 한다
