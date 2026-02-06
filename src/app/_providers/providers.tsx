@@ -64,15 +64,21 @@ const queryClient = new QueryClient({
 
 // Query Cache에 전역 에러 핸들러 등록
 queryClient.getQueryCache().subscribe((event) => {
-  if (event?.type === "error" && event.error instanceof AgreementRequiredError) {
-    handleAgreementRedirect(event.error);
+  if (event?.type === "updated") {
+    const error = event.query.state.error;
+    if (error instanceof AgreementRequiredError) {
+      handleAgreementRedirect(error);
+    }
   }
 });
 
 // Mutation Cache에 전역 에러 핸들러 등록
 queryClient.getMutationCache().subscribe((event) => {
-  if (event?.type === "error" && event.error instanceof AgreementRequiredError) {
-    handleAgreementRedirect(event.error);
+  if (event?.type === "updated") {
+    const error = event.mutation.state.error;
+    if (error instanceof AgreementRequiredError) {
+      handleAgreementRedirect(error);
+    }
   }
 });
 
