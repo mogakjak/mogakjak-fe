@@ -27,9 +27,12 @@ export default function PreviewCharacter({
           </p>
           <span className="text-heading4-20SB">(나)</span>
           {isHost && (
-            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-caption-12M rounded-md">
-              방장
-            </span>
+            <Image
+              src="/Icons/king.svg"
+              alt="방장"
+              width={20}
+              height={20}
+            />
           )}
         </div>
         {state && <CheerUp cheerCount={cheerCount} />}
