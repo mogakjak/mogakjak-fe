@@ -1,21 +1,4 @@
-let isRedirecting = false;
-function handleAgreementError(errorMessage: string, hasToken: boolean): void {
-  if (typeof window !== "undefined" && errorMessage === "필수 약관 동의가 필요합니다.") {
-    if (isRedirecting) {
-      return;
-    }
-    const currentPath = window.location.pathname;
-    if ((hasToken && currentPath === "/agreements") || (!hasToken && currentPath === "/login")) {
-      return;
-    }
-    isRedirecting = true;
-    if (hasToken) {
-      window.location.replace("/agreements");
-    } else {
-      window.location.replace("/login");
-    }
-  }
-}
+import { AgreementRequiredError } from "./errors/AgreementRequiredError";
 
 /**
  * 공통 API 요청 함수
@@ -23,6 +6,7 @@ function handleAgreementError(errorMessage: string, hasToken: boolean): void {
  * @param endpoint API 엔드포인트 (예: "/tags")
  * @param options fetch 옵션
  * @returns Promise<T>
+ * @throws {AgreementRequiredError} 필수 약관 동의가 필요할 때
  */
 export async function request<T>(
   baseUrl: string,
@@ -62,7 +46,11 @@ export async function request<T>(
     } catch {
       // 응답 본문 파싱 실패 시 기본 메시지 사용
     }
-    handleAgreementError(msg, hasToken);
+    
+    // 필수 약관 동의 에러인 경우 커스텀 에러 throw
+    if (msg === "필수 약관 동의가 필요합니다.") {
+      throw new AgreementRequiredError(hasToken);
+    }
     
     throw new Error(msg);
   }
@@ -75,8 +63,10 @@ export async function request<T>(
     if (!isSuccess) {
       const errorMessage = json?.message ?? `HTTP ${code}`;
       
-      // 필수 약관 동의 에러 처리
-      handleAgreementError(errorMessage, hasToken);
+      // 필수 약관 동의 에러인 경우 커스텀 에러 throw
+      if (errorMessage === "필수 약관 동의가 필요합니다.") {
+        throw new AgreementRequiredError(hasToken);
+      }
       
       throw new Error(errorMessage);
     }
