@@ -18,29 +18,6 @@ const NavigationModal = dynamic(() => import("./navigationModal"), {
 // 모듈 레벨 플래그로 무한 리다이렉트 방지
 let isRedirecting = false;
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      onError: (error) => {
-        // AgreementRequiredError 처리
-        if (error instanceof AgreementRequiredError) {
-          handleAgreementRedirect(error);
-        }
-      },
-    },
-    mutations: {
-      retry: false,
-      onError: (error) => {
-        // AgreementRequiredError 처리
-        if (error instanceof AgreementRequiredError) {
-          handleAgreementRedirect(error);
-        }
-      },
-    },
-  },
-});
-
 /**
  * 약관 동의 필요 시 리다이렉트 처리
  */
@@ -73,6 +50,31 @@ function handleAgreementRedirect(error: AgreementRequiredError): void {
     window.location.replace("/login");
   }
 }
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
+
+// Query Cache에 전역 에러 핸들러 등록
+queryClient.getQueryCache().subscribe((event) => {
+  if (event?.type === "error" && event.error instanceof AgreementRequiredError) {
+    handleAgreementRedirect(event.error);
+  }
+});
+
+// Mutation Cache에 전역 에러 핸들러 등록
+queryClient.getMutationCache().subscribe((event) => {
+  if (event?.type === "error" && event.error instanceof AgreementRequiredError) {
+    handleAgreementRedirect(event.error);
+  }
+});
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
