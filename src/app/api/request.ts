@@ -1,9 +1,12 @@
+import { AgreementRequiredError } from "./errors/AgreementRequiredError";
+
 /**
  * 공통 API 요청 함수
  * @param baseUrl API 기본 URL (예: "/api/feedback")
  * @param endpoint API 엔드포인트 (예: "/tags")
  * @param options fetch 옵션
  * @returns Promise<T>
+ * @throws {AgreementRequiredError} 필수 약관 동의가 필요할 때
  */
 export async function request<T>(
   baseUrl: string,
@@ -16,8 +19,11 @@ export async function request<T>(
       Accept: "application/json",
     },
     cache: "no-store",
+    credentials: "include", // 쿠키 포함
     ...options,
   });
+
+  const hasToken = res.status !== 401;
 
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
@@ -40,6 +46,12 @@ export async function request<T>(
     } catch {
       // 응답 본문 파싱 실패 시 기본 메시지 사용
     }
+    
+    // 필수 약관 동의 에러인 경우 커스텀 에러 throw
+    if (msg === "필수 약관 동의가 필요합니다.") {
+      throw new AgreementRequiredError(hasToken);
+    }
+    
     throw new Error(msg);
   }
 
@@ -49,7 +61,14 @@ export async function request<T>(
     const code = json.statusCode as number;
     const isSuccess = code === 0 || (code >= 200 && code < 300);
     if (!isSuccess) {
-      throw new Error(json?.message ?? `HTTP ${code}`);
+      const errorMessage = json?.message ?? `HTTP ${code}`;
+      
+      // 필수 약관 동의 에러인 경우 커스텀 에러 throw
+      if (errorMessage === "필수 약관 동의가 필요합니다.") {
+        throw new AgreementRequiredError(hasToken);
+      }
+      
+      throw new Error(errorMessage);
     }
     return json?.data as T;
   }

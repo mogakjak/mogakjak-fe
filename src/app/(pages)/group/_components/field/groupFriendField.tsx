@@ -100,9 +100,12 @@ export default function GroupFriendField({
                 </span>
               )}
               {isHost && (
-                <span className="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] font-medium rounded">
-                  방장
-                </span>
+                <Image
+                  src="/Icons/king.svg"
+                  alt="방장"
+                  width={20}
+                  height={20}
+                />
               )}
             </div>
           </div>

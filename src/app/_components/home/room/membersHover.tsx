@@ -59,7 +59,7 @@ export default function MembersHover({
           {...getFloatingProps()}
           style={floatingStyles}
           className={clsx(
-            "z-[60] w-60  rounded-xl  bg-white shadow-md p-5",
+            "z-60 w-60  rounded-xl  bg-white shadow-md p-5",
             "transition-opacity duration-150",
             className
           )}

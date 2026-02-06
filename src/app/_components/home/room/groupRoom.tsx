@@ -138,9 +138,12 @@ export default function GroupRoom({ group }: GroupRoomProps) {
         <div className="flex items-center gap-2">
           <p className="text-heading4-20SB text-black">{groupName}</p>
           {isHost && (
-            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-caption-12M rounded-md">
-              방장
-            </span>
+            <Image
+              src="/Icons/king.svg"
+              alt="방장"
+              width={20}
+              height={20}
+            />
           )}
         </div>
         <StateButton state={isTimerRunning} />
@@ -188,7 +191,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
               ref={refs.setFloating}
               style={floatingStyles}
               {...getFloatingProps()}
-              className="z-[70]"
+              className="z-70"
             >
               <LeavePopup
                 onLeaveClick={() => {
@@ -202,7 +205,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
       </div>
 
       {openModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-100">
           <LeaveGroupModal
             groupName={groupName}
             onClose={() => setOpenModal(false)}
