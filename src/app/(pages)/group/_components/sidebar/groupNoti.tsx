@@ -35,7 +35,6 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
 
   const { notiData, localAgreed, handleToggle } = useToggleNotification(
     data.groupId,
-    { refetchInterval: 3000 } // 3초마다 폴링하여 데이터 동기화 보장
   );
 
 

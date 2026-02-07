@@ -5,16 +5,12 @@ import { useUpdateGroupNotifications } from "./useUpdateGroupNotifications";
 /**
  * 그룹 알림 토글 상태를 관리하는 커스텀 훅
  * @param groupId 그룹 ID
- * @param options 추가 옵션 (refetchInterval 등)
  * @returns 알림 데이터, 로컬 토글 상태, 토글 핸들러
  */
-export function useToggleNotification(
-    groupId: string,
-    options?: { refetchInterval?: number }
-) {
+export function useToggleNotification(groupId: string) {
     const [localAgreed, setLocalAgreed] = useState(false);
 
-    const { data: notiData } = useGetGroupNotifications(groupId, options);
+    const { data: notiData } = useGetGroupNotifications(groupId);
     const { mutateAsync: updateNoti } = useUpdateGroupNotifications(groupId);
 
     // 서버 데이터로 로컬 상태 동기화
