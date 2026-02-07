@@ -14,6 +14,7 @@ export type GroupMemberStatus = {
   nickname: string;
   profileUrl?: string;
   level: number;
+  role?: "HOST" | "MEMBER";
   participationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
   enteredAt?: string;
   daysSinceLastParticipation?: number;

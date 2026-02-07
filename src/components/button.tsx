@@ -53,7 +53,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isMuted = variant === "muted";
     const enablePressScale = !disabled && variant !== "selected";
@@ -83,7 +83,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           block && "w-full",
           enablePressScale && "active:scale-[0.98]",
           isMuted && "cursor-pointer",
-          className
+          className,
         )}
         {...props}
       >
@@ -98,7 +98,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <span className="font-semibold leading-snug">{children}</span>
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

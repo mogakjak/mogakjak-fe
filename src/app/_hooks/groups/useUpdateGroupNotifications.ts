@@ -14,11 +14,10 @@ export const useUpdateGroupNotifications = (groupId: string) => {
   return useMutation({
     mutationFn: (payload: NotiReq) => putGroupNoti(groupId, payload),
     onSuccess: (data: NotiRes) => {
-      queryClient.setQueryData(groupKeys.notifications(groupId), data);
-      queryClient.setQueryData<NotiRes | undefined>(
-        groupKeys.detail(groupId),
-        (prev) => (prev ? { ...prev, ...data } : data)
-      );
+      // 캐시만 업데이트하고 refetch하지 않음
+      queryClient.setQueryData(groupKeys.notifications(groupId), data, {
+        updatedAt: Date.now(),
+      });
     },
   });
 };
