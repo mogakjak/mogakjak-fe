@@ -15,10 +15,6 @@ export const useGroupDetail = (
       if (!groupId || groupId === "undefined") {
         throw new Error("groupId is required");
       }
-      console.log(
-        "[useGroupDetail] 그룹 상세 정보 조회 시작, groupId:",
-        groupId
-      );
       return getGroupDetail(groupId);
     },
     // 목표는 그룹 타이머 종료 시에만 변경되므로 긴 캐시 시간 설정

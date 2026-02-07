@@ -21,6 +21,8 @@ import { GroupDetail } from "@/app/_types/groups";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
 import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExitGuard";
+import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
+import GroupNoti from "./sidebar/groupNoti";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -113,6 +115,9 @@ export default function GroupPage({
     return getUserIdFromToken(token);
   }, [token]);
 
+  // 방장 권한 확인 (한 번만 계산)
+  const isHost = useIsGroupHost(memberStatuses);
+
   const sendCheerMutation = useSendCheer(groupData.groupId);
 
   const handleCheerClick = (targetUserId: string) => {
@@ -191,7 +196,10 @@ export default function GroupPage({
         <div
           className={`w-full ${onboardingStep === 2 ? " rounded-2xl border-4 border-red-200" : ""}`}
         >
-          <GroupGoal data={groupData}></GroupGoal>
+          <div className="flex gap-5 h-full">
+            <GroupGoal data={groupData} isHost={isHost}></GroupGoal>
+            <GroupNoti data={groupData} isHost={isHost}></GroupNoti>
+          </div>
         </div>
       </div>
 
