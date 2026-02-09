@@ -22,3 +22,9 @@ export const postAgreements = async (data: AgreementData): Promise<void> => {
         }),
     });
 };
+
+export const deleteAccount = async (): Promise<void> => {
+    await request<void>(USERS_BASE, "/withdrawal", {
+        method: "DELETE",
+    });
+};
