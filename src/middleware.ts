@@ -43,6 +43,14 @@ export function middleware(req: NextRequest) {
   }
 
   if (pathname === "/login") {
+    const isDeactivated = nextUrl.searchParams.get("deactivated") === "true";
+    
+    if (isDeactivated) {
+      const res = NextResponse.next();
+      clearAuthCookies(res);
+      return res;
+    }
+
     if (accessValid || refreshValid) {
       const url = nextUrl.clone();
       url.pathname = "/";

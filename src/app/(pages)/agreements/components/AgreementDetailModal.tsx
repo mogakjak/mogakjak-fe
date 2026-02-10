@@ -13,7 +13,7 @@ export default function AgreementDetailModal({ type, onClose }: AgreementDetailM
     const displayTitle = type === "service" ? SERVICE_TERMS_TITLE : PRIVACY_TERMS_TITLE;
 
     return (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[60]">
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-60">
             <div className="w-[516px] h-[660px] p-6 bg-neutral-50 rounded-[20px] shadow-[0px_0px_28px_0px_rgba(0,0,0,0.15)] inline-flex flex-col justify-start items-start gap-5 overflow-hidden">
                 <div className="inline-flex justify-start items-center gap-4">
                     <button

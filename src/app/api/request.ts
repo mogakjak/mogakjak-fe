@@ -1,4 +1,5 @@
 import { AgreementRequiredError } from "./errors/AgreementRequiredError";
+import { DeactivatedUserError } from "./errors/DeactivatedUserError";
 
 /**
  * 공통 API 요청 함수
@@ -50,6 +51,10 @@ export async function request<T>(
     // 필수 약관 동의 에러인 경우 커스텀 에러 throw
     if (msg === "필수 약관 동의가 필요합니다.") {
       throw new AgreementRequiredError(hasToken);
+    }
+    
+    if (msg === "탈퇴한 유저입니다.") {
+      throw new DeactivatedUserError();
     }
     
     throw new Error(msg);

@@ -5,7 +5,20 @@ import Image from "next/image";
 import ProfileEditButton from "./profileEditButton";
 import ProfileInfo from "./profileInfo";
 import ProfileEditModal from "./profileEditModal";
-import { invalidateTokenCache } from "@/app/api/auth/api";
+import AccountSettingsModal from "./accountSettingsModal";
+import DeleteAccountModal from "./deleteAccountModal";
+import DeleteAccountConfirmModal from "./deleteAccountConfirmModal";
+import { useDeleteAccount } from "@/app/_hooks/users/useDeleteAccount";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  useClick,
+  useDismiss,
+  useInteractions,
+} from "@floating-ui/react";
 
 import type { CharacterBasket } from "@/app/_types/mypage";
 
@@ -20,6 +33,13 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
   } = basket;
 
   const [openEdit, setOpenEdit] = useState(false);
+  const [openAccountSettings, setOpenAccountSettings] = useState(false);
+  const [openDeleteAccount, setOpenDeleteAccount] = useState(false);
+  const [openDeleteAccountConfirm, setOpenDeleteAccountConfirm] = useState(false);
+  const [deleteAccountData, setDeleteAccountData] = useState<{
+    reasons: string[];
+    feedback: string;
+  } | null>(null);
 
   const [profileImage, setProfileImage] = useState<string>(
     imageUrl || "/profileDefault.svg"
@@ -27,34 +47,63 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
 
   const handleEditOpen = () => setOpenEdit(true);
 
-  const handleLogout = async () => {
+  const { refs, floatingStyles, context } = useFloating({
+    open: openAccountSettings,
+    onOpenChange: setOpenAccountSettings,
+    placement: "top-end",
+    whileElementsMounted: autoUpdate,
+    middleware: [offset({ mainAxis: 34, crossAxis: 20 }), flip(), shift()],
+  });
+
+  const click = useClick(context);
+  const dismiss = useDismiss(context);
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    click,
+    dismiss,
+  ]);
+
+  const deleteAccountMutation = useDeleteAccount();
+
+  const handleDeleteAccountConfirm = async () => {
+    if (!deleteAccountData) return;
+
     try {
-      // 토큰 캐시 무효화
-      invalidateTokenCache();
-
-      await fetch("/api/auth/logout", {
-        method: "POST",
-      });
-
-      window.location.href = "/login";
+      await deleteAccountMutation.mutateAsync();
+      setOpenDeleteAccountConfirm(false);
+      setDeleteAccountData(null);
     } catch (error) {
-      console.error("로그아웃 중 오류 발생:", error);
-      // 에러 발생 시에도 캐시 무효화
-      invalidateTokenCache();
-      window.location.href = "/login";
+      console.error("계정 탈퇴 실패:", error);
     }
   };
+
 
   return (
     <div className="w-[327px] h-full p-6 rounded-[20px] bg-white flex flex-col justify-between">
       <div className="flex justify-between items-center">
         <h2 className="text-heading4-20SB text-black">내 프로필</h2>
         <button
+          ref={refs.setReference}
+          {...getReferenceProps()}
           className="text-body2-14R text-gray-500 underline"
-          onClick={handleLogout}
         >
           계정설정
         </button>
+        {openAccountSettings && (
+          <div
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="z-50"
+          >
+            <AccountSettingsModal
+              onClose={() => setOpenAccountSettings(false)}
+              onDeleteAccount={() => {
+                setOpenAccountSettings(false);
+                setOpenDeleteAccount(true);
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <section className="flex flex-col items-center mb-12">
@@ -101,6 +150,30 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
             />
           </div>
         </div>
+      )}
+
+      {openDeleteAccount && (
+        <DeleteAccountModal
+          nickname={nickname}
+          onClose={() => setOpenDeleteAccount(false)}
+          onNext={(reasons, feedback) => {
+            setDeleteAccountData({ reasons, feedback });
+            setOpenDeleteAccount(false);
+            setOpenDeleteAccountConfirm(true);
+          }}
+        />
+      )}
+
+      {openDeleteAccountConfirm && (
+        <DeleteAccountConfirmModal
+          nickname={nickname}
+          onClose={() => {
+            setOpenDeleteAccountConfirm(false);
+            setDeleteAccountData(null);
+          }}
+          onConfirm={handleDeleteAccountConfirm}
+          isPending={deleteAccountMutation.isPending}
+        />
       )}
     </div>
   );

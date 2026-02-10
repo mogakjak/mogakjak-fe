@@ -5,6 +5,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TimerProvider } from "@/app/_contexts/TimerContext";
 import dynamic from "next/dynamic";
 import { AgreementRequiredError } from "@/app/api/errors/AgreementRequiredError";
+import { DeactivatedUserError } from "@/app/api/errors/DeactivatedUserError";
+import { invalidateTokenCache } from "@/app/api/auth/api";
 
 // NavigationBlocker와 NavigationModal을 동적 import로 분리
 const NavigationBlocker = dynamic(() => import("./navigationBlocker"), {
@@ -17,6 +19,9 @@ const NavigationModal = dynamic(() => import("./navigationModal"), {
 
 // 모듈 레벨 플래그로 무한 리다이렉트 방지
 let isRedirecting = false;
+
+// sessionStorage 키로 리다이렉트 상태 관리
+const DEACTIVATED_REDIRECT_KEY = "deactivated_redirect";
 
 /**
  * 약관 동의 필요 시 리다이렉트 처리
@@ -51,6 +56,33 @@ function handleAgreementRedirect(error: AgreementRequiredError): void {
   }
 }
 
+//탈퇴 유저 리다이렉트
+async function handleDeactivatedUserRedirect(): Promise<void> {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (sessionStorage.getItem(DEACTIVATED_REDIRECT_KEY) === "true") {
+    return;
+  }
+  sessionStorage.setItem(DEACTIVATED_REDIRECT_KEY, "true");
+  invalidateTokenCache();
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+    await response.text();
+  } catch {
+  }
+
+  const loginUrl = new URL("/login", window.location.origin);
+  loginUrl.searchParams.set("deactivated", "true");
+  
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  window.location.replace(loginUrl.toString());
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -68,6 +100,9 @@ queryClient.getQueryCache().subscribe((event) => {
     const error = event.query.state.error;
     if (error instanceof AgreementRequiredError) {
       handleAgreementRedirect(error);
+    } else if (error instanceof DeactivatedUserError) {
+      handleDeactivatedUserRedirect().catch(() => { 
+      });
     }
   }
 });
@@ -78,6 +113,10 @@ queryClient.getMutationCache().subscribe((event) => {
     const error = event.mutation.state.error;
     if (error instanceof AgreementRequiredError) {
       handleAgreementRedirect(error);
+    } else if (error instanceof DeactivatedUserError) {
+      handleDeactivatedUserRedirect().catch(() => {
+        // 에러 발생 시에도 계속 진행
+      });
     }
   }
 });
