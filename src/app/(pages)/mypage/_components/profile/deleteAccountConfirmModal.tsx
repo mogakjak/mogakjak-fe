@@ -1,28 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { useDeleteAccount } from "@/app/_hooks/users/useDeleteAccount";
 
 interface DeleteAccountConfirmModalProps {
   nickname: string;
   onClose: () => void;
   onConfirm: () => void;
+  isPending?: boolean;
 }
 
 export default function DeleteAccountConfirmModal({
   nickname,
   onClose,
   onConfirm,
+  isPending = false,
 }: DeleteAccountConfirmModalProps) {
-  const deleteAccountMutation = useDeleteAccount();
-
-  const handleConfirm = async () => {
-    try {
-      await deleteAccountMutation.mutateAsync();
-    } catch {
-      onConfirm();
-    }
-  };
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -72,12 +64,12 @@ export default function DeleteAccountConfirmModal({
               </div>
             </button>
             <button
-              onClick={handleConfirm}
-              disabled={deleteAccountMutation.isPending}
+              onClick={onConfirm}
+              disabled={isPending}
               className="flex-1 h-14 px-5 py-3 bg-red-500 flex justify-center items-center gap-1 overflow-hidden hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="text-center justify-start text-neutral-50 text-xl font-semibold font-['Pretendard'] leading-7">
-                {deleteAccountMutation.isPending ? "처리 중..." : "탈퇴하기"}
+                {isPending ? "처리 중..." : "탈퇴하기"}
               </div>
             </button>
           </div>

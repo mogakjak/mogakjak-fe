@@ -8,6 +8,7 @@ import ProfileEditModal from "./profileEditModal";
 import AccountSettingsModal from "./accountSettingsModal";
 import DeleteAccountModal from "./deleteAccountModal";
 import DeleteAccountConfirmModal from "./deleteAccountConfirmModal";
+import { useDeleteAccount } from "@/app/_hooks/users/useDeleteAccount";
 import {
   useFloating,
   autoUpdate,
@@ -60,6 +61,20 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
     click,
     dismiss,
   ]);
+
+  const deleteAccountMutation = useDeleteAccount();
+
+  const handleDeleteAccountConfirm = async () => {
+    if (!deleteAccountData) return;
+
+    try {
+      await deleteAccountMutation.mutateAsync();
+      setOpenDeleteAccountConfirm(false);
+      setDeleteAccountData(null);
+    } catch (error) {
+      console.error("계정 탈퇴 실패:", error);
+    }
+  };
 
 
   return (
@@ -156,15 +171,8 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
             setOpenDeleteAccountConfirm(false);
             setDeleteAccountData(null);
           }}
-          onConfirm={() => {
-            // TODO: 계정 탈퇴 API 호출 (deleteAccountData.reasons, deleteAccountData.feedback 포함)
-            if (deleteAccountData) {
-              console.log("탈퇴 이유:", deleteAccountData.reasons);
-              console.log("피드백:", deleteAccountData.feedback);
-            }
-            setOpenDeleteAccountConfirm(false);
-            setDeleteAccountData(null);
-          }}
+          onConfirm={handleDeleteAccountConfirm}
+          isPending={deleteAccountMutation.isPending}
         />
       )}
     </div>
