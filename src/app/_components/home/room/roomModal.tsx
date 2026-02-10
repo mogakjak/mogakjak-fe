@@ -38,7 +38,7 @@ export default function RoomModal({
   const isEdit = mode === "edit";
   const isPending = isCreating || isUpdating || isUploading;
   const title = isEdit ? "그룹 수정하기" : "그룹 생성하기";
-  const buttonLabel = "생성하기";
+  const buttonLabel = isEdit ? "수정하기" : "생성하기";
 
   const handleSubmit = async () => {
     if (!name.trim()) {
