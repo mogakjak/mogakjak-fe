@@ -1,9 +1,11 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
 @import "tailwindcss";
 
 :root {
   --background: #fafafa;
   --foreground: #171717;
-  color-scheme: light; /* 다크모드 비활성화 */
+  color-scheme: light;
+  /* 다크모드 비활성화 */
 }
 
 @theme inline {
@@ -67,7 +69,8 @@
 } */
 
 html {
-  color-scheme: light !important; /* 다크모드 비활성화  */
+  color-scheme: light !important;
+  /* 다크모드 비활성화  */
 }
 
 body {
@@ -75,6 +78,7 @@ body {
   color: var(--foreground) !important;
   font-family: var(--font-sans);
 }
+
 button {
   cursor: pointer;
 }
@@ -85,91 +89,105 @@ button {
   font-size: var(--text-32);
   line-height: var(--leading-140);
 }
+
 @utility text-heading1-32M {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
   font-size: var(--text-32);
   line-height: var(--leading-140);
 }
+
 @utility text-heading2-28SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-28);
   line-height: var(--leading-140);
 }
+
 @utility text-heading3-24SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-24);
   line-height: var(--leading-140);
 }
+
 @utility text-heading4-20SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-20);
   line-height: var(--leading-140);
 }
+
 @utility text-heading4-20R {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
   font-size: var(--text-20);
   line-height: var(--leading-140);
 }
+
 @utility text-body1-16B {
   font-family: var(--font-sans);
   font-weight: var(--fw-bold);
   font-size: var(--text-16);
   line-height: var(--leading-140);
 }
+
 @utility text-body1-16SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-16);
   line-height: var(--leading-140);
 }
+
 @utility text-body1-16M {
   font-family: var(--font-sans);
   font-weight: var(--fw-medium);
   font-size: var(--text-16);
   line-height: var(--leading-140);
 }
+
 @utility text-body1-16R {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
   font-size: var(--text-16);
   line-height: var(--leading-140);
 }
+
 @utility text-body2-14SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-14);
   line-height: var(--leading-140);
 }
+
 @utility text-body2-14R {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
   font-size: var(--text-14);
   line-height: var(--leading-140);
 }
+
 @utility text-caption-12SB {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--text-12);
   line-height: var(--leading-140);
 }
+
 @utility text-caption-12R {
   font-family: var(--font-sans);
   font-weight: var(--fw-regular);
   font-size: var(--text-12);
   line-height: var(--leading-140);
 }
+
 @layer utilities {
   .category-scroll {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-gray-400, #9ca3af)
-      var(--color-gray-200, #f3f4f6);
+    scrollbar-color: var(--color-gray-400, #9ca3af) var(--color-gray-200, #f3f4f6);
   }
 }
+
 .tippy-box[data-theme~="chart"] {
   background: #fff;
   color: var(--color-gray-800, #323437);
@@ -177,9 +195,11 @@ button {
   font-weight: 600;
   padding: 8px 12px;
 }
+
 .tippy-box[data-theme~="chart"] .tippy-content {
   padding: 0;
 }
+
 .tippy-box[data-theme~="chart"] .tippy-arrow {
   color: #fff;
 }
@@ -189,6 +209,7 @@ input[type="search"]::-webkit-search-cancel-button {
   appearance: none;
   display: none;
 }
+
 input[type="search"]::-ms-clear {
   display: none;
   width: 0;

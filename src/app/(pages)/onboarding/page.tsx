@@ -292,7 +292,7 @@ export default function OnboardingPage() {
                     {!showWelcomeModal && currentStep === 2 && (
                         <div className="absolute top-[650px] left-[340px] z-10">
                             <IntroModal
-                                title="시간이 쌓일수록 새싹 뽀모도로 쑥쑥 자라난답니다. 타이머를 실행해보세요!"
+                                title="시간이 쌓일수록 새싹 뽀모도 쑥쑥 자라난답니다. 타이머를 실행해보세요!"
                                 position="right"
                                 onClick={handleStep2Click}
                             />
