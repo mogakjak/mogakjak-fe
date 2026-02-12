@@ -143,7 +143,7 @@ export default function TimerComponent({
         // GA4 메트릭 추적 시작
         startTracking("pomodoro", {
           action: "new",
-          targetDuration: focusSeconds,
+          target_duration: focusSeconds,
         });
 
         pomoRef.current?.reset(focusSeconds / 60);
@@ -444,9 +444,9 @@ export default function TimerComponent({
         }
 
         sendGAEvent("event", "timer_complete", {
-          timerType: "pomodoro",
-          sessionId: sessionIdRef.current,
-          totalRounds: repeatCount
+          timer_type: "pomodoro",
+          session_id: sessionIdRef.current,
+          total_rounds: repeatCount
         });
 
         await onStop();
@@ -609,8 +609,8 @@ export default function TimerComponent({
           autoStart={false}
           onComplete={async () => {
             sendGAEvent("event", "timer_complete", {
-              timerType: "timer",
-              sessionId: sessionIdRef.current,
+              timer_type: "timer",
+              session_id: sessionIdRef.current,
             });
             await onStop();
 
@@ -769,9 +769,9 @@ export default function TimerComponent({
               }
               try {
                 sendGAEvent("event", "timer_start", {
-                  timerType: "timer",
-                  timerAction: "new",
-                  targetDuration: targetSeconds
+                  timer_type: "timer",
+                  timer_action: "new",
+                  target_duration: targetSeconds
                 });
                 const session = await startTimerMutation.mutateAsync({
                   todoId,
@@ -787,7 +787,7 @@ export default function TimerComponent({
                 // GA4 메트릭 추적 시작
                 startTracking("timer", {
                   action: "new",
-                  targetDuration: targetSeconds,
+                  target_duration: targetSeconds,
                 });
 
                 const hours = Math.floor(targetSeconds / 3600);

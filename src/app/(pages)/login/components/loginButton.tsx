@@ -16,7 +16,7 @@ export default function LoginButton({ type }: LoginButtonProps) {
   const handleLogin = () => {
     if (login.isPending) return;
     sendGAEvent("event", "login", {
-      loginType: type,
+      login_type: type,
     });
     login.mutate({ provider: type });
   };

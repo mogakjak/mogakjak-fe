@@ -11,7 +11,7 @@ export default function EntranceTracker() {
             sessionStorage.setItem("entrance_tracked", "true");
 
             sendGAEvent("event", "first_entrance", {
-                entryPage: window.location.pathname,
+                entry_page: window.location.pathname,
                 referrer: document.referrer || "direct",
             });
 

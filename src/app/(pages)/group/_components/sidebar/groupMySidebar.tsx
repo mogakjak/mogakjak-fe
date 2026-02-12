@@ -236,8 +236,8 @@ export default function GroupMySidebar({
                 isTaskOpen={isTaskOpen}
                 setIsTaskOpen={async (v: boolean) => {
                   sendGAEvent("event", "visibility_toggle", {
-                    publicType: "task",
-                    isPublic: v ? "public" : "private",
+                    public_type: "task",
+                    is_public: v ? "public" : "private",
                   });
                   setIsTaskOpen(v);
                   if (currentSessionId) {
@@ -265,8 +265,8 @@ export default function GroupMySidebar({
                   isTaskOpen={isTimeOpen}
                   setIsTaskOpen={async (v: boolean) => {
                     sendGAEvent("event", "visibility_toggle", {
-                      publicType: "timer",
-                      isPublic: v ? "public" : "private",
+                      public_type: "timer",
+                      is_public: v ? "public" : "private",
                     });
                     setIsTimeOpen(v);
                     if (currentSessionId) {

@@ -99,7 +99,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
 
   const handleEnter = () => {
     setIsEntering(true);
-    sessionStorage.setItem(`group_enter_time`, Date.now().toString());
+    sessionStorage.setItem(`group_enter_time_${groupId}`, Date.now().toString());
     router.push(`/group/${groupId}`);
   };
 

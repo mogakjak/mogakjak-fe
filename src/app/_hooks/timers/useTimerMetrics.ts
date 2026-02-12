@@ -5,23 +5,23 @@ type TimerType = "pomodoro" | "stopwatch" | "timer";
 
 interface StartTrackingOptions {
     action?: "new" | "resume";
-    targetDuration?: number;
-    breakDuration?: number;
+    target_duration?: number;
+    break_duration?: number;
 }
 
 interface FinalizeMetricsOptions {
-    totalRounds?: number;
+    total_rounds?: number;
 }
 
 interface GA4EventParams {
-    timerType?: TimerType;
-    timerAction?: "new" | "resume";
-    targetDuration?: number;
-    breakDuration?: number;
-    sessionId?: string | null;
+    timer_type?: TimerType;
+    timer_action?: "new" | "resume";
+    target_duration?: number;
+    break_duration?: number;
+    session_id?: string | null;
     actual_focus_time?: number;
     total_break_time?: number;
-    totalRounds?: number;
+    total_rounds?: number;
 }
 
 export function useTimerMetrics() {
@@ -32,7 +32,6 @@ export function useTimerMetrics() {
     /**
      * 타이머 시작 추적
      * @param timerType - 타이머 타입 (pomodoro, stopwatch, timer)
-     * @param sessionId - 세션 ID
      * @param options - 시작 옵션 (action, targetDuration, breakDuration)
      */
     const startTracking = useCallback(
@@ -40,7 +39,7 @@ export function useTimerMetrics() {
             timerType: TimerType,
             options?: StartTrackingOptions
         ) => {
-            const { action = "new", targetDuration, breakDuration } = options || {};
+            const { action = "new", target_duration, break_duration } = options || {};
 
             // 신규 시작이면 모든 값 초기화
             if (action === "new") {
@@ -51,16 +50,16 @@ export function useTimerMetrics() {
 
             // GA4 이벤트 전송
             const eventParams: GA4EventParams = {
-                timerType,
-                timerAction: action,
+                timer_type: timerType,
+                timer_action: action,
             };
 
-            if (targetDuration !== undefined) {
-                eventParams.targetDuration = targetDuration;
+            if (target_duration !== undefined) {
+                eventParams.target_duration = target_duration;
             }
 
-            if (breakDuration !== undefined) {
-                eventParams.breakDuration = breakDuration;
+            if (break_duration !== undefined) {
+                eventParams.break_duration = break_duration;
             }
 
             sendGAEvent("event", "timer_start", eventParams);
@@ -80,8 +79,8 @@ export function useTimerMetrics() {
 
             // GA4 이벤트 전송
             sendGAEvent("event", "timer_pause", {
-                timerType,
-                sessionId,
+                timer_type: timerType,
+                session_id: sessionId,
             });
         },
         []
@@ -126,14 +125,14 @@ export function useTimerMetrics() {
 
             // GA4 이벤트 전송
             const eventParams: GA4EventParams = {
-                timerType,
-                sessionId,
+                timer_type: timerType,
+                session_id: sessionId,
                 actual_focus_time: pureActiveTime,
                 total_break_time: totalBreakDurationRef.current,
             };
 
-            if (options?.totalRounds !== undefined) {
-                eventParams.totalRounds = options.totalRounds;
+            if (options?.total_rounds !== undefined) {
+                eventParams.total_rounds = options.total_rounds;
             }
 
             sendGAEvent("event", "timer_stop", eventParams);
