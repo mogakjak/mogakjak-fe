@@ -18,7 +18,7 @@ interface GA4EventParams {
     timer_action?: "new" | "resume";
     target_duration?: number;
     break_duration?: number;
-    session_id?: string | null;
+    timer_session_id?: string | null;
     actual_focus_time?: number;
     total_break_time?: number;
     total_rounds?: number;
@@ -80,7 +80,7 @@ export function useTimerMetrics() {
             // GA4 이벤트 전송
             sendGAEvent("event", "timer_pause", {
                 timer_type: timerType,
-                session_id: sessionId,
+                timer_session_id: sessionId,
             });
         },
         []
@@ -126,7 +126,7 @@ export function useTimerMetrics() {
             // GA4 이벤트 전송
             const eventParams: GA4EventParams = {
                 timer_type: timerType,
-                session_id: sessionId,
+                timer_session_id: sessionId,
                 actual_focus_time: pureActiveTime,
                 total_break_time: totalBreakDurationRef.current,
             };
