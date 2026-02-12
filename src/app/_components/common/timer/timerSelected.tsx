@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { Button } from "@/components/button";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
@@ -16,11 +17,20 @@ export default function TimerSelected({
   size?: "md" | "sm" | "custom";
   className?: string;
 }) {
+
+  const handleModeChange = (mode: Mode) => {
+    onChange?.(mode);
+
+    sendGAEvent("event", "select_timer_mode", {
+      type: mode
+    });
+  };
+
   return (
     <div className={clsx("grid grid-cols-3 gap-1", className)}>
       <Button
         variant={value === "pomodoro" ? "selected" : "muted"}
-        onClick={() => onChange?.("pomodoro")}
+        onClick={() => handleModeChange("pomodoro")}
         size={size}
         aria-pressed={value === "pomodoro"}
         className={className}
@@ -30,7 +40,7 @@ export default function TimerSelected({
 
       <Button
         variant={value === "timer" ? "selected" : "muted"}
-        onClick={() => onChange?.("timer")}
+        onClick={() => handleModeChange("timer")}
         size={size}
         aria-pressed={value === "timer"}
         className={className}
@@ -39,7 +49,7 @@ export default function TimerSelected({
       </Button>
       <Button
         variant={value === "stopwatch" ? "selected" : "muted"}
-        onClick={() => onChange?.("stopwatch")}
+        onClick={() => handleModeChange("stopwatch")}
         aria-pressed={value === "stopwatch"}
         size={size}
         className={className}

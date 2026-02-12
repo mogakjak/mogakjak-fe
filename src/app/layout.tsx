@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css";
 import dynamic from "next/dynamic";
 
@@ -92,25 +92,6 @@ export default function RootLayout({
   return (
     <html lang="ko" style={{ colorScheme: "light" }}>
       <body className="mx-auto w-full min-h-screen flex flex-col items-center bg-gray-100 overflow-x-hidden">
-        {/* Google Tag Manager - lazyOnload로 지연 로드 */}
-        <Script
-          strategy="lazyOnload"
-          src="https://www.googletagmanager.com/gtag/js?id=G-T8JCTVV834"
-        />
-        <Script
-          id="google-analytics"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-T8JCTVV834', {
-                page_path: window.location.pathname,
-              });
-            `,
-          }}
-        />
 
         <Providers>
           <WithMobileDetection>
@@ -124,6 +105,7 @@ export default function RootLayout({
             </div>
           </NotificationRoot>
         </Providers>
+        <GoogleAnalytics gaId="G-T8JCTVV834" />
       </body>
     </html>
   );

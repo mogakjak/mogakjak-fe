@@ -22,6 +22,7 @@ import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
 import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type Mode = "pomodoro" | "stopwatch" | "timer";
 
@@ -90,6 +91,8 @@ export default function TimerComponent({
   const timerContainerRef = useRef<HTMLElement | null>(null);
   const openPipWindowRef = useRef<(() => Promise<boolean>) | null>(null);
   const isInPipRef = useRef<boolean>(false);
+  // 휴식 측정 시간
+  const pauseStartTimeRef = useRef<number | null>(null);
 
   const { isInPip, openPipWindow, closePipWindow } = usePictureInPicture({
     containerRef: timerContainerRef,
@@ -116,7 +119,14 @@ export default function TimerComponent({
       setCurrentRound(1);
       setIsPaused(false);
 
+
+      sendGAEvent("event", "timer_start", {
+        timerType: "pomodoro",
+        timerAction: "new",
+        targetDuration: focusSeconds,
+      });
       if (!todoId) {
+        sendGAEvent("event", "timer_start_failed", { timerType: "pomodoro", reason: "missing_todo" });
         setAlertModalOpen(true);
         return;
       }
@@ -133,7 +143,7 @@ export default function TimerComponent({
           isTimerPublic,
         });
         setSessionId(session.sessionId);
-        onSessionIdChange?.(session.sessionId); 
+        onSessionIdChange?.(session.sessionId);
         pomoRef.current?.reset(focusSeconds / 60);
         pomoRef.current?.start();
 
@@ -165,12 +175,25 @@ export default function TimerComponent({
 
   const onStart = useCallback(async () => {
     if (!todoId) {
+      sendGAEvent("event", "timer_start_failed", { timerType: mode, reason: "missing_todo" });
       setAlertModalOpen(true);
       return;
     }
 
+    let breakDuration = 0;
+    if (pauseStartTimeRef.current) {
+      breakDuration = Math.floor((Date.now() - pauseStartTimeRef.current) / 1000); // 초 단위 변환
+      pauseStartTimeRef.current = null;
+    }
+
     if (mode === "pomodoro") {
       if (isPaused && sessionIdRef.current) {
+
+        sendGAEvent("event", "timer_start", {
+          timerType: "pomodoro",
+          timerAction: "resume",
+          breakDuration: breakDuration,
+        });
         try {
           await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           pomoRef.current?.start();
@@ -192,6 +215,11 @@ export default function TimerComponent({
       }
     } else if (mode === "stopwatch") {
       if (isPaused && sessionIdRef.current) {
+        sendGAEvent("event", "timer_start", {
+          timerType: "stopwatch",
+          timerAction: "resume",
+          breakDuration: breakDuration,
+        })
         try {
           await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           swRef.current?.start();
@@ -209,6 +237,11 @@ export default function TimerComponent({
           console.error("스톱워치 재개 실패:", error);
         }
       } else {
+        sendGAEvent("event", "timer_start", {
+          timerType: "stopwatch",
+          timerAction: "new",
+          breakDuration: 0, // 신규 시작이므로 휴식 시간 없음
+        });
         try {
           const session = await startStopwatchMutation.mutateAsync({
             todoId,
@@ -247,6 +280,11 @@ export default function TimerComponent({
       }
     } else if (mode === "timer") {
       if (isPaused && sessionIdRef.current) {
+        sendGAEvent("event", "timer_start", {
+          timerType: "timer",
+          timerAction: "resume",
+          breakDuration: breakDuration,
+        });
         try {
           await resumeTimerMutation.mutateAsync(sessionIdRef.current);
           cdRef.current?.start();
@@ -281,7 +319,16 @@ export default function TimerComponent({
   ]);
 
   const onPause = useCallback(async () => {
+
+    // 휴식 시작 시간 기록
+    pauseStartTimeRef.current = Date.now();
+    sendGAEvent("event", "timer_pause", {
+      timerType: mode,
+      sessionId: sessionIdRef.current,
+    });
+
     const effectiveSessionId = sessionIdRef.current;
+
 
     if (!effectiveSessionId) {
       // sessionId 없이 로컬 타이머만 사용하는 경우
@@ -310,6 +357,12 @@ export default function TimerComponent({
     const effectiveSessionId = sessionIdRef.current;
 
 
+    if (effectiveSessionId) {
+      sendGAEvent("event", "timer_stop", {
+        timerType: mode,
+        sessionId: effectiveSessionId,
+      });
+    }
 
     if (mode === "pomodoro") {
       if (effectiveSessionId) {
@@ -399,8 +452,14 @@ export default function TimerComponent({
           return;
         }
 
+        sendGAEvent("event", "timer_complete", {
+          timerType: "pomodoro",
+          sessionId: sessionIdRef.current,
+          totalRounds: repeatCount
+        });
+
         await onStop();
-        
+
         if (isSupported) {
           const title = "뽀모도로가 완료되었어요";
           const body = "모든 집중 시간을 완료했습니다!";
@@ -425,7 +484,7 @@ export default function TimerComponent({
             });
           }
         }
-        
+
         return;
       }
 
@@ -433,7 +492,7 @@ export default function TimerComponent({
 
       if (nextRound > repeatCount) {
         await onStop();
-        
+
         if (isSupported) {
           const title = "뽀모도로가 완료되었어요";
           const body = "모든 집중 시간을 완료했습니다!";
@@ -458,7 +517,7 @@ export default function TimerComponent({
             });
           }
         }
-        
+
         return;
       }
 
@@ -558,8 +617,12 @@ export default function TimerComponent({
           seconds={0}
           autoStart={false}
           onComplete={async () => {
+            sendGAEvent("event", "timer_complete", {
+              timerType: "timer",
+              sessionId: sessionIdRef.current,
+            });
             await onStop();
-            
+
             if (isSupported) {
               const title = "타이머가 끝났습니다!";
               const body = "목표를 달성하셨나요? 다 마쳤다면 종료 버튼을, 시간이 더 필요하다면 타이머를 다시 시작해 보세요.";
@@ -708,11 +771,17 @@ export default function TimerComponent({
             onClose={() => setTimerModalOpen(false)}
             onStart={async (targetSeconds: number) => {
               if (!todoId) {
+                sendGAEvent("event", "timer_start_failed", { timerType: "timer", reason: "missing_todo" });
                 setTimerModalOpen(false);
                 setAlertModalOpen(true);
                 return;
               }
               try {
+                sendGAEvent("event", "timer_start", {
+                  timerType: "timer",
+                  timerAction: "new",
+                  targetDuration: targetSeconds
+                });
                 const session = await startTimerMutation.mutateAsync({
                   todoId,
                   targetSeconds,
