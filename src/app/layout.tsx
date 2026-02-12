@@ -23,6 +23,7 @@ const ConditionalHeader = dynamic(
 );
 
 import WithMobileDetection from "@/app/_utils/isMobileUserAgent";
+import EntranceTracker from "./_providers/entranceTracker";
 
 export const metadata: Metadata = {
   title: "모각작 - 함께 몰입하며 꾸준함을 만드는 커뮤니티",
@@ -92,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="ko" style={{ colorScheme: "light" }}>
       <body className="mx-auto w-full min-h-screen flex flex-col items-center bg-gray-100 overflow-x-hidden">
-
+        <EntranceTracker />
         <Providers>
           <WithMobileDetection>
             {({ isMobile }) => <ConditionalHeader isMobile={isMobile} />}
