@@ -12,7 +12,7 @@ export default function LoginPageClient() {
 
     const handlePopState = () => {
       sendGAEvent("event", "page_back_navigation", {
-        from_page: "/login",
+        fromPage: "/login",
       });
     };
     window.addEventListener("popstate", handlePopState);

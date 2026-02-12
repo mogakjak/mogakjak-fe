@@ -23,6 +23,7 @@ import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
 import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExitGuard";
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 import GroupNoti from "./sidebar/groupNoti";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -121,6 +122,7 @@ export default function GroupPage({
   const sendCheerMutation = useSendCheer(groupData.groupId);
 
   const handleCheerClick = (targetUserId: string) => {
+    sendGAEvent("event", "cheer_click");
     sendCheerMutation.mutate(
       { targetUserId },
       {

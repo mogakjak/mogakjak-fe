@@ -23,6 +23,7 @@ import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type GroupMySidebarProps = {
   state: boolean;
@@ -234,6 +235,10 @@ export default function GroupMySidebar({
               <VisibilityToggle
                 isTaskOpen={isTaskOpen}
                 setIsTaskOpen={async (v: boolean) => {
+                  sendGAEvent("event", "visibility_toggle", {
+                    publicType: "task",
+                    isPublic: v ? "public" : "private",
+                  });
                   setIsTaskOpen(v);
                   if (currentSessionId) {
                     try {
@@ -259,6 +264,10 @@ export default function GroupMySidebar({
                 <VisibilityToggle
                   isTaskOpen={isTimeOpen}
                   setIsTaskOpen={async (v: boolean) => {
+                    sendGAEvent("event", "visibility_toggle", {
+                      publicType: "timer",
+                      isPublic: v ? "public" : "private",
+                    });
                     setIsTimeOpen(v);
                     if (currentSessionId) {
                       try {
