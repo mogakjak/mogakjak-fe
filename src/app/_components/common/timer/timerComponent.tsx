@@ -445,7 +445,7 @@ export default function TimerComponent({
 
         sendGAEvent("event", "timer_complete", {
           timer_type: "pomodoro",
-          session_id: sessionIdRef.current,
+          timer_session_id: sessionIdRef.current,
           total_rounds: repeatCount
         });
 
@@ -610,7 +610,7 @@ export default function TimerComponent({
           onComplete={async () => {
             sendGAEvent("event", "timer_complete", {
               timer_type: "timer",
-              session_id: sessionIdRef.current,
+              timer_session_id: sessionIdRef.current,
             });
             await onStop();
 

@@ -22,9 +22,6 @@ export default function LoginPageClient() {
     const code = hashParams.get("code");
 
     if (code === "WITHDRAWN_USER") {
-      sendGAEvent("event", "withdrawn_user_arrival", {
-        source: "hash_code",
-      });
 
       invalidateTokenCache();
       fetch("/api/auth/logout", {
