@@ -18,6 +18,7 @@ import CheerNotificationModal from "./cheerNotificationModal";
 import type { FocusNotificationMessage } from "@/app/_hooks/_websocket/notifications/useFocusNotification";
 import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 import type { PokeNotification, CheerNotification } from "@/app/_types/groups";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type NotificationContextType = {
   showNotification: (message: FocusNotificationMessage) => void;
@@ -146,6 +147,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 
   const handleClosePokeNotificationModal = useCallback(() => {
+    sendGAEvent("event", "poke_response", {
+      action: "reject",
+    });
     setPokeNotification(null);
   }, []);
 

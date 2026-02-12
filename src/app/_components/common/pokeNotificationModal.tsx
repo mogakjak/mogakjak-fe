@@ -6,6 +6,7 @@ import { Button } from "@/components/button";
 import { PokeNotification } from "@/app/_types/groups";
 import Icon from "../common/Icons";
 import Fork from "/Icons/fork.svg";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface PokeNotificationModalProps {
   notification: PokeNotification;
@@ -19,6 +20,9 @@ export default function PokeNotificationModal({
   const router = useRouter();
 
   const handleJoinGroup = () => {
+    sendGAEvent("event", "poke_response", {
+      action: "accept",
+    });
     router.push(`/group/${notification.groupId}`);
     onClose();
   };
