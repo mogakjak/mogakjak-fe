@@ -98,6 +98,18 @@ export default function GroupPage({
 
   // 최종 나가기 처리 (리뷰 팝업 등에서 호출)
   const handleFinalExit = useCallback(async () => {
+    const enterTimeStr = sessionStorage.getItem(`group_enter_time`);
+    if (enterTimeStr) {
+      const enterTime = Number(enterTimeStr);
+      const stayDurationSeconds = Math.floor((Date.now() - enterTime) / 1000);
+
+      sendGAEvent("event", "group_stay_duration", {
+        value: stayDurationSeconds,
+      });
+
+      sessionStorage.removeItem(`group_enter_time`);
+    }
+
     await exitSessionOnce();
     if (pendingRoute) {
       pendingRoute();
