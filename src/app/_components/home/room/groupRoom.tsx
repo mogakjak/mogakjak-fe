@@ -99,6 +99,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
 
   const handleEnter = () => {
     setIsEntering(true);
+    sessionStorage.setItem(`group_enter_time_${groupId}`, Date.now().toString());
     router.push(`/group/${groupId}`);
   };
 
@@ -175,7 +176,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             onClick={handleEnter}
             disabled={isEntering}
           >
-            {isEntering ? "참여 중..." : "참여하기"}
+            {isEntering ? "참여 중" : "참여하기"}
           </HomeButton>
 
           <button

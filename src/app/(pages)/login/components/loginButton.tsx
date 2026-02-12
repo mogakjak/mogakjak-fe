@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useLogin } from "@/app/_hooks/login/useLogin";
+import { sendGAEvent } from "@next/third-parties/google"
 
 type LoginType = "google" | "kakao";
 
@@ -14,6 +15,9 @@ export default function LoginButton({ type }: LoginButtonProps) {
 
   const handleLogin = () => {
     if (login.isPending) return;
+    sendGAEvent("event", "login", {
+      login_type: type,
+    });
     login.mutate({ provider: type });
   };
 
