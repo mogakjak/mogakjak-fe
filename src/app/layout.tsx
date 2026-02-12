@@ -106,7 +106,7 @@ export default function RootLayout({
             </div>
           </NotificationRoot>
         </Providers>
-        <GoogleAnalytics gaId="G-T8JCTVV834" />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
       </body>
     </html>
   );

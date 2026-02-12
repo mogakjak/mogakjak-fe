@@ -116,7 +116,7 @@ export default function GroupPage({
     } else {
       onExitGroup();
     }
-  }, [exitSessionOnce, pendingRoute, onExitGroup]);
+  }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId]);
 
   // 그룹 멤버 상태 관리 훅
   const { memberStatuses, isConnected } = useGroupMemberStatus({
