@@ -63,7 +63,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
 
   const [savedTodoId, setSavedTodoId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("groupMySidebar_selectedTodoId");
+      return localStorage.getItem("selectedTodoId");
     }
     return null;
   });
@@ -72,7 +72,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     if (typeof window === "undefined") return;
 
     const handleTodoIdChange = () => {
-      const newTodoId = localStorage.getItem("groupMySidebar_selectedTodoId");
+      const newTodoId = localStorage.getItem("selectedTodoId");
       setSavedTodoId(newTodoId);
     };
 
@@ -94,7 +94,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     }
 
     if (typeof window !== "undefined") {
-      localStorage.removeItem("groupMySidebar_selectedTodoId");
+      localStorage.removeItem("selectedTodoId");
       setSavedTodoId(null);
     }
     return null;
