@@ -66,10 +66,29 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     return myStatus?.role === "HOST";
   }, [currentUserId, memberStatuses]);
 
-  const savedTodoId =
-    typeof window !== "undefined"
-      ? localStorage.getItem("groupMySidebar_selectedTodoId")
-      : null;
+  const [savedTodoId, setSavedTodoId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("groupMySidebar_selectedTodoId");
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleTodoIdChange = () => {
+      const newTodoId = localStorage.getItem("groupMySidebar_selectedTodoId");
+      setSavedTodoId(newTodoId);
+    };
+
+    window.addEventListener("todoIdChanged", handleTodoIdChange);
+    window.addEventListener("storage", handleTodoIdChange);
+
+    return () => {
+      window.removeEventListener("todoIdChanged", handleTodoIdChange);
+      window.removeEventListener("storage", handleTodoIdChange);
+    };
+  }, []);
 
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
@@ -81,15 +100,37 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
 
     if (typeof window !== "undefined") {
       localStorage.removeItem("groupMySidebar_selectedTodoId");
+      setSavedTodoId(null);
     }
     return null;
   }, [savedTodoId, todayTodos, isTodayTodosFetched]);
 
-  const currentSession = validTodoId
-    ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId))
-    : queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  const currentSession = useMemo(() => {
+    if (validTodoId) {
+      return queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId));
+    }
+    return queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  }, [validTodoId, queryClient]);
 
-  const todoId = currentSession?.todo?.id ?? validTodoId;
+  const [, forceUpdate] = useState({});
+  useEffect(() => {
+    if (!validTodoId) return;
+
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (
+        event?.type === "updated" &&
+        event.query.queryKey[0] === "timers" &&
+        event.query.queryKey[1] === "pomodoro" &&
+        event.query.queryKey[2] === validTodoId
+      ) {
+        forceUpdate({});
+      }
+    });
+
+    return unsubscribe;
+  }, [validTodoId, queryClient]);
+
+  const todoId = validTodoId ?? currentSession?.todo?.id ?? null;
 
   useEffect(() => {
     setHasSelectedTodo(!!todoId);

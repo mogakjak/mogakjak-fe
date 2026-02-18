@@ -181,6 +181,7 @@ export default function GroupMySidebar({
       if (resultTodo) {
         if (typeof window !== "undefined") {
           localStorage.setItem("groupMySidebar_selectedTodoId", resultTodo.id);
+          window.dispatchEvent(new Event("todoIdChanged"));
         }
         setSelectedTodoId(resultTodo.id);
         setCurrentTodo(resultTodo);
