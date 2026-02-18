@@ -100,24 +100,11 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     return null;
   }, [savedTodoId, todayTodos, isTodayTodosFetched]);
 
-  const [currentSession, setCurrentSession] = useState<PomodoroSession | undefined>(() => {
+  const currentSession = useMemo(() => {
     if (validTodoId) {
       return queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId));
     }
     return queryClient.getQueryData<PomodoroSession>(timerKeys.current());
-  });
-
-  useEffect(() => {
-    const updateSession = () => {
-      if (validTodoId) {
-        const session = queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId));
-        setCurrentSession(session);
-      } else {
-        const session = queryClient.getQueryData<PomodoroSession>(timerKeys.current());
-        setCurrentSession(session);
-      }
-    };
-    updateSession();
   }, [validTodoId, queryClient]);
 
   useEffect(() => {
@@ -126,11 +113,9 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
         const queryKey = event.query.queryKey;
         if (queryKey[0] === "timers") {
           if (validTodoId && queryKey[1] === "pomodoro" && queryKey[2] === validTodoId) {
-            const session = queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId));
-            setCurrentSession(session);
+            setSavedTodoId((prev) => prev);
           } else if (!validTodoId && queryKey[1] === "current") {
-            const session = queryClient.getQueryData<PomodoroSession>(timerKeys.current());
-            setCurrentSession(session);
+            setSavedTodoId((prev) => prev);
           }
         }
       }

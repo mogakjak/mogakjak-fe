@@ -192,7 +192,6 @@ export default function GroupMySidebar({
           date: new Date(year, month - 1, day),
           targetSeconds: resultTodo.targetTimeInSeconds,
         });
-
         queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
           todo: {
             id: resultTodo.id,
@@ -200,15 +199,14 @@ export default function GroupMySidebar({
             targetTimeInSeconds: resultTodo.targetTimeInSeconds,
           },
         });
+
+        setModalOpen(false);
+        setSelectedCategoryId(null);
       }
 
-      // 캐시 무효화 및 강제 refetch
-      await queryClient.invalidateQueries({ queryKey: todoKeys.today() });
-      await queryClient.invalidateQueries({ queryKey: todoKeys.my() });
-      await refetchTodayTodos();
-
-      setModalOpen(false);
-      setSelectedCategoryId(null);
+      queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.my() });
+      refetchTodayTodos();
     },
     [createTodo, updateTodo, todayTodosList, queryClient, refetchTodayTodos]
   );
