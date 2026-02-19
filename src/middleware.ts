@@ -42,6 +42,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname.startsWith("/invite")) {
+    return NextResponse.next();
+  }
+
   if (pathname === "/login") {
     const isDeactivated = nextUrl.searchParams.get("deactivated") === "true";
     
