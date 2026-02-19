@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import GroupRoom from "./room/groupRoom";
 import { Button } from "@/components/button";
@@ -22,7 +22,21 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
   const [createdGroupId, setCreatedGroupId] = useState<string | undefined>();
 
   const queryClient = useQueryClient();
-  const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
+  // 그룹 목록 쿼리 갱신
+  const { data: myGroups = [], isLoading: groupsLoading, refetch: refetchMyGroups } = useMyGroups();
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.query?.queryKey?.[0] === "groups" && event?.query?.queryKey?.[1] === "my") {
+        if (event.type === "removed" || event.type === "updated") {
+          setTimeout(() => {
+            refetchMyGroups();
+          }, 100);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [queryClient, refetchMyGroups]);
 
   const handleGroupCreateSuccess = (groupId: string) => {
     // 그룹 생성 후 갱신 
