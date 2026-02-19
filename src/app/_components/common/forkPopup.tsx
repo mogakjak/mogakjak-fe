@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 import type { CommonGroup } from "@/app/_types/groups";
+import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 
 type GroupStatus = "active" | "inactive";
 
@@ -36,6 +38,7 @@ export default function ForkPopup({
   userName = "박뽀모",
   groups,
   defaultSelectedId,
+  targetUserId,
   onJoin,
   className,
   onClose,
@@ -43,10 +46,12 @@ export default function ForkPopup({
   userName?: string;
   groups: ForkGroup[] | CommonGroup[];
   defaultSelectedId?: string;
+  targetUserId?: string;
   onJoin?: (groupId: string) => void;
   className?: string;
   onClose?: () => void;
 }) {
+  const router = useRouter();
   // CommonGroup 배열인 경우 ForkGroup으로 변환
   const forkGroups: ForkGroup[] = useMemo(() => {
     if (groups.length === 0) return [];
@@ -69,11 +74,32 @@ export default function ForkPopup({
   );
 
   const handleSelect = (g: ForkGroup) => setSelectedId(g.id);
-  const handleJoin = () => {
-    if (selected) {
-      onJoin?.(selected.id);
-      onClose?.();
+  const inviteMutation = useInviteMate(selected?.id || "");
+
+  const handleJoin = async () => {
+    if (!selected) return;  
+    if (onJoin) {
+      onJoin(selected.id);
     }
+
+    if (targetUserId && selected.id) {
+      try {
+        inviteMutation.mutate(
+          {
+            inviteeId: targetUserId,
+          },
+          {
+            onError: (error) => {
+              console.error("초대 발송 실패:", error);
+            },
+          }
+        );
+      } catch (error) {
+        console.error("초대 발송 실패:", error);
+      }
+    }
+    router.push(`/group/${selected.id}`);
+    onClose?.();
   };
 
   return (
