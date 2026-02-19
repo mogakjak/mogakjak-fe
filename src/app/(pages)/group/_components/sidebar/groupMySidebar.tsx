@@ -58,7 +58,7 @@ export default function GroupMySidebar({
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(() => {
     // localStorage에서 저장된 selectedTodoId 불러오기
     if (typeof window !== "undefined") {
-      return localStorage.getItem("groupMySidebar_selectedTodoId");
+      return localStorage.getItem("selectedTodoId");
     }
     return null;
   });
@@ -180,7 +180,7 @@ export default function GroupMySidebar({
 
       if (resultTodo) {
         if (typeof window !== "undefined") {
-          localStorage.setItem("groupMySidebar_selectedTodoId", resultTodo.id);
+          localStorage.setItem("selectedTodoId", resultTodo.id);
           window.dispatchEvent(new Event("todoIdChanged"));
         }
         setSelectedTodoId(resultTodo.id);
