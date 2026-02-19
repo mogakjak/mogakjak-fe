@@ -24,6 +24,7 @@ import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExi
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 import GroupNoti from "./sidebar/groupNoti";
 import { sendGAEvent } from "@next/third-parties/google";
+import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -54,6 +55,7 @@ export default function GroupPage({
 
   const { setNavigationInterceptor } = useTimer();
   const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
+  const finishActiveTimerMutation = useFinishActiveTimer();
 
   const { token } = useAuthState();
 
@@ -109,6 +111,11 @@ export default function GroupPage({
 
       sessionStorage.removeItem(`group_enter_time_${groupData.groupId}`);
     }
+    try {
+      await finishActiveTimerMutation.mutateAsync();
+    } catch (error) {
+      console.warn("활성 타이머 종료 실패 (이미 종료되었거나 없을 수 있음):", error);
+    }
 
     await exitSessionOnce();
     if (pendingRoute) {
@@ -116,7 +123,7 @@ export default function GroupPage({
     } else {
       onExitGroup();
     }
-  }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId]);
+  }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId, finishActiveTimerMutation]);
 
   // 그룹 멤버 상태 관리 훅
   const { memberStatuses, isConnected } = useGroupMemberStatus({
