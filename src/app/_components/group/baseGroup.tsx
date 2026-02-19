@@ -71,7 +71,7 @@ export function BaseGroup({
                   "h-20 px-4 py-3 rounded-[10px] inline-flex items-center justify-between",
                   "bg-neutral-50",
                   isSelected
-                    ? "outline-2 outline-offset-[-2px] outline-red-400"
+                    ? "outline-2 -outline-offset-2 outline-red-400"
                     : "hover:bg-gray-50 outline-0",
                 )}
               >

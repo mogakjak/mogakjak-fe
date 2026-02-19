@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import PreviewMain from "@/app/_components/home/previewMain";
 import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import Icon from "@/app/_components/common/Icons";
@@ -23,9 +24,26 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
 
   // 그룹 아이디 확인
   const validGroupId = groupid && groupid !== "undefined" ? groupid : "";
-  const { data, isPending } = useGroupDetail(validGroupId, {
+  const { data, isPending, error } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,
   });
+
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const statusCode = (error as { status?: number; response?: { status?: number } })?.status || (error as { response?: { status?: number } })?.response?.status;
+      
+      if (
+        statusCode === 404 ||
+        errorMessage.includes("404") ||
+        errorMessage.includes("그룹을 찾을 수 없습니다") ||
+        errorMessage.includes("그룹을 찾을 수 없음") ||
+        errorMessage.toLowerCase().includes("not found")
+      ) {
+        router.replace("/");
+      }
+    }
+  }, [error, router]);
 
   // 그룹 타이머 종료 이벤트 수신하여 달성률 업데이트
   useGroupTimer({
