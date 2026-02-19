@@ -1,17 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import PreviewMain from "@/app/_components/home/previewMain";
 import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import Icon from "@/app/_components/common/Icons";
 import Edit from "/Icons/edit.svg";
 import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
-import { useState } from "react";
 import RoomModal from "@/app/_components/home/room/roomModal";
 import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 import { useQueryClient } from "@tanstack/react-query";
 import { groupKeys } from "@/app/api/groups/keys";
+import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
+import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 
 type GroupRoomPageProps = {
   groupid: string;
@@ -27,6 +28,13 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const { data, isPending, error } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,
   });
+
+  const { memberStatuses } = useGroupMemberStatus({
+    groupId: validGroupId,
+    groupData: data!,
+    enabled: !!validGroupId && !!data,
+  });
+  const isHost = useIsGroupHost(memberStatuses);
 
   useEffect(() => {
     if (error) {
@@ -74,9 +82,11 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
         ) : (
           <>
             <p className="text-heading4-20SB">{data?.name} 팀</p>
-            <button onClick={() => setGroupEditOpen(true)} aria-label="그룹 편집">
-              <Icon Svg={Edit} size={20} className="text-gray-600" />
-            </button>
+            {isHost && (
+              <button onClick={() => setGroupEditOpen(true)} aria-label="그룹 편집">
+                <Icon Svg={Edit} size={20} className="text-gray-600" />
+              </button>
+            )}
           </>
         )}
       </div>
