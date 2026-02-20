@@ -32,13 +32,11 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
   const [isTimerPublic, setIsTimerPublic] = useState(true);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
-  // 그룹 데이터 가져오기
   const validGroupId = groupId && groupId !== "undefined" ? groupId : "";
   const { data: groupData } = useGroupDetail(validGroupId, {
     enabled: !!validGroupId,
   });
 
-  // 그룹 멤버 상태 관리
   const { memberStatuses } = useGroupMemberStatus({
     groupId: validGroupId,
     groupData: groupData!,
@@ -47,29 +45,45 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
 
   const { token } = useAuthState();
 
-  // 현재 사용자 ID 가져오기
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
   }, [token]);
 
-  // 현재 사용자의 응원 개수 가져오기
   const myCheerCount = useMemo(() => {
     if (!currentUserId || !memberStatuses) return 0;
     const myStatus = memberStatuses.get(currentUserId);
     return myStatus?.cheerCount || 0;
   }, [currentUserId, memberStatuses]);
 
-  // 현재 사용자가 방장인지 확인
   const isHost = useMemo(() => {
     if (!currentUserId || !memberStatuses) return false;
     const myStatus = memberStatuses.get(currentUserId);
     return myStatus?.role === "HOST";
   }, [currentUserId, memberStatuses]);
 
-  const savedTodoId =
-    typeof window !== "undefined"
-      ? localStorage.getItem("groupMySidebar_selectedTodoId")
-      : null;
+  const [savedTodoId, setSavedTodoId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("selectedTodoId");
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleTodoIdChange = () => {
+      const newTodoId = localStorage.getItem("selectedTodoId");
+      setSavedTodoId(newTodoId);
+    };
+
+    window.addEventListener("todoIdChanged", handleTodoIdChange);
+    window.addEventListener("storage", handleTodoIdChange);
+
+    return () => {
+      window.removeEventListener("todoIdChanged", handleTodoIdChange);
+      window.removeEventListener("storage", handleTodoIdChange);
+    };
+  }, []);
 
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
@@ -80,16 +94,37 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
     }
 
     if (typeof window !== "undefined") {
-      localStorage.removeItem("groupMySidebar_selectedTodoId");
+      localStorage.removeItem("selectedTodoId");
+      setSavedTodoId(null);
     }
     return null;
   }, [savedTodoId, todayTodos, isTodayTodosFetched]);
 
-  const currentSession = validTodoId
-    ? queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId))
-    : queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  const currentSession = useMemo(() => {
+    if (validTodoId) {
+      return queryClient.getQueryData<PomodoroSession>(timerKeys.pomodoro(validTodoId));
+    }
+    return queryClient.getQueryData<PomodoroSession>(timerKeys.current());
+  }, [validTodoId, queryClient]);
 
-  const todoId = currentSession?.todo?.id ?? validTodoId;
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (event?.type === "updated") {
+        const queryKey = event.query.queryKey;
+        if (queryKey[0] === "timers") {
+          if (validTodoId && queryKey[1] === "pomodoro" && queryKey[2] === validTodoId) {
+            setSavedTodoId((prev) => prev);
+          } else if (!validTodoId && queryKey[1] === "current") {
+            setSavedTodoId((prev) => prev);
+          }
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [validTodoId, queryClient]);
+
+  const todoId = validTodoId ?? currentSession?.todo?.id ?? null;
 
   useEffect(() => {
     setHasSelectedTodo(!!todoId);

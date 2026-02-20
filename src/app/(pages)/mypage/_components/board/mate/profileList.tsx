@@ -248,6 +248,7 @@ export default function ProfileList({
                   ""
                 }
                 groups={commonGroups}
+                targetUserId={selectedUserId || undefined}
                 onJoin={handleJoinGroup}
                 onClose={() => {
                   setShowModal(false);

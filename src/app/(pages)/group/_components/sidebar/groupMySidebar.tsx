@@ -58,7 +58,7 @@ export default function GroupMySidebar({
   const [selectedTodoId, setSelectedTodoId] = useState<string | null>(() => {
     // localStorage에서 저장된 selectedTodoId 불러오기
     if (typeof window !== "undefined") {
-      return localStorage.getItem("groupMySidebar_selectedTodoId");
+      return localStorage.getItem("selectedTodoId");
     }
     return null;
   });
@@ -180,7 +180,8 @@ export default function GroupMySidebar({
 
       if (resultTodo) {
         if (typeof window !== "undefined") {
-          localStorage.setItem("groupMySidebar_selectedTodoId", resultTodo.id);
+          localStorage.setItem("selectedTodoId", resultTodo.id);
+          window.dispatchEvent(new Event("todoIdChanged"));
         }
         setSelectedTodoId(resultTodo.id);
         setCurrentTodo(resultTodo);
@@ -191,7 +192,6 @@ export default function GroupMySidebar({
           date: new Date(year, month - 1, day),
           targetSeconds: resultTodo.targetTimeInSeconds,
         });
-
         queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
           todo: {
             id: resultTodo.id,
@@ -199,15 +199,14 @@ export default function GroupMySidebar({
             targetTimeInSeconds: resultTodo.targetTimeInSeconds,
           },
         });
+
+        setModalOpen(false);
+        setSelectedCategoryId(null);
       }
 
-      // 캐시 무효화 및 강제 refetch
-      await queryClient.invalidateQueries({ queryKey: todoKeys.today() });
-      await queryClient.invalidateQueries({ queryKey: todoKeys.my() });
-      await refetchTodayTodos();
-
-      setModalOpen(false);
-      setSelectedCategoryId(null);
+      queryClient.invalidateQueries({ queryKey: todoKeys.today() });
+      queryClient.invalidateQueries({ queryKey: todoKeys.my() });
+      refetchTodayTodos();
     },
     [createTodo, updateTodo, todayTodosList, queryClient, refetchTodayTodos]
   );

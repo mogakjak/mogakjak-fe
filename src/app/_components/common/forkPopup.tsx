@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 import type { CommonGroup } from "@/app/_types/groups";
+import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 
 type GroupStatus = "active" | "inactive";
 
@@ -14,6 +16,7 @@ export type ForkGroup = {
   capacity: number;
   status: GroupStatus;
   avatarUrl?: string;
+  targetParticipationStatus?: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
 };
 
 // CommonGroup을 ForkGroup으로 변환
@@ -29,6 +32,7 @@ function convertToForkGroup(group: CommonGroup): ForkGroup {
     capacity: group.maxMemberCount,
     status: isActive ? "active" : "inactive",
     avatarUrl: group.imageUrl,
+    targetParticipationStatus: group.targetParticipationStatus,
   };
 }
 
@@ -36,6 +40,7 @@ export default function ForkPopup({
   userName = "박뽀모",
   groups,
   defaultSelectedId,
+  targetUserId,
   onJoin,
   className,
   onClose,
@@ -43,19 +48,17 @@ export default function ForkPopup({
   userName?: string;
   groups: ForkGroup[] | CommonGroup[];
   defaultSelectedId?: string;
+  targetUserId?: string;
   onJoin?: (groupId: string) => void;
   className?: string;
   onClose?: () => void;
 }) {
-  // CommonGroup 배열인 경우 ForkGroup으로 변환
+  const router = useRouter();
   const forkGroups: ForkGroup[] = useMemo(() => {
     if (groups.length === 0) return [];
-    // 첫 번째 그룹이 CommonGroup인지 확인
     const firstGroup = groups[0];
     if ("groupId" in firstGroup) {
-      return (groups as CommonGroup[])
-        .filter((group) => group.targetParticipationStatus !== "PARTICIPATING")
-        .map(convertToForkGroup);
+      return (groups as CommonGroup[]).map(convertToForkGroup);
     }
     return groups as ForkGroup[];
   }, [groups]);
@@ -69,11 +72,32 @@ export default function ForkPopup({
   );
 
   const handleSelect = (g: ForkGroup) => setSelectedId(g.id);
-  const handleJoin = () => {
-    if (selected) {
-      onJoin?.(selected.id);
-      onClose?.();
+  const inviteMutation = useInviteMate(selected?.id || "");
+
+  const handleJoin = async () => {
+    if (!selected) return;  
+    if (onJoin) {
+      onJoin(selected.id);
     }
+
+    if (targetUserId && selected.id) {
+      try {
+        inviteMutation.mutate(
+          {
+            inviteeId: targetUserId,
+          },
+          {
+            onError: (error) => {
+              console.error("초대 발송 실패:", error);
+            },
+          }
+        );
+      } catch (error) {
+        console.error("초대 발송 실패:", error);
+      }
+    }
+    router.push(`/group/${selected.id}`);
+    onClose?.();
   };
 
   return (
@@ -91,21 +115,12 @@ export default function ForkPopup({
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
           aria-label="닫기"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M18 6L6 18M6 6L18 18"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Image
+            src="/Icons/cancel.svg"
+            alt="닫기"
+            width={24}
+            height={24}
+          />
         </button>
       )}
       <header className="flex flex-col items-center text-center gap-4 pt-13 relative">
@@ -137,6 +152,7 @@ export default function ForkPopup({
             forkGroups.map((g) => {
             const isSelected = selectedId === g.id;
             const isActive = g.status === "active";
+            const isParticipating = g.targetParticipationStatus === "PARTICIPATING";
 
             return (
               <li key={g.id}>
@@ -144,12 +160,18 @@ export default function ForkPopup({
                   data-selected={isSelected}
                   className={clsx(
                     "px-5 py-3 rounded-lg inline-flex items-center gap-5 w-full",
-                    "bg-gray-100 cursor-pointer transition-colors",
-                    "hover:bg-rose-50",
-                    isSelected &&
+                    "transition-colors",
+                    isParticipating
+                      ? "bg-gray-100 cursor-not-allowed opacity-60"
+                      : "bg-gray-100 cursor-pointer hover:bg-rose-50",
+                    isSelected && !isParticipating &&
                       "bg-rose-50 outline-1 -outline-offset-1 outline-red-500"
                   )}
-                  onClick={() => handleSelect(g)}
+                  onClick={() => {
+                    if (!isParticipating) {
+                      handleSelect(g);
+                    }
+                  }}
                 >
                   <div className="relative w-14 h-14 bg-neutral-50 rounded-lg border border-gray-500 overflow-hidden">
                     {g.avatarUrl ? (
@@ -202,9 +224,22 @@ export default function ForkPopup({
           <button
             type="button"
             onClick={handleJoin}
-            className="h-12 px-6 py-3 bg-red-500 rounded-2xl inline-flex justify-center items-center gap-2 w-full max-w-[380px]"
+            disabled={selected.targetParticipationStatus === "PARTICIPATING"}
+            className={clsx(
+              "h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center gap-2 w-full max-w-[380px]",
+              selected.targetParticipationStatus === "PARTICIPATING"
+                ? "bg-gray-200 cursor-not-allowed"
+                : "bg-red-500"
+            )}
           >
-            <span className="text-neutral-50 text-base font-semibold leading-6">
+            <span
+              className={clsx(
+                "text-base font-semibold leading-6",
+                selected.targetParticipationStatus === "PARTICIPATING"
+                  ? "text-gray-400"
+                  : "text-neutral-50"
+              )}
+            >
               모각작 시작하기
             </span>
           </button>
