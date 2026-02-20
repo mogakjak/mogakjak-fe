@@ -129,7 +129,7 @@ export function useTimerMetrics() {
                 timer_session_id: sessionId,
                 actual_focus_time: pureActiveTime,
                 total_break_time: totalBreakDurationRef.current,
-            }; ``
+            };
 
 
             if (options?.total_rounds !== undefined) {

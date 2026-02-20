@@ -20,12 +20,11 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
   const [openNoti, setOpenNoti] = useState(false);
   const queryClient = useQueryClient();
 
-  // 실시간 알림 설정 변경 감지 (현재 그룹 직접 구독)
+  // 실시간 알림 설정 변경 감지
   useFocusNotification({
     groupId: data.groupId,
     onNotification: (message) => {
       if (message.groupId === data.groupId) {
-        // 알림 설정이 변경되었다는 메시지를 받으면 쿼리 무효화 -> 데이터 다시 받아옴
         queryClient.invalidateQueries({
           queryKey: groupKeys.notifications(data.groupId),
         });
