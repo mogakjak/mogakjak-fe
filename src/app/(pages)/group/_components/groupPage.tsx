@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Button } from "@/components/button";
 import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
@@ -27,6 +27,7 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerKeys } from "@/app/api/timers/keys";
+import { groupKeys } from "@/app/api/groups/keys";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -49,6 +50,8 @@ export default function GroupPage({
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
   const [pendingRoute, setPendingRoute] = useState<(() => void) | null>(null);
+  const [isExiting, setIsExiting] = useState(false);
+  const isExitingRef = useRef(false); // useCallback 클로저 문제 방지용 ref
 
   const finishGroupTimerMutation = useFinishGroupTimer(
     groupData.groupId,
@@ -59,6 +62,8 @@ export default function GroupPage({
   const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
   const finishActiveTimerMutation = useFinishActiveTimer();
   const queryClient = useQueryClient();
+
+
 
   const { token } = useAuthState();
 
@@ -103,32 +108,45 @@ export default function GroupPage({
 
   // 최종 나가기 처리 (리뷰 팝업 등에서 호출)
   const handleFinalExit = useCallback(async () => {
-    const enterTimeStr = sessionStorage.getItem(`group_enter_time_${groupData.groupId}`);
-    if (enterTimeStr) {
-      const enterTime = Number(enterTimeStr);
-      const stayDurationSeconds = Math.floor((Date.now() - enterTime) / 1000);
+    // ref로 중복 실행 방지 (state가 아닌 ref 사용 → 콜백 재생성 전합)
+    if (isExitingRef.current) return;
+    isExitingRef.current = true;
+    setIsExiting(true);
 
-      sendGAEvent("event", "group_stay_duration", {
-        value: stayDurationSeconds,
-      });
+    try {
+      const enterTimeStr = sessionStorage.getItem(`group_enter_time_${groupData.groupId}`);
+      if (enterTimeStr) {
+        const enterTime = Number(enterTimeStr);
+        const stayDurationSeconds = Math.floor((Date.now() - enterTime) / 1000);
 
-      sessionStorage.removeItem(`group_enter_time_${groupData.groupId}`);
-    }
+        sendGAEvent("event", "group_stay_duration", {
+          value: stayDurationSeconds,
+        });
 
-    const currentSession = queryClient.getQueryData(timerKeys.current());
-    if (currentSession) {
-      try {
-        await finishActiveTimerMutation.mutateAsync();
-      } catch (error) {
-        console.warn("활성 타이머 종료 실패:", error);
+        sessionStorage.removeItem(`group_enter_time_${groupData.groupId}`);
       }
-    }
 
-    await exitSessionOnce();
-    if (pendingRoute) {
-      pendingRoute();
-    } else {
-      onExitGroup();
+      const currentSession = queryClient.getQueryData(timerKeys.current());
+      if (currentSession) {
+        try {
+          await finishActiveTimerMutation.mutateAsync();
+        } catch (error) {
+          console.warn("활성 타이머 종료 실패:", error);
+        }
+      }
+
+
+
+      await exitSessionOnce();
+      if (pendingRoute) {
+        pendingRoute();
+      } else {
+        onExitGroup();
+      }
+    } catch (error) {
+      console.error("나가기 처리 실패:", error);
+      isExitingRef.current = false;
+      setIsExiting(false);
     }
   }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId, finishActiveTimerMutation, queryClient]);
 
@@ -376,6 +394,7 @@ export default function GroupPage({
               sessionId={sessionId || ""}
               onClose={() => setOpenReview(false)}
               onExitGroup={handleFinalExit}
+              isExiting={isExiting}
             />
           </div>
         </div>
