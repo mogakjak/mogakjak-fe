@@ -9,12 +9,14 @@ interface ReviewPopupProps {
   sessionId: string;
   onClose: () => void;
   onExitGroup: () => void;
+  isExiting?: boolean;
 }
 
 export default function ReviewPopup({
   groupName,
   onClose,
   onExitGroup,
+  isExiting = false,
 }: ReviewPopupProps) {
   const {
     emojis,
@@ -45,6 +47,7 @@ export default function ReviewPopup({
         isPendingTags={isPendingTags}
         etcText={etcText}
         isSubmitting={isSubmitting}
+        isExiting={isExiting}
         onClose={onClose}
         onEmojiClick={handleEmojiClick}
         onToggleTag={toggleTag}

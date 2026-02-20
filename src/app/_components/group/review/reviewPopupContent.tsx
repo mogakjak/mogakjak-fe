@@ -19,6 +19,7 @@ interface ReviewPopupContentProps {
     isPendingTags: boolean;
     etcText: string;
     isSubmitting: boolean;
+    isExiting?: boolean;
 
     onClose: () => void;
     onEmojiClick: (emoji: EmojiType) => void;
@@ -37,6 +38,7 @@ export function ReviewPopupContent({
     isPendingTags,
     etcText,
     isSubmitting,
+    isExiting = false,
     onClose,
     onEmojiClick,
     onToggleTag,
@@ -115,9 +117,9 @@ export function ReviewPopupContent({
                 <button
                     className="w-full py-3 bg-red-500 text-white rounded-br-xl disabled:bg-red-300"
                     onClick={onSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isExiting}
                 >
-                    종료하고 나가기
+                    {isExiting ? "나가는 중..." : (isSubmitting ? "처리 중..." : "종료하고 나가기")}
                 </button>
             </div>
         </div>
