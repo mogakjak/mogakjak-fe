@@ -49,9 +49,7 @@ export default function WorkSelectField({
         setCategories([...categories, newItem]);
       }
 
-      onChange(newItem);
       setNewCategory("");
-      setIsOpen(false);
       e.preventDefault();
     }
   };
