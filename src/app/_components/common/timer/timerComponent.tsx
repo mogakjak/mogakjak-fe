@@ -12,20 +12,17 @@ import TimerModal from "./timerModal";
 import TimerEndModal from "../timerEndModal";
 import AlertModal from "./alertModal";
 import ActiveSessionModal from "./activeSessionModal";
-import { useStartPomodoro } from "@/app/_hooks/timers/useStartPomodoro";
-import { usePauseTimer } from "@/app/_hooks/timers/usePauseTimer";
-import { useResumeTimer } from "@/app/_hooks/timers/useResumeTimer";
-import { useFinishTimer } from "@/app/_hooks/timers/useFinishTimer";
-import { useStartTimer } from "@/app/_hooks/timers/useStartTimer";
-import { useStartStopwatch } from "@/app/_hooks/timers/useStartStopwatch";
-import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
+import {
+  useTimerControl,
+  type Mode,
+  type TimerConfig,
+} from "@/app/_hooks/timers/useTimerControl";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
 import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 import { useTimerMetrics } from "@/app/_hooks/timers/useTimerMetrics";
 import { sendGAEvent } from "@next/third-parties/google";
-
-type Mode = "pomodoro" | "stopwatch" | "timer";
+import type { PomodoroSession } from "@/app/api/timers/api";
 
 const CONTENT_FIXED = "h-[110px]";
 
@@ -52,15 +49,7 @@ export default function TimerComponent({
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
   const [alertModalOpen, setAlertModalOpen] = useState(false);
-  const [activeSessionModalOpen, setActiveSessionModalOpen] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
-  const [pendingStopwatchConfig, setPendingStopwatchConfig] = useState<{
-    todoId: string;
-    participationType: "INDIVIDUAL" | "GROUP";
-    groupId?: string;
-    isTaskPublic?: boolean;
-    isTimerPublic?: boolean;
-  } | null>(null);
 
   const [pomodoroConfig, setPomodoroConfig] = useState<{
     focusSeconds: number;
@@ -78,14 +67,19 @@ export default function TimerComponent({
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const { setIsRunning } = useTimer();
-  const startPomodoroMutation = useStartPomodoro();
-  const pauseTimerMutation = usePauseTimer();
-  const resumeTimerMutation = useResumeTimer();
-  const finishTimerMutation = useFinishTimer();
-  const startTimerMutation = useStartTimer();
-  const startStopwatchMutation = useStartStopwatch();
-  const finishActiveTimerMutation = useFinishActiveTimer();
-  const { startTracking, pauseTracking, resumeTracking, finalizeMetrics } = useTimerMetrics();
+  const { startTracking, pauseTracking, resumeTracking, finalizeMetrics } =
+    useTimerMetrics();
+
+  const {
+    startSession,
+    retryStartSession,
+    pauseSession,
+    resumeSession,
+    stopSession,
+    pendingSessionConfig,
+    activeSessionModalOpen,
+    closeActiveSessionModal,
+  } = useTimerControl({ onSessionIdChange });
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
@@ -112,8 +106,46 @@ export default function TimerComponent({
     }
   }, [isInPip, openPipWindow, closePipWindow]);
 
-  const handlePomodoroStart = useCallback(
+  const handleSessionStarted = useCallback(
+    (session: PomodoroSession, config: TimerConfig) => {
+      setSessionId(session.sessionId);
+      setRunning(true);
+      setIsPaused(false);
+      setIsRunning(true);
 
+      if (config.mode === "pomodoro") {
+        startTracking("pomodoro", {
+          action: "new",
+          target_duration: config.focusSeconds,
+        });
+        pomoRef.current?.reset(config.focusSeconds! / 60);
+        pomoRef.current?.start();
+      } else if (config.mode === "stopwatch") {
+        startTracking("stopwatch", { action: "new" });
+        swRef.current?.start();
+      } else if (config.mode === "timer") {
+        startTracking("timer", {
+          action: "new",
+          target_duration: config.targetSeconds,
+        });
+        const targetSeconds = config.targetSeconds!;
+        const hours = Math.floor(targetSeconds / 3600);
+        const minutes = Math.floor((targetSeconds % 3600) / 60);
+        const secs = targetSeconds % 60;
+        cdRef.current?.setTime(hours, minutes, secs);
+        setTimeout(() => {
+          if (cdRef.current) cdRef.current.start();
+        }, 0);
+      }
+
+      if (timerContainerRef.current && openPipWindowRef.current) {
+        openPipWindowRef.current();
+      }
+    },
+    [startTracking, setIsRunning]
+  );
+
+  const handlePomodoroStart = useCallback(
     async (focusSeconds: number, breakSeconds: number, repeatCount: number) => {
       setPomodoroConfig({ focusSeconds, breakSeconds, repeatCount });
       setCurrentPhase("FOCUS");
@@ -121,42 +153,31 @@ export default function TimerComponent({
       setIsPaused(false);
 
       if (!todoId) {
-        sendGAEvent("event", "timer_start_failed", { timerType: "pomodoro", reason: "missing_todo" });
+        sendGAEvent("event", "timer_start_failed", {
+          timerType: "pomodoro",
+          reason: "missing_todo",
+        });
         setAlertModalOpen(true);
         return;
       }
 
-      try {
-        const session = await startPomodoroMutation.mutateAsync({
-          todoId,
-          focusSeconds,
-          breakSeconds,
-          repeatCount,
-          participationType: groupId ? "GROUP" : "INDIVIDUAL",
-          ...(groupId && { groupId }),
-          isTaskPublic,
-          isTimerPublic,
-        });
-        setSessionId(session.sessionId);
-        onSessionIdChange?.(session.sessionId);
+      const config: TimerConfig = {
+        mode: "pomodoro",
+        todoId,
+        focusSeconds,
+        breakSeconds,
+        repeatCount,
+        participationType: groupId ? "GROUP" : "INDIVIDUAL",
+        groupId,
+        isTaskPublic,
+        isTimerPublic,
+      };
 
-        // GA4 메트릭 추적 시작
-        startTracking("pomodoro", {
-          action: "new",
-          target_duration: focusSeconds,
-        });
+      const session = await startSession(config);
 
-        pomoRef.current?.reset(focusSeconds / 60);
-        pomoRef.current?.start();
-
-        setRunning(true);
-        setIsPaused(false);
-        setIsRunning(true);
-        if (timerContainerRef.current && openPipWindowRef.current) {
-          openPipWindowRef.current();
-        }
-      } catch (error) {
-        console.error("뽀모도로 시작 실패:", error);
+      if (session) {
+        handleSessionStarted(session, config);
+      } else {
         setPomodoroConfig(null);
         setSessionId(null);
         setIsPaused(false);
@@ -167,33 +188,30 @@ export default function TimerComponent({
     [
       todoId,
       groupId,
-      startPomodoroMutation,
+      startSession,
       setIsRunning,
       isTaskPublic,
       isTimerPublic,
-      onSessionIdChange,
-      startTracking,
+      handleSessionStarted,
     ]
   );
 
   const onStart = useCallback(async () => {
     if (!todoId) {
-      sendGAEvent("event", "timer_start_failed", { timerType: mode, reason: "missing_todo" });
+      sendGAEvent("event", "timer_start_failed", {
+        timerType: mode,
+        reason: "missing_todo",
+      });
       setAlertModalOpen(true);
       return;
     }
 
     if (mode === "pomodoro") {
       if (isPaused && sessionIdRef.current) {
-        // 재개 시 휴식 시간 누적
         resumeTracking();
-
         try {
-          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
-
-          // GA4 메트릭 추적 (재개)
+          await resumeSession(sessionIdRef.current);
           startTracking("pomodoro", { action: "resume" });
-
           pomoRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -213,15 +231,10 @@ export default function TimerComponent({
       }
     } else if (mode === "stopwatch") {
       if (isPaused && sessionIdRef.current) {
-        // 재개 시 휴식 시간 누적
         resumeTracking();
-
         try {
-          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
-
-          // GA4 메트릭 추적 (재개)
+          await resumeSession(sessionIdRef.current);
           startTracking("stopwatch", { action: "resume" });
-
           swRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -237,57 +250,25 @@ export default function TimerComponent({
           console.error("스톱워치 재개 실패:", error);
         }
       } else {
-        try {
-          const session = await startStopwatchMutation.mutateAsync({
-            todoId,
-            participationType: groupId ? "GROUP" : "INDIVIDUAL",
-            ...(groupId && { groupId }),
-            isTaskPublic,
-            isTimerPublic,
-          });
-          setSessionId(session.sessionId);
-          onSessionIdChange?.(session.sessionId);
-
-          // GA4 메트릭 추적 시작
-          startTracking("stopwatch", { action: "new" });
-
-          swRef.current?.start();
-          setRunning(true);
-          setIsPaused(false);
-          setIsRunning(true);
-          if (timerContainerRef.current && openPipWindowRef.current) {
-            openPipWindowRef.current();
-          }
-        } catch (error) {
-          console.error("스톱워치 시작 실패:", error);
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          if (
-            errorMessage.includes("이미") ||
-            errorMessage.includes("already") ||
-            errorMessage.includes("running")
-          ) {
-            setPendingStopwatchConfig({
-              todoId,
-              participationType: groupId ? "GROUP" : "INDIVIDUAL",
-              ...(groupId && { groupId }),
-              isTaskPublic,
-              isTimerPublic,
-            });
-            setActiveSessionModalOpen(true);
-          }
+        const config: TimerConfig = {
+          mode: "stopwatch",
+          todoId,
+          participationType: groupId ? "GROUP" : "INDIVIDUAL",
+          groupId,
+          isTaskPublic,
+          isTimerPublic,
+        };
+        const session = await startSession(config);
+        if (session) {
+          handleSessionStarted(session, config);
         }
       }
     } else if (mode === "timer") {
       if (isPaused && sessionIdRef.current) {
-        // 재개 시 휴식 시간 누적
         resumeTracking();
-
         try {
-          await resumeTimerMutation.mutateAsync(sessionIdRef.current);
-
-          // GA4 메트릭 추적 (재개)
+          await resumeSession(sessionIdRef.current);
           startTracking("timer", { action: "resume" });
-
           cdRef.current?.start();
           setRunning(true);
           setIsPaused(false);
@@ -309,26 +290,26 @@ export default function TimerComponent({
   }, [
     mode,
     isPaused,
-    resumeTimerMutation,
-    startStopwatchMutation,
+    resumeSession,
     todoId,
     groupId,
     setIsRunning,
-    onSessionIdChange,
     isTaskPublic,
     isTimerPublic,
     resumeTracking,
     startTracking,
+    startSession,
+    handleSessionStarted,
   ]);
 
   const onPause = useCallback(async () => {
     const effectiveSessionId = sessionIdRef.current;
-
-    // GA4 메트릭 추적 (일시정지)
-    pauseTracking(mode as "pomodoro" | "stopwatch" | "timer", effectiveSessionId);
+    pauseTracking(
+      mode as "pomodoro" | "stopwatch" | "timer",
+      effectiveSessionId
+    );
 
     if (!effectiveSessionId) {
-      // sessionId 없이 로컬 타이머만 사용하는 경우
       if (mode === "pomodoro") pomoRef.current?.pause();
       else if (mode === "stopwatch") swRef.current?.pause();
       else cdRef.current?.pause();
@@ -339,7 +320,7 @@ export default function TimerComponent({
     }
 
     try {
-      await pauseTimerMutation.mutateAsync(effectiveSessionId);
+      await pauseSession(effectiveSessionId);
       if (mode === "pomodoro") pomoRef.current?.pause();
       else if (mode === "stopwatch") swRef.current?.pause();
       else cdRef.current?.pause();
@@ -349,192 +330,137 @@ export default function TimerComponent({
     } catch (error) {
       console.error("타이머 정지 실패:", error);
     }
-  }, [mode, pauseTimerMutation, setIsRunning, pauseTracking]);
+  }, [mode, pauseSession, setIsRunning, pauseTracking]);
+
   const onStop = useCallback(async () => {
     const effectiveSessionId = sessionIdRef.current;
+    finalizeMetrics(
+      mode as "pomodoro" | "stopwatch" | "timer",
+      effectiveSessionId
+    );
 
-    // GA4 메트릭 최종 계산 및 전송
-    finalizeMetrics(mode as "pomodoro" | "stopwatch" | "timer", effectiveSessionId);
-
-    if (mode === "pomodoro") {
-      if (effectiveSessionId) {
-        try {
-          await finishTimerMutation.mutateAsync(effectiveSessionId);
-        } catch (error) {
-          console.error("타이머 종료 실패:", error);
-        }
-      } else {
-        console.warn(
-          "[onStop] pomodoro 종료 시 sessionId 없음 - 이미 종료된 세션일 수 있음"
-        );
-      }
-
-      pomoRef.current?.stop();
-      setPomodoroConfig(null);
-      setCurrentPhase("FOCUS");
-      setCurrentRound(1);
-      setSessionId(null);
-      onSessionIdChange?.(null);
-      setIsPaused(false);
-      setRunning(false);
-      setIsRunning(false);
-      return;
-    }
-
-    if (mode === "stopwatch") {
-      if (effectiveSessionId) {
-        try {
-          await finishTimerMutation.mutateAsync(effectiveSessionId);
-        } catch (error) {
-          console.error("스톱워치 종료 실패:", error);
-        }
-      }
-      swRef.current?.stop();
-      setSessionId(null);
-      onSessionIdChange?.(null);
-      setIsPaused(false);
-      setRunning(false);
-      setIsRunning(false);
-      return;
-    }
-
-    // mode === "timer"
     if (effectiveSessionId) {
       try {
-        await finishTimerMutation.mutateAsync(effectiveSessionId);
+        await stopSession(effectiveSessionId);
       } catch (error) {
         console.error("타이머 종료 실패:", error);
       }
     }
-    cdRef.current?.reset();
+
+    if (mode === "pomodoro") {
+      pomoRef.current?.stop();
+      setPomodoroConfig(null);
+      setCurrentPhase("FOCUS");
+      setCurrentRound(1);
+    } else if (mode === "stopwatch") {
+      swRef.current?.stop();
+    } else {
+      cdRef.current?.reset();
+    }
+
     setSessionId(null);
     onSessionIdChange?.(null);
     setIsPaused(false);
     setRunning(false);
     setIsRunning(false);
+  }, [mode, stopSession, setIsRunning, onSessionIdChange, finalizeMetrics]);
+
+  const handlePomodoroComplete = useCallback(async () => {
+    if (!pomodoroConfig) return;
+    const { focusSeconds, breakSeconds, repeatCount } = pomodoroConfig;
+
+    if (currentPhase === "FOCUS") {
+      if (currentRound < repeatCount) {
+        const breakMinutes = breakSeconds / 60;
+        setCurrentPhase("BREAK");
+        setRunning(true);
+        setIsRunning(true);
+        pomoRef.current?.reset(breakMinutes);
+        pomoRef.current?.start();
+        return;
+      }
+
+      sendGAEvent("event", "timer_complete", {
+        timer_type: "pomodoro",
+        timer_session_id: sessionIdRef.current,
+        total_rounds: repeatCount,
+      });
+
+      await onStop();
+
+      if (isSupported) {
+        const title = "뽀모도로가 완료되었어요";
+        const body = "모든 집중 시간을 완료했습니다!";
+        if (permission === "granted") {
+          showNotification(title, {
+            body,
+            icon: "/chorme/notificationIcon.png",
+            badge: "/chorme/notificationIcon.png",
+            tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+          });
+        } else if (permission === "default") {
+          requestPermission().then((granted) => {
+            if (granted) {
+              showNotification(title, {
+                body,
+                icon: "/chorme/notificationIcon.png",
+                badge: "/chorme/notificationIcon.png",
+                tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+              });
+            }
+          });
+        }
+      }
+      return;
+    }
+
+    const nextRound = currentRound + 1;
+    if (nextRound > repeatCount) {
+      await onStop();
+      if (isSupported) {
+        const title = "뽀모도로가 완료되었어요";
+        const body = "모든 집중 시간을 완료했습니다!";
+        if (permission === "granted") {
+          showNotification(title, {
+            body,
+            icon: "/chorme/notificationIcon.png",
+            badge: "/chorme/notificationIcon.png",
+            tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+          });
+        } else if (permission === "default") {
+          requestPermission().then((granted) => {
+            if (granted) {
+              showNotification(title, {
+                body,
+                icon: "/chorme/notificationIcon.png",
+                badge: "/chorme/notificationIcon.png",
+                tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
+              });
+            }
+          });
+        }
+      }
+      return;
+    }
+
+    setCurrentPhase("FOCUS");
+    setCurrentRound(nextRound);
+    setRunning(true);
+    setIsRunning(true);
+    const focusMinutes = focusSeconds / 60;
+    pomoRef.current?.reset(focusMinutes);
+    pomoRef.current?.start();
   }, [
-    mode,
-    finishTimerMutation,
+    pomodoroConfig,
+    currentPhase,
+    currentRound,
+    onStop,
     setIsRunning,
-    onSessionIdChange,
-    finalizeMetrics,
+    isSupported,
+    permission,
+    requestPermission,
+    showNotification,
   ]);
-
-  const handlePomodoroComplete = useCallback(
-    async () => {
-
-
-      if (!pomodoroConfig) return;
-
-      const { focusSeconds, breakSeconds, repeatCount } = pomodoroConfig;
-
-      if (currentPhase === "FOCUS") {
-        if (currentRound < repeatCount) {
-          const breakMinutes = breakSeconds / 60;
-
-          setCurrentPhase("BREAK");
-          setRunning(true);
-          setIsRunning(true);
-
-
-
-          pomoRef.current?.reset(breakMinutes);
-          pomoRef.current?.start();
-          return;
-        }
-
-        sendGAEvent("event", "timer_complete", {
-          timer_type: "pomodoro",
-          timer_session_id: sessionIdRef.current,
-          total_rounds: repeatCount
-        });
-
-        await onStop();
-
-        if (isSupported) {
-          const title = "뽀모도로가 완료되었어요";
-          const body = "모든 집중 시간을 완료했습니다!";
-
-          if (permission === "granted") {
-            showNotification(title, {
-              body,
-              icon: "/chorme/notificationIcon.png",
-              badge: "/chorme/notificationIcon.png",
-              tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
-            });
-          } else if (permission === "default") {
-            requestPermission().then((granted) => {
-              if (granted) {
-                showNotification(title, {
-                  body,
-                  icon: "/chorme/notificationIcon.png",
-                  badge: "/chorme/notificationIcon.png",
-                  tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
-                });
-              }
-            });
-          }
-        }
-
-        return;
-      }
-
-      const nextRound = currentRound + 1;
-
-      if (nextRound > repeatCount) {
-        await onStop();
-
-        if (isSupported) {
-          const title = "뽀모도로가 완료되었어요";
-          const body = "모든 집중 시간을 완료했습니다!";
-
-          if (permission === "granted") {
-            showNotification(title, {
-              body,
-              icon: "/chorme/notificationIcon.png",
-              badge: "/chorme/notificationIcon.png",
-              tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
-            });
-          } else if (permission === "default") {
-            requestPermission().then((granted) => {
-              if (granted) {
-                showNotification(title, {
-                  body,
-                  icon: "/chorme/notificationIcon.png",
-                  badge: "/chorme/notificationIcon.png",
-                  tag: `pomodoro-complete-${sessionIdRef.current || Date.now()}`,
-                });
-              }
-            });
-          }
-        }
-
-        return;
-      }
-
-      setCurrentPhase("FOCUS");
-      setCurrentRound(nextRound);
-      setRunning(true);
-      setIsRunning(true);
-
-
-
-      const focusMinutes = focusSeconds / 60;
-      pomoRef.current?.reset(focusMinutes);
-      pomoRef.current?.start();
-    },
-    [
-      pomodoroConfig,
-      currentPhase,
-      currentRound,
-      onStop,
-      setIsRunning,
-      isSupported,
-      permission,
-      requestPermission,
-      showNotification,
-    ]
-  );
 
   const onSwitch = (m: Mode) => {
     if (sessionIdRef.current) {
@@ -548,7 +474,6 @@ export default function TimerComponent({
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (running && !isInPip) {
         e.preventDefault();
@@ -556,9 +481,7 @@ export default function TimerComponent({
         setTimerEndModalOpen(true);
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -571,11 +494,9 @@ export default function TimerComponent({
           ? pomodoroConfig.focusSeconds / 60
           : pomodoroConfig.breakSeconds / 60
         : 0;
-
       const key = pomodoroConfig
         ? `pomodoro-${currentPhase}-${currentRound}-${pomodoroConfig.focusSeconds}-${pomodoroConfig.breakSeconds}`
         : "pomodoro-default";
-
       return (
         <div className="w-full h-full grid place-items-center">
           <PomodoroDial
@@ -589,7 +510,6 @@ export default function TimerComponent({
         </div>
       );
     }
-
     if (mode === "stopwatch") {
       return (
         <div className="w-full h-full grid place-items-center">
@@ -597,7 +517,6 @@ export default function TimerComponent({
         </div>
       );
     }
-
     return (
       <div className="w-full h-full grid place-items-center">
         <Countdown
@@ -616,8 +535,8 @@ export default function TimerComponent({
 
             if (isSupported) {
               const title = "타이머가 끝났습니다!";
-              const body = "목표를 달성하셨나요? 다 마쳤다면 종료 버튼을, 시간이 더 필요하다면 타이머를 다시 시작해 보세요.";
-
+              const body =
+                "목표를 달성하셨나요? 다 마쳤다면 종료 버튼을, 시간이 더 필요하다면 타이머를 다시 시작해 보세요.";
               if (permission === "granted") {
                 showNotification(title, {
                   body,
@@ -669,43 +588,15 @@ export default function TimerComponent({
     }
   }, [pendingMode, onStop]);
 
-  const handleActiveSessionModalClose = useCallback(() => {
-    setActiveSessionModalOpen(false);
-    setPendingStopwatchConfig(null);
-  }, []);
-
   const handleActiveSessionModalConfirm = useCallback(async () => {
-    setActiveSessionModalOpen(false);
-    if (pendingStopwatchConfig) {
-      try {
-        // 기존 활성 세션 종료
-        await finishActiveTimerMutation.mutateAsync();
-        // 새 스톱워치 시작
-        const session = await startStopwatchMutation.mutateAsync(
-          pendingStopwatchConfig
-        );
-        setSessionId(session.sessionId);
-        onSessionIdChange?.(session.sessionId);
-        swRef.current?.start();
-        setRunning(true);
-        setIsPaused(false);
-        setIsRunning(true);
-        if (timerContainerRef.current && openPipWindowRef.current) {
-          openPipWindowRef.current();
-        }
-        setPendingStopwatchConfig(null);
-      } catch (error) {
-        console.error("기존 세션 종료 및 새 스톱워치 시작 실패:", error);
-        setPendingStopwatchConfig(null);
+    if (pendingSessionConfig) {
+      const config = pendingSessionConfig;
+      const session = await retryStartSession();
+      if (session) {
+        handleSessionStarted(session, config);
       }
     }
-  }, [
-    pendingStopwatchConfig,
-    finishActiveTimerMutation,
-    startStopwatchMutation,
-    onSessionIdChange,
-    setIsRunning,
-  ]);
+  }, [pendingSessionConfig, retryStartSession, handleSessionStarted]);
 
   return (
     <>
@@ -762,50 +653,33 @@ export default function TimerComponent({
             onClose={() => setTimerModalOpen(false)}
             onStart={async (targetSeconds: number) => {
               if (!todoId) {
-                sendGAEvent("event", "timer_start_failed", { timerType: "timer", reason: "missing_todo" });
+                sendGAEvent("event", "timer_start_failed", {
+                  timerType: "timer",
+                  reason: "missing_todo",
+                });
                 setTimerModalOpen(false);
                 setAlertModalOpen(true);
                 return;
               }
-              try {
-                sendGAEvent("event", "timer_start", {
-                  timer_type: "timer",
-                  timer_action: "new",
-                  target_duration: targetSeconds
-                });
-                const session = await startTimerMutation.mutateAsync({
-                  todoId,
-                  targetSeconds,
-                  participationType: groupId ? "GROUP" : "INDIVIDUAL",
-                  ...(groupId && { groupId }),
-                  isTaskPublic,
-                  isTimerPublic,
-                });
-                setSessionId(session.sessionId);
-                onSessionIdChange?.(session.sessionId);
+              const config: TimerConfig = {
+                mode: "timer",
+                todoId,
+                participationType: groupId ? "GROUP" : "INDIVIDUAL",
+                groupId,
+                isTaskPublic,
+                isTimerPublic,
+                targetSeconds,
+              };
 
-                // GA4 메트릭 추적 시작
-                startTracking("timer", {
-                  action: "new",
-                  target_duration: targetSeconds,
-                });
+              // Start Session via hook
+              const session = await startSession(config);
 
-                const hours = Math.floor(targetSeconds / 3600);
-                const minutes = Math.floor((targetSeconds % 3600) / 60);
-                const secs = targetSeconds % 60;
-                cdRef.current?.setTime(hours, minutes, secs);
-                setTimeout(() => {
-                  if (cdRef.current) {
-                    cdRef.current.start();
-                    setRunning(true);
-                    setIsRunning(true);
-                    if (timerContainerRef.current && openPipWindowRef.current) {
-                      openPipWindowRef.current();
-                    }
-                  }
-                }, 0);
-              } catch (error) {
-                console.error("타이머 시작 실패:", error);
+              if (session) {
+                setTimerModalOpen(false);
+                handleSessionStarted(session, config);
+              } else {
+                // If failed or pending modal triggered, just close timer modal
+                setTimerModalOpen(false);
               }
             }}
           />
@@ -825,7 +699,7 @@ export default function TimerComponent({
           {activeSessionModalOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <ActiveSessionModal
-                onClose={handleActiveSessionModalClose}
+                onClose={closeActiveSessionModal}
                 onConfirm={handleActiveSessionModalConfirm}
               />
             </div>

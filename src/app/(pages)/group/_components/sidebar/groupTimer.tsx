@@ -12,7 +12,6 @@ import {
 } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 import type { GroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import AlertModal from "@/app/_components/common/timer/alertModal";
-import { useTimer } from "@/app/_contexts/TimerContext";
 import { useBlockGroupTimerNavigation } from "@/app/_hooks/block/useBlockGroupTimerNavigation";
 import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 
@@ -40,8 +39,11 @@ export default function GroupTimer({
   memberStatuses,
 }: GroupTimerProps) {
   const [status, setStatus] = useState<Status>("idle");
-  const { setIsRunning } = useTimer();
   const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    onStatusChange?.(status);
+  }, [status, onStatusChange]);
 
 
 

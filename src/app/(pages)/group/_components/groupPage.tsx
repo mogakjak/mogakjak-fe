@@ -27,7 +27,6 @@ import { sendGAEvent } from "@next/third-parties/google";
 import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
 import { useQueryClient } from "@tanstack/react-query";
 import { timerKeys } from "@/app/api/timers/keys";
-import { groupKeys } from "@/app/api/groups/keys";
 
 type GroupPageProps = {
   onExitGroup: () => void;
