@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useWebSocket } from "../useWebSocket";
+import { useState, useCallback } from "react";
+import { useWebSocketWithUserId } from "../useWebSocketWithUserId";
 
 export type FocusNotificationMessage = {
   groupId: string;
@@ -17,6 +17,10 @@ type UseFocusNotificationOptions = {
   onDisconnect?: () => void;
 };
 
+/**
+ * 그룹 페이지에서 집중 체크 알림 수신 (유저 토픽 구독 후 groupId로 필터)
+ * 백엔드가 /topic/user/{userId}/focus-notification 으로만 전송하므로 동일 토픽 구독
+ */
 export function useFocusNotification({
   groupId,
   enabled = true,
@@ -27,16 +31,20 @@ export function useFocusNotification({
   const [lastNotification, setLastNotification] =
     useState<FocusNotificationMessage | null>(null);
 
+  const handleMessage = useCallback(
+    (message: FocusNotificationMessage) => {
+      if (message.groupId !== groupId) return;
+      setLastNotification(message);
+      onNotification?.(message);
+    },
+    [groupId, onNotification]
+  );
+
   const { isConnected, connect, disconnect } =
-    useWebSocket<FocusNotificationMessage>({
+    useWebSocketWithUserId<FocusNotificationMessage>({
       enabled: enabled && !!groupId,
-      destination: groupId ? `/topic/group/${groupId}/notification` : undefined,
-      onMessage: (message) => {
-        setLastNotification(message);
-        onNotification?.(message);
-      },
-      onConnect,
-      onDisconnect,
+      getDestination: (userId) => `/topic/user/${userId}/focus-notification`,
+      onMessage: handleMessage,
     });
 
   return {
