@@ -13,6 +13,8 @@ type UseFocusNotificationOptions = {
   groupId: string;
   enabled?: boolean;
   onNotification?: (message: FocusNotificationMessage) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
 };
 
 /**
@@ -23,6 +25,8 @@ export function useFocusNotification({
   groupId,
   enabled = true,
   onNotification,
+  onConnect,
+  onDisconnect,
 }: UseFocusNotificationOptions) {
   const [lastNotification, setLastNotification] =
     useState<FocusNotificationMessage | null>(null);
