@@ -9,7 +9,6 @@ import Image from "next/image";
 import { MyGroup } from "@/app/_types/groups";
 import { useRouter } from "next/navigation";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
-import { useGroupTimer } from "@/app/_hooks/_websocket/timer/useGroupTimer";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 
@@ -48,25 +47,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     (member) => member.userId === currentUserId && member.role === "HOST"
   );
 
-  // 그룹 타이머 상태 관리
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-
-  // 그룹 타이머 이벤트 구독
-  useGroupTimer({
-    groupId,
-    enabled: true,
-    onEvent: (event) => {
-      if (event.eventType === "START" || event.eventType === "RESUME") {
-        setIsTimerRunning(true);
-      } else if (event.eventType === "PAUSE" || event.eventType === "FINISH") {
-        setIsTimerRunning(false);
-      } else if (event.eventType === "SYNC" && event.status === "RUNNING") {
-        setIsTimerRunning(true);
-      }
-    },
-  });
-
-  // 그룹 멤버 상태를 기반으로 isActive 계산
+  // 그룹 멤버 상태: 개인 타이머 실행자 수 → 1명 이상이면 '몰입 중'
   const { membersWithStatus, activeCount } = useGroupMemberStatus({
     groupId,
     members,
@@ -147,7 +128,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             />
           )}
         </div>
-        <StateButton state={isTimerRunning} />
+        <StateButton state={activeCount >= 1} />
       </div>
 
       <div className="flex items-center ml-auto gap-9">
