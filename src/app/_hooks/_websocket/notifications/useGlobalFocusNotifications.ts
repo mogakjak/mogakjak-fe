@@ -1,44 +1,40 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import type { FocusNotificationMessage } from "./useFocusNotification";
 import { getWebSocketUrl } from "@/app/api/websocket/api";
 import { afterLCP } from "@/app/_utils/performance";
+import { getUserIdFromToken } from "@/app/_utils/jwt";
 
+/**
+ * 집중 체크 알림: 백엔드가 참여 중인 방에만 유저별 토픽으로 전송하므로
+ * /topic/user/{userId}/focus-notification 한 개만 구독
+ */
 export function useGlobalFocusNotifications(
   onNotification?: (message: FocusNotificationMessage) => void,
   options?: {
     enabled?: boolean;
   }
 ) {
-  const { data: groups = [] } = useMyGroups();
   const { token } = useAuthState();
+  const userId = useMemo(
+    () => (token ? getUserIdFromToken(token) : null),
+    [token]
+  );
   const clientRef = useRef<Client | null>(null);
-  const subscriptionsRef = useRef<Map<string, unknown>>(new Map());
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const subscriptionRef = useRef<ReturnType<Client["subscribe"]> | null>(null);
   const [shouldConnect, setShouldConnect] = useState(false);
   const isConnectingRef = useRef(false);
-
-  const handleNotification = useCallback(
-    (message: IMessage, groupId: string) => {
-      try {
-        const notification: FocusNotificationMessage = JSON.parse(message.body);
-        if (notification.groupId === groupId) {
-          onNotification?.(notification);
-        }
-      } catch {
-        // 메시지 파싱 실패
-      }
-    },
-    [onNotification]
-  );
+  const onNotificationRef = useRef(onNotification);
+  useEffect(() => {
+    onNotificationRef.current = onNotification;
+  }, [onNotification]);
 
   const connect = useCallback(() => {
-    if (groups.length === 0 || !token || !shouldConnect) {
+    if (!userId || !token || !shouldConnect) {
       return;
     }
 
@@ -53,7 +49,12 @@ export function useGlobalFocusNotifications(
         clientRef.current.deactivate();
       } catch {}
       clientRef.current = null;
-      subscriptionsRef.current.clear();
+      if (subscriptionRef.current) {
+        try {
+          subscriptionRef.current.unsubscribe();
+        } catch {}
+        subscriptionRef.current = null;
+      }
     }
 
     const wsUrl = getWebSocketUrl();
@@ -67,149 +68,97 @@ export function useGlobalFocusNotifications(
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-      debug: () => {
-        // 디버그 로그는 필요시에만 활성화
-      },
-      reconnectDelay: 5000, // 자동 재연결 비활성화
+      debug: () => {},
+      reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        isConnectingRef.current = false; // 연결 성공 시 플래그 리셋
-        setTimeout(() => {
-          if (!clientRef.current || !clientRef.current.connected) {
-            return;
-          }
-          groups.forEach((group) => {
+        isConnectingRef.current = false;
+        if (!clientRef.current?.connected) return;
+        const destination = `/topic/user/${userId}/focus-notification`;
+        console.log("[WebSocket] 집중 체크 알림 구독 시작:", destination);
+        subscriptionRef.current = clientRef.current.subscribe(
+          destination,
+          (message: IMessage) => {
             try {
-              if (
-                !group.groupId ||
-                group.groupId === "undefined" ||
-                group.groupId === ""
-              ) {
-                return;
-              }
-
-              const destination = `/topic/group/${group.groupId}/notification`;
-
-              const subscription = client.subscribe(
-                destination,
-                (message) => {
-                  handleNotification(message, group.groupId);
-                },
-                {
-                  id: `sub-${group.groupId}-${Date.now()}`,
-                }
-              );
-
-              subscriptionsRef.current.set(group.groupId, subscription);
-            } catch {
-              // 구독 실패
+              console.log("[WebSocket] 집중 체크 알림 수신:", message.body);
+              const notification: FocusNotificationMessage =
+                JSON.parse(message.body);
+              console.log("[WebSocket] 파싱된 알림:", notification);
+              onNotificationRef.current?.(notification);
+            } catch (error) {
+              console.error("[WebSocket] 알림 파싱 실패:", error);
             }
-          });
-        }, 100);
+          },
+          { id: `sub-focus-notification-${userId}-${Date.now()}` }
+        );
+        console.log("[WebSocket] 구독 완료:", subscriptionRef.current);
       },
       onStompError: () => {
         isConnectingRef.current = false;
-        subscriptionsRef.current.clear();
-        // 재연결은 자동으로 STOMP 클라이언트가 처리하므로 수동 재연결 제거
+        subscriptionRef.current = null;
       },
       onWebSocketClose: () => {
         isConnectingRef.current = false;
-        subscriptionsRef.current.clear();
+        subscriptionRef.current = null;
       },
       onDisconnect: () => {
         isConnectingRef.current = false;
-        subscriptionsRef.current.clear();
+        subscriptionRef.current = null;
       },
     });
 
     clientRef.current = client;
     client.activate();
-  }, [groups, handleNotification, token, shouldConnect]);
+  }, [userId, token, shouldConnect]);
 
   const disconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
+    if (subscriptionRef.current) {
+      try {
+        subscriptionRef.current.unsubscribe();
+      } catch {}
+      subscriptionRef.current = null;
     }
-
     if (clientRef.current) {
       try {
         clientRef.current.deactivate();
       } catch {}
       clientRef.current = null;
     }
-    subscriptionsRef.current.clear();
   }, []);
 
-  // LCP 이후에 연결 허용
   useEffect(() => {
     if (options?.enabled === false) {
       setShouldConnect(false);
       return;
     }
-
     const cleanup = afterLCP(() => {
+      console.log("[WebSocket] LCP 완료, 연결 허용");
       setShouldConnect(true);
     });
-
     return cleanup;
   }, [options?.enabled]);
 
-  // 연결 실행
   useEffect(() => {
+    console.log("[WebSocket] 연결 상태 체크:", { 
+      enabled: options?.enabled, 
+      userId, 
+      shouldConnect,
+      hasToken: !!token 
+    });
     if (options?.enabled === false) {
       disconnect();
       return;
     }
-
-    if (groups.length > 0 && shouldConnect) {
+    if (userId && shouldConnect) {
+      console.log("[WebSocket] 연결 시작");
       connect();
     } else {
+      console.log("[WebSocket] 연결 조건 미충족, 연결 해제");
       disconnect();
     }
-
     return () => {
       disconnect();
     };
-  }, [groups.length, shouldConnect, connect, disconnect, options?.enabled]);
-
-  useEffect(() => {
-    const client = clientRef.current;
-    if (!client) {
-      return;
-    }
-
-    const isConnected = client.connected || false;
-    if (!isConnected) {
-      return;
-    }
-
-    const currentGroupIds = new Set(groups.map((g) => g.groupId));
-    const subscribedGroupIds = new Set(subscriptionsRef.current.keys());
-
-    groups.forEach((group) => {
-      if (!subscribedGroupIds.has(group.groupId)) {
-        const destination = `/topic/group/${group.groupId}/notification`;
-        const subscription = client.subscribe(destination, (message) =>
-          handleNotification(message, group.groupId)
-        );
-        subscriptionsRef.current.set(group.groupId, subscription);
-      }
-    });
-
-    subscribedGroupIds.forEach((groupId) => {
-      if (!currentGroupIds.has(groupId)) {
-        const subscription = subscriptionsRef.current.get(groupId);
-        if (
-          subscription &&
-          typeof subscription === "object" &&
-          "unsubscribe" in subscription
-        ) {
-          (subscription as { unsubscribe: () => void }).unsubscribe();
-          subscriptionsRef.current.delete(groupId);
-        }
-      }
-    });
-  }, [groups, handleNotification]);
+  }, [userId, shouldConnect, connect, disconnect, options?.enabled, token]);
 }
