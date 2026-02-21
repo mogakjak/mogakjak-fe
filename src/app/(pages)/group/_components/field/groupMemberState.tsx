@@ -50,7 +50,8 @@ export default function GroupMemberState({
   // 클라이언트에서 추적하는 활성 시간
   const clientActiveTime = useLiveTimer({
     serverSeconds: serverActiveTime,
-    isRunning: status === "active" && activeTime !== null && activeTime !== undefined,
+    isRunning:
+      status === "active" && activeTime !== null && activeTime !== undefined,
   });
 
   // lastActiveAt으로부터 경과 시간 계산 (end 상태일 때)
@@ -67,7 +68,7 @@ export default function GroupMemberState({
       if (last) {
         const diffMin = Math.max(
           0,
-          Math.floor((now.getTime() - last.getTime()) / 60000)
+          Math.floor((now.getTime() - last.getTime()) / 60000),
         );
         setElapsedMinutes(diffMin);
       }
@@ -96,7 +97,7 @@ export default function GroupMemberState({
     serverLastActiveAt.current ??
     (typeof lastActiveAt === "string" || typeof lastActiveAt === "number"
       ? new Date(lastActiveAt)
-      : lastActiveAt ?? now);
+      : (lastActiveAt ?? now));
 
   const diffMin =
     status === "end"
@@ -118,20 +119,22 @@ export default function GroupMemberState({
         : "몰입에 참여하지 않았어요";
 
   // 누적 시간 표시
+  // 휴식(rest) 상태면 숫자 대신 "휴식 중" 표시
   // activeTime이 null이거나 undefined이면 비공개로 간주하여 "참여 중" 등으로 표시
   // 백엔드에서 isTimerPublic이 false이면 null을 보내므로, null이면 "참여 중" 표시
   // activeTime이 0이면서 status가 active인 경우는 실제로 0초인 경우이므로 시간 표시
   const hasActiveTime = activeTime !== null && activeTime !== undefined;
 
-  const line2 = hasActiveTime
-    ? status === "end"
-      ? `최근 참여시간 ${diffMin}분전`
-      : `${formatTime(effectiveActive)}`
-    : status === "active"
-      ? "참여 중"
-      : status === "rest"
-        ? "휴식 중"
-        : `최근 참여시간 ${diffDay}일전`;
+  const line2 =
+    status === "rest"
+      ? "휴식 중"
+      : hasActiveTime
+        ? status === "end"
+          ? `최근 참여시간 ${diffMin}분전`
+          : `${formatTime(effectiveActive)}`
+        : status === "active"
+          ? "참여 중"
+          : `최근 참여시간 ${diffDay}일전`;
 
   return (
     <div className="flex flex-col text-body2-14SB gap-1">
@@ -139,28 +142,31 @@ export default function GroupMemberState({
         <Icon
           Svg={statusIcon}
           size={20}
-          className={`${status == "active"
-            ? "text-black"
-            : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
-            }`}
+          className={`${
+            status == "active"
+              ? "text-black"
+              : status == "rest"
+                ? "text-gray-600 "
+                : "text-gray-500"
+          }`}
         />
         <p
           title={line1}
-          className={`truncate ${status == "active"
-            ? "text-black"
-            : status == "rest"
-              ? "text-gray-600 "
-              : "text-gray-500"
-            }`}
+          className={`truncate ${
+            status == "active"
+              ? "text-black"
+              : status == "rest"
+                ? "text-gray-600 "
+                : "text-gray-500"
+          }`}
         >
           {line1}
         </p>
       </div>
       <p
-        className={`flex items-center gap-2 ${status == "active" ? "text-black" : "text-gray-400"
-          }`}
+        className={`flex items-center gap-2 ${
+          status == "active" ? "text-black" : "text-gray-400"
+        }`}
       >
         <Icon
           Svg={StopWatch}
