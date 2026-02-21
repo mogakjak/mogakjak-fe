@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/button";
 import Image from "next/image";
 import { ImageSelector } from "./ImageSelector";
@@ -29,6 +29,13 @@ export default function RoomModal({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [currentImageUrl, setCurrentImageUrl] =
     useState<string | null>(initialImageUrl);
+
+
+  useEffect(() => {
+    if (initialName) {
+      setName(initialName);
+    }
+  }, [initialName]);
 
   const { mutateAsync: createGroupAsync, isPending: isCreating } =
     useCreateGroup();

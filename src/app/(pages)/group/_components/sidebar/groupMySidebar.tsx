@@ -216,7 +216,7 @@ export default function GroupMySidebar({
     <div className=" bg-white rounded-2xl">
       <div className={`border rounded-lg p-3 ${isOnboarding ? 'border-red-200 border-4' : 'border-gray-200'}`}>
         {hasTodo ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1">
               <Icon Svg={Book} size={24} className="text-gray-400" />
               <p

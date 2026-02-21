@@ -14,7 +14,7 @@ export default function VisibilityToggle({
   className,
 }: VisibilityToggleProps) {
   return (
-    <div className={clsx("flex w-full mt-1.5", className)}>
+    <div className={clsx("flex w-full", className)}>
       <button
         onClick={() => setIsTaskOpen(true)}
         aria-label="공개"

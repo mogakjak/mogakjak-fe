@@ -50,7 +50,7 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
           }}
           leftIconSrc="/Icons/plusDefault.svg"
           disabled={isPending && !highlightButton}
-          className={highlightButton ? "border-2 border-red-500" : ""}
+          className={highlightButton ? "border-2 border-red-500 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}
         >
           새로운 그룹 생성하기
         </Button>

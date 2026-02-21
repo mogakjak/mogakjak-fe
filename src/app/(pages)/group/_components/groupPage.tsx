@@ -227,7 +227,7 @@ export default function GroupPage({
     <div className="flex flex-col items-center w-full gap-5">
       <div className="flex gap-5 w-full">
         <div
-          className={`flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl ${onboardingStep === 1 ? "border-4 border-red-200" : ""}`}
+          className={`flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl ${onboardingStep === 1 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
         >
           <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
           <GroupTimer
@@ -238,12 +238,25 @@ export default function GroupPage({
             memberStatuses={memberStatuses}
           />
         </div>
-        <div
-          className={`w-full ${onboardingStep === 2 ? " rounded-2xl border-4 border-red-200" : ""}`}
-        >
+        <div className="w-full">
           <div className="flex gap-5 h-full">
-            <GroupGoal data={groupData} isHost={isHost}></GroupGoal>
-            <GroupNoti data={groupData} isHost={isHost}></GroupNoti>
+            <div
+              className={`w-full ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""
+                }`}
+            >
+              <GroupGoal data={groupData} isHost={isHost} />
+            </div>
+
+            <div
+              className={`w-full ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""
+                }`}
+            >
+              <GroupNoti
+                data={groupData}
+                isHost={isHost}
+                isOnboarding={onboardingStep !== undefined}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -255,7 +268,7 @@ export default function GroupPage({
             {groupData.members.length}
           </p>
           <SidebarButton
-            className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200" : ""}`}
+            className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)] font-bold" : ""}`}
             onClick={() => setOpenInviteModal(true)}
           >
             <Icon Svg={Add} size={24} className="text-gray-800" />
@@ -309,7 +322,7 @@ export default function GroupPage({
                     key={member.userId}
                     className={
                       isCurrentUser && onboardingStep === 0
-                        ? "border-4 border-red-200 rounded-[20px]"
+                        ? "border-4 border-red-200 rounded-[20px] shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]"
                         : ""
                     }
                   >

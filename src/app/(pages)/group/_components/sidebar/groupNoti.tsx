@@ -14,13 +14,13 @@ import { groupKeys } from "@/app/api/groups/keys";
 type GroupNotiProps = {
   data: GroupDetail;
   isHost: boolean;
+  isOnboarding?: boolean;
 };
 
-export default function GroupNoti({ data, isHost }: GroupNotiProps) {
+export default function GroupNoti({ data, isHost, isOnboarding }: GroupNotiProps) {
   const [openNoti, setOpenNoti] = useState(false);
   const queryClient = useQueryClient();
 
-  // 실시간 알림 설정 변경 감지
   useFocusNotification({
     groupId: data.groupId,
     onNotification: (message) => {
@@ -36,19 +36,24 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
     data.groupId,
   );
 
+  const displayNotiData = isOnboarding
+    ? { notificationCycle: 1, notificationMessage: "집중 체크 시간입니다!" } // 1시간 설정
+    : notiData;
+
+  const displayLocalAgreed = isOnboarding ? true : localAgreed;
 
   return (
     <>
       <div className="flex flex-col h-full justify-center items-center bg-white px-8 py-6 rounded-2xl w-full">
         <h3 className="text-heading4-20SB text-black">집중 체크 알림</h3>
-        {notiData ? (
+        {displayNotiData ? (
           <>
             <div className="flex items-center gap-1 mt-4 mb-4">
               <p
-                className={`text-heading2-28SB ${localAgreed ? "text-gray-800" : "text-gray-400"
+                className={`text-heading2-28SB ${displayLocalAgreed ? "text-gray-800" : "text-gray-400"
                   }`}
               >
-                {String(notiData.notificationCycle).padStart(2, "0")}
+                {String(displayNotiData.notificationCycle).padStart(2, "0")}
               </p>
               <p className="text-body1-16R text-gray-600">시간</p>
 
@@ -61,7 +66,7 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
 
             <div className="relative group">
               <ToggleButton
-                checked={localAgreed}
+                checked={displayLocalAgreed}
                 onChange={(e) => handleToggle(e.target.checked)}
                 disabled={!isHost}
               />
@@ -74,11 +79,11 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
             </div>
           </>
         ) : (
-          <div className="mt-4 h-20 animate-pulse bg-gray-100 rounded-lg" />
+          <div className="mt-4 h-20 animate-pulse bg-gray-100 rounded-lg w-full" />
         )}
       </div>
 
-      {openNoti && notiData && (
+      {openNoti && displayNotiData && (
         <div
           className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
           onClick={() => setOpenNoti(false)}
@@ -88,9 +93,9 @@ export default function GroupNoti({ data, isHost }: GroupNotiProps) {
               onClose={() => setOpenNoti(false)}
               groupId={data.groupId}
               initialData={{
-                isAgreed: localAgreed,
-                hours: notiData.notificationCycle,
-                message: notiData.notificationMessage,
+                isAgreed: displayLocalAgreed,
+                hours: displayNotiData.notificationCycle,
+                message: displayNotiData.notificationMessage,
               }}
             />
           </div>
