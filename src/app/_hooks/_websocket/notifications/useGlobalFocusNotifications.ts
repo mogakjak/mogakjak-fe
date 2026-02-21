@@ -47,12 +47,12 @@ export function useGlobalFocusNotifications(
     if (clientRef.current) {
       try {
         clientRef.current.deactivate();
-      } catch {}
+      } catch { }
       clientRef.current = null;
       if (subscriptionRef.current) {
         try {
           subscriptionRef.current.unsubscribe();
-        } catch {}
+        } catch { }
         subscriptionRef.current = null;
       }
     }
@@ -68,7 +68,7 @@ export function useGlobalFocusNotifications(
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
-      debug: () => {},
+      debug: () => { },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -76,23 +76,18 @@ export function useGlobalFocusNotifications(
         isConnectingRef.current = false;
         if (!clientRef.current?.connected) return;
         const destination = `/topic/user/${userId}/focus-notification`;
-        console.log("[WebSocket] 집중 체크 알림 구독 시작:", destination);
         subscriptionRef.current = clientRef.current.subscribe(
           destination,
           (message: IMessage) => {
             try {
-              console.log("[WebSocket] 집중 체크 알림 수신:", message.body);
               const notification: FocusNotificationMessage =
                 JSON.parse(message.body);
-              console.log("[WebSocket] 파싱된 알림:", notification);
               onNotificationRef.current?.(notification);
             } catch (error) {
-              console.error("[WebSocket] 알림 파싱 실패:", error);
             }
           },
           { id: `sub-focus-notification-${userId}-${Date.now()}` }
         );
-        console.log("[WebSocket] 구독 완료:", subscriptionRef.current);
       },
       onStompError: () => {
         isConnectingRef.current = false;
@@ -116,13 +111,13 @@ export function useGlobalFocusNotifications(
     if (subscriptionRef.current) {
       try {
         subscriptionRef.current.unsubscribe();
-      } catch {}
+      } catch { }
       subscriptionRef.current = null;
     }
     if (clientRef.current) {
       try {
         clientRef.current.deactivate();
-      } catch {}
+      } catch { }
       clientRef.current = null;
     }
   }, []);
@@ -133,28 +128,19 @@ export function useGlobalFocusNotifications(
       return;
     }
     const cleanup = afterLCP(() => {
-      console.log("[WebSocket] LCP 완료, 연결 허용");
       setShouldConnect(true);
     });
     return cleanup;
   }, [options?.enabled]);
 
   useEffect(() => {
-    console.log("[WebSocket] 연결 상태 체크:", { 
-      enabled: options?.enabled, 
-      userId, 
-      shouldConnect,
-      hasToken: !!token 
-    });
     if (options?.enabled === false) {
       disconnect();
       return;
     }
     if (userId && shouldConnect) {
-      console.log("[WebSocket] 연결 시작");
       connect();
     } else {
-      console.log("[WebSocket] 연결 조건 미충족, 연결 해제");
       disconnect();
     }
     return () => {

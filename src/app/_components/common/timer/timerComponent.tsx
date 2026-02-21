@@ -319,6 +319,9 @@ export default function TimerComponent({
       return;
     }
 
+
+
+
     try {
       await pauseSession(effectiveSessionId);
       if (mode === "pomodoro") pomoRef.current?.pause();
