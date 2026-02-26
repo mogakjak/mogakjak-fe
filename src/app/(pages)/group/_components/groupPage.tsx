@@ -275,20 +275,23 @@ export default function GroupPage({
             그룹원 추가하기
           </SidebarButton>
         </div>
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-center w-full">
           {isLoading || !isMemberStatusLoaded ? (
-            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <GroupFriendField
-                  key={`skeleton-${index}`}
-                  status="end"
-                  level={1}
-                  isLoading={true}
-                />
-              ))}
+            <div className="w-full h-[436px] overflow-y-auto">
+              <div className="grid grid-cols-4 gap-x-5 gap-y-3">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <GroupFriendField
+                    key={`skeleton-${index}`}
+                    status="end"
+                    level={1}
+                    isLoading={true}
+                  />
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-x-5 gap-y-3 min-h-[420px]">
+            <div className="w-full h-[436px] overflow-y-auto">
+              <div className="grid grid-cols-4 gap-x-5 gap-y-3">
               {displayMembers.map((member) => {
                 const status = member.status;
                 const participationStatus = status.participationStatus;
@@ -345,6 +348,7 @@ export default function GroupPage({
                   </div>
                 );
               })}
+              </div>
             </div>
           )}
         </div>
