@@ -20,9 +20,10 @@ type PreviewMainProps = {
   state: boolean;
   groupId?: string;
   isOnboarding?: boolean;
+  currentStep?: number;
 };
 
-export default function PreviewMain({ state, groupId, isOnboarding = false }: PreviewMainProps) {
+export default function PreviewMain({ state, groupId, isOnboarding = false, currentStep }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
   const queryClient = useQueryClient();
   const { data: todayTodos = [], isFetched: isTodayTodosFetched } =
@@ -170,6 +171,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false }: Pr
             setIsTimerPublic={setIsTimerPublic}
             currentSessionId={currentSessionId}
             isOnboarding={isOnboarding}
+            isStepFive={currentStep === 5}
           />
         </>
       )}
