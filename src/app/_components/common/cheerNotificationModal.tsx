@@ -46,9 +46,6 @@ export default function CheerNotificationModal({
           >
             닫기
           </Button>
-          <Button onClick={handleViewGroup} leftIcon={null} className="flex-1">
-            그룹 보기
-          </Button>
         </div>
       </div>
     </div>
