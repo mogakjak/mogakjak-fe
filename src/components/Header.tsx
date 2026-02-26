@@ -5,14 +5,16 @@ import HeaderButton from "./header/HeaderButton";
 import ProfileButton from "./header/ProfileButton";
 import Link from "next/link";
 import { useBlockNavigation } from "@/app/_hooks/block/useBlockNavigation";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import FAQButton from "./header/FAQButton";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { handleClick: handleLogoClick } = useBlockNavigation(() => {
     router.push("/");
   });
-
+  const isMyPage = pathname === "/mypage" || pathname.startsWith("/mypage/");
   return (
     <header className="w-full flex items-center justify-center bg-white border-b border-gray-200">
       <div className="flex w-full justify-between items-center px-9 py-4">
@@ -27,6 +29,7 @@ export default function Header() {
           />
         </Link>
         <nav className="flex gap-3">
+          {!isMyPage && <FAQButton />}
           <HeaderButton text="할 일" href="/todo" />
           <HeaderButton text="집중 리포트" href="/record" />
           <ProfileButton />
