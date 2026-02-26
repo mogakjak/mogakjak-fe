@@ -9,12 +9,20 @@ export const useDeleteAccount = () => {
 
   return useMutation({
     mutationFn: deleteAccount,
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.clear();
       invalidateTokenCache();
-      setTimeout(() => {
+
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (e) {
+        console.error("쿠키 삭제 요청 실패:", e);
+      } finally {
         window.location.replace("/login");
-      }, 0);
+      }
     },
     onError: (error) => {
       console.error("계정 탈퇴에 실패했습니다.", error);
