@@ -18,7 +18,7 @@ import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
-import type { Todo } from "@/app/_types/todo";
+import type { Todo, TodoCategoryWithTodos } from "@/app/_types/todo";
 import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
 import { useTimer } from "@/app/_contexts/TimerContext";
@@ -179,6 +179,32 @@ export default function GroupMySidebar({
       }
 
       if (resultTodo) {
+        queryClient.setQueryData<TodoCategoryWithTodos[]>(
+          todoKeys.today(),
+          (prev = []) => {
+            const next = prev.map((cat) => {
+              if (cat.id !== resultTodo.categoryId) return cat;
+              const idx = cat.todos.findIndex((t) => t.id === resultTodo.id);
+              const todos =
+                idx >= 0
+                  ? cat.todos.map((t) => (t.id === resultTodo.id ? resultTodo : t))
+                  : [...cat.todos, resultTodo];
+              return { ...cat, todos };
+            });
+            const hasCategory = next.some((c) => c.id === resultTodo.categoryId);
+            if (!hasCategory) {
+              const cat = categories.find((c) => c.id === resultTodo.categoryId);
+              if (cat) {
+                next.push({
+                  ...cat,
+                  todos: [resultTodo],
+                });
+              }
+            }
+            return next;
+          }
+        );
+
         if (typeof window !== "undefined") {
           localStorage.setItem("selectedTodoId", resultTodo.id);
           window.dispatchEvent(new Event("todoIdChanged"));
@@ -208,7 +234,14 @@ export default function GroupMySidebar({
       queryClient.invalidateQueries({ queryKey: todoKeys.my() });
       refetchTodayTodos();
     },
-    [createTodo, updateTodo, todayTodosList, queryClient, refetchTodayTodos]
+    [
+      createTodo,
+      updateTodo,
+      todayTodosList,
+      queryClient,
+      refetchTodayTodos,
+      categories,
+    ]
   );
 
   const hasTodo = todayTodo || currentTodo || selectedWork;
