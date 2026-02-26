@@ -125,6 +125,7 @@ export default function OnboardingPage() {
                         <div className="border-4 border-red-200 rounded-3xl pointer-events-none shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]">
                             <AddWorkForm
                                 type="select"
+                                isOnboarding
                                 categories={categoryOptions}
                                 onClose={() => goToStep(0)} // 취소 시 이전 스텝
                                 onSubmit={() => goToStep(2)} // 작성 시 다음 스텝
@@ -195,7 +196,7 @@ export default function OnboardingPage() {
             <main className="w-full max-w-[1440px] mx-auto flex gap-5 overflow-x-hidden pt-9 px-4">
                 <div className="self-stretch relative">
                     <div className={`h-full ${currentStep === 0 || currentStep === 2 ? 'border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]' : ''} rounded-[24px] pointer-events-none opacity-90`}>
-                        <PreviewMain state={currentStep >= 5} isOnboarding={currentStep === 5} />
+                        <PreviewMain state={currentStep >= 5} isOnboarding={currentStep >= 2} currentStep={currentStep} />
                     </div>
 
                     {/* Step 0: 할 일 추가 인트로 */}
