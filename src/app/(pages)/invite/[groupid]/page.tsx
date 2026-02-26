@@ -100,7 +100,6 @@ export default async function InvitePage({ params }: InvitePageProps) {
   try {
     if (groupid) {
       const meta = await fetchGroupMeta(groupid);
-      console.log("meta", meta);
       if (meta?.groupName) {
         groupName = meta.groupName;
       }

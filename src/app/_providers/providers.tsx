@@ -17,6 +17,11 @@ const NavigationModal = dynamic(() => import("./navigationModal"), {
   ssr: false,
 });
 
+const InviteRedirectHandler = dynamic(
+  () => import("./inviteRedirectHandler"),
+  { ssr: false }
+);
+
 // 모듈 레벨 플래그로 무한 리다이렉트 방지
 let isRedirecting = false;
 
@@ -127,6 +132,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <TimerProvider>
         <NavigationBlocker />
         <NavigationModal />
+        <InviteRedirectHandler />
         {children}
       </TimerProvider>
       <ReactQueryDevtools initialIsOpen={false} />
