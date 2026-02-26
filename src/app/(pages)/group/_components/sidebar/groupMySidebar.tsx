@@ -33,6 +33,7 @@ type GroupMySidebarProps = {
   setIsTimerPublic?: (v: boolean) => void;
   currentSessionId?: string | null;
   isOnboarding?: boolean;
+  isStepFive?: boolean;
 };
 
 export default function GroupMySidebar({
@@ -43,7 +44,17 @@ export default function GroupMySidebar({
   setIsTimerPublic: externalSetIsTimerPublic,
   currentSessionId,
   isOnboarding = false,
+  isStepFive = false,
 }: GroupMySidebarProps) {
+
+
+  const mockOnboardingTodo = {
+    task: "OPIC 공부",
+    actualTimeInSeconds: 2700,
+    targetTimeInSeconds: 3600,
+    progressRate: 75,
+  };
+
   const [internalIsTaskOpen, setInternalIsTaskOpen] = useState(true);
   const [internalIsTimeOpen, setInternalIsTimeOpen] = useState(true);
 
@@ -211,19 +222,21 @@ export default function GroupMySidebar({
     [createTodo, updateTodo, todayTodosList, queryClient, refetchTodayTodos]
   );
 
-  const hasTodo = todayTodo || currentTodo || selectedWork;
+  const hasTodo = isOnboarding || !!(todayTodo || currentTodo || selectedWork);
   return (
     <div className=" bg-white rounded-2xl">
-      <div className={`border rounded-lg p-3 ${isOnboarding ? 'border-red-200 border-4' : 'border-gray-200'}`}>
+      <div className={`border rounded-lg p-3 ${isStepFive ? 'border-red-200 border-4' : 'border-gray-200'}`}>
         {hasTodo ? (
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1">
               <Icon Svg={Book} size={24} className="text-gray-400" />
               <p
                 className="text-body2-14SB truncate"
-                title={todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title}
+                title={isOnboarding ? mockOnboardingTodo.task : (todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title)}
               >
-                {todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title}
+                {isOnboarding
+                  ? mockOnboardingTodo.task
+                  : (todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title)}
               </p>
 
               <button className="ml-auto" onClick={() => setModalOpen(true)} aria-label="할 일 편집">
@@ -256,7 +269,9 @@ export default function GroupMySidebar({
               <div className="flex items-center">
                 <Icon Svg={Clock} size={24} className={"text-gray-400"} />
                 <h3 className="text-body2-14SB ml-1">
-                  {formatSeconds(liveActualSeconds)}
+                  {isOnboarding
+                    ? formatSeconds(mockOnboardingTodo.actualTimeInSeconds)
+                    : formatSeconds(liveActualSeconds)}
                 </h3>
               </div>
               {state && (
@@ -317,25 +332,22 @@ export default function GroupMySidebar({
         <p className="text-14 text-medium text-gray-600">
           <b className="text-black mr-2 text-body2-14SB">목표시간</b>{" "}
           {formatSeconds(
-            todayTodo?.targetTimeInSeconds ??
-            currentTodo?.targetTimeInSeconds ??
-            selectedWork?.targetSeconds ??
-            0
+            isOnboarding
+              ? mockOnboardingTodo.targetTimeInSeconds
+              : (todayTodo?.targetTimeInSeconds ?? currentTodo?.targetTimeInSeconds ?? selectedWork?.targetSeconds ?? 0)
           )}
         </p>
         <p className="text-14 text-medium text-gray-600">
           <b className="text-black mr-2 text-body2-14SB">현재 달성률</b>{" "}
           {(() => {
-            const todo = todayTodo ?? currentTodo;
+            if (isOnboarding) return mockOnboardingTodo.progressRate; // 온보딩 시 33% 고정
 
+            const todo = todayTodo ?? currentTodo;
             if (todo?.progressRate !== undefined && todo.progressRate !== null) {
               return Math.round(todo.progressRate);
             }
-
             if (todo && todo.targetTimeInSeconds > 0) {
-              return Math.round(
-                (todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100
-              );
+              return Math.round((todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100);
             }
             return 0;
           })()}
