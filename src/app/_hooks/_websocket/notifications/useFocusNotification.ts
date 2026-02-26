@@ -25,8 +25,6 @@ export function useFocusNotification({
   groupId,
   enabled = true,
   onNotification,
-  onConnect,
-  onDisconnect,
 }: UseFocusNotificationOptions) {
   const [lastNotification, setLastNotification] =
     useState<FocusNotificationMessage | null>(null);

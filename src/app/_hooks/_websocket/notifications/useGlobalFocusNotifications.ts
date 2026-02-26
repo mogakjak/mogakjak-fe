@@ -84,6 +84,7 @@ export function useGlobalFocusNotifications(
                 JSON.parse(message.body);
               onNotificationRef.current?.(notification);
             } catch (error) {
+              console.error("Failed to parse focus notification:", error);
             }
           },
           { id: `sub-focus-notification-${userId}-${Date.now()}` }

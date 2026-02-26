@@ -50,9 +50,9 @@ export default function GroupMySidebar({
 
   const mockOnboardingTodo = {
     task: "OPIC 공부",
-    actualTimeInSeconds: 2700, // 20분 진행 중
-    targetTimeInSeconds: 3600, // 1시간 목표
-    progressRate: 75,           // 33% 달성
+    actualTimeInSeconds: 2700,
+    targetTimeInSeconds: 3600,
+    progressRate: 75,
   };
 
   const [internalIsTaskOpen, setInternalIsTaskOpen] = useState(true);

@@ -88,8 +88,19 @@ export default function CategorySelect({
                   <span
                     className={clsx(
                       "w-4 h-4 rounded",
-                      // 템플릿 리터럴로 클래스 최적화
-                      `bg-${o.colorToken}`
+                      o.colorToken === "category-1-red" && "bg-category-1-red",
+                      o.colorToken === "category-2-orange" &&
+                      "bg-category-2-orange",
+                      o.colorToken === "category-3-yellow" &&
+                      "bg-category-3-yellow",
+                      o.colorToken === "category-4-green" &&
+                      "bg-category-4-green",
+                      o.colorToken === "category-5-skyblue" &&
+                      "bg-category-5-skyblue",
+                      o.colorToken === "category-6-blue" &&
+                      "bg-category-6-blue",
+                      o.colorToken === "category-7-purple" &&
+                      "bg-category-7-purple",
                     )}
                   />
                   <span className={clsx(

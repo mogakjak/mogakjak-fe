@@ -45,8 +45,8 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating
                         onClick={onClose}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
                     >
-                        <div className="mr-4 flex h-6 w-6 items-center justify-center text-gray-500">
-                            <Image src="/Icons/mail.svg" alt="bug" width={20} height={20} /> {/* 아이콘 경로가 있다면 교체하세요 */}
+                        <div className="mr-3 flex h-6 w-6 items-center justify-center text-gray-500">
+                            <Image src="/Icons/mail.svg" alt="bug" width={24} height={24} /> {/* 아이콘 경로가 있다면 교체하세요 */}
                         </div>
                         <span className="text-body1-16M text-gray-700">
                             {isFloating ? "버그 제보 · 기능 제안하기" : "버그 제보하기"}
@@ -59,8 +59,8 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating
                         onClick={onClose}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
                     >
-                        <div className="mr-4 flex h-6 w-6 items-center justify-center border-2 border-gray-400 rounded-full">
-                            <span className="text-[12px] font-bold text-gray-500">?</span>
+                        <div className="mr-3 flex h-6 w-6 items-center justify-center text-gray-500">
+                            <Image src="/Icons/bug.svg" alt="question" width={24} height={24} />
                         </div>
                         <span className="text-body1-16M text-gray-700">
                             {isFloating ? "FAQ · 문의하기" : "FAQ (문의사항)"}
