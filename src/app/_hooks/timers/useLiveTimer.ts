@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface UseLiveTimerProps {
     serverSeconds: number;
     isRunning: boolean;
-    refreshKey?: unknown; // 추가적인 동기화 트리거 (예: isRunning 상태 변화 등)
+    refreshKey?: unknown;
 }
 
 /**
@@ -13,25 +13,49 @@ interface UseLiveTimerProps {
  */
 export function useLiveTimer({ serverSeconds, isRunning, refreshKey }: UseLiveTimerProps) {
     const [liveSeconds, setLiveSeconds] = useState(serverSeconds);
-    const [syncTime, setSyncTime] = useState(Date.now());
+    // 현재 표시 중인 liveSeconds를 ref로 추적 (재개 시 기준값으로 사용)
+    const liveSecondsRef = useRef(serverSeconds);
+    const syncTimeRef = useRef(Date.now());
+    const syncBaseRef = useRef(serverSeconds);
 
-    // 서버 데이터 또는 실행 상태가 변경될 때 동기화
+    // liveSeconds를 업데이트할 때 ref도 함께 갱신
+    const updateLiveSeconds = (v: number) => {
+        liveSecondsRef.current = v;
+        setLiveSeconds(v);
+    };
+
+    // serverSeconds가 실제로 바뀔 때만 기준값 갱신
+    // ⚠️ isRunning은 deps에 포함하지 않음 — 휴식 클릭 시 liveSeconds가 되돌아가는 버그 방지
     useEffect(() => {
-        setLiveSeconds(serverSeconds);
-        setSyncTime(Date.now());
-    }, [serverSeconds, isRunning, refreshKey]);
+        updateLiveSeconds(serverSeconds);
+        syncBaseRef.current = serverSeconds;
+        syncTimeRef.current = Date.now();
+    }, [serverSeconds, refreshKey]);
 
-    // 실시간 업데이트
+    // isRunning이 false → true(재개)로 바뀌는 순간
+    // ✅ syncBase를 serverSeconds가 아닌 현재 표시값(liveSecondsRef)으로 설정
+    //    → 휴식 중 멈췄던 시간에서 이어서 카운팅
+    useEffect(() => {
+        if (isRunning) {
+            syncBaseRef.current = liveSecondsRef.current; // 현재 표시값 기준!
+            syncTimeRef.current = Date.now();
+        }
+    }, [isRunning]);
+
+    // 실시간 업데이트: running일 때만 1초마다 증가
     useEffect(() => {
         if (!isRunning) return;
 
         const interval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - syncTime) / 1000);
-            setLiveSeconds(serverSeconds + elapsed);
+            const elapsed = Math.floor((Date.now() - syncTimeRef.current) / 1000);
+            const newValue = syncBaseRef.current + elapsed;
+            liveSecondsRef.current = newValue;
+            setLiveSeconds(newValue);
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [isRunning, serverSeconds, syncTime]);
+    }, [isRunning]);
 
     return liveSeconds;
 }
+

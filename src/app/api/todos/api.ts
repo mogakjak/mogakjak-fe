@@ -19,6 +19,9 @@ export type UpdateTodoPayload = {
 
 export const getTodayTodos = () => request<TodoCategoryWithTodos[]>(TODO_BASE, "/today", { method: "GET" });
 
+export const getTodosByDate = (date: string) =>
+  request<TodoCategoryWithTodos[]>(TODO_BASE, `?date=${date}`, { method: "GET" });
+
 export const getMyTodos = () => request<Todo[]>(TODO_BASE, "/my", { method: "GET" });
 
 export const createTodo = (payload: CreateTodoPayload) =>
@@ -32,4 +35,3 @@ export const toggleTodoComplete = (todoId: string) =>
 
 export const deleteTodo = (todoId: string) =>
   request<void>(TODO_BASE, `/${todoId}`, { method: "DELETE" });
-
