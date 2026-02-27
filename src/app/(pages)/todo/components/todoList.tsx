@@ -74,7 +74,10 @@ function CategoryHeader({
           e.preventDefault();
           e.dataTransfer.dropEffect = "move";
         }}
-        onDrop={onDrop}
+        onDrop={(e) => {
+          e.preventDefault();
+          onDrop?.(e);
+        }}
       >
         <div className={clsx("w-3 self-stretch", category.barColorClass)} />
         <div className="flex-1 self-stretch px-4 py-2.5 bg-gray-100 flex justify-between items-center overflow-hidden">
@@ -295,7 +298,10 @@ export default function TodoList({
                   onAdd={() => handleAddClick(cat.id)}
                   onDrop={(e) => handleDropOnCategory(e, cat.id)}
                   onDragEnter={() => {
-                    if (draggedTodo && String(cat.id) !== draggedTodo.categoryId) {
+                    if (
+                      draggedTodo &&
+                      String(cat.id) !== draggedTodo.categoryId
+                    ) {
                       setDragOverCategoryId(cat.id);
                     }
                   }}

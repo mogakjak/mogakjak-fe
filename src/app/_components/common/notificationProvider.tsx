@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useCallback,
+  useEffect,
   useState,
   ReactNode,
 } from "react";
@@ -46,6 +47,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     requestPermission,
     showNotification: showBrowserNotification,
   } = useBrowserNotification();
+
+  useEffect(() => {
+    if (!isSupported || permission !== "default") return;
+
+    const timer = setTimeout(() => {
+      requestPermission();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [isSupported, permission, requestPermission]);
 
   const [timerCompletionNotification, setTimerCompletionNotification] =
     useState<TimerCompletionNotification | null>(null);

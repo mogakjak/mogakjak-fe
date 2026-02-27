@@ -78,6 +78,12 @@ export default function OnboardingPage() {
     const handleFinalModalClose = () => {
         if (typeof window !== "undefined") {
             window.localStorage.setItem(ONBOARDING_KEY, "true");
+            const inviteGroupId = sessionStorage.getItem("mg_invite_groupid");
+            if (inviteGroupId) {
+                sessionStorage.removeItem("mg_invite_groupid");
+                router.replace(`/invite/${inviteGroupId}`);
+                return;
+            }
         }
         router.replace("/");
     };

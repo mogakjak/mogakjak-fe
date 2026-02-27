@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { useJoinGroup } from "@/app/_hooks/groups/useJoinGroup";
-import { groupKeys } from "@/app/api/groups/keys";
+import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import MobileHomePage from "@/app/_components/home/mobileHomePage";
 import SimpleToast from "@/app/_components/common/SimpleToast";
 
@@ -16,17 +15,17 @@ export default function InvitePageClient({
   groupName: string;
 }) {
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const { isLoggedIn, ready } = useAuthState();
   const [isMobile, setIsMobile] = useState(false);
+  const hasJoinedRef = useRef(false);
   const [toast, setToast] = useState<{ isVisible: boolean; message: string }>({
     isVisible: false,
     message: "",
   });
 
   const {
-    mutate: joinGroup,
+    mutateAsync: joinGroupAsync,
     isPending,
-    isSuccess,
     isError,
     error,
   } = useJoinGroup();
@@ -61,26 +60,64 @@ export default function InvitePageClient({
       /iPhone|iPad|iPod|Android|Mobile|Windows Phone/i.test(ua);
     setIsMobile(isMobileDevice);
 
-    // 모바일이 아니면 초대 페이지가 아니라 바로 홈으로 이동
-    if (!isMobileDevice) {
-      router.push("/");
-    }
   }, [router]);
 
   useEffect(() => {
-    if (!groupid) return;
+    if (!groupid || !ready) return;
+    if (hasJoinedRef.current) return;
 
-    joinGroup(groupid, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: groupKeys.my() });
-        queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupid) });
-      },
-      onError: (err) => {
+    if (!isLoggedIn) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("mg_invite_groupid", groupid);
+      }
+      router.replace("/login");
+      return;
+    }
+
+    hasJoinedRef.current = true;
+
+    const runJoin = async () => {
+      try {
+        await joinGroupAsync(groupid);
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("mg_invite_groupid");
+        }
+        window.location.replace(`/group/${groupid}`);
+      } catch (err) {
+        hasJoinedRef.current = false;
         console.error("그룹 가입 실패:", err);
-        
+
         const errorMessage = err instanceof Error ? err.message : String(err);
         const lowerMessage = errorMessage.toLowerCase();
-        
+
+        const isUnauthorized =
+          lowerMessage.includes("unauthorized") ||
+          lowerMessage.includes("401") ||
+          errorMessage.includes("인증") ||
+          errorMessage.includes("로그인");
+        if (isUnauthorized) {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("mg_invite_groupid", groupid);
+          }
+          router.replace("/login");
+          return;
+        }
+
+        const errWithStatus = err as { status?: number } | null;
+        const errStatus = errWithStatus?.status;
+        const isAlreadyMember =
+          errStatus === 409 ||
+          errorMessage.includes("이미 참여") ||
+          errorMessage.includes("409") ||
+          lowerMessage.includes("conflict") ||
+          lowerMessage.includes("already member") ||
+          lowerMessage.includes("already participating") ||
+          lowerMessage.includes("already in");
+        if (isAlreadyMember) {
+          window.location.replace(`/group/${groupid}`);
+          return;
+        }
+
         if (
           errorMessage.includes("그룹을 찾을 수 없습니다") ||
           errorMessage.includes("그룹을 찾을 수 없음") ||
@@ -93,10 +130,15 @@ export default function InvitePageClient({
           setTimeout(() => {
             setToast((prev) => ({ ...prev, isVisible: false }));
           }, 2000);
+        } else {
+          setToast({ isVisible: true, message: errorMessage });
+          setTimeout(() => setToast((p) => ({ ...p, isVisible: false })), 2000);
         }
-      },
-    });
-  }, [groupid, joinGroup, queryClient]);
+      }
+    };
+
+    runJoin();
+  }, [groupid, ready, isLoggedIn, joinGroupAsync, router]);
 
   if (isMobile) {
     return (
@@ -144,23 +186,12 @@ export default function InvitePageClient({
     );
   }
 
-  if (isPending) {
+  if (!ready || isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4" />
           <p className="text-gray-600">그룹에 가입하는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isSuccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4" />
-          <p className="text-gray-600">가입 완료 중...</p>
         </div>
       </div>
     );

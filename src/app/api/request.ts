@@ -56,8 +56,10 @@ export async function request<T>(
     if (msg === "탈퇴한 유저입니다.") {
       throw new DeactivatedUserError();
     }
-    
-    throw new Error(msg);
+
+    const err = new Error(msg);
+    (err as Error & { status?: number }).status = res.status;
+    throw err;
   }
 
   const json = await res.json().catch(() => undefined);
@@ -72,8 +74,10 @@ export async function request<T>(
       if (errorMessage === "필수 약관 동의가 필요합니다.") {
         throw new AgreementRequiredError(hasToken);
       }
-      
-      throw new Error(errorMessage);
+
+      const err = new Error(errorMessage);
+      (err as Error & { status?: number }).status = code;
+      throw err;
     }
     return json?.data as T;
   }

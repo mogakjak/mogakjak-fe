@@ -86,20 +86,29 @@ export default function PreviewMain({ state, groupId, isOnboarding = false, curr
     };
   }, []);
 
+  const isValidInTodayTodos = useMemo(() => {
+    if (!savedTodoId) return false;
+    if (!isTodayTodosFetched) return true;
+    for (const category of todayTodos) {
+      if (category.todos.some((todo) => todo.id === savedTodoId)) return true;
+    }
+    return false;
+  }, [savedTodoId, todayTodos, isTodayTodosFetched]);
+
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
-    if (!isTodayTodosFetched) return savedTodoId;
-    for (const category of todayTodos) {
-      const found = category.todos.find((todo) => todo.id === savedTodoId);
-      if (found) return savedTodoId;
-    }
+    if (isValidInTodayTodos) return savedTodoId;
+    return null;
+  }, [savedTodoId, isValidInTodayTodos]);
 
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("selectedTodoId");
+  useEffect(() => {
+    if (savedTodoId && isTodayTodosFetched && !isValidInTodayTodos) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("selectedTodoId");
+      }
       setSavedTodoId(null);
     }
-    return null;
-  }, [savedTodoId, todayTodos, isTodayTodosFetched]);
+  }, [savedTodoId, isTodayTodosFetched, isValidInTodayTodos]);
 
   const currentSession = useMemo(() => {
     if (validTodoId) {
