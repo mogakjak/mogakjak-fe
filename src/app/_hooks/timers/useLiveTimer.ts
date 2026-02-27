@@ -30,7 +30,6 @@ export function useLiveTimer({ serverSeconds, isRunning, refreshKey }: UseLiveTi
         updateLiveSeconds(serverSeconds);
         syncBaseRef.current = serverSeconds;
         syncTimeRef.current = Date.now();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [serverSeconds, refreshKey]);
 
     // isRunning이 false → true(재개)로 바뀌는 순간
@@ -41,7 +40,6 @@ export function useLiveTimer({ serverSeconds, isRunning, refreshKey }: UseLiveTi
             syncBaseRef.current = liveSecondsRef.current; // 현재 표시값 기준!
             syncTimeRef.current = Date.now();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isRunning]);
 
     // 실시간 업데이트: running일 때만 1초마다 증가

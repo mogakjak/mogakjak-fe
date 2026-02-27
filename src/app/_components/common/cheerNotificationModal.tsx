@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/button";
 import { CheerNotification } from "@/app/_types/groups";
 import Icon from "../common/Icons";
@@ -16,13 +15,8 @@ export default function CheerNotificationModal({
   notification,
   onClose,
 }: CheerNotificationModalProps) {
-  const router = useRouter();
 
-  const handleViewGroup = () => {
-    // 그룹 상세 페이지로 이동
-    router.push(`/group/${notification.groupId}`);
-    onClose();
-  };
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
