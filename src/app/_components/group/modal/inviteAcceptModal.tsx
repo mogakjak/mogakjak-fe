@@ -59,16 +59,19 @@ export default function InviteAcceptModal({
         </p>
 
         <div className="flex items-center w-[360px] mt-7 bg-red-50 px-4 py-3 rounded-[10px]">
-          <div className="w-14 h-14 rounded-lg">
+          <div className="w-14 h-14 rounded-lg overflow-hidden bg-white border border-gray-200">
             <Image
-              src={"/Icons/defaultImage.svg"}
-              alt={"빈 값"}
+              src={invitation.groupImageUrl || "/Icons/defaultImage.svg"}
+              alt={invitation.groupName}
               width={56}
               height={56}
-            ></Image>
+              className="object-cover w-14 h-14"
+            />
           </div>
           <p className="text-body1-16SB ml-5">{invitation.groupName}</p>
-          <p className="text-gray-700 text-body1-16R ml-auto">n&#47;10 명</p>
+          <p className="text-gray-700 text-body1-16R ml-auto">
+            활동 {invitation.activeMemberCount ?? 0} / 전체 {invitation.memberCount ?? 0} 명
+          </p>
         </div>
 
         <div className="flex items-center w-full gap-2 mt-7">

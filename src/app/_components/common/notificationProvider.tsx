@@ -6,19 +6,27 @@ import {
   useCallback,
   useEffect,
   useState,
+  useRef,
   ReactNode,
 } from "react";
 import { useGlobalFocusNotifications } from "@/app/_hooks/_websocket/notifications/useGlobalFocusNotifications";
 import { useTimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 import { usePokeNotification } from "@/app/_hooks/_websocket/notifications/usePokeNotification";
 import { useCheerNotification } from "@/app/_hooks/_websocket/notifications/useCheerNotification";
+import { useInvitationNotification } from "@/app/_hooks/_websocket/notifications/useInvitationNotification";
+import { useInvitationResponseNotification } from "@/app/_hooks/_websocket/notifications/useInvitationResponseNotification";
 import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 import TimerCompletionModal from "./timerCompletionModal";
 import PokeNotificationModal from "./pokeNotificationModal";
 import CheerNotificationModal from "./cheerNotificationModal";
+import InviteAcceptModal from "../group/modal/inviteAcceptModal";
+import SimpleToast from "./SimpleToast";
 import type { FocusNotificationMessage } from "@/app/_hooks/_websocket/notifications/useFocusNotification";
 import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
 import type { PokeNotification, CheerNotification } from "@/app/_types/groups";
+import type { InvitationNotification } from "@/app/_hooks/_websocket/notifications/useInvitationNotification";
+import type { InvitationResponseNotification } from "@/app/_types/invitations";
+import { useMyInvitations } from "@/app/_hooks/invitations/useMyInvitations";
 import { sendGAEvent } from "@next/third-parties/google";
 
 type NotificationContextType = {
@@ -64,6 +72,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     useState<PokeNotification | null>(null);
   const [cheerNotification, setCheerNotification] =
     useState<CheerNotification | null>(null);
+  const [invitationNotification, setInvitationNotification] =
+    useState<InvitationNotification | null>(null);
+  const [invitationResponseNotification, setInvitationResponseNotification] =
+    useState<InvitationResponseNotification | null>(null);
+  const hasShownInitialInvitationRef = useRef(false);
 
   const handleFocusNotification = useCallback(
     (message: FocusNotificationMessage) => {
@@ -200,6 +213,104 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setCheerNotification(null);
   }, []);
 
+  const handleInvitationNotification = useCallback(
+    (notification: InvitationNotification) => {
+      setInvitationNotification(notification);
+
+      const title = `${notification.inviterNickname}님이 "${notification.groupName}"에 초대했어요!`;
+      const body = notification.message;
+
+      if (permission === "granted") {
+        showBrowserNotification(title, {
+          body: body,
+          icon: "/chorme/notificationIcon.png",
+          badge: "/chorme/notificationIcon.png",
+          tag: `invitation-notification-${notification.invitationId}`,
+        });
+      } else if (permission === "default") {
+        requestPermission().then((granted) => {
+          if (granted) {
+            showBrowserNotification(title, {
+              body: body,
+              icon: "/chorme/notificationIcon.png",
+              badge: "/chorme/notificationIcon.png",
+              tag: `invitation-notification-${notification.invitationId}`,
+            });
+          }
+        });
+      }
+    },
+    [permission, requestPermission, showBrowserNotification]
+  );
+
+  const handleCloseInvitation = useCallback(() => {
+    setInvitationNotification(null);
+  }, []);
+
+  const handleInvitationResponseNotification = useCallback(
+    (notification: InvitationResponseNotification) => {
+      setInvitationResponseNotification(notification);
+
+      const isAccepted = notification.status === "ACCEPTED";
+      const title = isAccepted
+        ? `${notification.inviteeNickname}님이 초대를 수락했어요!`
+        : `${notification.inviteeNickname}님이 초대를 거절했어요.`;
+      const body = notification.message;
+
+      if (permission === "granted") {
+        showBrowserNotification(title, {
+          body: body,
+          icon: "/chorme/notificationIcon.png",
+          badge: "/chorme/notificationIcon.png",
+          tag: `invitation-response-${notification.invitationId}`,
+        });
+      } else if (permission === "default") {
+        requestPermission().then((granted) => {
+          if (granted) {
+            showBrowserNotification(title, {
+              body: body,
+              icon: "/chorme/notificationIcon.png",
+              badge: "/chorme/notificationIcon.png",
+              tag: `invitation-response-${notification.invitationId}`,
+            });
+          }
+        });
+      }
+    },
+    [permission, requestPermission, showBrowserNotification]
+  );
+
+  const handleCloseInvitationResponse = useCallback(() => {
+    setInvitationResponseNotification(null);
+  }, []);
+
+  // 웹 접속 시, 아직 실시간 초대를 못 받은 상태라면
+  // 서버에 남아있는 PENDING 초대 중 하나를 사용해 동일 모달을 띄운다.
+  const { data: pendingInvitations = [] } = useMyInvitations();
+
+  useEffect(() => {
+    if (
+      hasShownInitialInvitationRef.current ||
+      invitationNotification ||
+      pendingInvitations.length === 0
+    ) {
+      return;
+    }
+
+    const first = pendingInvitations[0];
+    setInvitationNotification({
+      invitationId: first.invitationId,
+      groupId: first.groupId,
+      groupName: first.groupName,
+      inviterNickname: first.inviterNickname,
+      groupImageUrl: first.groupImageUrl,
+      activeMemberCount: first.activeMemberCount,
+      memberCount: first.memberCount,
+      message: `${first.inviterNickname}님이 "${first.groupName}"에 초대했어요!`,
+    });
+    hasShownInitialInvitationRef.current = true;
+  }, [pendingInvitations, invitationNotification]);
+
   // 집중 체크 알림 구독 - LCP 이후에 연결
   useGlobalFocusNotifications(handleFocusNotification, {
     enabled: true,
@@ -225,6 +336,22 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useCheerNotification({
     enabled: true,
     onNotification: handleCheerNotification,
+    connectDelay: 1000,
+    waitForLoad: true,
+  });
+
+  // 그룹 초대 알림 구독 - LCP 이후에 연결 (window load 이후)
+  useInvitationNotification({
+    enabled: true,
+    onNotification: handleInvitationNotification,
+    connectDelay: 1000,
+    waitForLoad: true,
+  });
+
+  // 그룹 초대 응답 알림 구독 - LCP 이후에 연결 (window load 이후)
+  useInvitationResponseNotification({
+    enabled: true,
+    onNotification: handleInvitationResponseNotification,
     connectDelay: 1000,
     waitForLoad: true,
   });
@@ -256,6 +383,28 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           notification={cheerNotification}
           onClose={handleCloseCheerNotificationModal}
         />
+      )}
+      {invitationNotification && (
+        <InviteAcceptModal
+          invitation={{
+            invitationId: invitationNotification.invitationId,
+            groupId: invitationNotification.groupId,
+            groupName: invitationNotification.groupName,
+            inviterNickname: invitationNotification.inviterNickname,
+            groupImageUrl: invitationNotification.groupImageUrl,
+            activeMemberCount: invitationNotification.activeMemberCount,
+            memberCount: invitationNotification.memberCount,
+          }}
+          onClose={handleCloseInvitation}
+        />
+      )}
+      {invitationResponseNotification && (
+        <SimpleToast
+          type={invitationResponseNotification.status === "ACCEPTED" ? "default" : "warning"}
+          onClose={handleCloseInvitationResponse}
+        >
+          {invitationResponseNotification.message}
+        </SimpleToast>
       )}
     </NotificationContext.Provider>
   );
