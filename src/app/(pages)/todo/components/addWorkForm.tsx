@@ -8,8 +8,8 @@ import DateField from "./dateField";
 import DurationField from "./durationField";
 import clsx from "clsx";
 import WorkSelectField from "./workSelectField";
-import type { Todo } from "@/app/_types/todo";
 import type { CategoryColorToken } from "@/app/_types/category";
+import { useTodosByDate } from "@/app/_hooks/todo/useTodosByDate";
 
 export type AddWorkPayload = {
   categoryId: string;
@@ -17,6 +17,7 @@ export type AddWorkPayload = {
   date: Date;
   targetSeconds: number;
   isOnboarding?: boolean;
+  todoId?: string; // 선택된 작업의 ID 추가
 };
 
 export default function AddWorkForm({
@@ -27,7 +28,6 @@ export default function AddWorkForm({
   onSubmit,
   onClose,
   onCategorySelect,
-  todayTodos,
   className,
   isOnboarding,
 }: {
@@ -39,11 +39,11 @@ export default function AddWorkForm({
     title?: string;
     date?: Date;
     targetSeconds?: number;
+    todoId?: string;
   };
   onSubmit?: (payload: AddWorkPayload) => void;
   onClose?: () => void;
   onCategorySelect?: (categoryId: string) => void;
-  todayTodos?: Todo[];
   className?: string;
   isOnboarding?: boolean;
 }) {
@@ -68,6 +68,9 @@ export default function AddWorkForm({
   const [target, setTarget] = useState<number>(
     initialValues?.targetSeconds ?? (isOnboarding ? mockData.targetSeconds : 0),
   );
+  const [selectedTodoId, setSelectedTodoId] = useState<string | undefined>(
+    initialValues?.todoId
+  );
 
   const prevInitialValuesRef = useRef<string>("");
 
@@ -84,10 +87,27 @@ export default function AddWorkForm({
     return categories;
   }, [categories, isOnboarding]);
 
+  // 선택된 날짜를 YYYY-MM-DD 형식으로 변환
+  const dateStr = useMemo(() => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }, [date]);
+
+  // 날짜가 바뀔 때마다 해당 날짜의 할 일 목록 fetch
+  const { data: todosByDate = [] } = useTodosByDate(dateStr);
+
+  // 날짜별 전체 Todo 목록 (카테고리 평탄화)
+  const allTodosByDate = useMemo(() => {
+    return todosByDate.flatMap((cat) => cat.todos);
+  }, [todosByDate]);
+
+  // 카테고리 선택 시 해당 카테고리의 할 일만 필터링
   const filteredTodayTodos = useMemo(() => {
-    if (!categoryId || !todayTodos) return todayTodos ?? [];
-    return todayTodos.filter((todo) => todo.categoryId === categoryId);
-  }, [categoryId, todayTodos]);
+    if (!categoryId) return allTodosByDate;
+    return allTodosByDate.filter((todo) => todo.categoryId === categoryId);
+  }, [categoryId, allTodosByDate]);
 
   useEffect(() => {
     if (!initialValues) return;
@@ -109,6 +129,15 @@ export default function AddWorkForm({
     }
   }, [initialValues]);
 
+  // 과거 날짜 여부 확인
+  const isPastDate = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
+    return selectedDate < today;
+  }, [date]);
+
   const isValid =
     categoryId && title.trim().length > 0 && target >= 60 && target <= 86400;
 
@@ -120,9 +149,13 @@ export default function AddWorkForm({
         date,
         targetSeconds: target,
         isOnboarding,
+        todoId: selectedTodoId,
       });
     }
   };
+
+  // 버튼 표시 여부: 과거 날짜이면서 새로운 작업을 추가하려는 경우(type이 select/edit가 아님)는 표시하지 않음
+  const showSubmitButton = !(isPastDate && type !== "select" && type !== "edit");
 
   return (
     <div
@@ -161,6 +194,7 @@ export default function AddWorkForm({
               options={displayCategories}
               onChange={(id) => {
                 setCategoryId(id);
+                setTitle(""); // 카테고리 변경 시 작업 초기화
                 onCategorySelect?.(id);
               }}
             />
@@ -171,17 +205,21 @@ export default function AddWorkForm({
             {type === "select" ? (
               <WorkSelectField
                 value={title}
+                showAddOption={!isPastDate}
                 onChange={(selectedTask) => {
                   setTitle(selectedTask);
-                  if (filteredTodayTodos && selectedTask) {
-                    const selectedTodo = filteredTodayTodos.find((todo) => todo.task === selectedTask);
+                  if (allTodosByDate && selectedTask) {
+                    const selectedTodo = allTodosByDate.find((todo) => todo.task === selectedTask);
                     if (selectedTodo) {
                       setCategoryId(selectedTodo.categoryId);
+                      setSelectedTodoId(selectedTodo.id); // ID 저장
                       onCategorySelect?.(selectedTodo.categoryId);
-                      const [year, month, day] = selectedTodo.date.split("-").map(Number);
-                      setDate(new Date(year, month - 1, day));
+                      // 과거 작업을 선택하더라도 현재 실행을 위해 날짜를 '오늘'로 설정
+                      setDate(new Date());
                       setTarget(selectedTodo.targetTimeInSeconds);
                     }
+                  } else {
+                    setSelectedTodoId(undefined); // 새 작업 입력 시 ID 초기화
                   }
                 }}
                 todayTodos={filteredTodayTodos}
@@ -200,19 +238,25 @@ export default function AddWorkForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!isValid}
-          className={clsx(
-            "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center font-bold",
-            isValid ? "bg-red-500 text-neutral-50" : "bg-gray-200 text-gray-400",
-          )}
-        >
-          {isOnboarding ? "시작하기" : (
-            type === "select" ? "할 일 선택" : type === "edit" ? "작업 수정" : "작업 추가"
-          )}
-        </button>
+        {showSubmitButton ? (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!isValid}
+            className={clsx(
+              "w-40 h-12 px-6 py-3 rounded-2xl inline-flex justify-center items-center font-bold",
+              isValid ? "bg-red-500 text-neutral-50" : "bg-gray-200 text-gray-400",
+            )}
+          >
+            {isOnboarding ? "시작하기" : (
+              type === "select" ? "할 일 선택" : type === "edit" ? "작업 수정" : "작업 추가"
+            )}
+          </button>
+        ) : (
+          <div className="h-12 flex items-center justify-center text-gray-400 text-sm">
+            과거 날짜에는 새로운 작업을 추가할 수 없습니다.
+          </div>
+        )}
       </div>
     </div>
   );

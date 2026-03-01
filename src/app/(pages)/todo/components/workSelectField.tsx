@@ -8,6 +8,7 @@ interface WorkSelectFieldProps {
   value: string;
   onChange: (value: string) => void;
   todayTodos?: Todo[];
+  showAddOption?: boolean;
 }
 
 const initialCategories: string[] = [];
@@ -16,6 +17,7 @@ export default function WorkSelectField({
   value,
   onChange,
   todayTodos = [],
+  showAddOption = true,
 }: WorkSelectFieldProps) {
   const todayTodoTasks = useMemo(() => {
     return todayTodos.map((todo) => todo.task);
@@ -106,23 +108,25 @@ export default function WorkSelectField({
               ))}
             </div>
 
-            <div className="flex items-center gap-2  border border-gray-200 rounded-lg px-4 py-2">
-              <Image
-                src="/Icons/plusFilled.svg"
-                alt="add"
-                width={24}
-                height={24}
-              />
-              <input
-                type="text"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                onKeyDown={handleAddNew}
-                placeholder="새 작업 추가"
-                className="w-full outline-none text-body2-14R"
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
+            {showAddOption && (
+              <div className="flex items-center gap-2  border border-gray-200 rounded-lg px-4 py-2">
+                <Image
+                  src="/Icons/plusFilled.svg"
+                  alt="add"
+                  width={24}
+                  height={24}
+                />
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  onKeyDown={handleAddNew}
+                  placeholder="새 작업 추가"
+                  className="w-full outline-none text-body2-14R"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

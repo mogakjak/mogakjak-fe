@@ -53,7 +53,9 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     members,
     enabled: true,
   });
-
+  const sortedMembersWithStatus = [...membersWithStatus].sort((a, b) => {
+    return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
+  });
   const [isEntering, setIsEntering] = useState(false);
   const [openPopup, setOpenPopup] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -134,11 +136,11 @@ export default function GroupRoom({ group }: GroupRoomProps) {
       <div className="flex items-center ml-auto gap-9">
         <div className="flex items-center gap-4">
           <MembersHover
-            members={membersWithStatus}
+            members={sortedMembersWithStatus}
             activeCount={activeCount}
             trigger={
               <Members
-                members={membersWithStatus.map((m) => ({
+                members={sortedMembersWithStatus.map((m) => ({
                   id: m.userId,
                   isActive: m.isActive ?? false,
                   profileUrl: m.profileUrl,

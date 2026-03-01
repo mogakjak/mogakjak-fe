@@ -25,11 +25,7 @@ export default function CheerNotificationModal({
 
   const router = useRouter();
 
-  const handleViewGroup = () => {
-    // 그룹 상세 페이지로 이동
-    router.push(`/group/${notification.groupId}`);
-    onClose();
-  };
+
 
   if (!mounted) return null;
 

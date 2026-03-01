@@ -170,7 +170,19 @@ export default function GroupMySidebar({
 
       let resultTodo: Todo | null = null;
 
-      if (existingTodo) {
+      if (payload.todoId) {
+        // 과거 작업을 선택한 경우 해당 작업의 날짜 정보를 오늘로 업데이트
+        resultTodo = await updateTodo({
+          todoId: payload.todoId,
+          payload: {
+            categoryId: payload.categoryId,
+            task: payload.title,
+            date: formatted,
+            targetTimeInSeconds: payload.targetSeconds,
+          },
+        });
+      } else if (existingTodo) {
+        // 오늘 할 일 목록 중 동일한 이름이 이미 있는 경우 업데이트
         resultTodo = await updateTodo({
           todoId: existingTodo.id,
           payload: {
@@ -181,6 +193,7 @@ export default function GroupMySidebar({
           },
         });
       } else {
+        // 완전히 새로운 작업 생성
         resultTodo = await createTodo({
           categoryId: payload.categoryId,
           task: payload.title,
@@ -304,7 +317,9 @@ export default function GroupMySidebar({
                 <h3 className="text-body2-14SB ml-1">
                   {isOnboarding
                     ? formatSeconds(mockOnboardingTodo.actualTimeInSeconds)
-                    : formatSeconds(liveActualSeconds)}
+                    : formatSeconds(
+                      liveActualSeconds > 0 ? liveActualSeconds : serverActualSeconds
+                    )}
                 </h3>
               </div>
               {state && (
@@ -393,7 +408,6 @@ export default function GroupMySidebar({
           <AddWorkForm
             type="select"
             categories={categoryOptions}
-            todayTodos={todayTodosList}
             initialValues={
               todayTodo ?? currentTodo
                 ? (() => {
@@ -401,6 +415,7 @@ export default function GroupMySidebar({
                   if (!todo) return undefined;
                   const [year, month, day] = todo.date.split("-").map(Number);
                   return {
+                    todoId: todo.id, // ID 추가
                     categoryId: todo.categoryId,
                     title: todo.task,
                     date: new Date(year, month - 1, day),
