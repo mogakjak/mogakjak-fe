@@ -281,10 +281,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     [permission, requestPermission, showBrowserNotification]
   );
 
-  const handleCloseInvitationResponse = useCallback(() => {
-    setInvitationResponseNotification(null);
-  }, []);
-
   // 웹 접속 시, 아직 실시간 초대를 못 받은 상태라면
   // 서버에 남아있는 PENDING 초대 중 하나를 사용해 동일 모달을 띄운다.
   const { data: pendingInvitations = [] } = useMyInvitations();

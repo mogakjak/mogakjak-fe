@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/button";
 import { CheerNotification } from "@/app/_types/groups";
 import Icon from "../common/Icons";
@@ -22,8 +21,6 @@ export default function CheerNotificationModal({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const router = useRouter();
 
 
 
@@ -52,13 +49,6 @@ export default function CheerNotificationModal({
             variant="secondary"
           >
             닫기
-          </Button>
-          <Button
-            onClick={handleViewGroup}
-            leftIcon={null}
-            className="flex-1"
-          >
-            그룹 보러가기
           </Button>
         </div>
       </div>
