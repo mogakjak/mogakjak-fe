@@ -250,6 +250,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const handleInvitationResponseNotification = useCallback(
     (notification: InvitationResponseNotification) => {
       setInvitationResponseNotification(notification);
+      setTimeout(() => setInvitationResponseNotification(null), 3000);
 
       const isAccepted = notification.status === "ACCEPTED";
       const title = isAccepted
@@ -400,11 +401,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       )}
       {invitationResponseNotification && (
         <SimpleToast
-          type={invitationResponseNotification.status === "ACCEPTED" ? "default" : "warning"}
-          onClose={handleCloseInvitationResponse}
-        >
-          {invitationResponseNotification.message}
-        </SimpleToast>
+          isVisible={true}
+          message={invitationResponseNotification.message}
+          position="center"
+        />
       )}
     </NotificationContext.Provider>
   );
