@@ -68,6 +68,10 @@ export default function DateField({
 
   const cells = useMemo(() => monthMatrix(view), [view]);
 
+  const trackDatePickerClick = () => {
+    sendGAEvent("event", "date_picker_click");
+  };
+
   return (
     <div ref={boxRef} className={clsx("relative w-full", className)}>
       <button
@@ -94,7 +98,7 @@ export default function DateField({
               <button
                 type="button"
                 onClick={() => {
-                  sendGAEvent("event", "date_picker_click");
+                  trackDatePickerClick();
                   setView((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
                 }}
                 aria-label="이전 달"
@@ -113,7 +117,7 @@ export default function DateField({
               <button
                 type="button"
                 onClick={() => {
-                  sendGAEvent("event", "date_picker_click");
+                  trackDatePickerClick();
                   setView((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
                 }}
                 aria-label="다음 달"
@@ -153,7 +157,7 @@ export default function DateField({
                       key={date.toISOString()}
                       type="button"
                       onClick={() => {
-                        sendGAEvent("event", "date_picker_click");
+                        trackDatePickerClick();
                         onChange?.(date);
                         setOpen(false);
                       }}

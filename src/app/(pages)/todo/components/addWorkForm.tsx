@@ -247,6 +247,7 @@ export default function AddWorkForm({
                       // 과거 작업을 선택하더라도 현재 실행을 위해 날짜를 '오늘'로 설정
                       if (isPastDate) {
                         pastTodoChangedToTodayRef.current = true;
+                        skipDateClearRef.current = true;
                       }
                       setDate(new Date());
                       setTarget(selectedTodo.targetTimeInSeconds);
