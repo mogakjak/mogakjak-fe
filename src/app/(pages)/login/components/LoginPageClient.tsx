@@ -9,12 +9,12 @@ import { sendGAEvent } from "@next/third-parties/google"; // [추가]
 export default function LoginPageClient() {
   const focusSectionRef = useRef<HTMLDivElement | null>(null);
   const landingSections = [
-    "/landing1.jpg",
-    "/landing2.jpg",
-    "/landing3.jpg",
-    "/landing4.jpg",
-    "/landing5.jpg",
-    "/landing6.jpg",
+    "/landing/landing1.jpg",
+    "/landing/landing2.jpg",
+    "/landing/landing3.jpg",
+    "/landing/landing4.jpg",
+    "/landing/landing5.jpg",
+    "/landing/landing6.jpg",
   ];
 
   useEffect(() => {
@@ -32,11 +32,10 @@ export default function LoginPageClient() {
     const code = hashParams.get("code");
 
     if (code === "WITHDRAWN_USER") {
-
       invalidateTokenCache();
       fetch("/api/auth/logout", {
         method: "POST",
-      }).catch(() => { });
+      }).catch(() => {});
       window.history.replaceState(null, "", "/login");
     }
 
@@ -75,7 +74,7 @@ export default function LoginPageClient() {
         </button>
       </header>
 
-      <main className="relative left-1/2 -translate-x-1/2 w-screen max-w-none flex flex-col items-center bg-[url('/landing.png')] bg-cover bg-top bg-no-repeat py-20">
+      <main className="relative left-1/2 -translate-x-1/2 w-screen max-w-none flex flex-col items-center bg-[url('/landing/landing.png')] bg-cover bg-top bg-no-repeat py-20">
         <div className="w-[906px] max-w-full px-4 inline-flex flex-col justify-start items-center gap-24">
           <div className="flex flex-col justify-start items-center gap-11">
             <div className="flex flex-col justify-start items-center gap-6">
@@ -87,7 +86,8 @@ export default function LoginPageClient() {
               <div className="text-center justify-center text-zinc-600 text-xl font-normal font-['Pretendard'] leading-7">
                 혼자는 아니지만, 같이라는 부담은 덜어냈어요.
                 <br />
-                친구들과 함께하는 것이 당신의 성실함을 자연스럽게 이끌어줄 거예요.
+                친구들과 함께하는 것이 당신의 성실함을 자연스럽게 이끌어줄
+                거예요.
               </div>
             </div>
             <button
@@ -102,7 +102,7 @@ export default function LoginPageClient() {
           </div>
 
           <Image
-            src="/landingGroup.png"
+            src="/landing/landingGroup.png"
             alt="landing group"
             width={906}
             height={500}
@@ -131,23 +131,23 @@ export default function LoginPageClient() {
         ref={focusSectionRef}
         className="w-full pt-[240px] pb-[240px] flex flex-col justify-center items-center"
       >
-          <Image
-            src="/character.svg"
-            alt="slogan"
-            width={112}
-            height={224}
-            priority
-          />
-          <div className="mt-10 text-center justify-start text-neutral-900 text-4xl font-semibold font-['Pretendard'] leading-[48px]">
-            혼자서는 어려웠던 몰입,
-            <br />
-            이제 모각작에서 함께해요!
-          </div>
+        <Image
+          src="/character.svg"
+          alt="slogan"
+          width={112}
+          height={224}
+          priority
+        />
+        <div className="mt-10 text-center justify-start text-neutral-900 text-4xl font-semibold font-['Pretendard'] leading-[48px]">
+          혼자서는 어려웠던 몰입,
+          <br />
+          이제 모각작에서 함께해요!
+        </div>
 
-          <div className="mt-10 gap-4 flex flex-col">
-            <LoginButton type="google" />
-            <LoginButton type="kakao" />
-          </div>
+        <div className="mt-10 gap-4 flex flex-col">
+          <LoginButton type="google" />
+          <LoginButton type="kakao" />
+        </div>
       </section>
     </div>
   );
