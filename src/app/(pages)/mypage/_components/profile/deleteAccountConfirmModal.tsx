@@ -41,7 +41,7 @@ export default function DeleteAccountConfirmModal({
                   <div className="self-stretch text-center justify-center text-neutral-900 text-2xl font-semibold font-['Pretendard'] leading-8">
                     마지막으로 확인할게요!
                   </div>
-                  <div className="self-stretch text-center justify-center text-zinc-500 text-xl font-normal font-['Pretendard'] leading-7">
+                  <div className="self-stretch text-center justify-center text-zinc-500 text-lg font-normal font-['Pretendard'] leading-7">
                     탈퇴한 계정은 재사용 및 복구가 불가능해요.
                     <br />
                     또한, {nickname}님이 수집한 과일 캐릭터와 기록이

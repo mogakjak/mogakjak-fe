@@ -13,7 +13,7 @@ export default function FloatingSupportButton() {
                 <Image src="/Icons/fab.svg" alt="fab" width={80} height={80} className="w-20 h-20" />
             </button>
 
-            <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} isFloating />
+            <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
         </>
     );
 }

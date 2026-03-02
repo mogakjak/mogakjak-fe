@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
+import { sendGAEvent } from "@next/third-parties/google";
 import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
 import DateField from "./dateField";
@@ -73,6 +74,11 @@ export default function AddWorkForm({
   );
 
   const prevInitialValuesRef = useRef<string>("");
+  /** 과거 날짜에서 할 일 선택 → 오늘로 바뀐 경우, 제출 버튼 클릭 시 GA 전송용 */
+  const pastTodoChangedToTodayRef = useRef(false);
+  const skipDateClearRef = useRef(false);
+  /** 폼 열린 시점 (type=select 시 '할 일 선택'까지 소요 시간 측정용) */
+  const formOpenedAtRef = useRef<number | null>(type === "select" ? Date.now() : null);
 
   const displayCategories = useMemo((): CategoryOption[] => {
     if (isOnboarding && categories.length === 0) {
@@ -123,11 +129,27 @@ export default function AddWorkForm({
       setCategoryId(initialValues.categoryId ?? "");
       setTitle(initialValues.title ?? "");
       if (initialValues.date) {
+        skipDateClearRef.current = true;
         setDate(initialValues.date);
       }
       setTarget(initialValues.targetSeconds ?? 0);
     }
   }, [initialValues]);
+
+  // 날짜 변경 시 할 일 선택 초기화 (select 모드, 사용자에 의한 날짜 변경만)
+  const prevDateStrRef = useRef(dateStr);
+  useEffect(() => {
+    if (type !== "select" || prevDateStrRef.current === dateStr) return;
+    if (skipDateClearRef.current) {
+      skipDateClearRef.current = false;
+      prevDateStrRef.current = dateStr;
+      return;
+    }
+    prevDateStrRef.current = dateStr;
+    setTitle("");
+    setSelectedTodoId(undefined);
+    pastTodoChangedToTodayRef.current = false;
+  }, [type, dateStr]);
 
   // 과거 날짜 여부 확인
   const isPastDate = useMemo(() => {
@@ -143,6 +165,14 @@ export default function AddWorkForm({
 
   const handleSubmit = () => {
     if (isValid) {
+      if (type === "select" && pastTodoChangedToTodayRef.current) {
+        sendGAEvent("event", "past_todo_select_to_today");
+        pastTodoChangedToTodayRef.current = false;
+      }
+      if (type === "select" && formOpenedAtRef.current) {
+        const durationSeconds = Math.round((Date.now() - formOpenedAtRef.current) / 1000);
+        sendGAEvent("event", "add_work_form_select_duration", { duration_seconds: durationSeconds });
+      }
       onSubmit?.({
         categoryId,
         title: title.trim(),
@@ -215,6 +245,10 @@ export default function AddWorkForm({
                       setSelectedTodoId(selectedTodo.id); // ID 저장
                       onCategorySelect?.(selectedTodo.categoryId);
                       // 과거 작업을 선택하더라도 현재 실행을 위해 날짜를 '오늘'로 설정
+                      if (isPastDate) {
+                        pastTodoChangedToTodayRef.current = true;
+                        skipDateClearRef.current = true;
+                      }
                       setDate(new Date());
                       setTarget(selectedTodo.targetTimeInSeconds);
                     }

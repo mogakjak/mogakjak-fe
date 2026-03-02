@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import { sendGAEvent } from "@next/third-parties/google";
 
 function fmtKoreanDate(d: Date) {
   const yyyy = d.getFullYear();
@@ -67,6 +68,10 @@ export default function DateField({
 
   const cells = useMemo(() => monthMatrix(view), [view]);
 
+  const trackDatePickerClick = () => {
+    sendGAEvent("event", "date_picker_click");
+  };
+
   return (
     <div ref={boxRef} className={clsx("relative w-full", className)}>
       <button
@@ -92,9 +97,10 @@ export default function DateField({
             <div className="h-11 px-8 py-4 flex items-center gap-2.5">
               <button
                 type="button"
-                onClick={() =>
-                  setView((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))
-                }
+                onClick={() => {
+                  trackDatePickerClick();
+                  setView((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+                }}
                 aria-label="이전 달"
               >
                 <Image
@@ -110,9 +116,10 @@ export default function DateField({
               </div>
               <button
                 type="button"
-                onClick={() =>
-                  setView((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))
-                }
+                onClick={() => {
+                  trackDatePickerClick();
+                  setView((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+                }}
                 aria-label="다음 달"
               >
                 <Image
@@ -150,6 +157,7 @@ export default function DateField({
                       key={date.toISOString()}
                       type="button"
                       onClick={() => {
+                        trackDatePickerClick();
                         onChange?.(date);
                         setOpen(false);
                       }}

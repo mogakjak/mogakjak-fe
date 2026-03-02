@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import clsx from "clsx";
+import { sendGAEvent } from "@next/third-parties/google";
 import Icon from "@/app/_components/common/Icons";
 import Image from "next/image";
 
@@ -124,7 +125,10 @@ export default function WorkItem({
                 type="button"
                 aria-pressed={completed}
                 aria-label={completed ? "완료 해제" : "완료 처리"}
-                onClick={() => onToggleCompleted?.(!completed)}
+                onClick={() => {
+                  sendGAEvent("event", "todo_complete_click");
+                  onToggleCompleted?.(!completed);
+                }}
                 className={clsx(
                   "w-6 h-6 relative overflow-hidden shrink-0 rounded-[4px]",
                   "outline-none",
