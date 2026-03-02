@@ -76,6 +76,7 @@ export default function AddWorkForm({
   const prevInitialValuesRef = useRef<string>("");
   /** 과거 날짜에서 할 일 선택 → 오늘로 바뀐 경우, 제출 버튼 클릭 시 GA 전송용 */
   const pastTodoChangedToTodayRef = useRef(false);
+  const skipDateClearRef = useRef(false);
 
   const displayCategories = useMemo((): CategoryOption[] => {
     if (isOnboarding && categories.length === 0) {
@@ -126,11 +127,27 @@ export default function AddWorkForm({
       setCategoryId(initialValues.categoryId ?? "");
       setTitle(initialValues.title ?? "");
       if (initialValues.date) {
+        skipDateClearRef.current = true;
         setDate(initialValues.date);
       }
       setTarget(initialValues.targetSeconds ?? 0);
     }
   }, [initialValues]);
+
+  // 날짜 변경 시 할 일 선택 초기화 (select 모드, 사용자에 의한 날짜 변경만)
+  const prevDateStrRef = useRef(dateStr);
+  useEffect(() => {
+    if (type !== "select" || prevDateStrRef.current === dateStr) return;
+    if (skipDateClearRef.current) {
+      skipDateClearRef.current = false;
+      prevDateStrRef.current = dateStr;
+      return;
+    }
+    prevDateStrRef.current = dateStr;
+    setTitle("");
+    setSelectedTodoId(undefined);
+    pastTodoChangedToTodayRef.current = false;
+  }, [type, dateStr]);
 
   // 과거 날짜 여부 확인
   const isPastDate = useMemo(() => {
