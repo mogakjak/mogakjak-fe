@@ -5,10 +5,9 @@ import Link from 'next/link';
 interface SupportModalProps {
     isOpen: boolean;
     onClose: () => void;
-    isFloating?: boolean; // true면 플로팅 버튼용 텍스트, false/undefined면 헤더용 텍스트
 }
 
-const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating = false }) => {
+const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
@@ -40,7 +39,7 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating
 
                 <div className="space-y-2">
                     <Link
-                        href="https://www.notion.so/30e3e052eacd80078f7ac9f57981e2b8#30e3e052eacd8076a19cfb86d7362755"
+                        href="https://leeward-earthquake-6dd.notion.site/30e3e052eacd80078f7ac9f57981e2b8?source=copy_link"
                         target="_blank"
                         onClick={onClose}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
@@ -49,12 +48,12 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating
                             <Image src="/Icons/mail.svg" alt="bug" width={24} height={24} /> {/* 아이콘 경로가 있다면 교체하세요 */}
                         </div>
                         <span className="text-body1-16M text-gray-700">
-                            {isFloating ? "버그 제보 · 기능 제안하기" : "버그 제보하기"}
+                            버그 제보 · 기능 제안하기
                         </span>
                     </Link>
 
                     <Link
-                        href="https://www.notion.so/FAQ-30e3e052eacd80feb4e1ea1a0c5a287d"
+                        href="https://leeward-earthquake-6dd.notion.site/FAQ-30e3e052eacd80feb4e1ea1a0c5a287d?source=copy_link"
                         target="_blank"
                         onClick={onClose}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
@@ -63,7 +62,7 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose, isFloating
                             <Image src="/Icons/bug.svg" alt="question" width={24} height={24} />
                         </div>
                         <span className="text-body1-16M text-gray-700">
-                            {isFloating ? "FAQ · 문의하기" : "FAQ (문의사항)"}
+                            FAQ · 문의하기
                         </span>
                     </Link>
                 </div>

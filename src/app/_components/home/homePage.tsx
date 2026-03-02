@@ -5,6 +5,7 @@ import FriendMain from "./friendMain";
 import RoomMain from "./roomMain";
 import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
 import { useOnboardingRedirect } from "@/app/_hooks/users/useOnboardingRedirect";
+import FloatingSupportButton from "@/app/(pages)/mypage/_components/floatingButton";
 
 export default function HomePage() {
   const { shouldRender } = useOnboardingRedirect();
@@ -22,6 +23,7 @@ export default function HomePage() {
         <RoomMain isPending={isGroupsPending} />
         <FriendMain groups={groups} />
       </section>
+      <FloatingSupportButton />
     </main>
   );
 }

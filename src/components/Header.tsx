@@ -6,7 +6,6 @@ import ProfileButton from "./header/ProfileButton";
 import Link from "next/link";
 import { useBlockNavigation } from "@/app/_hooks/block/useBlockNavigation";
 import { useRouter, usePathname } from "next/navigation";
-import FAQButton from "./header/FAQButton";
 
 export default function Header() {
   const router = useRouter();
@@ -29,7 +28,6 @@ export default function Header() {
           />
         </Link>
         <nav className="flex gap-3">
-          {!isMyPage && <FAQButton />}
           <HeaderButton text="할 일" href="/todo" />
           <HeaderButton text="집중 리포트" href="/record" />
           <ProfileButton />

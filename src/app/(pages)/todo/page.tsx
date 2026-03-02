@@ -15,6 +15,7 @@ import { useTodoController } from "@/app/_hooks/todo/useTodoController";
 import { useMyTodos } from "@/app/_hooks/todo/useMyTodos";
 import type { Category as ListCategory } from "@/app/_types/category";
 import type { Todo } from "@/app/_types/todo";
+import FloatingSupportButton from "../mypage/_components/floatingButton";
 
 function getKoreanDateLabel(d = new Date()) {
   const days = ["일", "월", "화", "수", "목", "금", "토"] as const;
@@ -290,6 +291,7 @@ export default function TodoPage() {
           />
         )}
       </section>
+      <FloatingSupportButton />
     </div>
   );
 }
