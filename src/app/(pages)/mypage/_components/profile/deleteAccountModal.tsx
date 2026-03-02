@@ -71,7 +71,7 @@ export default function DeleteAccountModal({
                       를 두고 떠나시나요?
                     </span>
                   </div>
-                  <div className="self-stretch text-center justify-center text-zinc-500 text-xl font-normal font-['Pretendard'] leading-7">
+                  <div className="self-stretch text-center justify-center text-zinc-500 text-lg font-normal font-['Pretendard'] leading-7">
                     탈퇴한 계정은 재사용 및 복구가 불가능해요.
                     <br />
                     또한, {nickname}님이 수집한 과일 캐릭터와 기록이
@@ -91,18 +91,16 @@ export default function DeleteAccountModal({
                       <button
                         key={reason}
                         onClick={() => handleReasonToggle(reason)}
-                        className={`px-3 py-1 rounded-[80px] outline-1 -outline-offset-1px inline-flex justify-center items-center gap-2 overflow-hidden transition-colors ${
-                          selectedReasons.includes(reason)
-                            ? "bg-red-500 outline-red-500"
-                            : "bg-gray-100 outline-gray-200"
-                        }`}
+                        className={`px-3 py-1 rounded-[80px] outline-1 -outline-offset-1px inline-flex justify-center items-center gap-2 overflow-hidden transition-colors ${selectedReasons.includes(reason)
+                          ? "bg-red-500 outline-red-500"
+                          : "bg-gray-100 outline-gray-200"
+                          }`}
                       >
                         <div
-                          className={`text-center justify-start text-sm font-normal font-['Pretendard'] leading-5 ${
-                            selectedReasons.includes(reason)
-                              ? "text-white"
-                              : "text-gray-400"
-                          }`}
+                          className={`text-center justify-start text-sm font-normal font-['Pretendard'] leading-5 ${selectedReasons.includes(reason)
+                            ? "text-white"
+                            : "text-gray-400"
+                            }`}
                         >
                           {reason}
                         </div>
