@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import clsx from "clsx";
 import { sendGAEvent } from "@next/third-parties/google";
 import Icon from "@/app/_components/common/Icons";
 import Image from "next/image";
+import ConfirmModal from "@/app/_components/common/confirmModal";
 
 // 이미지 관리
 import EditIcon from "/Icons/edit.svg";
@@ -59,6 +60,7 @@ export default function WorkItem({
   currentCategoryId,
   className,
 }: WorkItemProps) {
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const safeTarget = Math.max(0, targetSeconds || 0);
   const baseCurrent = Math.max(0, currentSeconds || 0);
   const percentNum = useMemo(() => {
@@ -106,7 +108,12 @@ export default function WorkItem({
         }
       }}
     >
-      <div className={clsx("flex-1 inline-flex flex-col justify-start items-start gap-5", completed && "opacity-50")}>
+      <div
+        className={clsx(
+          "flex-1 inline-flex flex-col justify-start items-start gap-5",
+          completed && "opacity-50",
+        )}
+      >
         <div className="self-stretch inline-flex justify-between items-center">
           <div className="inline-flex flex-col justify-start items-start gap-1">
             <div className="text-zinc-500 text-xs font-normal leading-none">
@@ -135,7 +142,11 @@ export default function WorkItem({
                 )}
               >
                 <Image
-                  src={completed ? "/Icons/checkboxSelected.svg" : "/Icons/checkboxDefault.svg"}
+                  src={
+                    completed
+                      ? "/Icons/checkboxSelected.svg"
+                      : "/Icons/checkboxDefault.svg"
+                  }
                   alt={completed ? "체크됨" : "미체크"}
                   className="w-6 h-6"
                   width={24}
@@ -155,16 +166,43 @@ export default function WorkItem({
                 }}
                 className="px-4 py-2 bg-gray-200 border border-gray-300 rounded-lg text-body2-14SB flex items-center gap-2"
               >
-                <Image src="/Icons/right.svg" alt="오늘 하기" width={16} height={16} />
+                <Image
+                  src="/Icons/right.svg"
+                  alt="오늘 하기"
+                  width={16}
+                  height={16}
+                />
                 오늘 하기
               </button>
             )}
             <div className="flex justify-end items-center gap-4">
-              <button type="button" onClick={onEdit} aria-label="편집" className="w-6 h-6 relative overflow-hidden">
-                <Icon Svg={EditIcon} size={24} className="w-6 h-6 text-gray-600" />
+              <button
+                type="button"
+                onClick={onEdit}
+                aria-label="편집"
+                className="w-6 h-6 relative overflow-hidden"
+              >
+                <Icon
+                  Svg={EditIcon}
+                  size={24}
+                  className="w-6 h-6 text-gray-600"
+                />
               </button>
-              <button type="button" onClick={onDelete} aria-label="삭제" className="w-6 h-6 relative overflow-hidden">
-                <Icon Svg={DeleteIcon} size={24} className="w-6 h-6 text-gray-600" />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDeleteModalOpen(true);
+                }}
+                aria-label="삭제"
+                className="w-6 h-6 relative overflow-hidden"
+              >
+                <Icon
+                  Svg={DeleteIcon}
+                  size={24}
+                  className="w-6 h-6 text-gray-600"
+                />
               </button>
             </div>
           </div>
@@ -178,14 +216,18 @@ export default function WorkItem({
 
             <div className="flex justify-start items-center gap-7">
               <div className="flex justify-start items-center gap-2">
-                <div className="text-gray-700 text-sm font-semibold leading-tight">목표 달성 시간</div>
+                <div className="text-gray-700 text-sm font-semibold leading-tight">
+                  목표 달성 시간
+                </div>
                 <div className="text-gray-500 text-sm font-regular leading-tight">
                   {toHHMMSS(safeTarget)}
                 </div>
               </div>
 
               <div className="flex justify-start items-center gap-2">
-                <div className="text-gray-700 text-sm font-semibold leading-tight">현재 달성 시간</div>
+                <div className="text-gray-700 text-sm font-semibold leading-tight">
+                  현재 달성 시간
+                </div>
                 <div className="text-gray-500 text-sm font-regular leading-tight">
                   {toHHMMSS(baseCurrent)}
                 </div>
@@ -196,11 +238,24 @@ export default function WorkItem({
           <div className="self-stretch bg-gray-200 rounded-[80px] inline-flex justify-start items-start gap-2.5 overflow-hidden">
             <div
               className="h-4 bg-red-400 rounded-[80px]"
-              style={{ width: `${percentNum >= 100 ? 100 : percentNum}%`, minWidth: percentNum > 0 ? 8 : 0 }}
+              style={{
+                width: `${percentNum >= 100 ? 100 : percentNum}%`,
+                minWidth: percentNum > 0 ? 8 : 0,
+              }}
             />
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={deleteModalOpen}
+        title={`${title}`}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={() => {
+          onDelete?.();
+          setDeleteModalOpen(false);
+        }}
+      />
     </div>
   );
 }
