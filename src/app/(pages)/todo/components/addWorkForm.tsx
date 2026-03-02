@@ -77,6 +77,8 @@ export default function AddWorkForm({
   /** 과거 날짜에서 할 일 선택 → 오늘로 바뀐 경우, 제출 버튼 클릭 시 GA 전송용 */
   const pastTodoChangedToTodayRef = useRef(false);
   const skipDateClearRef = useRef(false);
+  /** 폼 열린 시점 (type=select 시 '할 일 선택'까지 소요 시간 측정용) */
+  const formOpenedAtRef = useRef<number | null>(type === "select" ? Date.now() : null);
 
   const displayCategories = useMemo((): CategoryOption[] => {
     if (isOnboarding && categories.length === 0) {
@@ -166,6 +168,10 @@ export default function AddWorkForm({
       if (type === "select" && pastTodoChangedToTodayRef.current) {
         sendGAEvent("event", "past_todo_select_to_today");
         pastTodoChangedToTodayRef.current = false;
+      }
+      if (type === "select" && formOpenedAtRef.current) {
+        const durationSeconds = Math.round((Date.now() - formOpenedAtRef.current) / 1000);
+        sendGAEvent("event", "add_work_form_select_duration", { duration_seconds: durationSeconds });
       }
       onSubmit?.({
         categoryId,
