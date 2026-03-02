@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
+import { sendGAEvent } from "@next/third-parties/google";
 import CategorySelect, { type CategoryOption } from "./categorySelect";
 import WorkTitleField from "./workTitleField";
 import DateField from "./dateField";
@@ -73,6 +74,8 @@ export default function AddWorkForm({
   );
 
   const prevInitialValuesRef = useRef<string>("");
+  /** 과거 날짜에서 할 일 선택 → 오늘로 바뀐 경우, 제출 버튼 클릭 시 GA 전송용 */
+  const pastTodoChangedToTodayRef = useRef(false);
 
   const displayCategories = useMemo((): CategoryOption[] => {
     if (isOnboarding && categories.length === 0) {
@@ -143,6 +146,10 @@ export default function AddWorkForm({
 
   const handleSubmit = () => {
     if (isValid) {
+      if (type === "select" && pastTodoChangedToTodayRef.current) {
+        sendGAEvent("event", "past_todo_select_to_today");
+        pastTodoChangedToTodayRef.current = false;
+      }
       onSubmit?.({
         categoryId,
         title: title.trim(),
@@ -215,6 +222,9 @@ export default function AddWorkForm({
                       setSelectedTodoId(selectedTodo.id); // ID 저장
                       onCategorySelect?.(selectedTodo.categoryId);
                       // 과거 작업을 선택하더라도 현재 실행을 위해 날짜를 '오늘'로 설정
+                      if (isPastDate) {
+                        pastTodoChangedToTodayRef.current = true;
+                      }
                       setDate(new Date());
                       setTarget(selectedTodo.targetTimeInSeconds);
                     }
