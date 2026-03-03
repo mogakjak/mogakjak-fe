@@ -43,7 +43,7 @@ interface KakaoShareButtonProps {
 export default function KakaoShareButton({
   title = "모각작",
   description = "함께 몰입하며 꾸준함을 만드는 힘을 경험해 보세요!",
-  imageUrl = "https://mogakjak-fe.vercel.app/thumbnailMessage.jpeg",
+  imageUrl = "https://www.mogakjak.com/thumbnailMessage.jpeg",
 }: KakaoShareButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -72,7 +72,7 @@ export default function KakaoShareButton({
       script.src = "https://developers.kakao.com/sdk/js/kakao.js";
       script.async = true;
       script.crossOrigin = "anonymous";
-      
+
       script.onload = () => {
         const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
         if (kakaoKey && window.Kakao) {
@@ -82,7 +82,7 @@ export default function KakaoShareButton({
           reject(new Error("Kakao SDK initialization failed"));
         }
       };
-      
+
       script.onerror = () => {
         setIsLoading(false);
         reject(new Error("Failed to load Kakao SDK"));
@@ -113,9 +113,9 @@ export default function KakaoShareButton({
         }
         window.Kakao.init(kakaoKey);
       }
-      
-      const currentUrl = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://mogakjak-fe.vercel.app";
-      
+
+      const currentUrl = process.env.NEXT_PUBLIC_REDIRECT_URI || "https://www.mogakjak.com";
+
       window.Kakao.Share.sendDefault({
         objectType: "feed",
         content: {

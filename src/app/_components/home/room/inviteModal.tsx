@@ -70,7 +70,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     const baseUrl =
       typeof window !== "undefined"
         ? window.location.origin
-        : process.env.NEXT_PUBLIC_SITE_URL || "https://mogakjak-fe.vercel.app";
+        : process.env.NEXT_PUBLIC_SITE_URL || "https://www.mogakjak.com";
     return `${baseUrl}/invite/${groupId}`;
   }, [groupId]);
 

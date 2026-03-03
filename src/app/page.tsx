@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const DEFAULT_METADATA = {
   title: "모각작",
   description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-  imageUrl: "https://mogakjak-fe.vercel.app/thumbnail.png?v=2",
+  imageUrl: "https://www.mogakjak.com/thumbnail.png?v=2",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,14 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "모각작" }],
     creator: "모각작",
     publisher: "모각작",
-    metadataBase: new URL("https://mogakjak-fe.vercel.app"),
+    metadataBase: new URL("https://www.mogakjak.com"),
     alternates: {
       canonical: "/",
     },
     openGraph: {
       title: DEFAULT_METADATA.title,
       description: DEFAULT_METADATA.description,
-      url: "https://mogakjak-fe.vercel.app",
+      url: "https://www.mogakjak.com",
       siteName: "모각작",
       images: [
         {
@@ -54,7 +54,7 @@ export default function Home() {
     "@type": "WebApplication",
     name: "모각작",
     description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-    url: "https://mogakjak-fe.vercel.app",
+    url: "https://www.mogakjak.com",
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web",
     offers: {

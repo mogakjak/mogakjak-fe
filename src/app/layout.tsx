@@ -43,18 +43,18 @@ export const metadata: Metadata = {
   authors: [{ name: "모각작" }],
   creator: "모각작",
   publisher: "모각작",
-  metadataBase: new URL("https://mogakjak-fe.vercel.app"),
+  metadataBase: new URL("https://www.mogakjak.com"),
   verification: {
     google: "hZ8V-qZoPvHPnWwi2iSRcgCfgzKoTgtFg_g7gqwuWXU",
   },
   openGraph: {
     title: "모각작",
     description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-    url: "https://mogakjak-fe.vercel.app",
+    url: "https://www.mogakjak.com",
     siteName: "모각작",
     images: [
       {
-        url: "https://mogakjak-fe.vercel.app/thumbnail.png?v=2",
+        url: "https://www.mogakjak.com/thumbnail.png?v=2",
         width: 1200,
         height: 630,
         alt: "모각작",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "모각작",
     description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-    images: ["https://mogakjak-fe.vercel.app/thumbnail.png?v=2"],
+    images: ["https://www.mogakjak.com/thumbnail.png?v=2"],
   },
   icons: {
     icon: "/icon.svg",

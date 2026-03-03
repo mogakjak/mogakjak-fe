@@ -1,6 +1,6 @@
 # 모여서 각자 작업하는 시간 , 모각작🍅
 
-> 🔗 Link : [https://mogakjak-fe.vercel.app](https://mogakjak-fe.vercel.app/)
+> 🔗 Link : [https://www.mogakjak.com](https://www.mogakjak.com/)
 
 ![모각작 장표](https://github.com/user-attachments/assets/34debf9e-ca5e-40c8-91d4-be1807d009ee)
 
