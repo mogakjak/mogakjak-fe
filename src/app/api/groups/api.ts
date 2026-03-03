@@ -12,6 +12,7 @@ import type {
   InviteRequest,
   CommonGroup,
   PokeRequest,
+  GroupHostAckStatus,
 } from "@/app/_types/groups";
 import { request } from "../request";
 
@@ -103,7 +104,7 @@ export const getMates = async (params?: GetMatesParams) => {
         groupNames: userGroupMap.get(userId) || [],
         isActive: mate.isActive ?? false,
         lastActivityAt: mate.lastActivityAt ?? null,
-      })
+      }),
     );
 
     return {
@@ -201,4 +202,14 @@ export const sendCheer = (groupId: string, body: CheerRequest) =>
   request<unknown>(GROUPS_BASE, `/${groupId}/cheer`, {
     method: "POST",
     body: JSON.stringify(body),
+  });
+
+export const getGroupHostAck = (groupId: string) =>
+  request<GroupHostAckStatus>(GROUPS_BASE, `/${groupId}/host-ack`, {
+    method: "GET",
+  });
+
+export const putGroupHostAck = (groupId: string) =>
+  request<void>(GROUPS_BASE, `/${groupId}/host-ack`, {
+    method: "PUT",
   });

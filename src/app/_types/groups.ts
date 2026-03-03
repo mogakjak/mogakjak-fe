@@ -172,3 +172,7 @@ export type GroupMeta = {
   groupId: string;
   groupName: string;
 };
+
+export type GroupHostAckStatus = {
+  needsAcknowledgment: boolean;
+};

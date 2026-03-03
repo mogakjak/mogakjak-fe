@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 import Image from "next/image";
+import ConfirmModal from "@/app/_components/common/confirmModal";
 
 type Props = {
   id: string;
@@ -48,6 +49,7 @@ export default function CategoryRow({
   const ignoreBlurOnCommit = useRef(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const handleRef = useRef<HTMLButtonElement | null>(null);
   const [menuPos, setMenuPos] = useState<{ left: number; top: number }>({
@@ -247,8 +249,8 @@ export default function CategoryRow({
                   <button
                     type="button"
                     onClick={() => {
-                      onDelete?.(id);
                       setMenuOpen(false);
+                      setDeleteModalOpen(true);
                     }}
                     className="self-stretch px-4 py-2 rounded-lg inline-flex items-center gap-2 hover:bg-gray-100"
                   >
@@ -289,6 +291,16 @@ export default function CategoryRow({
           </>
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteModalOpen}
+        title={value || "새로운 카테고리"}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={() => {
+          onDelete?.(id);
+          setDeleteModalOpen(false);
+        }}
+      />
     </div>
   );
 }

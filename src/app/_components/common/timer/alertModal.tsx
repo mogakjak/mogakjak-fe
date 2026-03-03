@@ -3,7 +3,7 @@
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "todoRequired" | "groupTimerLimit"; // 원하는 타입 추가 가능
+  type: "todoRequired" | "groupTimerLimit" | "newHostAck"; // 원하는 타입 추가 가능
 }
 
 const MODAL_CONTENT = {
@@ -29,6 +29,25 @@ const MODAL_CONTENT = {
         모각작 메이트를 초대하거나, 우측
         <span className="text-red-500 ml-1">개인타이머</span>
         <br />를 이용해 먼저 몰입을 실행해 보세요.
+      </>
+    ),
+    confirmText: "확인",
+  },
+  newHostAck: {
+    title: (
+      <>
+        축하합니다!
+        <br />
+        방장이 되었어요!
+      </>
+    ),
+    description: (
+      <>
+        이전 방장이 퇴장하여
+        <br />
+        새로운 방장이 되셨어요!
+        <br />
+        이제 그룹의 이름과 목표를 수정할 수 있습니다.
       </>
     ),
     confirmText: "확인",

@@ -11,4 +11,6 @@ export const groupKeys = {
   goal: (groupId: string) => [...groupKeys.all(), "goal", groupId] as const,
   invitations: (groupId: string) =>
     [...groupKeys.all(), "invitations", groupId] as const,
+  hostAck: (groupId: string) =>
+    [...groupKeys.all(), "host-ack", groupId] as const,
 };

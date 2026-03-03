@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import PreviewMain from "@/app/_components/home/previewMain";
 import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import Icon from "@/app/_components/common/Icons";
@@ -13,6 +13,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { groupKeys } from "@/app/api/groups/keys";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
+import { getGroupHostAck, putGroupHostAck } from "@/app/api/groups/api";
+import AlertModal from "@/app/_components/common/timer/alertModal";
 
 type GroupRoomPageProps = {
   groupid: string;
@@ -20,6 +22,7 @@ type GroupRoomPageProps = {
 
 export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const [groupEditOpen, setGroupEditOpen] = useState(false);
+  const [hostAckModalOpen, setHostAckModalOpen] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -37,10 +40,39 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
   const isHost = useIsGroupHost(memberStatuses);
 
   useEffect(() => {
+    if (!validGroupId) return;
+
+    const checkHostAck = async () => {
+      try {
+        const response = await getGroupHostAck(validGroupId);
+        if (response?.needsAcknowledgment) {
+          setHostAckModalOpen(true);
+        }
+      } catch (error) {
+        console.error("새로운 방장 확인 API 호출 실패:", error);
+      }
+    };
+
+    checkHostAck();
+  }, [validGroupId]);
+
+  const handleHostAckConfirm = async () => {
+    try {
+      if (validGroupId) {
+        await putGroupHostAck(validGroupId);
+      }
+    } catch (error) {
+      console.error("방장 확인 처리 실패:", error);
+    } finally {
+      setHostAckModalOpen(false);
+    }
+  };
+
+  useEffect(() => {
     if (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const statusCode = (error as { status?: number; response?: { status?: number } })?.status || (error as { response?: { status?: number } })?.response?.status;
-      
+
       if (
         statusCode === 404 ||
         errorMessage.includes("404") ||
@@ -117,6 +149,14 @@ export default function GroupRoomPage({ groupid }: GroupRoomPageProps) {
             onClose={() => setGroupEditOpen(false)}
           />
         </div>
+      )}
+
+      {hostAckModalOpen && (
+        <AlertModal
+          isOpen={hostAckModalOpen}
+          onClose={handleHostAckConfirm}
+          type="newHostAck"
+        />
       )}
     </main>
   );
