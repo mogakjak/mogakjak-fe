@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google"
+import Script from "next/script";
 import "./globals.css";
 import dynamic from "next/dynamic";
 
@@ -43,18 +44,18 @@ export const metadata: Metadata = {
   authors: [{ name: "모각작" }],
   creator: "모각작",
   publisher: "모각작",
-  metadataBase: new URL("https://mogakjak-fe.vercel.app"),
+  metadataBase: new URL("https://www.mogakjak.com"),
   verification: {
     google: "hZ8V-qZoPvHPnWwi2iSRcgCfgzKoTgtFg_g7gqwuWXU",
   },
   openGraph: {
     title: "모각작",
     description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-    url: "https://mogakjak-fe.vercel.app",
+    url: "https://www.mogakjak.com",
     siteName: "모각작",
     images: [
       {
-        url: "https://mogakjak-fe.vercel.app/thumbnail.png?v=2",
+        url: "https://www.mogakjak.com/thumbnail.png?v=2",
         width: 1200,
         height: 630,
         alt: "모각작",
@@ -67,7 +68,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "모각작",
     description: "함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-    images: ["https://mogakjak-fe.vercel.app/thumbnail.png?v=2"],
+    images: ["https://www.mogakjak.com/thumbnail.png?v=2"],
   },
   icons: {
     icon: "/icon.svg",
@@ -107,6 +108,15 @@ export default function RootLayout({
           </NotificationRoot>
         </Providers>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_ID}");
+          `}
+        </Script>
       </body>
     </html>
   );

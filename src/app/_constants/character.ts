@@ -50,28 +50,28 @@ export const CHARACTER_BY_HOURS: Record<number, CharacterLevelInfo> = {
     hours: 200,
     description: "탄탄한 성과 완성!\n 이제 집중이 익숙해졌어요.",
   },
-  250: {
+  300: {
     level: 9,
     name: "새싹레몽",
-    hours: 250,
+    hours: 300,
     description: "집중력 향상 확인!\n 레몽이와 함께 계속 나아가세요!",
   },
-  300: {
+  400: {
     level: 10,
     name: "방울레몽",
-    hours: 300,
+    hours: 400,
     description: "꾸준한 몰입의 축적이\n 빛을 발하고 있어요!",
   },
-  350: {
+  500: {
     level: 11,
     name: "상큼레몽",
-    hours: 350,
+    hours: 500,
     description: "그동안의 시간들이\n 확실한 실력으로 굳어졌어요.",
   },
-  400: {
+  600: {
     level: 12,
     name: "포동레몽",
-    hours: 400,
+    hours: 600,
     description: "축하합니다!\n 몰입의 마스터가 되었어요!",
   },
 } as const;

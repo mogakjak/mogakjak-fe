@@ -9,7 +9,7 @@ type InvitePageProps = {
 const DEFAULT_METADATA = {
   title: "몰입이 쉬워지는 곳, 모각작에 초대해요 💌",
   description: "타이머로 함께 몰입하며 꾸준함을 만드는 모각작 커뮤니티",
-  imageUrl: "https://mogakjak-fe.vercel.app/thumbnailInvite.png",
+  imageUrl: "https://www.mogakjak.com/thumbnailInvite.png",
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_PROXY;
@@ -69,7 +69,7 @@ export async function generateMetadata({
     console.error("그룹 메타 정보 가져오기 실패:", error);
   }
 
-  const url = `https://mogakjak-fe.vercel.app/invite/${groupid}`;
+  const url = `https://www.mogakjak.com/invite/${groupid}`;
 
   return {
     title,
