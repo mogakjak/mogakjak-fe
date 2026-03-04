@@ -2,6 +2,10 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  getPendingInviteGroupId,
+  removePendingInviteGroupId,
+} from "@/app/_lib/pendingInvite";
 
 export default function InviteRedirectHandler() {
   const pathname = usePathname();
@@ -17,9 +21,9 @@ export default function InviteRedirectHandler() {
       window.localStorage.getItem("mg_onboarded_v1") === "true";
     if (!isOnboardingDone) return;
 
-    const inviteGroupId = sessionStorage.getItem("mg_invite_groupid");
+    const inviteGroupId = getPendingInviteGroupId();
     if (inviteGroupId) {
-      sessionStorage.removeItem("mg_invite_groupid");
+      removePendingInviteGroupId();
       router.replace(`/invite/${inviteGroupId}`);
     }
   }, [pathname, router]);

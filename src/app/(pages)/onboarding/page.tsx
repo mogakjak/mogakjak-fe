@@ -17,6 +17,10 @@ import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import RoomModal from "@/app/_components/home/room/roomModal";
 import InviteModal from "@/app/_components/home/room/inviteModal";
 import { GroupDetail } from "@/app/_types/groups";
+import {
+    getPendingInviteGroupId,
+    removePendingInviteGroupId,
+} from "@/app/_lib/pendingInvite";
 
 const ONBOARDING_KEY = "mg_onboarded_v1";
 
@@ -78,9 +82,9 @@ export default function OnboardingPage() {
     const handleFinalModalClose = () => {
         if (typeof window !== "undefined") {
             window.localStorage.setItem(ONBOARDING_KEY, "true");
-            const inviteGroupId = sessionStorage.getItem("mg_invite_groupid");
+            const inviteGroupId = getPendingInviteGroupId();
             if (inviteGroupId) {
-                sessionStorage.removeItem("mg_invite_groupid");
+                removePendingInviteGroupId();
                 router.replace(`/invite/${inviteGroupId}`);
                 return;
             }
