@@ -6,6 +6,10 @@ import { useJoinGroup } from "@/app/_hooks/groups/useJoinGroup";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import MobileHomePage from "@/app/_components/home/mobileHomePage";
 import SimpleToast from "@/app/_components/common/SimpleToast";
+import {
+  removePendingInviteGroupId,
+  setPendingInviteGroupId,
+} from "@/app/_lib/pendingInvite";
 
 export default function InvitePageClient({
   groupid,
@@ -67,9 +71,7 @@ export default function InvitePageClient({
     if (hasJoinedRef.current) return;
 
     if (!isLoggedIn) {
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("mg_invite_groupid", groupid);
-      }
+      setPendingInviteGroupId(groupid);
       router.replace("/login");
       return;
     }
@@ -79,9 +81,7 @@ export default function InvitePageClient({
     const runJoin = async () => {
       try {
         await joinGroupAsync(groupid);
-        if (typeof window !== "undefined") {
-          sessionStorage.removeItem("mg_invite_groupid");
-        }
+        removePendingInviteGroupId();
         window.location.replace(`/group/${groupid}`);
       } catch (err) {
         hasJoinedRef.current = false;
@@ -96,9 +96,7 @@ export default function InvitePageClient({
           errorMessage.includes("인증") ||
           errorMessage.includes("로그인");
         if (isUnauthorized) {
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("mg_invite_groupid", groupid);
-          }
+          setPendingInviteGroupId(groupid);
           router.replace("/login");
           return;
         }
