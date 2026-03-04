@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import PreviewMain from "@/app/_components/home/previewMain";
 import RoomMain from "@/app/_components/home/roomMain";
 import FriendMain from "@/app/_components/home/friendMain";
@@ -67,6 +68,7 @@ const dummyGroupData: GroupDetail = {
 
 export default function OnboardingPage() {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     // 여러 개 있던 모달 상태를 없애고 currentStep 하나로 모든 흐름을 제어합니다.
     const [currentStep, setCurrentStep] = useState(-1);
@@ -85,10 +87,12 @@ export default function OnboardingPage() {
             const inviteGroupId = getPendingInviteGroupId();
             if (inviteGroupId) {
                 removePendingInviteGroupId();
+                queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
                 router.replace(`/invite/${inviteGroupId}`);
                 return;
             }
         }
+        queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
         router.replace("/");
     };
 
