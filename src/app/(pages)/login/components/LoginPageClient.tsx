@@ -35,8 +35,17 @@ export default function LoginPageClient() {
       invalidateTokenCache();
       fetch("/api/auth/logout", {
         method: "POST",
-      }).catch(() => {});
+      }).catch(() => { });
       window.history.replaceState(null, "", "/login");
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const inviteGroupId = searchParams.get("invite");
+    if (inviteGroupId) {
+      import("@/app/_lib/pendingInvite").then((mod) => {
+        mod.setPendingInviteGroupId(inviteGroupId);
+        window.history.replaceState(null, "", "/login");
+      });
     }
 
     return () => {

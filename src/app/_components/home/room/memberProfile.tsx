@@ -16,7 +16,7 @@ export default function MemberProfile({
 
   return (
     <div
-      className={`relative ${sizeClass} rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-gray-700 font-semibold`}
+      className={`relative shrink-0 ${sizeClass} rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-gray-700 font-semibold`}
     >
       {profileUrl ? (
         <Image
