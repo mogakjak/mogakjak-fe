@@ -44,8 +44,8 @@ export function middleware(req: NextRequest) {
 
   if (pathname.startsWith("/invite")) {
     if (!accessValid && !refreshValid) {
-      const segments = pathname.split("/");
-      const groupId = segments[segments.length - 1];
+      const cleanPathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+      const groupId = cleanPathname.substring(cleanPathname.lastIndexOf("/") + 1);
 
       if (groupId && groupId !== "invite") {
         const loginUrl = nextUrl.clone();
