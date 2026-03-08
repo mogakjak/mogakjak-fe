@@ -83,7 +83,7 @@ export default function MembersHover({
                   <span className="text-body2-14R text-black ml-2 truncate">
                     {m.nickname}
                   </span>
-                  <div className="ml-auto">
+                  <div className="ml-auto pl-2 shrink-0">
                     <StateButton state={isActive} />
                   </div>
                 </li>
