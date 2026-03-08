@@ -43,12 +43,26 @@ export function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith("/invite")) {
+    if (!accessValid && !refreshValid) {
+      const segments = pathname.split("/");
+      const groupId = segments[segments.length - 1];
+
+      if (groupId && groupId !== "invite") {
+        const loginUrl = nextUrl.clone();
+        loginUrl.pathname = "/login";
+        loginUrl.searchParams.set("invite", groupId);
+
+        const res = NextResponse.redirect(loginUrl);
+        clearAuthCookies(res);
+        return res;
+      }
+    }
     return NextResponse.next();
   }
 
   if (pathname === "/login") {
     const isDeactivated = nextUrl.searchParams.get("deactivated") === "true";
-    
+
     if (isDeactivated) {
       const res = NextResponse.next();
       clearAuthCookies(res);
