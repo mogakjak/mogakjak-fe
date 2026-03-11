@@ -43,7 +43,10 @@ export function middleware(req: NextRequest) {
   }
 
   if (pathname.startsWith("/invite")) {
-    if (!accessValid && !refreshValid) {
+    const userAgent = req.headers.get("user-agent") || "";
+    const isBot = /bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|kakaotalk-scrap|slackbot|twitterbot|discordbot|yeti|daum|kakaostory/i.test(userAgent);
+
+    if (!accessValid && !refreshValid && !isBot) {
       const cleanPathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
       const groupId = cleanPathname.substring(cleanPathname.lastIndexOf("/") + 1);
 
