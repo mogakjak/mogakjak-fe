@@ -24,9 +24,6 @@ import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExi
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 import GroupNoti from "./sidebar/groupNoti";
 import { sendGAEvent } from "@next/third-parties/google";
-import { useFinishActiveTimer } from "@/app/_hooks/timers/useFinishActiveTimer";
-import { useQueryClient } from "@tanstack/react-query";
-import { timerKeys } from "@/app/api/timers/keys";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -57,10 +54,8 @@ export default function GroupPage({
     sessionId || "",
   );
 
-  const { setNavigationInterceptor } = useTimer();
+  const { setNavigationInterceptor, isRunning, forceStopTimer } = useTimer();
   const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
-  const finishActiveTimerMutation = useFinishActiveTimer();
-  const queryClient = useQueryClient();
 
 
 
@@ -68,30 +63,24 @@ export default function GroupPage({
 
   // 네비게이션 인터셉터 등록
   useEffect(() => {
-    // 중요: 함수를 state로 저장할 때는 () => func 형태로 전달해야 함
     setNavigationInterceptor(() => (onConfirm: () => void | Promise<void>) => {
       setPendingRoute(() => onConfirm);
-      if (timerStatus === "running" || timerStatus === "paused") {
+      if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
         setOpenTimerEndModal(true);
       } else {
         setOpenReview(true);
       }
     });
     return () => setNavigationInterceptor(null);
-  }, [setNavigationInterceptor, timerStatus]);
+  }, [setNavigationInterceptor, timerStatus, isRunning]);
 
-  // 뒤로가기 방지 및 모달 띄우기
   useEffect(() => {
-    // 마운트 시 현재 상태를 히스토리에 추가 (뒤로가기 함정)
     history.pushState(null, "", location.href);
 
     const handlePopState = () => {
-      // 뒤로가기를 누르면 이 이벤트가 발생함
-      // 다시 현재 상태를 push하여 페이지 이동을 막음
       history.pushState(null, "", location.href);
 
-      // 모달 띄우기 로직 실행
-      if (timerStatus === "running" || timerStatus === "paused") {
+      if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
         setOpenTimerEndModal(true);
       } else {
         setOpenReview(true);
@@ -103,11 +92,10 @@ export default function GroupPage({
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [timerStatus]);
+  }, [timerStatus, isRunning]);
 
   // 최종 나가기 처리 (리뷰 팝업 등에서 호출)
   const handleFinalExit = useCallback(async () => {
-    // ref로 중복 실행 방지 (state가 아닌 ref 사용 → 콜백 재생성 전합)
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
@@ -125,17 +113,6 @@ export default function GroupPage({
         sessionStorage.removeItem(`group_enter_time_${groupData.groupId}`);
       }
 
-      const currentSession = queryClient.getQueryData(timerKeys.current());
-      if (currentSession) {
-        try {
-          await finishActiveTimerMutation.mutateAsync();
-        } catch (error) {
-          console.warn("활성 타이머 종료 실패:", error);
-        }
-      }
-
-
-
       await exitSessionOnce();
       if (pendingRoute) {
         pendingRoute();
@@ -147,7 +124,7 @@ export default function GroupPage({
       isExitingRef.current = false;
       setIsExiting(false);
     }
-  }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId, finishActiveTimerMutation, queryClient]);
+  }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId]);
 
   // 그룹 멤버 상태 관리 훅
   const { memberStatuses, isConnected } = useGroupMemberStatus({
@@ -292,62 +269,62 @@ export default function GroupPage({
           ) : (
             <div className="w-full h-[436px] overflow-y-auto">
               <div className="grid grid-cols-4 gap-x-5 gap-y-3">
-              {displayMembers.map((member) => {
-                const status = member.status;
-                const participationStatus = status.participationStatus;
+                {displayMembers.map((member) => {
+                  const status = member.status;
+                  const participationStatus = status.participationStatus;
 
-                let displayStatus: "active" | "rest" | "end";
-                if (participationStatus === "PARTICIPATING") {
-                  displayStatus = "active";
-                } else if (participationStatus === "RESTING") {
-                  displayStatus = "rest";
-                } else {
-                  displayStatus = "end";
-                }
-                const activeTime =
-                  status.personalTimerSeconds !== null &&
-                    status.personalTimerSeconds !== undefined
-                    ? status.personalTimerSeconds
+                  let displayStatus: "active" | "rest" | "end";
+                  if (participationStatus === "PARTICIPATING") {
+                    displayStatus = "active";
+                  } else if (participationStatus === "RESTING") {
+                    displayStatus = "rest";
+                  } else {
+                    displayStatus = "end";
+                  }
+                  const activeTime =
+                    status.personalTimerSeconds !== null &&
+                      status.personalTimerSeconds !== undefined
+                      ? status.personalTimerSeconds
+                      : undefined;
+
+                  const isCurrentUser = member.userId === currentUserId;
+
+                  // 최근 참여 일수
+                  const lastActiveAt = status.daysSinceLastParticipation
+                    ? new Date(
+                      Date.now() -
+                      status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
+                    )
                     : undefined;
 
-                const isCurrentUser = member.userId === currentUserId;
-
-                // 최근 참여 일수
-                const lastActiveAt = status.daysSinceLastParticipation
-                  ? new Date(
-                    Date.now() -
-                    status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
-                  )
-                  : undefined;
-
-                return (
-                  <div
-                    key={member.userId}
-                    className={
-                      isCurrentUser && onboardingStep === 0
-                        ? "border-4 border-red-200 rounded-[20px] shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]"
-                        : ""
-                    }
-                  >
-                    <GroupFriendField
-                      status={displayStatus}
-                      friendName={member.nickname}
-                      level={status.level}
-                      isPublic={true}
-                      activeTime={activeTime}
-                      task={status.todoTitle ?? undefined}
-                      lastActiveAt={lastActiveAt}
-                      profileUrl={member.profileUrl}
-                      isCurrentUser={member.userId === currentUserId}
-                      isHost={status.role === "HOST"}
-                      cheerCount={status.cheerCount || 0}
-                      userId={member.userId}
-                      groupId={groupData.groupId}
-                      onCheerClick={handleCheerClick}
-                    />
-                  </div>
-                );
-              })}
+                  return (
+                    <div
+                      key={member.userId}
+                      className={
+                        isCurrentUser && onboardingStep === 0
+                          ? "border-4 border-red-200 rounded-[20px] shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]"
+                          : ""
+                      }
+                    >
+                      <GroupFriendField
+                        status={displayStatus}
+                        friendName={member.nickname}
+                        level={status.level}
+                        isPublic={true}
+                        activeTime={activeTime}
+                        task={status.todoTitle ?? undefined}
+                        lastActiveAt={lastActiveAt}
+                        profileUrl={member.profileUrl}
+                        isCurrentUser={member.userId === currentUserId}
+                        isHost={status.role === "HOST"}
+                        cheerCount={status.cheerCount || 0}
+                        userId={member.userId}
+                        groupId={groupData.groupId}
+                        onCheerClick={handleCheerClick}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -356,8 +333,7 @@ export default function GroupPage({
         <div className="flex mt-4">
           <Button
             onClick={() => {
-              // 타이머가 실행 중이거나 일시정지 상태면 TimerEndModal 먼저 표시
-              if (timerStatus === "running" || timerStatus === "paused") {
+              if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
                 setOpenTimerEndModal(true);
               } else {
                 setOpenReview(true);
@@ -381,18 +357,25 @@ export default function GroupPage({
             <TimerEndModal
               onClose={() => setOpenTimerEndModal(false)}
               onConfirm={async () => {
+                // 개인 타이머 UI 강제 종료 (버튼 + 디스플레이 리셋)
+                if (isRunning) {
+                  try {
+                    await forceStopTimer();
+                  } catch (error) {
+                    console.error("개인 타이머 강제 종료 실패:", error);
+                  }
+                }
+
                 if (sessionId && participatingMemberCount <= 1) {
                   try {
                     await finishGroupTimerMutation.mutateAsync();
-                    setOpenTimerEndModal(false);
-                    setOpenReview(true);
                   } catch (error) {
                     console.error("그룹 타이머 종료 실패:", error);
                   }
-                } else {
-                  setOpenTimerEndModal(false);
-                  setOpenReview(true);
                 }
+
+                setOpenTimerEndModal(false);
+                setOpenReview(true);
               }}
             />
           </div>

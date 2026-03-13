@@ -66,7 +66,7 @@ export default function TimerComponent({
 
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
-  const { setIsRunning } = useTimer();
+  const { setIsRunning, registerForceStop } = useTimer();
   const { startTracking, pauseTracking, resumeTracking, finalizeMetrics } =
     useTimerMetrics();
 
@@ -367,6 +367,11 @@ export default function TimerComponent({
     setRunning(false);
     setIsRunning(false);
   }, [mode, stopSession, setIsRunning, onSessionIdChange, finalizeMetrics]);
+
+  // GroupPage 등 외부에서 강제 종료할 수 있도록 onStop을 등록
+  useEffect(() => {
+    registerForceStop(onStop);
+  }, [onStop, registerForceStop]);
 
   const handlePomodoroComplete = useCallback(async () => {
     if (!pomodoroConfig) return;
