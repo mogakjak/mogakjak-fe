@@ -23,6 +23,7 @@ import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
+import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { sendGAEvent } from "@next/third-parties/google";
 
 type GroupMySidebarProps = {
@@ -77,8 +78,9 @@ export default function GroupMySidebar({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null
   );
+  const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
 
-  const { isRunning } = useTimer();
+  const { isRunning, forceStopTimer } = useTimer();
 
   const { categories } = useTodoCategoryController();
   const { createTodo, updateTodo } = useTodoController();
@@ -285,7 +287,17 @@ export default function GroupMySidebar({
                   : (todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title)}
               </p>
 
-              <button className="ml-auto" onClick={() => setModalOpen(true)} aria-label="할 일 편집">
+              <button
+                className="ml-auto"
+                onClick={() => {
+                  if (isRunning && currentSessionId) {
+                    setTimerEndModalOpen(true);
+                  } else {
+                    setModalOpen(true);
+                  }
+                }}
+                aria-label="할 일 편집"
+              >
                 <Icon Svg={Edit} size={24} className="text-gray-600" />
               </button>
             </div>
@@ -359,7 +371,16 @@ export default function GroupMySidebar({
                     할 일을 설정해 주세요!
                   </p>
                 </div>
-                <button onClick={() => setModalOpen(true)} aria-label="할 일 설정">
+                <button
+                  onClick={() => {
+                    if (isRunning && currentSessionId) {
+                      setTimerEndModalOpen(true);
+                    } else {
+                      setModalOpen(true);
+                    }
+                  }}
+                  aria-label="할 일 설정"
+                >
                   <Icon Svg={Edit} size={24} className="text-gray-600" />
                 </button>
               </div>
@@ -433,6 +454,18 @@ export default function GroupMySidebar({
             onClose={() => {
               setModalOpen(false);
               setSelectedCategoryId(null);
+            }}
+          />
+        </div>
+      )}
+      {timerEndModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+          <TimerEndModal
+            onClose={() => setTimerEndModalOpen(false)}
+            onConfirm={async () => {
+              await forceStopTimer();
+              setTimerEndModalOpen(false);
+              setModalOpen(true);
             }}
           />
         </div>
