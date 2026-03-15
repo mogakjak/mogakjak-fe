@@ -25,6 +25,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
 
   const profiles = useMemo(() => matesData?.content ?? [], [matesData?.content]);
 
+
   const { mutate: inviteMate } = useInviteMate(groupId);
 
   const [activeStatusMap, setActiveStatusMap] = useState<
@@ -32,7 +33,6 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   >({});
   const [invitingUserId, setInvitingUserId] = useState<string | null>(null);
 
-  // 1) 초기 isActive 값 세팅 (profiles가 바뀔 때)
   useEffect(() => {
     setActiveStatusMap((prev) => {
       const updated = { ...prev };
@@ -47,7 +47,6 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
     });
   }, [profiles]);
 
-  // 2) 웹소켓에서 온 활성화 이벤트 반영
   const handleStatusChange = useCallback(
     (event: { userId: string; isActive: boolean }) => {
       setActiveStatusMap((prev) => ({
@@ -198,7 +197,7 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                         >
                           <div className="flex justify-start items-center gap-2">
                             <ProfileActive
-                              src={profile.profileUrl}
+                              src={profile.profileUrl || `/character/level${profile.level}.svg`}
                               name={profile.nickname}
                               active={isActive}
                               size="sm"
