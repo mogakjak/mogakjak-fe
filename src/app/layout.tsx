@@ -46,7 +46,10 @@ export const metadata: Metadata = {
   publisher: "모각작",
   metadataBase: new URL("https://www.mogakjak.com"),
   verification: {
-    google: "hZ8V-qZoPvHPnWwi2iSRcgCfgzKoTgtFg_g7gqwuWXU",
+    google: "HcchSp7oqASzvGJdyvhVPo60xs0g95hTv2Ob12g15Qw",
+    other: {
+      "naver-site-verification": "e5f81c04ab949dc20b705c1376f2391fd4970c67",
+    },
   },
   openGraph: {
     title: "모각작",
