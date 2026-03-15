@@ -39,12 +39,10 @@ export default function ProfileList({
     useCommonGroups(selectedUserId || "");
   const pokeMutation = usePoke();
 
-  // 초기 isActive 상태와 lastActivityAt을 맵에 저장 (기존 값은 유지)
   useEffect(() => {
     setActiveStatusMap((prev) => {
       const updated = { ...prev };
       profiles.forEach((profile) => {
-        // WebSocket으로 업데이트된 값이 없을 때만 초기값 사용
         if (updated[profile.userId] === undefined) {
           updated[profile.userId] = profile.isActive ?? false;
         }
@@ -56,7 +54,6 @@ export default function ProfileList({
     setLastActivityAtMap((prev) => {
       const updated = { ...prev };
       profiles.forEach((profile) => {
-        // WebSocket으로 업데이트된 값이 없을 때만 초기값 사용
         if (
           updated[profile.userId] === undefined &&
           profile.lastActivityAt !== undefined
@@ -69,7 +66,6 @@ export default function ProfileList({
     });
   }, [profiles]);
 
-  // WebSocket으로 실시간 isActive 상태와 lastActivityAt 업데이트
   const handleStatusChange = useCallback(
     (event: {
       userId: string;
@@ -85,7 +81,6 @@ export default function ProfileList({
         return updated;
       });
 
-      // lastActivityAt도 함께 업데이트
       if (event.lastActivityAt !== undefined) {
         setLastActivityAtMap((prev) => {
           const updated = {
@@ -127,7 +122,7 @@ export default function ProfileList({
           setShowModal(false);
           setSelectedUserId(null);
         },
-        onError: () => {},
+        onError: () => { },
       }
     );
   };
@@ -169,15 +164,12 @@ export default function ProfileList({
   return (
     <div className="flex flex-col h-[552px] mb-1 ">
       {profiles.map((profile) => {
-        // 실시간 업데이트된 isActive 상태 사용 (없으면 초기값 사용)
         const isActive =
           activeStatusMap[profile.userId] ?? profile.isActive ?? false;
-        // 실시간 업데이트된 lastActivityAt 사용 (없으면 초기값 사용)
         const lastActivityAt =
           lastActivityAtMap[profile.userId] ??
           profile.lastActivityAt ??
           null;
-        // 포맷팅된 활동 시간 문자열 생성
         const lastActivityFormatted = formatLastActivity(
           lastActivityAt,
           isActive
@@ -189,7 +181,7 @@ export default function ProfileList({
             className="flex items-center border-b border-gray-200 px-5 py-3"
           >
             <ProfileActive
-              src={profile.profileUrl}
+              src={profile.profileUrl || `/character/level${profile.level}.svg`}
               name={profile.nickname}
               active={isActive}
             />
