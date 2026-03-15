@@ -256,7 +256,7 @@ export default function AddWorkForm({
                     setSelectedTodoId(undefined); // 새 작업 입력 시 ID 초기화
                   }
                 }}
-                todayTodos={allTodosByDate}
+                todayTodos={filteredTodayTodos}
               />
             ) : (
               <WorkTitleField value={title} onChange={setTitle} />
