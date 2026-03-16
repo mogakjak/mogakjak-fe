@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useState,
+  useRef,
   ReactNode,
   useCallback,
 } from "react";
@@ -26,6 +27,8 @@ interface TimerContextType {
   setNavigationInterceptor: (
     interceptor: ((onConfirm: () => void | Promise<void>) => void) | null
   ) => void;
+  registerForceStop: (callback: () => Promise<void> | void) => void;
+  forceStopTimer: () => Promise<void>;
 }
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
@@ -39,6 +42,21 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [navigationInterceptor, setNavigationInterceptor] = useState<
     ((onConfirm: () => void | Promise<void>) => void) | null
   >(null);
+
+  const forceStopRef = useRef<(() => Promise<void> | void) | null>(null);
+
+  const registerForceStop = useCallback(
+    (callback: () => Promise<void> | void) => {
+      forceStopRef.current = callback;
+    },
+    []
+  );
+
+  const forceStopTimer = useCallback(async () => {
+    if (forceStopRef.current) {
+      await forceStopRef.current();
+    }
+  }, []);
 
   const showNavigationModal = useCallback(
     (onConfirm: () => void | Promise<void>) => {
@@ -65,6 +83,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         setCurrentGroupId,
         navigationInterceptor,
         setNavigationInterceptor,
+        registerForceStop,
+        forceStopTimer,
       }}
     >
       {children}

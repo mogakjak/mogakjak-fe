@@ -6,7 +6,7 @@ import type { Todo } from "@/app/_types/todo";
 
 interface WorkSelectFieldProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, isNew?: boolean) => void;
   todayTodos?: Todo[];
   showAddOption?: boolean;
 }
@@ -38,8 +38,8 @@ export default function WorkSelectField({
 
   const handleToggle = () => setIsOpen(!isOpen);
 
-  const handleSelect = (category: string) => {
-    onChange(category);
+  const handleSelect = (category: string, isNew: boolean = false) => {
+    onChange(category, isNew);
     setIsOpen(false);
   };
 
@@ -53,6 +53,7 @@ export default function WorkSelectField({
 
       setNewCategory("");
       e.preventDefault();
+      handleSelect(newItem, true);
     }
   };
 
@@ -119,7 +120,10 @@ export default function WorkSelectField({
                 <input
                   type="text"
                   value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
+                  onChange={(e) => {
+                    setNewCategory(e.target.value);
+                    onChange(e.target.value, true);
+                  }}
                   onKeyDown={handleAddNew}
                   placeholder="새 작업 추가"
                   className="w-full outline-none text-body2-14R"
