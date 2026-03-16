@@ -290,7 +290,7 @@ export default function GroupMySidebar({
               <button
                 className="ml-auto"
                 onClick={() => {
-                  if (isRunning && currentSessionId) {
+                  if (isRunning) {
                     setTimerEndModalOpen(true);
                   } else {
                     setModalOpen(true);
@@ -373,7 +373,7 @@ export default function GroupMySidebar({
                 </div>
                 <button
                   onClick={() => {
-                    if (isRunning && currentSessionId) {
+                    if (isRunning) {
                       setTimerEndModalOpen(true);
                     } else {
                       setModalOpen(true);
