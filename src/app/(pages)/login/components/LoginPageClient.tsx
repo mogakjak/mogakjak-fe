@@ -5,7 +5,7 @@ import Image from "next/image";
 import LoginButton from "./loginButton";
 import { invalidateTokenCache } from "@/app/api/auth/api";
 import { sendGAEvent } from "@next/third-parties/google";
-import { setPendingInviteGroupId } from "@/app/_lib/pendingInvite";
+import { processInviteParam } from "@/app/_lib/invite/inviteRedirectLogic";
 
 export default function LoginPageClient() {
   const focusSectionRef = useRef<HTMLDivElement | null>(null);
@@ -41,9 +41,8 @@ export default function LoginPageClient() {
     }
 
     const searchParams = new URLSearchParams(window.location.search);
-    const inviteGroupId = searchParams.get("invite");
+    const inviteGroupId = processInviteParam(searchParams);
     if (inviteGroupId) {
-      setPendingInviteGroupId(inviteGroupId);
       window.history.replaceState(null, "", "/login");
     }
 

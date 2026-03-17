@@ -14,46 +14,7 @@
  *   }
  */
 
-// ─── 실제 middleware.ts의 분기 로직을 그대로 추출한 순수 함수 ───
-
-const BOT_UA_PATTERN =
-  /bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|kakaotalk-scrap|slackbot|twitterbot|discordbot|yeti|daum|kakaostory/i;
-
-type RedirectDecision =
-  | { action: "redirect"; pathname: string; inviteParam: string }
-  | { action: "next" };
-
-/**
- * middleware.ts의 /invite 처리 블록을 순수 함수로 추출
- */
-function decideInviteAccess(
-  pathname: string,
-  accessValid: boolean,
-  refreshValid: boolean,
-  userAgent: string
-): RedirectDecision {
-  if (!pathname.startsWith("/invite")) {
-    return { action: "next" };
-  }
-
-  const isBot = BOT_UA_PATTERN.test(userAgent);
-
-  if (!accessValid && !refreshValid && !isBot) {
-    const cleanPathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
-    const groupId = cleanPathname.substring(cleanPathname.lastIndexOf("/") + 1);
-
-    if (groupId && groupId !== "invite") {
-      return { action: "redirect", pathname: "/login", inviteParam: groupId };
-    }
-  }
-
-  return { action: "next" };
-}
-
-/** getJwtExp 결과로 토큰 유효성 판단 (middleware.ts 21~22줄 로직) */
-function isTokenValid(token: string | null, expSeconds: number | null, nowSec: number): boolean {
-  return !!token && expSeconds !== null && expSeconds > nowSec;
-}
+import { decideInviteAccess, isTokenValid } from "../app/_lib/invite/middlewareInviteLogic";
 
 // ─── 테스트 ───
 

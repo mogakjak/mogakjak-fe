@@ -18,12 +18,8 @@ import GroupPage from "@/app/(pages)/group/_components/groupPage";
 import RoomModal from "@/app/_components/home/room/roomModal";
 import InviteModal from "@/app/_components/home/room/inviteModal";
 import { GroupDetail } from "@/app/_types/groups";
-import {
-    getPendingInviteGroupId,
-    removePendingInviteGroupId,
-} from "@/app/_lib/pendingInvite";
+import { getOnboardingRedirectPath } from "@/app/_lib/invite/inviteRedirectLogic";
 
-const ONBOARDING_KEY = "mg_onboarded_v1";
 
 // Convert TodoCategoryColor to CategoryColorToken
 const colorToToken = (color: TodoCategoryColor): CategoryColorToken => {
@@ -82,18 +78,10 @@ export default function OnboardingPage() {
     const goToStep = (step: number) => setCurrentStep(step);
 
     const handleFinalModalClose = () => {
-        if (typeof window !== "undefined") {
-            window.localStorage.setItem(ONBOARDING_KEY, "true");
-            const inviteGroupId = getPendingInviteGroupId();
-            if (inviteGroupId) {
-                removePendingInviteGroupId();
-                queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
-                router.replace(`/invite/${inviteGroupId}`);
-                return;
-            }
-        }
+        const nextPath = getOnboardingRedirectPath();
+        
         queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
-        router.replace("/");
+        router.replace(nextPath);
     };
 
     const categoryOptions = categories.map((cat) => ({

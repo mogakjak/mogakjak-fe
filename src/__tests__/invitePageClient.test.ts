@@ -1,159 +1,69 @@
 /**
- * InvitePageClient 핵심 로직 테스트
- * - /invite/[groupId] 접근 시 비로그인 사용자 처리 로직 검증
- *
- * 검증 시나리오:
- * 1. 비로그인 → setPendingInviteGroupId 호출 + /login으로 리다이렉트
- * 2. 로그인 상태 → joinGroup 호출 + /group/[id]로 이동
- * 3. 이미 멤버(409) → /group/[id]로 바로 이동
+ * InvitePageClient 핵심 로직 테스트 (extracted pure logic)
  */
 
-import {
-  removePendingInviteGroupId,
-  setPendingInviteGroupId,
-} from "../app/_lib/pendingInvite";
+import { decideInviteJoinAction } from "../app/_lib/invite/inviteRedirectLogic";
 
-// pendingInvite 모듈 모킹
-jest.mock("../app/_lib/pendingInvite", () => ({
-  setPendingInviteGroupId: jest.fn(),
-  getPendingInviteGroupId: jest.fn(),
-  removePendingInviteGroupId: jest.fn(),
-}));
+describe("InvitePageClient 핵심 로직 - decideInviteJoinAction", () => {
+  const groupId = "group-123";
 
-
-
-/**
- * InvitePageClient의 핵심 useEffect 로직을 함수로 추출
- * (컴포넌트 전체를 렌더링하지 않고 순수 로직만 검증)
- */
-async function runInvitePageLogic({
-  groupId,
-  isLoggedIn,
-  joinGroupFn,
-  router,
-}: {
-  groupId: string;
-  isLoggedIn: boolean;
-  joinGroupFn: (id: string) => Promise<void>;
-  router: { replace: jest.Mock };
-}) {
-  if (!groupId) return;
-
-  if (!isLoggedIn) {
-    (setPendingInviteGroupId as jest.Mock)(groupId);
-    router.replace("/login");
-    return;
-  }
-
-  try {
-    await joinGroupFn(groupId);
-    (removePendingInviteGroupId as jest.Mock)();
-    // window.location.replace 대신 router.replace 사용 (테스트 환경)
-    router.replace(`/group/${groupId}`);
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    const lowerMessage = errorMessage.toLowerCase();
-    const errWithStatus = err as { status?: number } | null;
-
-    const isUnauthorized =
-      lowerMessage.includes("unauthorized") ||
-      lowerMessage.includes("401") ||
-      errorMessage.includes("인증") ||
-      errorMessage.includes("로그인");
-
-    if (isUnauthorized) {
-      (setPendingInviteGroupId as jest.Mock)(groupId);
-      router.replace("/login");
-      return;
-    }
-
-    const isAlreadyMember =
-      errWithStatus?.status === 409 ||
-      errorMessage.includes("이미 참여") ||
-      lowerMessage.includes("conflict") ||
-      lowerMessage.includes("already member");
-
-    if (isAlreadyMember) {
-      router.replace(`/group/${groupId}`);
-      return;
-    }
-  }
-}
-
-describe("InvitePageClient 핵심 로직 - 비회원 초대링크 플로우", () => {
-  let mockRouter: { replace: jest.Mock };
-
-  beforeEach(() => {
-    mockRouter = { replace: jest.fn() };
-    jest.clearAllMocks();
-  });
-
-  it("[핵심] 비로그인 상태에서 /invite/[id] 접근 시 setPendingInviteGroupId 호출 후 /login으로 이동", async () => {
-    await runInvitePageLogic({
-      groupId: "group-123",
-      isLoggedIn: false,
-      joinGroupFn: jest.fn(),
-      router: mockRouter,
+  it("비로그인 상태 → /login 리다이렉트와 storage 저장이 필요함으로 결정한다", () => {
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: false });
+    
+    expect(action).toEqual({
+      type: "REDIRECT",
+      path: "/login",
+      savePending: true,
     });
-
-    expect(setPendingInviteGroupId).toHaveBeenCalledWith("group-123");
-    expect(mockRouter.replace).toHaveBeenCalledWith("/login");
-    expect(mockRouter.replace).not.toHaveBeenCalledWith("/group/group-123");
   });
 
-  it("[핵심] 로그인 상태에서 /invite/[id] 접근 시 joinGroup 호출 후 /group/[id]로 이동", async () => {
-    const mockJoinGroup = jest.fn().mockResolvedValue(undefined);
-
-    await runInvitePageLogic({
-      groupId: "group-123",
-      isLoggedIn: true,
-      joinGroupFn: mockJoinGroup,
-      router: mockRouter,
+  it("로그인 상태 + 에러 없음 → 가입 성공으로 결정한다", () => {
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: true });
+    
+    expect(action).toEqual({
+      type: "SUCCESS",
+      path: `/group/${groupId}`,
     });
-
-    expect(mockJoinGroup).toHaveBeenCalledWith("group-123");
-    expect(removePendingInviteGroupId).toHaveBeenCalled();
-    expect(mockRouter.replace).toHaveBeenCalledWith("/group/group-123");
   });
 
-  it("joinGroup 후 401 오류 발생 시 pendingInvite 저장 후 /login으로 이동", async () => {
-    const mockJoinGroup = jest.fn().mockRejectedValue(new Error("401 unauthorized"));
-
-    await runInvitePageLogic({
-      groupId: "group-123",
-      isLoggedIn: true,
-      joinGroupFn: mockJoinGroup,
-      router: mockRouter,
+  it("401 에러(권한 없음) → /login 리다이렉트와 storage 저장이 필요함으로 결정한다", () => {
+    const error = new Error("401 Unauthorized");
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: true, error });
+    
+    expect(action).toEqual({
+      type: "REDIRECT",
+      path: "/login",
+      savePending: true,
     });
-
-    expect(setPendingInviteGroupId).toHaveBeenCalledWith("group-123");
-    expect(mockRouter.replace).toHaveBeenCalledWith("/login");
   });
 
-  it("이미 그룹 멤버(409 Conflict)인 경우 바로 /group/[id]로 이동", async () => {
-    const err = Object.assign(new Error("이미 참여한 그룹입니다"), { status: 409 });
-    const mockJoinGroup = jest.fn().mockRejectedValue(err);
-
-    await runInvitePageLogic({
-      groupId: "group-123",
-      isLoggedIn: true,
-      joinGroupFn: mockJoinGroup,
-      router: mockRouter,
+  it("409 에러(이미 참여) → 성공으로 간주하고 해당 그룹방으로 이동 결정한다", () => {
+    const error = Object.assign(new Error("Conflict"), { status: 409 });
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: true, error });
+    
+    expect(action).toEqual({
+      type: "SUCCESS",
+      path: `/group/${groupId}`,
     });
-
-    expect(mockRouter.replace).toHaveBeenCalledWith("/group/group-123");
-    expect(setPendingInviteGroupId).not.toHaveBeenCalled();
   });
 
-  it("loginPageClient: /login?invite=[id] 접근 시 초대 groupId를 pendingInvite에 저장한다", () => {
-    // LoginPageClient의 useEffect 핵심 로직 검증
-    const searchParams = new URLSearchParams("invite=test-group-999");
-    const inviteGroupId = searchParams.get("invite");
+  it("404 에러(찾을 수 없음) → 만료된 그룹 링크 토스트 메시지를 결정한다", () => {
+    const error = Object.assign(new Error("Not Found"), { status: 404 });
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: true, error });
+    
+    expect(action).toEqual({
+      type: "TOAST",
+      message: "만료된 그룹 링크입니다",
+    });
+  });
 
-    if (inviteGroupId) {
-      (setPendingInviteGroupId as jest.Mock)(inviteGroupId);
-    }
-
-    expect(setPendingInviteGroupId).toHaveBeenCalledWith("test-group-999");
+  it("기타 일반 에러 → 에러 메시지를 포함한 토스트를 결정한다", () => {
+    const error = new Error("Server Error");
+    const action = decideInviteJoinAction({ groupId, isLoggedIn: true, error });
+    
+    expect(action).toEqual({
+      type: "TOAST",
+      message: "Server Error",
+    });
   });
 });
