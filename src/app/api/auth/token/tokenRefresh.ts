@@ -1,6 +1,6 @@
 import { RefreshResponse, RefreshTokenResult } from "../../../_types/refresh";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://lets.mogakjak.site";
 
 export async function refreshAccessToken(
   refreshToken: string,
@@ -33,14 +33,14 @@ export async function refreshAccessToken(
     const result = (await upstream.json()) as
       | RefreshResponse
       | {
-          data?: {
-            accessToken?: string;
-            refreshToken?: string;
-            userInfo?: {
-              expiresIn?: number;
-            };
+        data?: {
+          accessToken?: string;
+          refreshToken?: string;
+          userInfo?: {
+            expiresIn?: number;
           };
         };
+      };
 
     const bodyAccessToken: string | undefined = result?.data?.accessToken;
     const bodyRefreshToken: string | undefined = result?.data?.refreshToken;

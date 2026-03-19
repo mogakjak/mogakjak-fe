@@ -47,8 +47,8 @@
 <br>
 <br>
 
-# 💼 API 명세서
-[![Swagger](https://img.shields.io/badge/Swagger-UI-85EA2D?logo=swagger&logoColor=white)](https://mogakjak.site/swagger-ui/index.html#/)
+# 💼 API 명세서
+[![Swagger](https://img.shields.io/badge/Swagger-UI-85EA2D?logo=swagger&logoColor=white)](https://lets.mogakjak.site/swagger-ui/index.html#/)
 
 <br>
 <br>

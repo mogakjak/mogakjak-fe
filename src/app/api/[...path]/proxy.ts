@@ -3,7 +3,7 @@ import { refreshAccessToken } from "../auth/token/tokenRefresh";
 import { clearAuthCookies, cookieOpts } from "../../_utils/clearCookies";
 import { RefreshTokenResult } from "../../_types/refresh";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.site";
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://lets.mogakjak.site";
 
 function buildTargetUrl(path: string[] | undefined, req: NextRequest) {
   const joined = (path ?? []).join("/");
