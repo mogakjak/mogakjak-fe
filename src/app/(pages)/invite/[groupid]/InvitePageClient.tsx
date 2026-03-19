@@ -10,6 +10,10 @@ import {
   removePendingInviteGroupId,
   setPendingInviteGroupId,
 } from "@/app/_lib/pendingInvite";
+import { 
+  decideInviteJoinAction,
+  isJoinGroupNotFound
+} from "@/app/_lib/invite/inviteRedirectLogic";
 
 export default function InvitePageClient({
   groupid,
@@ -37,20 +41,8 @@ export default function InvitePageClient({
   const isExpired = useMemo(() => {
     if (typeof window === "undefined") return false;
     
-    if (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const lowerMessage = errorMessage.toLowerCase();
-      
-      if (
-        errorMessage.includes("그룹을 찾을 수 없습니다") ||
-        errorMessage.includes("그룹을 찾을 수 없음") ||
-        errorMessage.includes("Group not found") ||
-        errorMessage.includes("group not found") ||
-        lowerMessage.includes("not found") ||
-        lowerMessage.includes("404")
-      ) {
-        return true;
-      }
+    if (error && isJoinGroupNotFound(error)) {
+      return true;
     }
     
     return false;
@@ -70,66 +62,37 @@ export default function InvitePageClient({
     if (!groupid || !ready) return;
     if (hasJoinedRef.current) return;
 
-    if (!isLoggedIn) {
-      setPendingInviteGroupId(groupid);
-      router.replace("/login");
-      return;
-    }
-
-    hasJoinedRef.current = true;
-
     const runJoin = async () => {
+      // 1. 초기 상태에서 가이드 필요 여부 확인 (error 없이 호출)
+      const initialDecision = decideInviteJoinAction({ groupId: groupid, isLoggedIn });
+      if (initialDecision.type === "REDIRECT") {
+        if (initialDecision.savePending) setPendingInviteGroupId(groupid);
+        router.replace(initialDecision.path);
+        return;
+      }
+
+      hasJoinedRef.current = true;
+
       try {
         await joinGroupAsync(groupid);
-        removePendingInviteGroupId();
-        window.location.replace(`/group/${groupid}`);
+        const successDecision = decideInviteJoinAction({ groupId: groupid, isLoggedIn });
+        if (successDecision.type === "SUCCESS") {
+          removePendingInviteGroupId();
+          window.location.replace(successDecision.path);
+        }
       } catch (err) {
         hasJoinedRef.current = false;
         console.error("그룹 가입 실패:", err);
 
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        const lowerMessage = errorMessage.toLowerCase();
-
-        const isUnauthorized =
-          lowerMessage.includes("unauthorized") ||
-          lowerMessage.includes("401") ||
-          errorMessage.includes("인증") ||
-          errorMessage.includes("로그인");
-        if (isUnauthorized) {
-          setPendingInviteGroupId(groupid);
-          router.replace("/login");
-          return;
-        }
-
-        const errWithStatus = err as { status?: number } | null;
-        const errStatus = errWithStatus?.status;
-        const isAlreadyMember =
-          errStatus === 409 ||
-          errorMessage.includes("이미 참여") ||
-          errorMessage.includes("409") ||
-          lowerMessage.includes("conflict") ||
-          lowerMessage.includes("already member") ||
-          lowerMessage.includes("already participating") ||
-          lowerMessage.includes("already in");
-        if (isAlreadyMember) {
-          window.location.replace(`/group/${groupid}`);
-          return;
-        }
-
-        if (
-          errorMessage.includes("그룹을 찾을 수 없습니다") ||
-          errorMessage.includes("그룹을 찾을 수 없음") ||
-          errorMessage.includes("Group not found") ||
-          errorMessage.includes("group not found") ||
-          lowerMessage.includes("not found") ||
-          lowerMessage.includes("404")
-        ) {
-          setToast({ isVisible: true, message: "만료된 그룹 링크입니다" });
-          setTimeout(() => {
-            setToast((prev) => ({ ...prev, isVisible: false }));
-          }, 2000);
-        } else {
-          setToast({ isVisible: true, message: errorMessage });
+        const decision = decideInviteJoinAction({ groupId: groupid, isLoggedIn, error: err });
+        
+        if (decision.type === "REDIRECT") {
+          if (decision.savePending) setPendingInviteGroupId(groupid);
+          router.replace(decision.path);
+        } else if (decision.type === "SUCCESS") {
+          window.location.replace(decision.path);
+        } else if (decision.type === "TOAST") {
+          setToast({ isVisible: true, message: decision.message });
           setTimeout(() => setToast((p) => ({ ...p, isVisible: false })), 2000);
         }
       }

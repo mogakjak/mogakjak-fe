@@ -13,7 +13,7 @@ export function getWebSocketUrl(): string {
 
   // 환경 변수가 없으면 프로덕션 URL 사용
   if (!apiBase) {
-    return "https://mogakjak.site/connect";
+    return "https://lets.mogakjak.site/connect";
   }
 
   // SockJS는 http/https를 사용하므로 변환하지 않음
@@ -67,7 +67,7 @@ export async function createWebSocketClient(
       return sock;
     },
     connectHeaders,
-    debug: config.debug || (() => {}),
+    debug: config.debug || (() => { }),
     // 자동 재연결 비활성화 - 수동으로 재연결 관리
     reconnectDelay: 0, // 0으로 설정하면 자동 재연결 비활성화
     heartbeatIncoming: config.heartbeatIncoming ?? 4000,

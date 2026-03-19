@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import LoginButton from "./loginButton";
 import { invalidateTokenCache } from "@/app/api/auth/api";
-import { sendGAEvent } from "@next/third-parties/google"; // [추가]
+import { sendGAEvent } from "@next/third-parties/google";
+import { processInviteParam } from "@/app/_lib/invite/inviteRedirectLogic";
 
 export default function LoginPageClient() {
   const focusSectionRef = useRef<HTMLDivElement | null>(null);
@@ -40,12 +41,9 @@ export default function LoginPageClient() {
     }
 
     const searchParams = new URLSearchParams(window.location.search);
-    const inviteGroupId = searchParams.get("invite");
+    const inviteGroupId = processInviteParam(searchParams);
     if (inviteGroupId) {
-      import("@/app/_lib/pendingInvite").then((mod) => {
-        mod.setPendingInviteGroupId(inviteGroupId);
-        window.history.replaceState(null, "", "/login");
-      });
+      window.history.replaceState(null, "", "/login");
     }
 
     return () => {

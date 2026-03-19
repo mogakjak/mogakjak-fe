@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getJwtExp } from "./app/_lib/getJwtExp";
+import { decideInviteAccess, isTokenValid } from "./app/_lib/invite/middlewareInviteLogic";
 
 function clearAuthCookies(res: NextResponse) {
   res.cookies.set("mg_access_token", "", { path: "/", maxAge: 0 });
@@ -18,8 +19,8 @@ export function middleware(req: NextRequest) {
   const accessExp = getJwtExp(access);
   const refreshExp = getJwtExp(refresh);
 
-  const accessValid = !!access && accessExp !== null && accessExp > nowSec;
-  const refreshValid = !!refresh && refreshExp !== null && refreshExp > nowSec;
+  const accessValid = isTokenValid(access, accessExp, nowSec);
+  const refreshValid = isTokenValid(refresh, refreshExp, nowSec);
 
   if (
     pathname.startsWith("/api") ||
@@ -42,24 +43,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  const userAgent = req.headers.get("user-agent") || "";
+  const decision = decideInviteAccess(pathname, accessValid, refreshValid, userAgent);
+
+  if (decision.action === "redirect") {
+    const loginUrl = nextUrl.clone();
+    loginUrl.pathname = decision.pathname;
+    loginUrl.searchParams.set("invite", decision.inviteParam);
+
+    const res = NextResponse.redirect(loginUrl);
+    clearAuthCookies(res);
+    return res;
+  }
+
   if (pathname.startsWith("/invite")) {
-    const userAgent = req.headers.get("user-agent") || "";
-    const isBot = /bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|kakaotalk-scrap|slackbot|twitterbot|discordbot|yeti|daum|kakaostory/i.test(userAgent);
-
-    if (!accessValid && !refreshValid && !isBot) {
-      const cleanPathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
-      const groupId = cleanPathname.substring(cleanPathname.lastIndexOf("/") + 1);
-
-      if (groupId && groupId !== "invite") {
-        const loginUrl = nextUrl.clone();
-        loginUrl.pathname = "/login";
-        loginUrl.searchParams.set("invite", groupId);
-
-        const res = NextResponse.redirect(loginUrl);
-        clearAuthCookies(res);
-        return res;
-      }
-    }
     return NextResponse.next();
   }
 
