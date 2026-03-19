@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
     };
   },
   images: {
-    domains: ["kr.object.ncloudstorage.com"],
+    domains: ["kr.object.ncloudstorage.com", "objectstorage.ap-seoul-1.oraclecloud.com"],
   },
   webpack(config, { dev, isServer }) {
     const assetRule = (config.module.rules as RuleSetRule[]).find(
