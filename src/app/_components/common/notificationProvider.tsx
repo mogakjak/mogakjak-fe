@@ -146,13 +146,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
       const title = `${notification.fromUserNickname}님이 콕 찔렀어요!`;
       const body = notification.message;
+      const uniquePokeTag = `poke-notification-${notification.groupId}-${Date.now()}`;
 
       if (permission === "granted") {
         showBrowserNotification(title, {
           body: body,
           icon: "/chorme/notificationIcon.png",
           badge: "/chorme/notificationIcon.png",
-          tag: `poke-notification-${notification.groupId}`,
+          tag: uniquePokeTag,
         });
       } else if (permission === "default") {
         requestPermission().then((granted) => {
@@ -161,7 +162,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               body: body,
               icon: "/chorme/notificationIcon.png",
               badge: "/chorme/notificationIcon.png",
-              tag: `poke-notification-${notification.groupId}`,
+              tag: uniquePokeTag,
             });
           }
         });
