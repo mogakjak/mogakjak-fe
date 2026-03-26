@@ -119,33 +119,15 @@ export default function PomodoroModal({
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={String(focusTime.hours).padStart(2, "0")}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setFocusTime, num, focusTime.minutes, focusTime.seconds);
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value === '') {
-                        updateTime(setFocusTime, 0, focusTime.minutes, focusTime.seconds);
-                      }
-                    }}
-                    className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
-                  />
-                  <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
                     value={String(focusTime.minutes).padStart(2, "0")}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setFocusTime, focusTime.hours, num, focusTime.seconds);
+                      updateTime(setFocusTime, 0, num, focusTime.seconds);
                     }}
                     onBlur={(e) => {
                       if (e.target.value === '') {
-                        updateTime(setFocusTime, focusTime.hours, 0, focusTime.seconds);
+                        updateTime(setFocusTime, 0, 0, focusTime.seconds);
                       }
                     }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
@@ -159,11 +141,11 @@ export default function PomodoroModal({
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setFocusTime, focusTime.hours, focusTime.minutes, num);
+                      updateTime(setFocusTime, 0, focusTime.minutes, num);
                     }}
                     onBlur={(e) => {
                       if (e.target.value === '') {
-                        updateTime(setFocusTime, focusTime.hours, focusTime.minutes, 0);
+                        updateTime(setFocusTime, 0, focusTime.minutes, 0);
                       }
                     }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
@@ -182,33 +164,15 @@ export default function PomodoroModal({
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={String(breakTime.hours).padStart(2, "0")}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setBreakTime, num, breakTime.minutes, breakTime.seconds);
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value === '') {
-                        updateTime(setBreakTime, 0, breakTime.minutes, breakTime.seconds);
-                      }
-                    }}
-                    className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
-                  />
-                  <span className="text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500">:</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
                     value={String(breakTime.minutes).padStart(2, "0")}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setBreakTime, breakTime.hours, num, breakTime.seconds);
+                      updateTime(setBreakTime, 0, num, breakTime.seconds);
                     }}
                     onBlur={(e) => {
                       if (e.target.value === '') {
-                        updateTime(setBreakTime, breakTime.hours, 0, breakTime.seconds);
+                        updateTime(setBreakTime, 0, 0, breakTime.seconds);
                       }
                     }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
@@ -222,11 +186,11 @@ export default function PomodoroModal({
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       const num = val === '' ? 0 : Math.min(59, parseInt(val, 10));
-                      updateTime(setBreakTime, breakTime.hours, breakTime.minutes, num);
+                      updateTime(setBreakTime, 0, breakTime.minutes, num);
                     }}
                     onBlur={(e) => {
                       if (e.target.value === '') {
-                        updateTime(setBreakTime, breakTime.hours, breakTime.minutes, 0);
+                        updateTime(setBreakTime, 0, breakTime.minutes, 0);
                       }
                     }}
                     className="w-12 bg-transparent text-center text-xl font-semibold font-['Pretendard'] leading-7 text-zinc-500 outline-none"
