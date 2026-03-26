@@ -74,7 +74,7 @@ export function useBrowserNotification() {
             icon: iconUrl,
             badge: badgeUrl,
             tag: options?.tag || "focus-notification", 
-            requireInteraction: false,
+            requireInteraction: true,
             silent: false, 
             body: options?.body,
             data: options?.data,
@@ -90,12 +90,6 @@ export function useBrowserNotification() {
           notification.onerror = (error) => {
             console.error("[Notification] 알림 에러 발생:", error);
           };
-
-          setTimeout(() => {
-            if (notification) {
-              notification.close();
-            }
-          }, 5000);
         } catch (error) {
           console.error("[Notification] 알림 생성 중 에러 발생:", error);
           return null;
