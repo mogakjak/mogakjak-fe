@@ -73,7 +73,7 @@ export function useBrowserNotification() {
           notification = new Notification(title, {
             icon: iconUrl,
             badge: badgeUrl,
-            tag: options?.tag || "focus-notification", 
+            tag: options?.tag || `focus-notification-${Date.now()}`,
             requireInteraction: true,
             silent: false, 
             body: options?.body,
