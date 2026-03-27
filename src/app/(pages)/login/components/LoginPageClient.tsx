@@ -85,12 +85,12 @@ export default function LoginPageClient() {
         <div className="w-[906px] max-w-full px-4 inline-flex flex-col justify-start items-center gap-24">
           <div className="flex flex-col justify-start items-center gap-11">
             <div className="flex flex-col justify-start items-center gap-6">
-              <div className="text-center justify-start text-neutral-900 text-6xl font-semibold font-['Pretendard'] leading-[76.80px]">
+              <div className="text-center justify-start text-neutral-900 text-4xl md:text-6xl font-semibold font-['Pretendard'] leading-[48px] md:leading-[76.80px]">
                 몰입이 즐거워지는
                 <br />
                 가장 쉬운 방법
               </div>
-              <div className="text-center justify-center text-zinc-600 text-xl font-normal font-['Pretendard'] leading-7">
+              <div className="text-center justify-center text-zinc-600 text-base md:text-xl font-normal font-['Pretendard'] leading-6 md:leading-7">
                 혼자는 아니지만, 같이라는 부담은 덜어냈어요.
                 <br />
                 친구들과 함께하는 것이 당신의 성실함을 자연스럽게 이끌어줄
@@ -145,7 +145,7 @@ export default function LoginPageClient() {
           height={224}
           priority
         />
-        <div className="mt-10 text-center justify-start text-neutral-900 text-4xl font-semibold font-['Pretendard'] leading-[48px]">
+        <div className="mt-10 text-center justify-start text-neutral-900 text-2xl md:text-4xl font-semibold font-['Pretendard'] leading-8 md:leading-[48px]">
           혼자서는 어려웠던 몰입,
           <br />
           이제 모각작에서 함께해요!
