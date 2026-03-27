@@ -252,9 +252,9 @@ export default function GroupPage({
             그룹원 추가하기
           </SidebarButton>
         </div>
-        <div className="flex flex-col items-center justify-center w-full">
+        <div className="flex flex-col items-center justify-center w-full flex-1 min-h-0">
           {isLoading || !isMemberStatusLoaded ? (
-            <div className="w-full h-[436px] overflow-y-auto">
+            <div className="w-full flex-1 overflow-y-auto">
               <div className="grid grid-cols-4 gap-x-5 gap-y-3">
                 {Array.from({ length: 8 }).map((_, index) => (
                   <GroupFriendField
@@ -267,7 +267,7 @@ export default function GroupPage({
               </div>
             </div>
           ) : (
-            <div className="w-full h-[436px] overflow-y-auto">
+            <div className="w-full flex-1 overflow-y-auto">
               <div className="grid grid-cols-4 gap-x-5 gap-y-3">
                 {displayMembers.map((member) => {
                   const status = member.status;
