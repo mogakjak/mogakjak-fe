@@ -60,33 +60,6 @@ export default function Landing() {
 
             <div className="self-stretch flex flex-col justify-start items-start gap-4">
               <KakaoShareButton />
-
-              <div className="self-stretch inline-flex justify-center items-center gap-2">
-                <div className="flex-1 h-0 border-t border-neutral-300"></div>
-                <div className="text-gray-400 text-xs font-normal font-['Pretendard'] leading-4">
-                  또는
-                </div>
-                <div className="flex-1 h-0 border-t border-neutral-300"></div>
-              </div>
-
-              <button
-                onClick={handleInstagramClick}
-                aria-label="인스타그램 구경하기"
-                className="self-stretch h-12 px-10 py-4 bg-white rounded-2xl border border-gray-200 inline-flex justify-center items-center gap-2 transition active:scale-[0.99]"
-              >
-                <div className="w-6 h-6 relative">
-                  <Image
-                    src="/Icons/Instagram.svg"
-                    alt="인스타그램"
-                    width={24}
-                    height={24}
-                    className="w-6 h-6"
-                  />
-                </div>
-                <div className="text-neutral-900 text-base font-medium font-['Pretendard'] leading-6">
-                  인스타그램 구경하기
-                </div>
-              </button>
             </div>
           </div>
         </main>

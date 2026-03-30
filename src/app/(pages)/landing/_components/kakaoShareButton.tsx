@@ -150,7 +150,7 @@ export default function KakaoShareButton({
       onClick={handleKakaoShare}
       disabled={isLoading}
       aria-label="카카오톡 나에게 보내기"
-      className="self-stretch h-12 px-10 py-4 bg-yellow-400 rounded-2xl inline-flex justify-center items-center gap-2 transition active:scale-[0.99] disabled:opacity-70"
+      className="self-stretch h-12  py-4 bg-yellow-400 rounded-2xl inline-flex justify-center items-center gap-2 transition active:scale-[0.99] disabled:opacity-70"
     >
       <div className="w-6 h-6 relative overflow-hidden">
         <Image

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getJwtExp } from "./app/_lib/getJwtExp";
-import { decideInviteAccess, isTokenValid } from "./app/_lib/invite/middlewareInviteLogic";
+import { BOT_UA_PATTERN, decideInviteAccess, isTokenValid } from "./app/_lib/invite/middlewareInviteLogic";
 
 function clearAuthCookies(res: NextResponse) {
   res.cookies.set("mg_access_token", "", { path: "/", maxAge: 0 });
@@ -44,6 +44,9 @@ export function middleware(req: NextRequest) {
   }
 
   const userAgent = req.headers.get("user-agent") || "";
+  const isBot = BOT_UA_PATTERN.test(userAgent);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+
   const decision = decideInviteAccess(pathname, accessValid, refreshValid, userAgent);
 
   if (decision.action === "redirect") {
@@ -71,7 +74,7 @@ export function middleware(req: NextRequest) {
 
     if (accessValid || refreshValid) {
       const url = nextUrl.clone();
-      url.pathname = "/";
+      url.pathname = isMobile ? "/landing" : "/";
       url.search = "";
       return NextResponse.redirect(url);
     }
@@ -88,6 +91,12 @@ export function middleware(req: NextRequest) {
     const res = NextResponse.redirect(loginUrl);
     clearAuthCookies(res);
     return res;
+  }
+
+  if (pathname === "/" && isMobile && !isBot) {
+    const url = nextUrl.clone();
+    url.pathname = "/landing";
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
