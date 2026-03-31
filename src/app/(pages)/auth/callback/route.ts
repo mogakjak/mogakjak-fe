@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { cookieOpts } from "@/app/_utils/clearCookies";
+import { isMobileDevice } from "@/app/_lib/userAgent";
+
 
 function getJwtExp(token?: string): number | undefined {
   try {
@@ -28,6 +30,8 @@ function getJwtPayload(token?: string): JwtPayload | null {
     return null;
   }
 }
+
+
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -72,7 +76,8 @@ export async function GET(req: Request) {
   const isFirstVisit = payload?.isFirstVisit === true;
 
   const userAgent = req.headers.get("user-agent") || "";
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(userAgent);
+  const isMobile = isMobileDevice(userAgent);
+
   const destination = isMobile ? "/landing" : isFirstVisit ? "/agreements" : "/";
 
   const redirectUrl = new URL(destination, req.url);
