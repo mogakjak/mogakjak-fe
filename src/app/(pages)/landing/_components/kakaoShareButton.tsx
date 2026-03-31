@@ -69,9 +69,8 @@ export default function KakaoShareButton({
 
       // SDK 스크립트 동적 로드
       const script = document.createElement("script");
-      script.src = "https://developers.kakao.com/sdk/js/kakao.js";
+      script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js";
       script.async = true;
-      script.crossOrigin = "anonymous";
 
       script.onload = () => {
         const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY;
