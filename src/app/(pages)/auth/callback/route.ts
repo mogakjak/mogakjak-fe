@@ -1,5 +1,8 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { cookieOpts } from "@/app/_utils/clearCookies";
+import { isMobileDevice } from "@/app/_lib/userAgent";
+
 
 function getJwtExp(token?: string): number | undefined {
   try {
@@ -27,6 +30,8 @@ function getJwtPayload(token?: string): JwtPayload | null {
     return null;
   }
 }
+
+
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -57,29 +62,23 @@ export async function GET(req: Request) {
   const cookieStore = await cookies();
 
   cookieStore.set("mg_access_token", accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
+    ...cookieOpts,
     maxAge: accessMaxAge,
   });
 
   cookieStore.set("mg_refresh_token", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
+    ...cookieOpts,
     maxAge: refreshMaxAge,
   });
 
   const payload = getJwtPayload(accessToken);
 
-  // Use isFirstVisit check. Default to false if missing to be safe
   const isFirstVisit = payload?.isFirstVisit === true;
 
-  // If First Visit -> Agreements
-  // Else -> Home
-  const destination = isFirstVisit ? "/agreements" : "/";
+  const userAgent = req.headers.get("user-agent") || "";
+  const isMobile = isMobileDevice(userAgent);
+
+  const destination = isMobile ? "/landing" : isFirstVisit ? "/agreements" : "/";
 
   const redirectUrl = new URL(destination, req.url);
   return NextResponse.redirect(redirectUrl);

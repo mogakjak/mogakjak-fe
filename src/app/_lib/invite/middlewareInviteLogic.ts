@@ -1,5 +1,6 @@
-export const BOT_UA_PATTERN =
-  /bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|kakaotalk-scrap|slackbot|twitterbot|discordbot|yeti|daum|kakaostory/i;
+import { isBot } from "@/app/_lib/userAgent";
+
+
 
 export type InviteRedirectDecision =
   | { action: "redirect"; pathname: string; inviteParam: string }
@@ -18,9 +19,9 @@ export function decideInviteAccess(
     return { action: "next" };
   }
 
-  const isBot = BOT_UA_PATTERN.test(userAgent);
+  const isBotUser = isBot(userAgent);
 
-  if (!accessValid && !refreshValid && !isBot) {
+  if (!accessValid && !refreshValid && !isBotUser) {
     const cleanPathname = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
     const groupId = cleanPathname.substring(cleanPathname.lastIndexOf("/") + 1);
 
