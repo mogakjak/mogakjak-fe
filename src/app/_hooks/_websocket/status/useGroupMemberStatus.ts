@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   GroupDetail,
   GroupMemberStatus as GroupsGroupMemberStatus,
-  Mate,
+  HomeGroupMember,
 } from "@/app/_types/groups";
 import { useWebSocket } from "../useWebSocket";
 
@@ -50,7 +50,7 @@ type UseGroupMemberStatusOptionsWithGroupData =
 
 type UseGroupMemberStatusOptionsWithMembers =
   UseGroupMemberStatusOptionsBase & {
-    members: Mate[];
+    members: HomeGroupMember[];
     onUpdate?: never;
     groupData?: never;
   };
@@ -76,7 +76,7 @@ export function useGroupMemberStatus(
   isConnected: boolean;
   connect: () => Promise<void>;
   disconnect: () => void;
-  membersWithStatus: (Mate & { isActive: boolean })[];
+  membersWithStatus: (HomeGroupMember & { isActive: boolean })[];
   activeCount: number;
 };
 

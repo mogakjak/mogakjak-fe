@@ -25,6 +25,10 @@ export default function FriendMain({ groups }: FriendMainProps) {
   const [accumulatedProfiles, setAccumulatedProfiles] = useState<Mate[]>([]);
 
   const { ref, inView } = useInView();
+  const visibleGroups = useMemo(
+    () => groups.filter((group) => !group.isOfficialLounge),
+    [groups]
+  );
 
   useEffect(() => {
     setPage(1);
@@ -32,8 +36,8 @@ export default function FriendMain({ groups }: FriendMainProps) {
   }, [selectedGroupId, submittedSearch]);
 
   const groupItems = useMemo(
-    () => ["전체 그룹", ...groups.map((g) => g.groupName)],
-    [groups]
+    () => ["전체 그룹", ...visibleGroups.map((g) => g.groupName)],
+    [visibleGroups]
   );
 
   const handleGroupChange = (value: string) => {
@@ -41,7 +45,7 @@ export default function FriendMain({ groups }: FriendMainProps) {
     if (value === "전체 그룹") {
       setSelectedGroupId(undefined);
     } else {
-      const found = groups.find((g) => g.groupName === value);
+      const found = visibleGroups.find((g) => g.groupName === value);
       setSelectedGroupId(found?.groupId);
     }
   };
