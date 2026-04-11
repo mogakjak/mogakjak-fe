@@ -25,7 +25,7 @@ export default function OfficialLoungeRoom({ group }: OfficialLoungeRoomProps) {
 
   const members = group.members.map((member) => ({
     ...member,
-    isActive: true,
+    isActive: member.participationStatus === "PARTICIPATING",
   }));
   const currentCount = group.currentMemberCount ?? members.length;
   const maxCount = group.maxMemberCount ?? 20;

@@ -20,14 +20,21 @@ type OfficialLoungeSummaryResponse = {
     profileUrl?: string | null;
     level?: number | null;
     participationStatus?: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING" | null;
+    enteredAt?: string | null;
+    daysSinceLastParticipation?: number | null;
     personalTimerSeconds?: number | null;
     todoTitle?: string | null;
     lastActiveAt?: string | null;
+    cheerCount?: number | null;
   }>;
 };
 
 export type OfficialLoungeFocusCheckRequest = {
   enabled: boolean;
+};
+
+export type OfficialLoungeCheerRequest = {
+  targetUserId: string;
 };
 
 const normalizeMembers = (
@@ -40,9 +47,12 @@ const normalizeMembers = (
     level: member.level ?? 1,
     isActive: true,
     participationStatus: member.participationStatus ?? "NOT_PARTICIPATING",
+    enteredAt: member.enteredAt ?? null,
+    daysSinceLastParticipation: member.daysSinceLastParticipation ?? null,
     personalTimerSeconds: member.personalTimerSeconds ?? null,
     todoTitle: member.todoTitle ?? null,
     lastActiveAt: member.lastActiveAt ?? null,
+    cheerCount: member.cheerCount ?? 0,
   }));
 
 const normalizeSummary = (
@@ -92,4 +102,11 @@ export const updateOfficialLoungeFocusCheck = async (enabled: boolean) => {
   });
 
   return normalizeSummary(result);
+};
+
+export const sendOfficialLoungeCheer = async (targetUserId: string) => {
+  return request<void>(LOUNGE_BASE, "/cheer", {
+    method: "POST",
+    body: JSON.stringify({ targetUserId } satisfies OfficialLoungeCheerRequest),
+  });
 };

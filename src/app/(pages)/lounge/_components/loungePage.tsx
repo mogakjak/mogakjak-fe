@@ -13,6 +13,7 @@ import { useOfficialLoungeSummary } from "@/app/_hooks/lounge/useOfficialLoungeS
 import { useOfficialLoungePresenceSubscription } from "@/app/_hooks/lounge/useOfficialLoungePresenceSubscription";
 import { useEnterOfficialLounge } from "@/app/_hooks/lounge/useEnterOfficialLounge";
 import { useLeaveOfficialLounge } from "@/app/_hooks/lounge/useLeaveOfficialLounge";
+import { useSendOfficialLoungeCheer } from "@/app/_hooks/lounge/useSendOfficialLoungeCheer";
 import { useUpdateOfficialLoungeFocusCheck } from "@/app/_hooks/lounge/useUpdateOfficialLoungeFocusCheck";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
@@ -33,6 +34,7 @@ export default function LoungePage() {
   const queryClient = useQueryClient();
   const enterMutation = useEnterOfficialLounge();
   const leaveMutation = useLeaveOfficialLounge();
+  const cheerMutation = useSendOfficialLoungeCheer();
   const focusMutation = useUpdateOfficialLoungeFocusCheck();
   const { token } = useAuthState();
   const enteredFromHome = searchParams.get("entered") === "1";
@@ -117,6 +119,14 @@ export default function LoungePage() {
   const maxMemberCount = lounge?.maxMemberCount ?? 20;
   const hasQuote = Boolean(lounge?.todayQuote?.content);
   const focusEnabled = lounge?.myFocusCheckEnabled ?? false;
+
+  const handleCheer = async (targetUserId: string) => {
+    try {
+      await cheerMutation.mutateAsync(targetUserId);
+    } catch (error) {
+      console.error("공식 라운지 응원 실패:", error);
+    }
+  };
 
   const handleLeave = async () => {
     try {
@@ -282,9 +292,10 @@ export default function LoungePage() {
                       profileUrl={member.profileUrl}
                       isCurrentUser={member.userId === currentUserId}
                       isHost={false}
-                      cheerCount={0}
+                      cheerCount={member.cheerCount ?? 0}
                       userId={member.userId}
-                      showCheerAction={false}
+                      onCheerClick={handleCheer}
+                      showCheerAction={true}
                     />
                   </div>
                 ))}

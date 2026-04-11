@@ -20,9 +20,12 @@ export type HomeGroupMember = {
   isActive?: boolean;
   lastActivityAt?: string | null;
   participationStatus?: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  enteredAt?: string | null;
+  daysSinceLastParticipation?: number | null;
   personalTimerSeconds?: number | null;
   todoTitle?: string | null;
   lastActiveAt?: string | null;
+  cheerCount?: number | null;
 };
 
 export type Mate = {

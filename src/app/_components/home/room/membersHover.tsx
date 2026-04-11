@@ -94,8 +94,11 @@ export default function MembersHover({
                     ? "참여 중"
                     : m.participationStatus === "RESTING"
                       ? "휴식 중"
-                      : m.lastActiveAt
-                        ? "최근 참여"
+                      : m.daysSinceLastParticipation !== null &&
+                          m.daysSinceLastParticipation !== undefined
+                        ? `최근 참여시간 ${m.daysSinceLastParticipation}일전`
+                        : m.lastActiveAt
+                          ? "최근 참여"
                         : "";
               return (
                 <li key={m.userId} className="flex items-center">
