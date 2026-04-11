@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import GroupRoom from "./room/groupRoom";
+import OfficialLoungeRoom from "./room/officialLoungeRoom";
 import { Button } from "@/components/button";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
 import { useMyGroups } from "@/app/_hooks/groups/useMyGroups";
+import { useOfficialLoungeSummary } from "@/app/_hooks/lounge/useOfficialLoungeSummary";
+import { useOfficialLoungePresenceSubscription } from "@/app/_hooks/lounge/useOfficialLoungePresenceSubscription";
 import { groupKeys } from "@/app/api/groups/keys";
 
 type RoomMainProps = {
@@ -24,6 +27,17 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
   const queryClient = useQueryClient();
   // 그룹 목록 쿼리
   const { data: myGroups = [], isLoading: groupsLoading } = useMyGroups();
+  const officialLounge = myGroups.find((group) => group.isOfficialLounge);
+  const regularGroups = myGroups.filter((group) => !group.isOfficialLounge);
+  const { data: officialLoungeSummary } = useOfficialLoungeSummary({
+    enabled: Boolean(officialLounge?.groupId),
+    refetchInterval: 3000,
+  });
+  const officialLoungeLive = officialLoungeSummary ?? officialLounge;
+
+  useOfficialLoungePresenceSubscription({
+    enabled: Boolean(officialLounge?.groupId),
+  });
 
   const handleGroupCreateSuccess = (groupId: string) => {
     // 그룹 생성 후 갱신 
@@ -74,7 +88,12 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
             ))}
           </div>
         ) : myGroups.length > 0 ? (
-          myGroups.map((g) => <GroupRoom key={g.groupId} group={g} />)
+          <div className="flex flex-col">
+            {officialLoungeLive && <OfficialLoungeRoom group={officialLoungeLive} />}
+            {regularGroups.map((g) => (
+              <GroupRoom key={g.groupId} group={g} />
+            ))}
+          </div>
         ) : (
           <p className="flex h-full items-center justify-center text-gray-500 text-lg font-semibold">
             새로운 그룹을 만들고 모각작에 참여해 보세요!

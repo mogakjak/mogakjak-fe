@@ -2,7 +2,27 @@ export type MyGroup = {
   groupId: string;
   groupName: string;
   imageUrl?: string;
-  members: Mate[];
+  isOfficialLounge?: boolean;
+  currentMemberCount?: number;
+  maxMemberCount?: number;
+  hasEntered?: boolean;
+  myFocusCheckEnabled?: boolean;
+  todayQuote?: QuoteCard | null;
+  members: HomeGroupMember[];
+};
+
+export type HomeGroupMember = {
+  userId: string;
+  nickname: string;
+  profileUrl: string;
+  level: number;
+  role?: "HOST" | "MEMBER";
+  isActive?: boolean;
+  lastActivityAt?: string | null;
+  participationStatus?: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  personalTimerSeconds?: number | null;
+  todoTitle?: string | null;
+  lastActiveAt?: string | null;
 };
 
 export type Mate = {
@@ -175,4 +195,10 @@ export type GroupMeta = {
 
 export type GroupHostAckStatus = {
   needsAcknowledgment: boolean;
+};
+
+export type QuoteCard = {
+  id: string;
+  content: string;
+  author: string;
 };
