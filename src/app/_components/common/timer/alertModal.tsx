@@ -3,7 +3,7 @@
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "todoRequired" | "groupTimerLimit" | "newHostAck"; // 원하는 타입 추가 가능
+  type: "todoRequired" | "groupTimerLimit" | "newHostAck" | "officialLoungeFull";
 }
 
 const MODAL_CONTENT = {
@@ -48,6 +48,17 @@ const MODAL_CONTENT = {
         새로운 방장이 되셨어요!
         <br />
         이제 그룹의 이름과 목표를 수정할 수 있습니다.
+      </>
+    ),
+    confirmText: "확인",
+  },
+  officialLoungeFull: {
+    title: "지금 라운지가 열기로 가득 찼어요!",
+    description: (
+      <>
+        잠시 후 다시 시도해 주세요.
+        <br />
+        다른 분이 잠깐 비워주면 바로 들어오실 수 있어요.
       </>
     ),
     confirmText: "확인",

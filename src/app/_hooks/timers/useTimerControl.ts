@@ -125,7 +125,19 @@ export const useTimerControl = ({
     const retryStartSession = useCallback(async (): Promise<PomodoroSession | null> => {
         if (!pendingSessionConfig) return null;
         try {
-            await finishActiveTimerMutation.mutateAsync();
+            try {
+                await finishActiveTimerMutation.mutateAsync();
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                const isGroupLookupError =
+                    message.includes("그룹을 찾을 수 없습니다") ||
+                    message.includes("GROUP_NOT_FOUND") ||
+                    message.includes("NOT_GROUP_MEMBER");
+
+                if (!isGroupLookupError) {
+                    throw error;
+                }
+            }
             const session = await startSession(pendingSessionConfig);
             setPendingSessionConfig(null);
             setActiveSessionModalOpen(false);
