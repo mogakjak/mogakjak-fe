@@ -137,7 +137,6 @@ export default function LoungePage() {
 
   const memberListTotal = lounge?.members?.length ?? 0;
   const currentMemberCount = lounge?.currentMemberCount ?? displayedMembers.length;
-  const maxMemberCount = lounge?.maxMemberCount ?? 20;
   const hasQuote = Boolean(lounge?.todayQuote?.content);
   const focusEnabled = lounge?.myFocusCheckEnabled ?? false;
 
@@ -195,46 +194,49 @@ export default function LoungePage() {
 
         <div className="flex flex-col items-center w-full gap-5 min-w-0 flex-1">
           <div className="flex gap-5 w-full">
-            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
-              <h3 className="text-heading4-20SB text-black">오늘의 한 마디</h3>
-              <div className="min-h-[140px] flex-1 rounded-2xl bg-gray-50 px-6 py-5 text-gray-700">
-                {hasQuote ? (
-                  <>
-                    <p className="text-body1-16R leading-7">
-                      {lounge?.todayQuote?.content}
-                    </p>
-                    <p className="mt-4 text-body2-14SB text-gray-500">
-                      - {lounge?.todayQuote?.author}
-                    </p>
-                  </>
-                ) : (
-                  <div className="flex h-full min-h-[120px] items-center justify-center text-body2-14R text-gray-400">
-                    명언을 불러오는 중이에요.
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-3 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+              <h3 className="text-heading4-20SB text-black">오늘의 한마디</h3>
+              <div className="flex h-[108px] flex-1 flex-col justify-center rounded-2xl border border-gray-200 bg-gray-100 px-10 py-8 text-gray-700 overflow-y-auto">
+  {hasQuote ? (
+    <div className="text-center">
+      <p className="text-body1-16R leading-7">
+        {lounge?.todayQuote?.content}
+      </p>
+    </div>
+  ) : (
+    <p className="text-center text-body1-16R leading-7 text-gray-500">
+      명언을 불러오는 중이에요.
+    </p>
+  )}
+</div>
             </div>
 
-            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+            <div className="flex flex-3 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
               <h3 className="text-heading4-20SB text-black">라운지 현황</h3>
-              <div className="flex-1 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 px-6 py-6 text-white">
-                <div className="text-heading2-28SB">
-                  {currentMemberCount}명 함께 몰입 중
-                </div>
-                <p className="mt-2 text-body2-14R text-white/90">
-                  최대 {maxMemberCount}명까지 함께 머물 수 있어요.
+              <div className="flex h-[108px] flex-1 flex-col items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 px-6 py-6 text-gray-700">
+                <p className="text-heading2-28SB text-center">
+                  {currentMemberCount}명 🔥
+                </p>
+                <p className="mt-2 text-body1-16R text-center text-gray-600">
+                  함께 몰입 중입니다
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
-              <h3 className="text-heading4-20SB text-black">집중 체크</h3>
-              <p className="text-body2-14R text-gray-500">매 시 정각</p>
-              <div className="mt-auto flex items-center justify-end rounded-2xl bg-gray-50 px-6 py-5">
-                <ToggleButton
-                  checked={focusEnabled}
-                  onChange={(e) => void handleFocusToggle(e.target.checked)}
-                />
+            <div className="flex flex-2 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+              <h3 className="text-heading4-20SB text-black text-center">
+                집중 체크 알림
+              </h3>
+              <div className="flex flex-col gap-4 mt-3">
+                  <p className="text-heading2-28SB text-black text-center">
+                    매 시 정각
+                  </p>
+                <div className="flex w-full justify-center">
+                  <ToggleButton
+                    checked={focusEnabled}
+                    onChange={(e) => void handleFocusToggle(e.target.checked)}
+                  />
+                </div>
               </div>
             </div>
           </div>
