@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import clsx from "clsx";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/button";
 import AlertModal from "@/app/_components/common/timer/alertModal";
+import TimerEndModal from "@/app/_components/common/timerEndModal";
+import Icon from "@/app/_components/common/Icons";
+import ReviewPopup from "@/app/_components/group/review/reviewPopup";
 import ToggleButton from "@/app/_components/group/modal/toggleButton";
+import InviteModal from "@/app/_components/home/room/inviteModal";
 import PreviewMain from "@/app/_components/home/previewMain";
+import SidebarButton from "@/app/(pages)/group/_components/sidebar/sidebarButton";
+import { useTimer } from "@/app/_contexts/TimerContext";
+import Add from "/Icons/add.svg";
 import { useOfficialLoungeSummary } from "@/app/_hooks/lounge/useOfficialLoungeSummary";
 import { useOfficialLoungePresenceSubscription } from "@/app/_hooks/lounge/useOfficialLoungePresenceSubscription";
 import { useEnterOfficialLounge } from "@/app/_hooks/lounge/useEnterOfficialLounge";
@@ -48,9 +53,16 @@ export default function LoungePage() {
     enabled: entered,
   });
 
-  const { data: lounge, isLoading } = useOfficialLoungeSummary({
+  const { data: lounge, isLoading: loungeLoading } = useOfficialLoungeSummary({
     enabled: entered,
   });
+
+  const { isRunning, forceStopTimer } = useTimer();
+  const [openInviteModal, setOpenInviteModal] = useState(false);
+  const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
+  const [openReview, setOpenReview] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const isExitingRef = useRef(false);
 
   useEffect(() => {
     if (enteredFromHome) {
@@ -115,6 +127,15 @@ export default function LoungePage() {
       return 0;
     });
   }, [currentUserId, lounge?.members]);
+
+  const participatingMemberCount = useMemo(() => {
+    if (!lounge?.members?.length) return 0;
+    return lounge.members.filter(
+      (m) => m.participationStatus !== "NOT_PARTICIPATING",
+    ).length;
+  }, [lounge?.members]);
+
+  const memberListTotal = lounge?.members?.length ?? 0;
   const currentMemberCount = lounge?.currentMemberCount ?? displayedMembers.length;
   const maxMemberCount = lounge?.maxMemberCount ?? 20;
   const hasQuote = Boolean(lounge?.todayQuote?.content);
@@ -128,17 +149,22 @@ export default function LoungePage() {
     }
   };
 
-  const handleLeave = async () => {
+  const handleFinalExit = useCallback(async () => {
+    if (isExitingRef.current) return;
+    isExitingRef.current = true;
+    setIsExiting(true);
     try {
       await leaveMutation.mutateAsync();
-    } catch (error) {
-      console.error("공식 라운지 퇴실 실패:", error);
-    } finally {
       hasEnteredRef.current = false;
       setEntered(false);
       router.push("/");
+    } catch (error) {
+      console.error("공식 라운지 퇴실 실패:", error);
+    } finally {
+      isExitingRef.current = false;
+      setIsExiting(false);
     }
-  };
+  }, [leaveMutation, router]);
 
   const handleBlockedClose = () => {
     setBlockedOpen(false);
@@ -153,173 +179,196 @@ export default function LoungePage() {
     }
   };
 
+  const loungeTitle = lounge?.groupName ?? "공식 라운지";
+  const showMemberSkeleton = loungeLoading || !lounge;
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-orange-50">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-8 lg:px-10">
-        <div className="flex flex-col gap-6 xl:flex-row">
-          <aside className="shrink-0 xl:self-start">
-            <PreviewMain state={true} groupId={lounge?.groupId} />
-          </aside>
+    <main className="w-full h-full max-w-[1440px] mx-auto flex flex-col gap-1 overflow-x-hidden pt-5">
+      <div className="flex gap-1 px-6 mb-2">
+        <p className="text-heading4-20SB">{loungeTitle}</p>
+      </div>
 
-          <section className="flex min-w-0 flex-1 flex-col gap-6">
-            <header className="flex flex-col gap-3 rounded-[28px] border border-red-100 bg-white/90 px-6 py-5 shadow-[0_18px_50px_rgba(255,90,64,0.08)] backdrop-blur">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
-                  <Image src="/logo.svg" alt="모각작" width={30} height={30} />
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-heading3-24SB text-gray-900">
-                      📌 모각작 공식 라운지
-                    </h1>
-                    <span className="rounded-full bg-red-100 px-2.5 py-1 text-caption-12SB text-red-500">
-                      OFFICIAL
-                    </span>
+      <div className="w-full h-full flex gap-5">
+        <div className="self-stretch shrink-0">
+          <PreviewMain state={true} groupId={lounge?.groupId ?? ""} />
+        </div>
+
+        <div className="flex flex-col items-center w-full gap-5 min-w-0 flex-1">
+          <div className="flex gap-5 w-full">
+            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+              <h3 className="text-heading4-20SB text-black">오늘의 한 마디</h3>
+              <div className="min-h-[140px] flex-1 rounded-2xl bg-gray-50 px-6 py-5 text-gray-700">
+                {hasQuote ? (
+                  <>
+                    <p className="text-body1-16R leading-7">
+                      {lounge?.todayQuote?.content}
+                    </p>
+                    <p className="mt-4 text-body2-14SB text-gray-500">
+                      - {lounge?.todayQuote?.author}
+                    </p>
+                  </>
+                ) : (
+                  <div className="flex h-full min-h-[120px] items-center justify-center text-body2-14R text-gray-400">
+                    명언을 불러오는 중이에요.
                   </div>
-                  <p className="text-body2-14R text-gray-500">
-                    오늘도 함께 몰입하는 공용 광장입니다.
-                  </p>
-                </div>
+                )}
               </div>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-full bg-gray-100 px-4 py-2 text-body2-14SB text-gray-700">
-                  {currentMemberCount}/{maxMemberCount} 명 접속 중
+            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+              <h3 className="text-heading4-20SB text-black">라운지 현황</h3>
+              <div className="flex-1 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 px-6 py-6 text-white">
+                <div className="text-heading2-28SB">
+                  {currentMemberCount}명 함께 몰입 중
                 </div>
-                <div className="rounded-full bg-red-50 px-4 py-2 text-body2-14SB text-red-500">
-                  {focusEnabled ? "집중 체크 ON" : "집중 체크 OFF"}
-                </div>
-                <div className="rounded-full bg-orange-50 px-4 py-2 text-body2-14SB text-orange-600">
-                  {lounge?.hasEntered ? "입실됨" : isLoading ? "불러오는 중" : "입실 중"}
-                </div>
-              </div>
-            </header>
-
-            <section className="grid gap-4 lg:grid-cols-3">
-              <article className="rounded-[28px] border border-white bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.05)]">
-                <h2 className="text-heading4-20SB text-gray-900">라운지 현황</h2>
-                <div className="mt-5 rounded-[24px] bg-gradient-to-br from-red-500 to-orange-500 px-6 py-8 text-white">
-                  <div className="text-heading2-28SB">
-                    {currentMemberCount}명 함께 몰입 중
-                  </div>
-                  <p className="mt-2 text-body2-14R text-white/90">
-                    최대 {maxMemberCount}명까지 함께 머물 수 있어요.
-                  </p>
-                </div>
-              </article>
-
-              <article className="rounded-[28px] border border-white bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.05)]">
-                <h2 className="text-heading4-20SB text-gray-900">오늘의 한 마디</h2>
-                <div className="mt-5 min-h-[180px] rounded-[24px] bg-gray-50 px-6 py-6 text-gray-700">
-                  {hasQuote ? (
-                    <>
-                      <p className="text-body1-16R leading-7">
-                        {lounge?.todayQuote?.content}
-                      </p>
-                      <p className="mt-4 text-body2-14SB text-gray-500">
-                        - {lounge?.todayQuote?.author}
-                      </p>
-                    </>
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-body2-14R text-gray-400">
-                      명언을 불러오는 중이에요.
-                    </div>
-                  )}
-                </div>
-              </article>
-
-              <article className="rounded-[28px] border border-white bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.05)]">
-                <h2 className="text-heading4-20SB text-gray-900">집중 체크</h2>
-                <p className="mt-2 text-body2-14R text-gray-500">
-                  매 시 정각 시스템이 자동으로 체크해요.
+                <p className="mt-2 text-body2-14R text-white/90">
+                  최대 {maxMemberCount}명까지 함께 머물 수 있어요.
                 </p>
-                <div className="mt-6 rounded-[24px] bg-gray-50 px-6 py-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-body1-16SB text-gray-900">
-                        시스템이 자동 관리하고 있어요
-                      </p>
-                      <p className="mt-1 text-body2-14R text-gray-500">
-                        정각에 집중 체크 신호를 받습니다.
-                      </p>
-                    </div>
-                    <ToggleButton
-                      checked={focusEnabled}
-                      onChange={(e) => void handleFocusToggle(e.target.checked)}
-                    />
+              </div>
+            </div>
+
+            <div className="flex flex-1 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
+              <h3 className="text-heading4-20SB text-black">집중 체크</h3>
+              <p className="text-body2-14R text-gray-500">매 시 정각</p>
+              <div className="mt-auto flex items-center justify-end rounded-2xl bg-gray-50 px-6 py-5">
+                <ToggleButton
+                  checked={focusEnabled}
+                  onChange={(e) => void handleFocusToggle(e.target.checked)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full bg-white rounded-2xl px-8 pt-8 pb-6 h-[590px] flex flex-col flex-1">
+            <div className="flex justify-between mb-2">
+              <p className="text-heading4-20R text-gray-600 mb-3">
+                <b className="text-black">그룹원</b> {participatingMemberCount}/
+                {memberListTotal}
+              </p>
+              <SidebarButton
+                className="px-7 py-2 cursor-pointer"
+                onClick={() => setOpenInviteModal(true)}
+              >
+                <Icon Svg={Add} size={24} className="text-gray-800" />
+                그룹원 추가하기
+              </SidebarButton>
+            </div>
+            <div className="flex flex-col items-center justify-center w-full flex-1 min-h-0">
+              {showMemberSkeleton ? (
+                <div className="w-full flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-4 gap-x-5 gap-y-3">
+                    {Array.from({ length: 8 }).map((_, index) => (
+                      <GroupFriendField
+                        key={`skeleton-${index}`}
+                        status="end"
+                        level={1}
+                        isLoading={true}
+                      />
+                    ))}
                   </div>
                 </div>
-              </article>
-            </section>
-
-            <section className="rounded-[28px] border border-white bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.05)]">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-heading4-20SB text-gray-900">멤버 그리드</h2>
-                  <p className="mt-1 text-body2-14R text-gray-500">
-                    입실한 사람만 보여요. 퇴실하면 바로 사라집니다.
-                  </p>
+              ) : (
+                <div className="w-full flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-4 gap-x-5 gap-y-3">
+                    {displayedMembers.map((member) => (
+                      <GroupFriendField
+                        key={member.userId}
+                        status={toDisplayStatus(member)}
+                        friendName={member.nickname}
+                        level={member.level}
+                        isPublic={true}
+                        activeTime={member.personalTimerSeconds ?? undefined}
+                        task={member.todoTitle ?? undefined}
+                        lastActiveAt={member.lastActiveAt ?? undefined}
+                        profileUrl={member.profileUrl}
+                        isCurrentUser={member.userId === currentUserId}
+                        isHost={false}
+                        cheerCount={member.cheerCount ?? 0}
+                        userId={member.userId}
+                        groupId={lounge?.groupId}
+                        onCheerClick={handleCheer}
+                        showCheerAction={true}
+                      />
+                    ))}
+                  </div>
                 </div>
+              )}
+            </div>
 
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => void handleLeave()}
-                  disabled={leaveMutation.isPending || enterMutation.isPending}
-                  leftIconSrc="/Icons/out.svg"
-                >
-                  라운지 나가기
-                </Button>
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 gap-x-5 gap-y-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                {displayedMembers.map((member) => (
-                  <div
-                    key={member.userId}
-                    className={clsx(
-                      member.userId === currentUserId &&
-                        "border-4 border-red-200 rounded-[20px] shadow-[0_0_30px_5px_rgba(0,0,0,0.12)]",
-                    )}
-                  >
-                    <GroupFriendField
-                      status={toDisplayStatus(member)}
-                      friendName={member.nickname}
-                      level={member.level}
-                      isPublic={true}
-                      activeTime={member.personalTimerSeconds ?? undefined}
-                      task={member.todoTitle ?? undefined}
-                      lastActiveAt={member.lastActiveAt ?? undefined}
-                      profileUrl={member.profileUrl}
-                      isCurrentUser={member.userId === currentUserId}
-                      isHost={false}
-                      cheerCount={member.cheerCount ?? 0}
-                      userId={member.userId}
-                      onCheerClick={handleCheer}
-                      showCheerAction={true}
-                    />
-                  </div>
-                ))}
-
-                {Array.from({
-                  length: Math.max(0, maxMemberCount - displayedMembers.length),
-                }).map((_, index) => (
-                  <div
-                    key={`empty-${index}`}
-                    className={clsx(
-                      "rounded-[24px] border border-dashed border-gray-200 bg-white/70 p-4",
-                      index > 7 && "hidden md:block",
-                    )}
-                  >
-                    <div className="flex h-full min-h-[86px] items-center justify-center text-body2-14R text-gray-400">
-                      빈자리
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </section>
+            <div className="flex mt-4">
+              <Button
+                onClick={() => {
+                  if (isRunning) {
+                    setOpenTimerEndModal(true);
+                  } else {
+                    setOpenReview(true);
+                  }
+                }}
+                leftIconSrc="/Icons/timerOut.svg"
+                size="custom"
+                className="text-body1-16SB h-11 px-5 text-base rounded-2xl ml-auto"
+              >
+                몰입 종료 후 나가기
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {openTimerEndModal && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenTimerEndModal(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <TimerEndModal
+              onClose={() => setOpenTimerEndModal(false)}
+              onConfirm={async () => {
+                if (isRunning) {
+                  try {
+                    await forceStopTimer();
+                  } catch (error) {
+                    console.error("개인 타이머 강제 종료 실패:", error);
+                  }
+                }
+                setOpenTimerEndModal(false);
+                setOpenReview(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {openReview && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenReview(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <ReviewPopup
+              groupName={loungeTitle}
+              sessionId=""
+              onClose={() => setOpenReview(false)}
+              onExitGroup={() => void handleFinalExit()}
+              isExiting={isExiting}
+            />
+          </div>
+        </div>
+      )}
+
+      {openInviteModal && lounge?.groupId && (
+        <div
+          className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+          onClick={() => setOpenInviteModal(false)}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <InviteModal
+              groupId={lounge.groupId}
+              onClose={() => setOpenInviteModal(false)}
+            />
+          </div>
+        </div>
+      )}
 
       <AlertModal
         isOpen={blockedOpen}
