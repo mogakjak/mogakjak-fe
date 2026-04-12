@@ -216,9 +216,23 @@ export function useGroupMemberStatus({
     if (!members) return [];
     return members.map((member) => {
       const status = memberStatusMap.get(member.userId);
-      const isActive = status?.participationStatus === "PARTICIPATING";
+      const participationStatus =
+        status?.participationStatus ?? member.participationStatus;
+      const isActive = participationStatus === "PARTICIPATING";
       return {
         ...member,
+        ...(status
+          ? {
+              participationStatus: status.participationStatus,
+              personalTimerSeconds:
+                status.personalTimerSeconds ?? member.personalTimerSeconds,
+              todoTitle: status.todoTitle ?? member.todoTitle,
+              enteredAt: status.enteredAt ?? member.enteredAt,
+              daysSinceLastParticipation:
+                status.daysSinceLastParticipation ??
+                member.daysSinceLastParticipation,
+            }
+          : {}),
         isActive,
       };
     });

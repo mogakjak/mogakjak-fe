@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import GroupRoom from "./room/groupRoom";
-import OfficialLoungeRoom from "./room/officialLoungeRoom";
 import { Button } from "@/components/button";
 import RoomModal from "./room/roomModal";
 import InviteModal from "./room/inviteModal";
@@ -89,7 +88,7 @@ export default function RoomMain({ isPending, highlightButton, onButtonClick, di
           </div>
         ) : myGroups.length > 0 ? (
           <div className="flex flex-col">
-            {officialLoungeLive && <OfficialLoungeRoom group={officialLoungeLive} />}
+            {officialLoungeLive && <GroupRoom group={officialLoungeLive} />}
             {regularGroups.map((g) => (
               <GroupRoom key={g.groupId} group={g} />
             ))}

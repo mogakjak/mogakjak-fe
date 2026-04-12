@@ -170,7 +170,7 @@ export default function LoungePage() {
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
                     <h1 className="text-heading3-24SB text-gray-900">
-                      모각작 공식 라운지
+                      📌 모각작 공식 라운지
                     </h1>
                     <span className="rounded-full bg-red-100 px-2.5 py-1 text-caption-12SB text-red-500">
                       OFFICIAL
