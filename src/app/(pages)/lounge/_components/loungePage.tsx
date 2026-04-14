@@ -45,7 +45,7 @@ export default function LoungePage() {
   const enteredFromHome = searchParams.get("entered") === "1";
   const [entered, setEntered] = useState(enteredFromHome);
   const [blockedOpen, setBlockedOpen] = useState(false);
-  const hasEnterAttemptedRef = useRef(false);
+  const isEnteringRef = useRef(false);
   const hasEnteredRef = useRef(false);
   const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
 
@@ -66,53 +66,67 @@ export default function LoungePage() {
 
   useEffect(() => {
     if (enteredFromHome) {
-      hasEnterAttemptedRef.current = true;
+      setEntered(true);
+    }
+  }, [enteredFromHome]);
+
+  const attemptEnter = useCallback(async () => {
+    if (isEnteringRef.current) return;
+    isEnteringRef.current = true;
+    try {
+      const next = await enterMutation.mutateAsync();
       hasEnteredRef.current = true;
       setEntered(true);
+      queryClient.setQueryData(loungeKeys.summary(), next);
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+      if (!enteredFromHome) {
+        router.replace("/lounge?entered=1");
+      }
+    } catch (error) {
+      const err = error as Error & { status?: number };
+      const errorMessage = err.message ?? "";
+      const lowerMessage = errorMessage.toLowerCase();
+      const isFull =
+        err.status === 409 ||
+        err.status === 423 ||
+        err.status === 429 ||
+        errorMessage.includes("열기로 가득") ||
+        errorMessage.includes("정원") ||
+        errorMessage.includes("인원이 가득") ||
+        errorMessage.includes("접속할 수 없") ||
+        lowerMessage.includes("full") ||
+        lowerMessage.includes("capacity") ||
+        lowerMessage.includes("max member");
+
+      if (isFull) {
+        hasEnteredRef.current = false;
+        setEntered(false);
+        setBlockedOpen(true);
+        return;
+      }
+
+      console.error("공식 라운지 입실 실패:", error);
+      router.replace("/");
+    } finally {
+      isEnteringRef.current = false;
+    }
+  }, [enterMutation, queryClient, router, enteredFromHome]);
+
+  useEffect(() => {
+    if (!entered) {
+      void attemptEnter();
       return;
     }
 
-    if (hasEnterAttemptedRef.current) return;
-    hasEnterAttemptedRef.current = true;
+    if (lounge && !lounge.hasEntered) {
+      void attemptEnter();
+      return;
+    }
 
-    const attemptEnter = async () => {
-      try {
-        const next = await enterMutation.mutateAsync();
-        hasEnteredRef.current = true;
-        setEntered(true);
-        queryClient.setQueryData(loungeKeys.summary(), next);
-        queryClient.invalidateQueries({ queryKey: groupKeys.my() });
-        router.replace("/lounge?entered=1");
-      } catch (error) {
-        const err = error as Error & { status?: number };
-        const errorMessage = err.message ?? "";
-        const lowerMessage = errorMessage.toLowerCase();
-        const isFull =
-          err.status === 409 ||
-          err.status === 423 ||
-          err.status === 429 ||
-          errorMessage.includes("열기로 가득") ||
-          errorMessage.includes("정원") ||
-          errorMessage.includes("인원이 가득") ||
-          errorMessage.includes("접속할 수 없") ||
-          lowerMessage.includes("full") ||
-          lowerMessage.includes("capacity") ||
-          lowerMessage.includes("max member");
-
-        if (isFull) {
-          hasEnteredRef.current = false;
-          setEntered(false);
-          setBlockedOpen(true);
-          return;
-        }
-
-        console.error("공식 라운지 입실 실패:", error);
-        router.replace("/");
-      }
-    };
-
-    void attemptEnter();
-  }, [enterMutation, enteredFromHome, queryClient, router]);
+    if (lounge?.hasEntered) {
+      hasEnteredRef.current = true;
+    }
+  }, [attemptEnter, entered, lounge]);
 
   useEffect(() => {
     const leaveIfNeeded = () => {
