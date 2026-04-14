@@ -85,12 +85,23 @@ export default function LoungePage() {
         router.replace("/lounge?entered=1");
       } catch (error) {
         const err = error as Error & { status?: number };
+        const errorMessage = err.message ?? "";
+        const lowerMessage = errorMessage.toLowerCase();
         const isFull =
           err.status === 409 ||
-          err.message.includes("열기로 가득") ||
-          err.message.includes("공식 라운지");
+          err.status === 423 ||
+          err.status === 429 ||
+          errorMessage.includes("열기로 가득") ||
+          errorMessage.includes("정원") ||
+          errorMessage.includes("인원이 가득") ||
+          errorMessage.includes("접속할 수 없") ||
+          lowerMessage.includes("full") ||
+          lowerMessage.includes("capacity") ||
+          lowerMessage.includes("max member");
 
         if (isFull) {
+          hasEnteredRef.current = false;
+          setEntered(false);
           setBlockedOpen(true);
           return;
         }

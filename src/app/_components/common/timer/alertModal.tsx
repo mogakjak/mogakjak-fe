@@ -53,12 +53,12 @@ const MODAL_CONTENT = {
     confirmText: "확인",
   },
   officialLoungeFull: {
-    title: "지금 라운지가 열기로 가득 찼어요!",
+    title: "인원이 가득 차 접속할 수 없어요",
     description: (
       <>
-        잠시 후 다시 시도해 주세요.
+        지금 라운지가 열기로 가득 찼어요!
         <br />
-        다른 분이 잠깐 비워주면 바로 들어오실 수 있어요.
+        잠시 후 다시 시도해 주세요.
       </>
     ),
     confirmText: "확인",
@@ -71,7 +71,7 @@ export default function AlertModal({ isOpen, onClose, type }: AlertModalProps) {
   const { title, description, confirmText } = MODAL_CONTENT[type];
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[100]">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-100">
       <div className="rounded-xl shadow-[0px_0px_28px_rgba(0,0,0,0.15)] inline-flex flex-col overflow-hidden">
         <div className="w-full px-6 pt-8 pb-7 bg-neutral-50 flex flex-col items-center gap-2">
           <div className="text-center text-neutral-900 text-body1-16SB">
