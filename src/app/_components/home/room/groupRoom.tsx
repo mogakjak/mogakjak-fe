@@ -132,6 +132,13 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     (imageUrl.startsWith("/") ||
       imageUrl.startsWith("http://") ||
       imageUrl.startsWith("https://"));
+  const isOfficialLoungeProfileGroup =
+    groupId === "ac120006-9d7c-1377-819d-7c8397700000";
+  const groupImageSrc: string | null = isOfficialLoungeProfileGroup
+    ? "/loungeProfile.svg"
+    : isValidImageUrl
+      ? imageUrl
+      : null;
 
   const isEnterBusy = isOfficial
     ? enterOfficialMutation.isPending
@@ -140,9 +147,9 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
       <div className="relative w-[84px] h-[84px] rounded-lg bg-red-200 overflow-hidden">
-        {isValidImageUrl ? (
+        {groupImageSrc ? (
           <Image
-            src={imageUrl}
+            src={groupImageSrc}
             alt="groupImage"
             fill
             className="object-cover"
