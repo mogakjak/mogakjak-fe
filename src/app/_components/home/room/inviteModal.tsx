@@ -14,6 +14,9 @@ interface InviteModalProps {
   groupId: string;
 }
 
+const OFFICIAL_LOUNGE_GROUP_ID = "ac120006-9d7c-1377-819d-7c8397700000";
+const OFFICIAL_LOUNGE_INVITE_URL = "https://www.mogakjak.com/lounge?entered=1";
+
 export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
@@ -70,6 +73,9 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   // 초대링크
   const inviteUrl = useMemo(() => {
     if (!groupId) return "";
+    if (groupId === OFFICIAL_LOUNGE_GROUP_ID) {
+      return OFFICIAL_LOUNGE_INVITE_URL;
+    }
     const baseUrl =
       typeof window !== "undefined"
         ? window.location.origin
