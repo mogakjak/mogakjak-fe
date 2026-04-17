@@ -1,10 +1,14 @@
-import type { GetMatesParams } from "./api";
+import type { GetInviteMatesParams, GetMatesParams } from "./api";
 
 export const groupKeys = {
   all: () => ["groups"] as const,
   my: () => [...groupKeys.all(), "my"] as const,
   mates: (params?: GetMatesParams) =>
     [...groupKeys.all(), "mates", params ?? {}] as const,
+  inviteMates: (groupId: string, params?: GetInviteMatesParams) =>
+    [...groupKeys.all(), "invite-mates", groupId, params ?? {}] as const,
+  inviteMatesAll: (groupId: string) =>
+    [...groupKeys.all(), "invite-mates", groupId] as const,
   detail: (groupId: string) => [...groupKeys.all(), "detail", groupId] as const,
   notifications: (groupId: string) =>
     [...groupKeys.all(), "notifications", groupId] as const,

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Button } from "@/components/button";
-import { useMates } from "@/app/_hooks/groups/useMates";
+import { useGroupInviteMates } from "@/app/_hooks/groups/useGroupInviteMates";
 import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
@@ -19,12 +19,16 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [showToast, setShowToast] = useState(false);
 
-  const { data: matesData, isLoading: matesLoading } = useMates({
+  const { data: matesData, isLoading: matesLoading } = useGroupInviteMates(groupId, {
     search: submittedSearch || undefined,
   });
-
-  const profiles = useMemo(() => matesData?.content ?? [], [matesData?.content]);
-
+  const profiles = useMemo(
+    () =>
+      (matesData?.content ?? []).filter(
+        (profile) => profile.inviteStatus !== "ALREADY_GROUP_MEMBER"
+      ),
+    [matesData?.content]
+  );
 
   const { mutate: inviteMate } = useInviteMate(groupId);
 
@@ -79,6 +83,9 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
 
   // 초대 로직
   const handleInvite = (userId: string) => {
+    const target = profiles.find((profile) => profile.userId === userId);
+    if (!target || target.inviteStatus !== "CAN_INVITE") return;
+
     setInvitingUserId(userId);
     inviteMate(
       { inviteeId: userId },
@@ -190,6 +197,11 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                         profile.isActive ??
                         false;
 
+                      const isInviting = invitingUserId === profile.userId;
+                      const isAlreadyInvited =
+                        profile.inviteStatus === "ALREADY_INVITED";
+                      const isCanInvite = profile.inviteStatus === "CAN_INVITE";
+
                       return (
                         <div
                           key={profile.userId}
@@ -217,13 +229,15 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                           </div>
                           <button
                             onClick={() => handleInvite(profile.userId)}
-                            disabled={invitingUserId === profile.userId}
+                            disabled={isInviting || !isCanInvite}
                             className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <span className="text-zinc-500 text-xs font-semibold leading-4">
-                              {invitingUserId === profile.userId
+                              {isInviting
                                 ? "초대 중..."
-                                : "초대하기"}
+                                : isAlreadyInvited
+                                  ? "초대함"
+                                  : "초대하기"}
                             </span>
                           </button>
                         </div>

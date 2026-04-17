@@ -22,6 +22,7 @@ export interface GroupFriendFieldProps {
   userId?: string;
   groupId?: string;
   onCheerClick?: (userId: string) => void;
+  showCheerAction?: boolean;
   isLoading?: boolean;
 }
 
@@ -39,9 +40,11 @@ export default function GroupFriendField({
   cheerCount = 0,
   userId,
   onCheerClick,
+  showCheerAction = true,
   isLoading = false,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
+  const canShowCheer = showCheerAction && !isActive && !isCurrentUser;
 
   const avatarSrc = isActive
     ? `/character/sleeping/sleepingLevel${level}.svg`
@@ -80,7 +83,7 @@ export default function GroupFriendField({
     <div className="flex flex-col h-full">
       <div className="bg-white p-4 pt-3 rounded-t-xl w-[224px] h-[144px] border-2 border-gray-200 shrink-0">
         <section
-          className={`flex items-center ${isActive ? "justify-start" : "justify-between"
+          className={`flex items-center ${isActive || !canShowCheer ? "justify-start" : "justify-between"
             }`}
         >
           <div className="flex items-center gap-1">
@@ -109,7 +112,7 @@ export default function GroupFriendField({
               )}
             </div>
           </div>
-          {!isActive && !isCurrentUser && (
+          {canShowCheer && (
             <CheerUp
               cheerCount={cheerCount}
               onClick={() => {

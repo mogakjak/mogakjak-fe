@@ -14,11 +14,11 @@ import clsx from "clsx";
 import { useState } from "react";
 import MemberProfile from "./memberProfile";
 import StateButton from "./stateButton";
-import { Mate } from "@/app/_types/groups";
+import type { HomeGroupMember } from "@/app/_types/groups";
 
 interface MembersHoverProps {
   trigger: React.ReactNode;
-  members: Mate[];
+  members: (HomeGroupMember & { isActive?: boolean })[];
   activeCount: number;
   className?: string;
 }
@@ -30,7 +30,6 @@ export default function MembersHover({
   className = "",
 }: MembersHoverProps) {
   const [open, setOpen] = useState(false);
-
   const { refs, floatingStyles, context } = useFloating({
     open,
     onOpenChange: setOpen,

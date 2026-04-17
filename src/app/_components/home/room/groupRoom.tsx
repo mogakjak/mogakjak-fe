@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Members from "./members";
 import StateButton from "./stateButton";
 import HomeButton from "./homeButton";
@@ -11,7 +12,10 @@ import { useRouter } from "next/navigation";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
-
+import { useEnterOfficialLounge } from "@/app/_hooks/lounge/useEnterOfficialLounge";
+import { loungeKeys } from "@/app/api/lounge/keys";
+import { groupKeys } from "@/app/api/groups/keys";
+import AlertModal from "@/app/_components/common/timer/alertModal";
 
 import {
   useFloating,
@@ -28,6 +32,8 @@ import LeavePopup from "./leavePopup";
 import LeaveGroupModal from "./leaveGroupModal";
 import { useLeaveGroup } from "@/app/_hooks/groups/useLeaveGroup";
 
+/** HomeButton(120px) + gap-2(8px) + 케밥(p-1+24+p-1 ≈32px) — 공식 라운지에서 케밥 없어도 같은 폭 유지 */
+const ACTION_ROW_MIN_WIDTH = "min-w-[160px]";
 
 type GroupRoomProps = {
   group: MyGroup;
@@ -35,24 +41,32 @@ type GroupRoomProps = {
 
 export default function GroupRoom({ group }: GroupRoomProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const isOfficial = group.isOfficialLounge === true;
   const { groupId, groupName, imageUrl, members } = group;
   const { mutate: leaveGroupMutate } = useLeaveGroup();
+  const enterOfficialMutation = useEnterOfficialLounge();
+  const [blockedOpen, setBlockedOpen] = useState(false);
 
-  // 토큰에서 userId 추출
   const { token } = useAuthState();
   const currentUserId = getUserIdFromToken(token);
 
-  // 본인이 HOST인지 확인
-  const isHost = currentUserId && members.some(
-    (member) => member.userId === currentUserId && member.role === "HOST"
-  );
+  const isHost =
+    !isOfficial &&
+    Boolean(
+      currentUserId &&
+        members.some(
+          (m) => m.userId === currentUserId && m.role === "HOST"
+        )
+    );
 
-  // 그룹 멤버 상태: 개인 타이머 실행자 수 → 1명 이상이면 '몰입 중'
   const { membersWithStatus, activeCount } = useGroupMemberStatus({
     groupId,
     members,
     enabled: true,
   });
+
+  console.log("membersWithStatus", membersWithStatus);
   const sortedMembersWithStatus = [...membersWithStatus].sort((a, b) => {
     return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
   });
@@ -80,7 +94,28 @@ export default function GroupRoom({ group }: GroupRoomProps) {
 
   const totalCount = members.length;
 
-  const handleEnter = () => {
+  const handleEnter = async () => {
+    if (isOfficial) {
+      try {
+        const next = await enterOfficialMutation.mutateAsync();
+        queryClient.setQueryData(loungeKeys.summary(), next);
+        queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+        router.push("/lounge?entered=1");
+      } catch (error) {
+        const err = error as Error & { status?: number };
+        const isFull =
+          err.status === 409 ||
+          err.message.includes("열기로 가득") ||
+          err.message.includes("공식 라운지");
+        if (isFull) {
+          setBlockedOpen(true);
+          return;
+        }
+        console.error("공식 라운지 입장 실패:", error);
+      }
+      return;
+    }
+
     setIsEntering(true);
     sessionStorage.setItem(`group_enter_time_${groupId}`, Date.now().toString());
     router.push(`/group/${groupId}`);
@@ -94,19 +129,29 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     });
   };
 
-  // imageUrl이 유효한지 확인 (빈 문자열이 아니고, /, http://, https://로 시작하는지)
-  const isValidImageUrl = imageUrl && (
-    imageUrl.startsWith("/") ||
-    imageUrl.startsWith("http://") ||
-    imageUrl.startsWith("https://")
-  );
+  const isValidImageUrl =
+    imageUrl &&
+    (imageUrl.startsWith("/") ||
+      imageUrl.startsWith("http://") ||
+      imageUrl.startsWith("https://"));
+  const isOfficialLoungeProfileGroup =
+    groupId === "ac120006-9d7c-1377-819d-7c8397700000";
+  const groupImageSrc: string | null = isOfficialLoungeProfileGroup
+    ? "/loungeProfile.svg"
+    : isValidImageUrl
+      ? imageUrl
+      : null;
+
+  const isEnterBusy = isOfficial
+    ? enterOfficialMutation.isPending
+    : isEntering;
 
   return (
     <div className="flex items-center border-b border-gray-200 px-5 py-4">
       <div className="relative w-[84px] h-[84px] rounded-lg bg-red-200 overflow-hidden">
-        {isValidImageUrl ? (
+        {groupImageSrc ? (
           <Image
-            src={imageUrl}
+            src={groupImageSrc}
             alt="groupImage"
             fill
             className="object-cover"
@@ -153,42 +198,63 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             {activeCount}/{totalCount} 명
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div
+          className={`flex items-center justify-end gap-2 shrink-0 ${ACTION_ROW_MIN_WIDTH}`}
+        >
           <HomeButton
             variant="primary"
-            onClick={handleEnter}
-            disabled={isEntering}
+            onClick={() => {
+              void handleEnter();
+            }}
+            disabled={isEnterBusy}
           >
-            {isEntering ? "참여 중" : "참여하기"}
+            {isEnterBusy ? "참여 중" : "참여하기"}
           </HomeButton>
 
-          <button
-            ref={refs.setReference}
-            {...getReferenceProps()}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <Image src={"/Icons/menuKebab.svg"} alt="menuKebab" width={24} height={24} />
-          </button>
+          {!isOfficial ? (
+            <>
+              <button
+                type="button"
+                ref={refs.setReference}
+                {...getReferenceProps()}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors shrink-0"
+              >
+                <Image
+                  src="/Icons/menuKebab.svg"
+                  alt="메뉴"
+                  width={24}
+                  height={24}
+                />
+              </button>
 
-          {openPopup && (
+              {openPopup && (
+                <div
+                  ref={refs.setFloating}
+                  style={floatingStyles}
+                  {...getFloatingProps()}
+                  className="z-70"
+                >
+                  <LeavePopup
+                    onLeaveClick={() => {
+                      setOpenPopup(false);
+                      setOpenModal(true);
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
             <div
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-              className="z-70"
+              className="p-1 shrink-0 rounded-full box-border flex items-center justify-center"
+              aria-hidden
             >
-              <LeavePopup
-                onLeaveClick={() => {
-                  setOpenPopup(false);
-                  setOpenModal(true);
-                }}
-              />
+              <span className="size-6 block" />
             </div>
           )}
         </div>
       </div>
 
-      {openModal && (
+      {openModal && !isOfficial && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-100">
           <LeaveGroupModal
             groupName={groupName}
@@ -196,6 +262,14 @@ export default function GroupRoom({ group }: GroupRoomProps) {
             onConfirm={handleLeaveGroup}
           />
         </div>
+      )}
+
+      {isOfficial && (
+        <AlertModal
+          isOpen={blockedOpen}
+          onClose={() => setBlockedOpen(false)}
+          type="officialLoungeFull"
+        />
       )}
     </div>
   );

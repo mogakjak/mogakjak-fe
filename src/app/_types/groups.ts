@@ -2,7 +2,30 @@ export type MyGroup = {
   groupId: string;
   groupName: string;
   imageUrl?: string;
-  members: Mate[];
+  isOfficialLounge?: boolean;
+  currentMemberCount?: number;
+  maxMemberCount?: number;
+  hasEntered?: boolean;
+  myFocusCheckEnabled?: boolean;
+  todayQuote?: QuoteCard | null;
+  members: HomeGroupMember[];
+};
+
+export type HomeGroupMember = {
+  userId: string;
+  nickname: string;
+  profileUrl: string;
+  level: number;
+  role?: "HOST" | "MEMBER";
+  isActive?: boolean;
+  lastActivityAt?: string | null;
+  participationStatus?: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
+  enteredAt?: string | null;
+  daysSinceLastParticipation?: number | null;
+  personalTimerSeconds?: number | null;
+  todoTitle?: string | null;
+  lastActiveAt?: string | null;
+  cheerCount?: number | null;
 };
 
 export type Mate = {
@@ -48,6 +71,24 @@ export type PageResponse<T> = {
 };
 
 export type MatesPage = PageResponse<Mate>;
+
+export type InviteMateStatus =
+  | "CAN_INVITE"
+  | "ALREADY_INVITED"
+  | "ALREADY_GROUP_MEMBER";
+
+export type InviteMate = {
+  userId: string;
+  nickname: string;
+  profileUrl: string;
+  level: number;
+  groupNames: string[];
+  inviteStatus: InviteMateStatus;
+  isActive?: boolean;
+  lastActivityAt?: string | null;
+};
+
+export type InviteMatesPage = PageResponse<InviteMate>;
 
 export type CreateGroupBody = {
   name: string;
@@ -175,4 +216,10 @@ export type GroupMeta = {
 
 export type GroupHostAckStatus = {
   needsAcknowledgment: boolean;
+};
+
+export type QuoteCard = {
+  id: string;
+  content: string;
+  author: string;
 };

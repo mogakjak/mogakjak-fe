@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   GroupDetail,
   GroupMemberStatus as GroupsGroupMemberStatus,
-  Mate,
+  HomeGroupMember,
 } from "@/app/_types/groups";
 import { useWebSocket } from "../useWebSocket";
 
@@ -50,7 +50,7 @@ type UseGroupMemberStatusOptionsWithGroupData =
 
 type UseGroupMemberStatusOptionsWithMembers =
   UseGroupMemberStatusOptionsBase & {
-    members: Mate[];
+    members: HomeGroupMember[];
     onUpdate?: never;
     groupData?: never;
   };
@@ -76,7 +76,7 @@ export function useGroupMemberStatus(
   isConnected: boolean;
   connect: () => Promise<void>;
   disconnect: () => void;
-  membersWithStatus: (Mate & { isActive: boolean })[];
+  membersWithStatus: (HomeGroupMember & { isActive: boolean })[];
   activeCount: number;
 };
 
@@ -216,9 +216,23 @@ export function useGroupMemberStatus({
     if (!members) return [];
     return members.map((member) => {
       const status = memberStatusMap.get(member.userId);
-      const isActive = status?.participationStatus === "PARTICIPATING";
+      const participationStatus =
+        status?.participationStatus ?? member.participationStatus;
+      const isActive = participationStatus === "PARTICIPATING";
       return {
         ...member,
+        ...(status
+          ? {
+              participationStatus: status.participationStatus,
+              personalTimerSeconds:
+                status.personalTimerSeconds ?? member.personalTimerSeconds,
+              todoTitle: status.todoTitle ?? member.todoTitle,
+              enteredAt: status.enteredAt ?? member.enteredAt,
+              daysSinceLastParticipation:
+                status.daysSinceLastParticipation ??
+                member.daysSinceLastParticipation,
+            }
+          : {}),
         isActive,
       };
     });
