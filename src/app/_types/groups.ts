@@ -72,6 +72,24 @@ export type PageResponse<T> = {
 
 export type MatesPage = PageResponse<Mate>;
 
+export type InviteMateStatus =
+  | "CAN_INVITE"
+  | "ALREADY_INVITED"
+  | "ALREADY_GROUP_MEMBER";
+
+export type InviteMate = {
+  userId: string;
+  nickname: string;
+  profileUrl: string;
+  level: number;
+  groupNames: string[];
+  inviteStatus: InviteMateStatus;
+  isActive?: boolean;
+  lastActivityAt?: string | null;
+};
+
+export type InviteMatesPage = PageResponse<InviteMate>;
+
 export type CreateGroupBody = {
   name: string;
   imageUrl: string;

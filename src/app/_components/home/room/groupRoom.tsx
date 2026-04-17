@@ -65,6 +65,8 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     members,
     enabled: true,
   });
+
+  console.log("membersWithStatus", membersWithStatus);
   const sortedMembersWithStatus = [...membersWithStatus].sort((a, b) => {
     return (b.isActive ? 1 : 0) - (a.isActive ? 1 : 0);
   });

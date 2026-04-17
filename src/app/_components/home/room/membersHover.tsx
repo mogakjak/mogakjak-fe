@@ -30,7 +30,6 @@ export default function MembersHover({
   className = "",
 }: MembersHoverProps) {
   const [open, setOpen] = useState(false);
-
   const { refs, floatingStyles, context } = useFloating({
     open,
     onOpenChange: setOpen,

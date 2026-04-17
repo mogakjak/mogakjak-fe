@@ -2,6 +2,7 @@ import type {
   MyGroup,
   MatesPage,
   Mate,
+  InviteMatesPage,
   GroupDetail,
   CreateGroupBody,
   NotiRes,
@@ -114,6 +115,32 @@ export const getMates = async (params?: GetMatesParams) => {
   }
 
   return result;
+};
+
+export type GetInviteMatesParams = {
+  page?: number;
+  size?: number;
+  search?: string;
+};
+
+export const getInviteMates = async (
+  groupId: string,
+  params?: GetInviteMatesParams,
+) => {
+  const searchParams = new URLSearchParams();
+
+  if (params?.page !== undefined) searchParams.set("page", String(params.page));
+  if (params?.size !== undefined) searchParams.set("size", String(params.size));
+  if (params?.search) searchParams.set("search", params.search);
+
+  const query = searchParams.toString();
+  const endpoint = query
+    ? `/${groupId}/invite-mates?${query}`
+    : `/${groupId}/invite-mates`;
+
+  return request<InviteMatesPage>(GROUPS_BASE, endpoint, {
+    method: "GET",
+  });
 };
 
 export const createGroup = (body: CreateGroupBody) =>

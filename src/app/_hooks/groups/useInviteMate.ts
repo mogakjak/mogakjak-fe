@@ -17,7 +17,9 @@ export const useInviteMate = (groupId: string) => {
       queryClient.invalidateQueries({
         queryKey: groupKeys.invitations(groupId),
       });
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.inviteMatesAll(groupId),
+      });
     },
   });
 };
-
