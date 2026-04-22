@@ -73,16 +73,32 @@ export default function MembersHover({
           <ul className="flex flex-col gap-3">
             {members.map((m) => {
               const isActive = m.isActive ?? false;
+              const relationLabel =
+                m.isMate === true ? "친구" : m.isMate === false ? "비친구" : null;
               return (
                 <li key={m.userId} className="flex items-center">
                   <MemberProfile
                     isActive={isActive}
                     profileUrl={m.profileUrl}
                   />
-                  <span className="text-body2-14R text-black ml-2 truncate">
-                    {m.nickname}
-                  </span>
-                  <div className="ml-auto pl-2 shrink-0">
+                  <div className="ml-2 min-w-0 flex flex-col">
+                    <span className="text-body2-14R text-black truncate">
+                      {m.nickname}
+                    </span>
+                    {relationLabel && (
+                      <span
+                        className={clsx(
+                          "mt-1 inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                          m.isMate
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-gray-100 text-gray-500"
+                        )}
+                      >
+                        {relationLabel}
+                      </span>
+                    )}
+                  </div>
+                  <div className="ml-auto pl-2 shrink-0 self-center">
                     <StateButton state={isActive} />
                   </div>
                 </li>
