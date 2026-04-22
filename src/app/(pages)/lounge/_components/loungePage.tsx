@@ -304,6 +304,7 @@ export default function LoungePage() {
                         friendName={member.nickname}
                         level={member.level}
                         isPublic={true}
+                        isMate={member.isMate ?? false}
                         activeTime={member.personalTimerSeconds ?? undefined}
                         task={member.todoTitle ?? undefined}
                         lastActiveAt={member.lastActiveAt ?? undefined}
