@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import TimerSelected from "./timerSelected";
 import TimerButtons from "./timerButton";
@@ -22,10 +23,33 @@ import { usePictureInPicture } from "@/app/_hooks/timers/usePictureInPicture";
 import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/useBrowserNotification";
 import { useTimerMetrics } from "@/app/_hooks/timers/useTimerMetrics";
 import { sendGAEvent } from "@next/third-parties/google";
-import type { PomodoroSession } from "@/app/api/timers/api";
-import { useNextPomodoro } from "@/app/_hooks/timers/useNextPomodoro";
+import { nextPomodoro, type PomodoroSession } from "@/app/api/timers/api";
+import { timerKeys } from "@/app/api/timers/keys";
 
 const CONTENT_FIXED = "h-[110px]";
+const POMODORO_PHASE_SYNC_MAX_ATTEMPTS = 3;
+const POMODORO_PHASE_SYNC_RETRY_MS = 700;
+
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function isPomodoroPhaseNotFinishedError(message: string) {
+  return (
+    message.includes("현재의 뽀모도로 단계가 아직 종료되지 않았습니다") ||
+    message.includes("PHASE_NOT_FINISHED")
+  );
+}
+
+function isMissingActiveSessionError(message: string) {
+  return message.includes("활성화된 세션이 존재하지 않습니다");
+}
 
 export default function TimerComponent({
   className,
@@ -61,6 +85,8 @@ export default function TimerComponent({
   const [currentRound, setCurrentRound] = useState<number>(1);
 
   const sessionIdRef = useRef<string | null>(null);
+  const isPomodoroPhaseSyncingRef = useRef(false);
+  const isStoppingRef = useRef(false);
   const setSessionId = (value: string | null) => {
     sessionIdRef.current = value;
   };
@@ -81,7 +107,7 @@ export default function TimerComponent({
     activeSessionModalOpen,
     closeActiveSessionModal,
   } = useTimerControl({ onSessionIdChange });
-  const nextPomodoroMutation = useNextPomodoro();
+  const queryClient = useQueryClient();
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
@@ -338,36 +364,43 @@ export default function TimerComponent({
   }, [mode, pauseSession, setIsRunning, pauseTracking]);
 
   const onStop = useCallback(async () => {
+    if (isStoppingRef.current) return;
+
+    isStoppingRef.current = true;
     const effectiveSessionId = sessionIdRef.current;
-    finalizeMetrics(
-      mode as "pomodoro" | "stopwatch" | "timer",
-      effectiveSessionId
-    );
+    try {
+      finalizeMetrics(
+        mode as "pomodoro" | "stopwatch" | "timer",
+        effectiveSessionId
+      );
 
-    if (effectiveSessionId) {
-      try {
-        await stopSession(effectiveSessionId);
-      } catch (error) {
-        console.error("타이머 종료 실패:", error);
+      if (effectiveSessionId) {
+        try {
+          await stopSession(effectiveSessionId);
+        } catch (error) {
+          console.error("타이머 종료 실패:", error);
+        }
       }
-    }
 
-    if (mode === "pomodoro") {
-      pomoRef.current?.stop();
-      setPomodoroConfig(null);
-      setCurrentPhase("FOCUS");
-      setCurrentRound(1);
-    } else if (mode === "stopwatch") {
-      swRef.current?.stop();
-    } else {
-      cdRef.current?.reset();
-    }
+      if (mode === "pomodoro") {
+        pomoRef.current?.stop();
+        setPomodoroConfig(null);
+        setCurrentPhase("FOCUS");
+        setCurrentRound(1);
+      } else if (mode === "stopwatch") {
+        swRef.current?.stop();
+      } else {
+        cdRef.current?.reset();
+      }
 
-    setSessionId(null);
-    onSessionIdChange?.(null);
-    setIsPaused(false);
-    setRunning(false);
-    setIsRunning(false);
+      setSessionId(null);
+      onSessionIdChange?.(null);
+      setIsPaused(false);
+      setRunning(false);
+      setIsRunning(false);
+    } finally {
+      isStoppingRef.current = false;
+    }
   }, [mode, stopSession, setIsRunning, onSessionIdChange, finalizeMetrics]);
 
   // GroupPage 등 외부에서 강제 종료할 수 있도록 onStop을 등록
@@ -377,14 +410,47 @@ export default function TimerComponent({
 
   const syncNextPomodoroPhase = useCallback(async () => {
     const effectiveSessionId = sessionIdRef.current;
-    if (!effectiveSessionId) return;
+    if (
+      !effectiveSessionId ||
+      isPomodoroPhaseSyncingRef.current ||
+      isStoppingRef.current
+    ) {
+      return;
+    }
 
+    isPomodoroPhaseSyncingRef.current = true;
     try {
-      await nextPomodoroMutation.mutateAsync(effectiveSessionId);
+      for (let attempt = 1; attempt <= POMODORO_PHASE_SYNC_MAX_ATTEMPTS; attempt += 1) {
+        try {
+          const session = await nextPomodoro(effectiveSessionId);
+          queryClient.setQueryData(timerKeys.current(), session);
+          return;
+        } catch (error) {
+          const message = getErrorMessage(error);
+
+          if (
+            isPomodoroPhaseNotFinishedError(message) &&
+            attempt < POMODORO_PHASE_SYNC_MAX_ATTEMPTS
+          ) {
+            await wait(POMODORO_PHASE_SYNC_RETRY_MS);
+            continue;
+          }
+
+          if (
+            !isMissingActiveSessionError(message) &&
+            !isPomodoroPhaseNotFinishedError(message)
+          ) {
+            console.error("뽀모도로 단계 전환 동기화 실패:", error);
+          }
+          return;
+        }
+      }
     } catch (error) {
       console.error("뽀모도로 단계 전환 동기화 실패:", error);
+    } finally {
+      isPomodoroPhaseSyncingRef.current = false;
     }
-  }, [nextPomodoroMutation]);
+  }, [queryClient]);
 
   const handlePomodoroComplete = useCallback(async () => {
     if (!pomodoroConfig) return;
