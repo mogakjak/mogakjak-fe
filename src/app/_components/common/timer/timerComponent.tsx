@@ -23,6 +23,7 @@ import { useBrowserNotification } from "@/app/_hooks/_websocket/notifications/us
 import { useTimerMetrics } from "@/app/_hooks/timers/useTimerMetrics";
 import { sendGAEvent } from "@next/third-parties/google";
 import type { PomodoroSession } from "@/app/api/timers/api";
+import { useNextPomodoro } from "@/app/_hooks/timers/useNextPomodoro";
 
 const CONTENT_FIXED = "h-[110px]";
 
@@ -80,6 +81,7 @@ export default function TimerComponent({
     activeSessionModalOpen,
     closeActiveSessionModal,
   } = useTimerControl({ onSessionIdChange });
+  const nextPomodoroMutation = useNextPomodoro();
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
@@ -373,12 +375,24 @@ export default function TimerComponent({
     registerForceStop(onStop);
   }, [onStop, registerForceStop]);
 
+  const syncNextPomodoroPhase = useCallback(async () => {
+    const effectiveSessionId = sessionIdRef.current;
+    if (!effectiveSessionId) return;
+
+    try {
+      await nextPomodoroMutation.mutateAsync(effectiveSessionId);
+    } catch (error) {
+      console.error("뽀모도로 단계 전환 동기화 실패:", error);
+    }
+  }, [nextPomodoroMutation]);
+
   const handlePomodoroComplete = useCallback(async () => {
     if (!pomodoroConfig) return;
     const { focusSeconds, breakSeconds, repeatCount } = pomodoroConfig;
 
     if (currentPhase === "FOCUS") {
       if (currentRound < repeatCount) {
+        await syncNextPomodoroPhase();
         const breakMinutes = breakSeconds / 60;
         setCurrentPhase("BREAK");
         setRunning(true);
@@ -453,6 +467,7 @@ export default function TimerComponent({
 
     setCurrentPhase("FOCUS");
     setCurrentRound(nextRound);
+    await syncNextPomodoroPhase();
     setRunning(true);
     setIsRunning(true);
     const focusMinutes = focusSeconds / 60;
@@ -464,6 +479,7 @@ export default function TimerComponent({
     currentRound,
     onStop,
     setIsRunning,
+    syncNextPomodoroPhase,
     isSupported,
     permission,
     requestPermission,
