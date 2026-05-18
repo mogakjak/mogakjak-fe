@@ -24,6 +24,7 @@ export interface GroupFriendFieldProps {
   onCheerClick?: (userId: string) => void;
   showCheerAction?: boolean;
   isLoading?: boolean;
+  isMate?: boolean;
 }
 
 export default function GroupFriendField({
@@ -42,10 +43,10 @@ export default function GroupFriendField({
   onCheerClick,
   showCheerAction = true,
   isLoading = false,
+  isMate,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
   const canShowCheer = showCheerAction && !isActive && !isCurrentUser;
-
   const avatarSrc = isActive
     ? `/character/sleeping/sleepingLevel${level}.svg`
     : `/character/level${level}.svg`;
@@ -108,6 +109,14 @@ export default function GroupFriendField({
                   alt="방장"
                   width={20}
                   height={20}
+                />
+              )}
+              {isMate === true && (
+                <Image
+                  src="/Icons/friend.svg"
+                  alt="친구"
+                  width={16}
+                  height={16}
                 />
               )}
             </div>

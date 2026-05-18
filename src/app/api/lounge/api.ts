@@ -26,6 +26,7 @@ type OfficialLoungeSummaryResponse = {
     todoTitle?: string | null;
     lastActiveAt?: string | null;
     cheerCount?: number | null;
+    isMate?: boolean | null;
   }>;
 };
 
@@ -53,6 +54,7 @@ const normalizeMembers = (
     todoTitle: member.todoTitle ?? null,
     lastActiveAt: member.lastActiveAt ?? null,
     cheerCount: member.cheerCount ?? 0,
+    isMate: member.isMate ?? false,
   }));
 
 const normalizeSummary = (

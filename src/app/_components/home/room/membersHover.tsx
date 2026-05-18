@@ -11,6 +11,7 @@ import {
   safePolygon,
 } from "@floating-ui/react";
 import clsx from "clsx";
+import Image from "next/image";
 import { useState } from "react";
 import MemberProfile from "./memberProfile";
 import StateButton from "./stateButton";
@@ -79,10 +80,21 @@ export default function MembersHover({
                     isActive={isActive}
                     profileUrl={m.profileUrl}
                   />
-                  <span className="text-body2-14R text-black ml-2 truncate">
-                    {m.nickname}
-                  </span>
-                  <div className="ml-auto pl-2 shrink-0">
+                  <div className="ml-2 min-w-0">
+                    <span className="flex items-center gap-1 text-body2-14R text-black">
+                      <span className="truncate">{m.nickname}</span>
+                      {m.isMate === true && (
+                        <Image
+                          src="/Icons/friend.svg"
+                          alt="친구"
+                          width={16}
+                          height={16}
+                          className="shrink-0"
+                        />
+                      )}
+                    </span>
+                  </div>
+                  <div className="ml-auto pl-2 shrink-0 self-center">
                     <StateButton state={isActive} />
                   </div>
                 </li>

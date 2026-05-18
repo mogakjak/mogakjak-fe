@@ -26,6 +26,7 @@ export type HomeGroupMember = {
   todoTitle?: string | null;
   lastActiveAt?: string | null;
   cheerCount?: number | null;
+  isMate?: boolean;
 };
 
 export type Mate = {
