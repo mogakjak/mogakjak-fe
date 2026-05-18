@@ -45,7 +45,7 @@ export function useBrowserNotification() {
       title: string,
       options?: NotificationOptions
     ): Notification | null => {
-      if (!isSupported) {
+      if (typeof window === "undefined" || !("Notification" in window)) {
         console.warn("Notification API를 지원하지 않는 브라우저입니다.");
         return null;
       }
