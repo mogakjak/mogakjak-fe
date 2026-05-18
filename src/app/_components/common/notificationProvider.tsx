@@ -28,6 +28,12 @@ import type { InvitationNotification } from "@/app/_hooks/_websocket/notificatio
 import type { InvitationResponseNotification } from "@/app/_types/invitations";
 import { useMyInvitations } from "@/app/_hooks/invitations/useMyInvitations";
 import { sendGAEvent } from "@next/third-parties/google";
+import {
+  getTimerBrowserNotificationBody,
+  getTimerBrowserNotificationTag,
+  getTimerNotificationBody,
+  getTimerNotificationTitle,
+} from "@/app/_utils/timerNotification";
 
 type NotificationContextType = {
   showNotification: (message: FocusNotificationMessage) => void;
@@ -103,37 +109,39 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     [permission, requestPermission, showBrowserNotification]
   );
 
-  const handleTimerCompletionNotification = useCallback(
+  const showTimerBrowserNotification = useCallback(
     (notification: TimerCompletionNotification) => {
-      setTimerCompletionNotification(notification);
-
-      const title = notification.todoTitle
-        ? `"${notification.todoTitle}" 타이머 완료!`
-        : "타이머 완료!";
-
-      const body = notification.message || "설정한 시간이 완료되었습니다.";
+      const title = getTimerNotificationTitle(notification);
+      const body =
+        getTimerBrowserNotificationBody(notification) ??
+        getTimerNotificationBody(notification);
+      const tag = getTimerBrowserNotificationTag(notification);
+      const options = {
+        body,
+        icon: "/chorme/notificationIcon.png",
+        badge: "/chorme/notificationIcon.png",
+        tag,
+      };
 
       if (permission === "granted") {
-        showBrowserNotification(title, {
-          body: body,
-          icon: "/chorme/notificationIcon.png",
-          badge: "/chorme/notificationIcon.png",
-          tag: `timer-completion-${notification.sessionId}`,
-        });
+        showBrowserNotification(title, options);
       } else if (permission === "default") {
         requestPermission().then((granted) => {
           if (granted) {
-            showBrowserNotification(title, {
-              body: body,
-              icon: "/chorme/notificationIcon.png",
-              badge: "/chorme/notificationIcon.png",
-              tag: `timer-completion-${notification.sessionId}`,
-            });
+            showBrowserNotification(title, options);
           }
         });
       }
     },
     [permission, requestPermission, showBrowserNotification]
+  );
+
+  const handleTimerCompletionNotification = useCallback(
+    (notification: TimerCompletionNotification) => {
+      setTimerCompletionNotification(notification);
+      showTimerBrowserNotification(notification);
+    },
+    [showTimerBrowserNotification]
   );
 
   const handleCloseTimerCompletionModal = useCallback(() => {
