@@ -1,23 +1,41 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import clsx from "clsx";
+import { secondsToHms } from "@/app/_utils/todoTimer";
 
 interface TimerModalProps {
   isOpen: boolean;
   onClose: () => void;
   onStart: (targetSeconds: number) => void;
+  initialSeconds?: number;
 }
 
 export default function TimerModal({
   isOpen,
   onClose,
   onStart,
+  initialSeconds,
 }: TimerModalProps) {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (initialSeconds != null && initialSeconds > 0) {
+      const { hours: h, minutes: m, seconds: s } = secondsToHms(initialSeconds);
+      setHours(h);
+      setMinutes(m);
+      setSeconds(s);
+    } else {
+      setHours(0);
+      setMinutes(0);
+      setSeconds(0);
+    }
+  }, [isOpen, initialSeconds]);
 
   const formatTime = (value: number) => {
     return String(value).padStart(2, "0");

@@ -15,6 +15,8 @@ import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
+import { getDefaultTimerSecondsFromTodo } from "@/app/_utils/todoTimer";
+import type { Todo } from "@/app/_types/todo";
 
 type PreviewMainProps = {
   state: boolean;
@@ -136,6 +138,20 @@ export default function PreviewMain({ state, groupId, isOnboarding = false, curr
 
   const todoId = validTodoId ?? currentSession?.todo?.id ?? null;
 
+  const selectedTodo = useMemo((): Todo | null => {
+    if (!validTodoId) return null;
+    for (const category of todayTodos) {
+      const found = category.todos.find((todo) => todo.id === validTodoId);
+      if (found) return found;
+    }
+    return null;
+  }, [validTodoId, todayTodos]);
+
+  const defaultTimerSeconds = useMemo(
+    () => getDefaultTimerSecondsFromTodo(selectedTodo),
+    [selectedTodo]
+  );
+
   useEffect(() => {
     setHasSelectedTodo(!!todoId);
   }, [todoId, setHasSelectedTodo]);
@@ -178,6 +194,7 @@ export default function PreviewMain({ state, groupId, isOnboarding = false, curr
 
       <TimerComponent
         todoId={todoId}
+        defaultTimerSeconds={defaultTimerSeconds}
         groupId={groupId}
         isTaskPublic={isTaskPublic}
         isTimerPublic={isTimerPublic}

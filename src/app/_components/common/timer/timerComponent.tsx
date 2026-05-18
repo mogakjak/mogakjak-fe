@@ -25,6 +25,7 @@ import { useTimerMetrics } from "@/app/_hooks/timers/useTimerMetrics";
 import { sendGAEvent } from "@next/third-parties/google";
 import { nextPomodoro, type PomodoroSession } from "@/app/api/timers/api";
 import { timerKeys } from "@/app/api/timers/keys";
+import { secondsToHms } from "@/app/_utils/todoTimer";
 
 const CONTENT_FIXED = "h-[110px]";
 const POMODORO_PHASE_SYNC_MAX_ATTEMPTS = 3;
@@ -55,6 +56,7 @@ export default function TimerComponent({
   className,
   initialMode = "pomodoro",
   todoId,
+  defaultTimerSeconds,
   groupId,
   isTaskPublic,
   isTimerPublic,
@@ -63,6 +65,8 @@ export default function TimerComponent({
   className?: string;
   initialMode?: Mode;
   todoId?: string | null;
+  /** 선택된 할일 목표(남은) 시간 — 타이머 모드 시작 시 모달에 자동 입력 */
+  defaultTimerSeconds?: number;
   groupId?: string;
   isTaskPublic?: boolean;
   isTimerPublic?: boolean;
@@ -224,6 +228,49 @@ export default function TimerComponent({
     ]
   );
 
+  const startTimerWithSeconds = useCallback(
+    async (targetSeconds: number) => {
+      if (!todoId || targetSeconds <= 0) return;
+
+      const { hours, minutes, seconds } = secondsToHms(targetSeconds);
+      const config: TimerConfig = {
+        mode: "timer",
+        todoId,
+        participationType: groupId ? "GROUP" : "INDIVIDUAL",
+        groupId,
+        isTaskPublic,
+        isTimerPublic,
+        targetSeconds,
+      };
+
+      cdRef.current?.setTime(hours, minutes, seconds);
+      const session = await startSession(config);
+      if (session) {
+        handleSessionStarted(session, config);
+      }
+    },
+    [
+      todoId,
+      groupId,
+      isTaskPublic,
+      isTimerPublic,
+      startSession,
+      handleSessionStarted,
+    ]
+  );
+
+  useEffect(() => {
+    if (mode !== "timer" || running || isPaused) return;
+
+    if (!defaultTimerSeconds || defaultTimerSeconds <= 0) {
+      cdRef.current?.setTime(0, 0, 0);
+      return;
+    }
+
+    const { hours, minutes, seconds } = secondsToHms(defaultTimerSeconds);
+    cdRef.current?.setTime(hours, minutes, seconds);
+  }, [mode, defaultTimerSeconds, running, isPaused]);
+
   const onStart = useCallback(async () => {
     if (!todoId) {
       sendGAEvent("event", "timer_start_failed", {
@@ -311,6 +358,8 @@ export default function TimerComponent({
         } catch (error) {
           console.error("타이머 재개 실패:", error);
         }
+      } else if (defaultTimerSeconds && defaultTimerSeconds > 0) {
+        await startTimerWithSeconds(defaultTimerSeconds);
       } else {
         setTimerModalOpen(true);
       }
@@ -328,6 +377,8 @@ export default function TimerComponent({
     startTracking,
     startSession,
     handleSessionStarted,
+    defaultTimerSeconds,
+    startTimerWithSeconds,
   ]);
 
   const onPause = useCallback(async () => {
@@ -607,14 +658,19 @@ export default function TimerComponent({
         </div>
       );
     }
+    const preset = defaultTimerSeconds
+      ? secondsToHms(defaultTimerSeconds)
+      : { hours: 0, minutes: 0, seconds: 0 };
+
     return (
       <div className="w-full h-full grid place-items-center">
         <Countdown
+          key={`timer-${todoId ?? "none"}-${defaultTimerSeconds ?? 0}`}
           ref={cdRef}
           className="w-full h-full"
-          hours={0}
-          minutes={0}
-          seconds={0}
+          hours={preset.hours}
+          minutes={preset.minutes}
+          seconds={preset.seconds}
           autoStart={false}
           onComplete={async () => {
             sendGAEvent("event", "timer_complete", {
@@ -662,6 +718,8 @@ export default function TimerComponent({
     permission,
     requestPermission,
     showNotification,
+    defaultTimerSeconds,
+    todoId,
   ]);
 
   const handleTimerEndModalClose = useCallback(() => {
@@ -741,6 +799,7 @@ export default function TimerComponent({
           <TimerModal
             isOpen={timerModalOpen}
             onClose={() => setTimerModalOpen(false)}
+            initialSeconds={defaultTimerSeconds}
             onStart={async (targetSeconds: number) => {
               if (!todoId) {
                 sendGAEvent("event", "timer_start_failed", {
@@ -751,26 +810,9 @@ export default function TimerComponent({
                 setAlertModalOpen(true);
                 return;
               }
-              const config: TimerConfig = {
-                mode: "timer",
-                todoId,
-                participationType: groupId ? "GROUP" : "INDIVIDUAL",
-                groupId,
-                isTaskPublic,
-                isTimerPublic,
-                targetSeconds,
-              };
 
-              // Start Session via hook
-              const session = await startSession(config);
-
-              if (session) {
-                setTimerModalOpen(false);
-                handleSessionStarted(session, config);
-              } else {
-                // If failed or pending modal triggered, just close timer modal
-                setTimerModalOpen(false);
-              }
+              setTimerModalOpen(false);
+              await startTimerWithSeconds(targetSeconds);
             }}
           />
           {timerEndModalOpen && (
