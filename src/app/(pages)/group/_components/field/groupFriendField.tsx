@@ -47,9 +47,6 @@ export default function GroupFriendField({
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
   const canShowCheer = showCheerAction && !isActive && !isCurrentUser;
-  const relationLabel =
-    isMate === true ? "친구" : isMate === false ? "비친구" : null;
-
   const avatarSrc = isActive
     ? `/character/sleeping/sleepingLevel${level}.svg`
     : `/character/level${level}.svg`;
@@ -114,16 +111,13 @@ export default function GroupFriendField({
                   height={20}
                 />
               )}
-              {relationLabel && (
-                <span
-                  className={`ml-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                    isMate
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {relationLabel}
-                </span>
+              {isMate === true && (
+                <Image
+                  src="/Icons/friend.svg"
+                  alt="친구"
+                  width={16}
+                  height={16}
+                />
               )}
             </div>
           </div>
