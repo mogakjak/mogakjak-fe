@@ -2,6 +2,10 @@
 
 import { Button } from "@/components/button";
 import type { TimerCompletionNotification } from "@/app/_hooks/_websocket/notifications/useTimerCompletionNotification";
+import {
+  getTimerNotificationBody,
+  getTimerNotificationTitle,
+} from "@/app/_utils/timerNotification";
 
 type TimerCompletionModalProps = {
   notification: TimerCompletionNotification;
@@ -12,11 +16,8 @@ export default function TimerCompletionModal({
   notification,
   onClose,
 }: TimerCompletionModalProps) {
-  const title = notification.todoTitle
-    ? `"${notification.todoTitle}" 타이머 완료!`
-    : "타이머 완료!";
-
-  const message = notification.message || "설정한 시간이 완료되었습니다.";
+  const title = getTimerNotificationTitle(notification);
+  const message = getTimerNotificationBody(notification);
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[9999]">
