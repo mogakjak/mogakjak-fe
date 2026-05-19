@@ -11,6 +11,7 @@ import clsx from "clsx";
 import WorkSelectField from "./workSelectField";
 import type { CategoryColorToken } from "@/app/_types/category";
 import { useTodosByDate } from "@/app/_hooks/todo/useTodosByDate";
+import { toLocalDateString } from "@/app/_utils/date";
 
 export type AddWorkPayload = {
   categoryId: string;
@@ -93,15 +94,8 @@ export default function AddWorkForm({
     return categories;
   }, [categories, isOnboarding]);
 
-  // 선택된 날짜를 YYYY-MM-DD 형식으로 변환
-  const dateStr = useMemo(() => {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  }, [date]);
+  const dateStr = useMemo(() => toLocalDateString(date), [date]);
 
-  // 날짜가 바뀔 때마다 해당 날짜의 할 일 목록 fetch
   const { data: todosByDate = [] } = useTodosByDate(dateStr);
 
   // 날짜별 전체 Todo 목록 (카테고리 평탄화)

@@ -15,6 +15,7 @@ import { CATEGORY_COLOR_TOKEN_BY_NAME } from "@/app/_constants/categoryColor";
 import { useTodoCategoryController } from "@/app/_hooks/todoCategory/useTodoCategoryController";
 import { useTodoController } from "@/app/_hooks/todo/useTodoController";
 import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
+import { getTodayTodos } from "@/app/api/todos/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
@@ -159,6 +160,18 @@ export default function GroupMySidebar({
     [categories]
   );
 
+  const prefetchTodosForModal = useCallback(() => {
+    void queryClient.prefetchQuery({
+      queryKey: todoKeys.today(),
+      queryFn: getTodayTodos,
+    });
+  }, [queryClient]);
+
+  const openWorkModal = useCallback(() => {
+    prefetchTodosForModal();
+    setModalOpen(true);
+  }, [prefetchTodosForModal]);
+
   const handleWorkSubmit = useCallback(
     async (payload: AddWorkPayload) => {
       const yyyy = payload.date.getFullYear();
@@ -293,7 +306,7 @@ export default function GroupMySidebar({
                   if (isRunning) {
                     setTimerEndModalOpen(true);
                   } else {
-                    setModalOpen(true);
+                    openWorkModal();
                   }
                 }}
                 aria-label="할 일 편집"
@@ -376,7 +389,7 @@ export default function GroupMySidebar({
                     if (isRunning) {
                       setTimerEndModalOpen(true);
                     } else {
-                      setModalOpen(true);
+                      openWorkModal();
                     }
                   }}
                   aria-label="할 일 설정"
@@ -465,7 +478,7 @@ export default function GroupMySidebar({
             onConfirm={async () => {
               await forceStopTimer();
               setTimerEndModalOpen(false);
-              setModalOpen(true);
+              openWorkModal();
             }}
           />
         </div>
