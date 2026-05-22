@@ -179,14 +179,10 @@ export default function GroupMySidebar({
       const dd = String(payload.date.getDate()).padStart(2, "0");
       const formatted = `${yyyy}-${mm}-${dd}`;
 
-      const existingTodo = todayTodosList.find(
-        (todo) => todo.task === payload.title
-      );
-
       let resultTodo: Todo | null = null;
 
       if (payload.todoId) {
-        // 과거 작업을 선택한 경우 해당 작업의 날짜 정보를 오늘로 업데이트
+        // 선택·과거 작업 포함 — todoId 기준으로 한 번에 반영
         resultTodo = await updateTodo({
           todoId: payload.todoId,
           payload: {
@@ -196,7 +192,14 @@ export default function GroupMySidebar({
             targetTimeInSeconds: payload.targetSeconds,
           },
         });
-      } else if (existingTodo) {
+      } else {
+        const existingTodo = todayTodosList.find(
+          (todo) =>
+            todo.task === payload.title &&
+            todo.categoryId === payload.categoryId,
+        );
+
+      if (existingTodo) {
         // 오늘 할 일 목록 중 동일한 이름이 이미 있는 경우 업데이트
         resultTodo = await updateTodo({
           todoId: existingTodo.id,
@@ -215,6 +218,7 @@ export default function GroupMySidebar({
           date: formatted,
           targetTimeInSeconds: payload.targetSeconds,
         });
+      }
       }
 
       if (resultTodo) {
@@ -244,10 +248,6 @@ export default function GroupMySidebar({
           }
         );
 
-        if (typeof window !== "undefined") {
-          localStorage.setItem("selectedTodoId", resultTodo.id);
-          window.dispatchEvent(new Event("todoIdChanged"));
-        }
         setSelectedTodoId(resultTodo.id);
         setCurrentTodo(resultTodo);
         const [year, month, day] = resultTodo.date.split("-").map(Number);
@@ -265,13 +265,16 @@ export default function GroupMySidebar({
           },
         });
 
+        await refetchTodayTodos();
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("selectedTodoId", resultTodo.id);
+          window.dispatchEvent(new Event("todoIdChanged"));
+        }
+
         setModalOpen(false);
         setSelectedCategoryId(null);
       }
-
-      queryClient.invalidateQueries({ queryKey: todoKeys.today() });
-      queryClient.invalidateQueries({ queryKey: todoKeys.my() });
-      refetchTodayTodos();
     },
     [
       createTodo,

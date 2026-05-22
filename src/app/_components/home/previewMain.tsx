@@ -9,6 +9,8 @@ import Quotes from "./preview/quotes";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { PomodoroSession } from "@/app/api/timers/api";
 import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
+import { todoKeys } from "@/app/api/todos/keys";
+import type { TodoCategoryWithTodos } from "@/app/_types/todo";
 import { useMemo, useEffect, useState } from "react";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { useGroupDetail } from "@/app/_hooks/groups/useGroupDetail";
@@ -91,11 +93,22 @@ export default function PreviewMain({ state, groupId, isOnboarding = false, curr
   const isValidInTodayTodos = useMemo(() => {
     if (!savedTodoId) return false;
     if (!isTodayTodosFetched) return true;
-    for (const category of todayTodos) {
-      if (category.todos.some((todo) => todo.id === savedTodoId)) return true;
-    }
+
+    const isInList = (list: TodoCategoryWithTodos[]) =>
+      list.some((category) =>
+        category.todos.some((todo) => todo.id === savedTodoId),
+      );
+
+    if (isInList(todayTodos)) return true;
+
+    // 데이터보다 캐시가 먼저 갱신되는 경우 대비
+    const cached = queryClient.getQueryData<TodoCategoryWithTodos[]>(
+      todoKeys.today(),
+    );
+    if (cached && isInList(cached)) return true;
+
     return false;
-  }, [savedTodoId, todayTodos, isTodayTodosFetched]);
+  }, [savedTodoId, todayTodos, isTodayTodosFetched, queryClient]);
 
   const validTodoId = useMemo(() => {
     if (!savedTodoId) return null;
