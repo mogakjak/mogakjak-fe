@@ -4,6 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import TimerSelected from "./timerSelected";
+import DefaultTimerModeSelect from "./defaultTimerModeSelect";
+import {
+  buildTabOrderWithFirst,
+  normalizeTabOrderToModes,
+} from "@/app/_utils/defaultTimerMode";
+import { useTimerTabOrder } from "@/app/_hooks/timerSettings/useTimerTabOrder";
+import { useUpdateTimerTabOrder } from "@/app/_hooks/timerSettings/useUpdateTimerTabOrder";
 import TimerButtons from "./timerButton";
 import PomodoroDial, { PomodoroDialHandle } from "./pomodoro";
 import Stopwatch, { StopwatchHandle } from "./stopwatch";
@@ -112,6 +119,35 @@ export default function TimerComponent({
     closeActiveSessionModal,
   } = useTimerControl({ onSessionIdChange });
   const queryClient = useQueryClient();
+  const { data: tabOrderData, isFetched: isTabOrderFetched } = useTimerTabOrder();
+  const { mutateAsync: updateTabOrder, isPending: isUpdatingTabOrder } =
+    useUpdateTimerTabOrder();
+
+  const orderedModes = useMemo(
+    () => normalizeTabOrderToModes(tabOrderData?.tabOrder),
+    [tabOrderData?.tabOrder],
+  );
+
+  const defaultMode = orderedModes[0] ?? initialMode;
+
+  useEffect(() => {
+    if (!isTabOrderFetched || running) return;
+    setMode(defaultMode);
+  }, [isTabOrderFetched, defaultMode, running]);
+
+  const handleDefaultModeChange = useCallback(
+    async (next: Mode) => {
+      try {
+        await updateTabOrder({ tabOrder: buildTabOrderWithFirst(next) });
+        if (!running) {
+          setMode(next);
+        }
+      } catch (error) {
+        console.error("타이머 탭 순서 저장 실패:", error);
+      }
+    },
+    [running, updateTabOrder],
+  );
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
   const swRef = useRef<StopwatchHandle>(null);
@@ -756,8 +792,17 @@ export default function TimerComponent({
           className={clsx("w-full mx-auto space-y-4 mt-5", className)}
         >
           {!isInPip && (
-            <div className="mx-auto">
-              <TimerSelected value={mode} onChange={onSwitch} />
+            <div className="mx-auto space-y-3">
+              <DefaultTimerModeSelect
+                value={defaultMode}
+                onChange={handleDefaultModeChange}
+                disabled={running || isUpdatingTabOrder}
+              />
+              <TimerSelected
+                value={mode}
+                onChange={onSwitch}
+                modeOrder={orderedModes}
+              />
             </div>
           )}
 
