@@ -3,17 +3,32 @@
 import { useState } from "react";
 import SupportModal from "@/app/_components/common/supportModal";
 import Image from "next/image";
+import FloatingUiBowlButton from "@/app/_components/floatingUiBowlButton";
 
-export default function FloatingSupportButton() {
-    const [isOpen, setIsOpen] = useState(false);
+function FloatingSupportFab({ onOpen }: { onOpen: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="shrink-0 w-20 h-20"
+      aria-label="문의하기"
+    >
+      <Image src="/Icons/fab.svg" alt="" width={80} height={80} className="w-20 h-20" />
+    </button>
+  );
+}
 
-    return (
-        <>
-            <button onClick={() => setIsOpen(true)} className="fixed bottom-5 right-5 z-40 w-20 h-20">
-                <Image src="/Icons/fab.svg" alt="fab" width={80} height={80} className="w-20 h-20" />
-            </button>
+export default function FloatingButtons() {
+  const [isOpen, setIsOpen] = useState(false);
 
-            <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-        </>
-    );
+  return (
+    <>
+      <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3">
+        <FloatingUiBowlButton />
+        <FloatingSupportFab onOpen={() => setIsOpen(true)} />
+      </div>
+
+      <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    </>
+  );
 }

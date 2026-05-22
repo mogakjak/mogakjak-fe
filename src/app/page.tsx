@@ -1,5 +1,6 @@
 import HomePage from "./_components/home/homePage";
 import MobileHomePage from "./_components/home/mobileHomePage";
+import HomeFloatingButtons from "./_components/home/homeFloatingButtons";
 import WithMobileDetection from "./_utils/isMobileUserAgent";
 import { Metadata } from "next";
 
@@ -79,6 +80,7 @@ export default function Home() {
         <WithMobileDetection>
           {({ isMobile }) => (isMobile ? <MobileHomePage /> : <HomePage />)}
         </WithMobileDetection>
+        <HomeFloatingButtons />
       </main>
     </>
   );
