@@ -116,6 +116,7 @@ export default function AddWorkForm({
       title: initialValues.title,
       date: initialValues.date?.getTime(),
       targetSeconds: initialValues.targetSeconds,
+      todoId: initialValues.todoId,
     });
 
     if (prevInitialValuesRef.current !== currentKey) {
@@ -127,6 +128,7 @@ export default function AddWorkForm({
         setDate(initialValues.date);
       }
       setTarget(initialValues.targetSeconds ?? 0);
+      setSelectedTodoId(initialValues.todoId);
     }
   }, [initialValues]);
 
@@ -218,7 +220,8 @@ export default function AddWorkForm({
               options={displayCategories}
               onChange={(id) => {
                 setCategoryId(id);
-                setTitle(""); // 카테고리 변경 시 작업 초기화
+                setTitle("");
+                setSelectedTodoId(undefined);
                 onCategorySelect?.(id);
               }}
             />
@@ -230,10 +233,20 @@ export default function AddWorkForm({
               <WorkSelectField
                 value={title}
                 showAddOption={!isPastDate}
-                onChange={(selectedTask) => {
+                onChange={(selectedTask, isNew) => {
                   setTitle(selectedTask);
-                  if (allTodosByDate && selectedTask) {
-                    const selectedTodo = allTodosByDate.find((todo) => todo.task === selectedTask);
+                  if (isNew) {
+                    setSelectedTodoId(undefined);
+                    return;
+                  }
+                  if (selectedTask) {
+                    const selectedTodo =
+                      filteredTodayTodos.find((todo) => todo.task === selectedTask) ??
+                      allTodosByDate.find(
+                        (todo) =>
+                          todo.task === selectedTask &&
+                          (!categoryId || todo.categoryId === categoryId),
+                      );
                     if (selectedTodo) {
                       setCategoryId(selectedTodo.categoryId);
                       setSelectedTodoId(selectedTodo.id); // ID 저장
