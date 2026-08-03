@@ -1,6 +1,9 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface SupportModalProps {
     isOpen: boolean;
@@ -41,7 +44,10 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
                     <Link
                         href="https://leeward-earthquake-6dd.notion.site/30e3e052eacd80078f7ac9f57981e2b8?source=copy_link"
                         target="_blank"
-                        onClick={onClose}
+                        onClick={() => {
+                            sendGAEvent("event", "support_click", { action: "bug_report" });
+                            onClose();
+                        }}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
                     >
                         <div className="mr-3 flex h-6 w-6 items-center justify-center text-gray-500">
@@ -55,7 +61,10 @@ const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
                     <Link
                         href="https://leeward-earthquake-6dd.notion.site/FAQ-30e3e052eacd80feb4e1ea1a0c5a287d?source=copy_link"
                         target="_blank"
-                        onClick={onClose}
+                        onClick={() => {
+                            sendGAEvent("event", "support_click", { action: "faq" });
+                            onClose();
+                        }}
                         className="flex w-full items-center rounded-[8px] bg-gray-100 px-5 py-[13px] hover:bg-gray-200 transition-colors"
                     >
                         <div className="mr-3 flex h-6 w-6 items-center justify-center text-gray-500">

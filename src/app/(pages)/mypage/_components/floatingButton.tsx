@@ -4,6 +4,7 @@ import { useState } from "react";
 import SupportModal from "@/app/_components/common/supportModal";
 import Image from "next/image";
 import FloatingUiBowlButton from "@/app/_components/floatingUiBowlButton";
+import { sendGAEvent } from "@next/third-parties/google";
 
 function FloatingSupportFab({ onOpen }: { onOpen: () => void }) {
   return (
@@ -21,11 +22,16 @@ function FloatingSupportFab({ onOpen }: { onOpen: () => void }) {
 export default function FloatingButtons() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleOpen = () => {
+    sendGAEvent("event", "support_click", { action: "open" });
+    setIsOpen(true);
+  };
+
   return (
     <>
       <div className="fixed bottom-5 right-5 z-40 flex items-center gap-3">
         <FloatingUiBowlButton />
-        <FloatingSupportFab onOpen={() => setIsOpen(true)} />
+        <FloatingSupportFab onOpen={handleOpen} />
       </div>
 
       <SupportModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
