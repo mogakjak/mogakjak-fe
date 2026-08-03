@@ -4,14 +4,23 @@ import { useRecordDashboard } from "@/app/_hooks/records/useRecordDashboard";
 import ChartMain from "./chart/chartMain";
 import Cards from "./data/cards";
 import Tabs from "./tabs/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TabType } from "@/app/_utils/tabType";
+import { sendGAEvent } from "@next/third-parties/google";
 
 export default function DashBorad() {
   const [selectedTab, setSelectedTab] = useState("오늘");
   const rangeType = TabType(selectedTab);
 
   const { data, isPending } = useRecordDashboard(rangeType);
+
+  useEffect(() => {
+    sendGAEvent("event", "record_view", {
+      tab: "dashboard",
+      period: rangeType,
+    });
+  }, [rangeType]);
+
   return (
     <div className="w-full bg-white rounded-[20px] px-10 py-7">
       <Tabs onChange={setSelectedTab} defaultValue="오늘" />

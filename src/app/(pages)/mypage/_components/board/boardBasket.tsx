@@ -7,6 +7,7 @@ import Image from "next/image";
 import CharacterModal from "./basket/characterModal";
 import { rows } from "@/app/_utils/getCharacterByHours";
 import { CharacterCard } from "@/app/_types/mypage";
+import { sendGAEvent } from "@next/third-parties/google";
 
 const getDescriptionByLevel = (level: number): string => {
   const character = rows.find((c) => c.level === level);
@@ -37,7 +38,10 @@ export default function BoardBasket({
         </h2>
         <button
           className="flex items-center gap-2.5 text-body1-16M text-gray-400 px-7 py-2 border border-gray-200 rounded-[22px]"
-          onClick={() => setOpenCharacter(true)}
+          onClick={() => {
+            sendGAEvent("event", "fruit_dex_open");
+            setOpenCharacter(true);
+          }}
         >
           <Image
             src="/Icons/info.svg"

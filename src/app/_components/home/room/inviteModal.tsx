@@ -8,6 +8,7 @@ import { useInviteMate } from "@/app/_hooks/groups/useInviteMate";
 import ProfileActive from "@/app/(pages)/mypage/_components/board/mate/profileActive";
 import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
 import SimpleToast from "@/app/_components/common/SimpleToast";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface InviteModalProps {
   onClose: () => void;
@@ -115,6 +116,9 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
 
     try {
       await navigator.clipboard.writeText(inviteUrl);
+      sendGAEvent("event", "invite_link_copy", {
+        group_id: groupId,
+      });
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);

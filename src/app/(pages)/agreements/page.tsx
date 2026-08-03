@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { postAgreements } from "@/app/api/users/api";
+import { sendGAEvent } from "@next/third-parties/google";
 import AgreementComponent from "./components/AgreementComponent";
 
 export default function AgreementsPage() {
@@ -38,6 +39,12 @@ export default function AgreementsPage() {
         try {
             await postAgreements({
                 agreements,
+            });
+
+            sendGAEvent("event", "auth_agreement_submit", {
+                terms: agreements.service,
+                privacy: agreements.privacy,
+                marketing: agreements.marketing,
             });
 
             // Success -> redirect to onboarding

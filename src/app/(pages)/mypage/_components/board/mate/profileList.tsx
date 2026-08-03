@@ -9,6 +9,7 @@ import { useCommonGroups } from "@/app/_hooks/groups/useCommonGroups";
 import { usePoke } from "@/app/_hooks/groups/usePoke";
 import { useMateActiveStatus } from "@/app/_hooks/_websocket/status/useMateActiveStatus";
 import { formatLastActivity } from "@/app/_utils/formatLastActivity";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface ProfileListProps {
   profiles: Mate[];
@@ -119,6 +120,10 @@ export default function ProfileList({
       },
       {
         onSuccess: () => {
+          sendGAEvent("event", "poke_send", {
+            group_id: groupId,
+            to_user_id: selectedUserId,
+          });
           setShowModal(false);
           setSelectedUserId(null);
         },

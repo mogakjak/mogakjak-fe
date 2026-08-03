@@ -52,7 +52,10 @@ export default function LoginPageClient() {
     };
   }, []);
 
-  const handleStartClick = () => {
+  const handleStartClick = (ctaType: "start" | "create_space") => {
+    sendGAEvent("event", "login_scroll_cta", {
+      cta_type: ctaType,
+    });
     focusSectionRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -73,7 +76,7 @@ export default function LoginPageClient() {
         </div>
         <button
           type="button"
-          onClick={handleStartClick}
+          onClick={() => handleStartClick("start")}
           className="w-36 h-11 px-6 py-5 bg-red-500 rounded-xl flex justify-center items-center gap-2.5 overflow-hidden"
         >
           <span className="text-neutral-50 text-base font-semibold font-['Pretendard'] leading-6">
@@ -100,7 +103,7 @@ export default function LoginPageClient() {
             </div>
             <button
               type="button"
-              onClick={handleStartClick}
+              onClick={() => handleStartClick("create_space")}
               className="h-11 px-6 py-5 bg-red-500 rounded-xl inline-flex justify-center items-center gap-2.5 overflow-hidden"
             >
               <span className="justify-start text-neutral-50 text-base font-semibold font-['Pretendard'] leading-6">

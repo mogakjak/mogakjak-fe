@@ -26,6 +26,7 @@ import { loungeKeys } from "@/app/api/lounge/keys";
 import { groupKeys } from "@/app/api/groups/keys";
 import GroupFriendField from "@/app/(pages)/group/_components/field/groupFriendField";
 import type { HomeGroupMember } from "@/app/_types/groups";
+import { sendGAEvent } from "@next/third-parties/google";
 
 function toDisplayStatus(member: HomeGroupMember) {
   if (member.participationStatus === "PARTICIPATING") return "active" as const;
@@ -166,6 +167,7 @@ export default function LoungePage() {
   const focusEnabled = lounge?.myFocusCheckEnabled ?? false;
 
   const handleCheer = async (targetUserId: string) => {
+    sendGAEvent("event", "lounge_cheer_click");
     try {
       await cheerMutation.mutateAsync(targetUserId);
     } catch (error) {
