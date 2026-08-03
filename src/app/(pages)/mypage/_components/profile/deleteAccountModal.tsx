@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface DeleteAccountModalProps {
   nickname: string;
@@ -34,6 +35,9 @@ export default function DeleteAccountModal({
   };
 
   const handleNext = () => {
+    sendGAEvent("event", "account_withdraw", {
+      reason: selectedReasons.join(",") || feedback || "none",
+    });
     onClose();
     onNext(selectedReasons, feedback);
   };

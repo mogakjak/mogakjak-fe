@@ -1,6 +1,7 @@
 "use client";
 
 import { invalidateTokenCache } from "@/app/api/auth/api";
+import { sendGAEvent } from "@next/third-parties/google";
 
 interface AccountSettingsModalProps {
   onClose: () => void;
@@ -12,6 +13,7 @@ export default function AccountSettingsModal({
   onDeleteAccount,
 }: AccountSettingsModalProps) {
   const handleLogout = async () => {
+    sendGAEvent("event", "account_logout");
     onClose();
     try {
       // 토큰 캐시 무효화
