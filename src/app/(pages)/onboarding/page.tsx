@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { sendGAEvent } from "@next/third-parties/google";
 import PreviewMain from "@/app/_components/home/previewMain";
 import RoomMain from "@/app/_components/home/roomMain";
 import FriendMain from "@/app/_components/home/friendMain";
@@ -62,22 +63,63 @@ const dummyGroupData: GroupDetail = {
     progressRate: 0,
 };
 
+const toGaStep = (step: number) => step + 1; // internal -1..10 -> GA 0..11
+
 export default function OnboardingPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
 
     // 여러 개 있던 모달 상태를 없애고 currentStep 하나로 모든 흐름을 제어합니다.
     const [currentStep, setCurrentStep] = useState(-1);
+    const currentStepRef = useRef(currentStep);
+    const completedRef = useRef(false);
 
     const { data: categories = [] } = useTodoCategories();
     const { data: profile, isLoading: isProfileLoading } = useProfile();
 
+    currentStepRef.current = currentStep;
+
+    useEffect(() => {
+        sendGAEvent("event", "onboarding_step", {
+            step: toGaStep(currentStep),
+            action: "view",
+        });
+    }, [currentStep]);
+
+    useEffect(() => {
+        return () => {
+            if (!completedRef.current) {
+                sendGAEvent("event", "onboarding_step", {
+                    step: toGaStep(currentStepRef.current),
+                    action: "close",
+                });
+            }
+        };
+    }, []);
+
     // --- 공통 다음/이전 단계 함수 ---
-    const handleNextStep = () => setCurrentStep((prev) => prev + 1);
+    const trackNext = (step: number) => {
+        sendGAEvent("event", "onboarding_step", {
+            step: toGaStep(step),
+            action: "next",
+        });
+    };
+
+    const handleNextStep = () => {
+        trackNext(currentStep);
+        setCurrentStep((prev) => prev + 1);
+    };
     const handlePrevStep = () => setCurrentStep((prev) => prev - 1);
-    const goToStep = (step: number) => setCurrentStep(step);
+    const goToStep = (step: number) => {
+        if (step > currentStep) {
+            trackNext(currentStep);
+        }
+        setCurrentStep(step);
+    };
 
     const handleFinalModalClose = () => {
+        trackNext(currentStep);
+        completedRef.current = true;
         const nextPath = getOnboardingRedirectPath();
         
         queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
