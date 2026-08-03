@@ -20,6 +20,7 @@ import StartIcon from "/Icons/start.svg";
 import Pause from "/Icons/pause.svg";
 import Stop from "/Icons/stop.svg";
 import { formatTime } from "@/app/_utils/formatTime";
+import { sendGAEvent } from "@next/third-parties/google";
 
 type Status = "idle" | "running" | "paused";
 
@@ -283,6 +284,9 @@ export default function GroupTimer({
   const handleStart = async () => {
     // 참여자가 2명 미만이면 AlertModal 띄우고 타이머 시작 막기
     if (activeParticipantCount < 2) {
+      sendGAEvent("event", "group_timer_limit", {
+        reason: "member_count_below_2",
+      });
       setLimitOpen(true);
       return; // 타이머 시작을 완전히 막음
     }
