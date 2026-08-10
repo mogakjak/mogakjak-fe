@@ -27,6 +27,7 @@ import { groupKeys } from "@/app/api/groups/keys";
 import GroupFriendField from "@/app/(pages)/group/_components/field/groupFriendField";
 import type { HomeGroupMember } from "@/app/_types/groups";
 import { sendGAEvent } from "@next/third-parties/google";
+import { useSelectedTodoActualSeconds } from "@/app/_hooks/todo/useSelectedTodoActualSeconds";
 
 function toDisplayStatus(member: HomeGroupMember) {
   if (member.participationStatus === "PARTICIPATING") return "active" as const;
@@ -49,6 +50,7 @@ export default function LoungePage() {
   const isEnteringRef = useRef(false);
   const hasEnteredRef = useRef(false);
   const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
+  const myTodoActual = useSelectedTodoActualSeconds();
 
   useOfficialLoungePresenceSubscription({
     enabled: entered,
@@ -299,7 +301,16 @@ export default function LoungePage() {
               ) : (
                 <div className="w-full flex-1 overflow-y-auto">
                   <div className="grid grid-cols-4 gap-x-5 gap-y-3">
-                    {displayedMembers.map((member) => (
+                    {displayedMembers.map((member) => {
+                      const isCurrentUser = member.userId === currentUserId;
+                      const todoActual = member.todo?.actualTimeInSeconds;
+                      const activeTime = isCurrentUser && myTodoActual.hasTodo
+                        ? myTodoActual.actualSeconds
+                        : todoActual !== null && todoActual !== undefined
+                          ? todoActual
+                          : undefined;
+
+                      return (
                       <GroupFriendField
                         key={member.userId}
                         status={toDisplayStatus(member)}
@@ -307,11 +318,21 @@ export default function LoungePage() {
                         level={member.level}
                         isPublic={true}
                         isMate={member.isMate ?? false}
-                        activeTime={member.personalTimerSeconds ?? undefined}
-                        task={member.todoTitle ?? undefined}
+                        activeTime={activeTime}
+                        todoId={
+                          isCurrentUser && myTodoActual.hasTodo
+                            ? myTodoActual.todoId
+                            : member.todo?.id
+                        }
+                        disableLiveTick={isCurrentUser && myTodoActual.hasTodo}
+                        task={
+                          isCurrentUser && myTodoActual.hasTodo
+                            ? myTodoActual.taskTitle
+                            : member.todo?.title ?? member.todoTitle ?? undefined
+                        }
                         lastActiveAt={member.lastActiveAt ?? undefined}
                         profileUrl={member.profileUrl}
-                        isCurrentUser={member.userId === currentUserId}
+                        isCurrentUser={isCurrentUser}
                         isHost={false}
                         cheerCount={member.cheerCount ?? 0}
                         userId={member.userId}
@@ -319,7 +340,8 @@ export default function LoungePage() {
                         onCheerClick={handleCheer}
                         showCheerAction={true}
                       />
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

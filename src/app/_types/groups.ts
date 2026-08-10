@@ -11,6 +11,13 @@ export type MyGroup = {
   members: HomeGroupMember[];
 };
 
+/** 멤버카드에 노출하는 선택 작업 스냅샷 (누적 몰입 시간) */
+export type MemberTodoSnapshot = {
+  id: string;
+  title?: string | null;
+  actualTimeInSeconds?: number | null;
+};
+
 export type HomeGroupMember = {
   userId: string;
   nickname: string;
@@ -24,6 +31,7 @@ export type HomeGroupMember = {
   daysSinceLastParticipation?: number | null;
   personalTimerSeconds?: number | null;
   todoTitle?: string | null;
+  todo?: MemberTodoSnapshot | null;
   lastActiveAt?: string | null;
   cheerCount?: number | null;
   isMate?: boolean;
@@ -135,6 +143,7 @@ export type GroupMemberStatus = {
   daysSinceLastParticipation?: number;
   personalTimerSeconds?: number;
   todoTitle?: string;
+  todo?: MemberTodoSnapshot | null;
   cheerCount?: number;
 };
 

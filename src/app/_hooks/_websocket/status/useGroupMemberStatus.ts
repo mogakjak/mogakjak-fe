@@ -5,6 +5,7 @@ import {
   GroupDetail,
   GroupMemberStatus as GroupsGroupMemberStatus,
   HomeGroupMember,
+  MemberTodoSnapshot,
 } from "@/app/_types/groups";
 import { useWebSocket } from "../useWebSocket";
 
@@ -18,8 +19,9 @@ export type GroupMemberStatus = {
   participationStatus: "NOT_PARTICIPATING" | "RESTING" | "PARTICIPATING";
   enteredAt?: string;
   daysSinceLastParticipation?: number;
-  personalTimerSeconds?: number | null; // null이면 비공개, 숫자면 공개
-  todoTitle?: string | null; // null이면 비공개, 문자열이면 공개
+  personalTimerSeconds?: number | null;
+  todoTitle?: string | null;
+  todo?: MemberTodoSnapshot | null;
   cheerCount?: number;
 };
 
@@ -129,6 +131,7 @@ export function useGroupMemberStatus({
           enteredAt: existingStatus?.enteredAt,
           personalTimerSeconds: existingStatus?.personalTimerSeconds,
           todoTitle: existingStatus?.todoTitle,
+          todo: existingStatus?.todo,
         });
       });
 
@@ -157,6 +160,7 @@ export function useGroupMemberStatus({
               ...member,
               personalTimerSeconds: member.personalTimerSeconds ?? undefined,
               todoTitle: member.todoTitle ?? undefined,
+              todo: member.todo,
             };
             next.set(member.userId, convertedMember);
           });
@@ -168,6 +172,7 @@ export function useGroupMemberStatus({
             personalTimerSeconds:
               update.updatedMember.personalTimerSeconds ?? undefined,
             todoTitle: update.updatedMember.todoTitle ?? undefined,
+            todo: update.updatedMember.todo,
           };
           next.set(update.updatedMember.userId, convertedMember);
         }
@@ -227,6 +232,7 @@ export function useGroupMemberStatus({
               personalTimerSeconds:
                 status.personalTimerSeconds ?? member.personalTimerSeconds,
               todoTitle: status.todoTitle ?? member.todoTitle,
+              todo: status.todo !== undefined ? status.todo : member.todo,
               enteredAt: status.enteredAt ?? member.enteredAt,
               daysSinceLastParticipation:
                 status.daysSinceLastParticipation ??

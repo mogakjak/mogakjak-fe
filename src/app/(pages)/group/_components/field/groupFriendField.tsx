@@ -13,6 +13,8 @@ export interface GroupFriendFieldProps {
   friendName?: string;
   isPublic?: boolean;
   activeTime?: number | null;
+  todoId?: string;
+  disableLiveTick?: boolean;
   task?: string;
   lastActiveAt?: Date | string | number;
   profileUrl?: string;
@@ -33,6 +35,8 @@ export default function GroupFriendField({
   friendName = "가나디",
   isPublic = true,
   activeTime,
+  todoId,
+  disableLiveTick = false,
   task,
   lastActiveAt,
   profileUrl,
@@ -157,6 +161,8 @@ export default function GroupFriendField({
           status={status}
           isPublic={isPublic}
           activeTime={activeTime}
+          todoId={todoId}
+          disableLiveTick={disableLiveTick}
           task={task}
           lastActiveAt={lastActiveAt}
         />

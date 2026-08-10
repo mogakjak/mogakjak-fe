@@ -6,7 +6,6 @@ import LoginButton from "./loginButton";
 import { invalidateTokenCache } from "@/app/api/auth/api";
 import { sendGAEvent } from "@next/third-parties/google";
 import { processInviteParam } from "@/app/_lib/invite/inviteRedirectLogic";
-import FloatingUiBowlButton from "@/app/_components/floatingUiBowlButton";
 
 export default function LoginPageClient() {
   const focusSectionRef = useRef<HTMLDivElement | null>(null);
@@ -160,10 +159,6 @@ export default function LoginPageClient() {
           <LoginButton type="kakao" />
         </div>
       </section>
-
-      <div className="fixed bottom-5 right-5 z-40">
-        <FloatingUiBowlButton />
-      </div>
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { formatTime } from "@/app/_utils/formatTime";
 import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
 import Icon from "../../../../_components/common/Icons";
 
-// 아이콘
 import Book from "/Icons/book.svg";
 import Sleep from "/Icons/sleep.svg";
 import Empty from "/Icons/empty.svg";
@@ -17,6 +16,8 @@ interface GroupMemberStateProps {
   isPublic: boolean;
   task?: string;
   activeTime?: number | null;
+  todoId?: string;
+  disableLiveTick?: boolean;
   restTime?: number;
   activeSec?: number;
   breakSec?: number;
@@ -27,16 +28,16 @@ export default function GroupMemberState({
   status,
   task,
   activeTime,
+  todoId,
+  disableLiveTick = false,
   lastActiveAt,
 }: GroupMemberStateProps) {
-  // activeTime 계산
-  // activeTime이 null이거나 undefined이면 시간 표시를 하지 않음
-  // activeTime이 0이면 실제로 0초인 경우이므로 시간 표시
   const serverActiveTime =
-    activeTime !== null && activeTime !== undefined ? toSec(activeTime) : 0;
+    activeTime !== null && activeTime !== undefined
+      ? Math.max(0, Math.floor(activeTime))
+      : 0;
   const serverLastActiveAt = useRef<Date | null>(null);
 
-  // 서버에서 받은 lastActiveAt을 Date로 변환하여 저장
   useEffect(() => {
     if (lastActiveAt) {
       const last =
@@ -47,13 +48,16 @@ export default function GroupMemberState({
     }
   }, [lastActiveAt]);
 
-  // 클라이언트에서 추적하는 활성 시간
   const clientActiveTime = useLiveTimer({
     serverSeconds: serverActiveTime,
-    isRunning: status === "active" && activeTime !== null && activeTime !== undefined,
+    isRunning:
+      !disableLiveTick &&
+      status === "active" &&
+      activeTime !== null &&
+      activeTime !== undefined,
+    refreshKey: todoId,
   });
 
-  // lastActiveAt으로부터 경과 시간 계산 (end 상태일 때)
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
 
   useEffect(() => {
@@ -73,22 +77,18 @@ export default function GroupMemberState({
       }
     };
 
-    // 즉시 업데이트
     updateElapsedTime();
 
-    // 1분마다 업데이트
     const interval = setInterval(updateElapsedTime, 60000);
 
     return () => clearInterval(interval);
   }, [status, lastActiveAt]);
 
-  // active 상태일 때만 증가하는 시간 사용, rest/end는 서버에서 받은 정적 시간 사용
-  // activeTime이 null이거나 undefined이면 0 사용 (표시하지 않음)
   const effectiveActive =
     activeTime !== null && activeTime !== undefined
-      ? status === "active"
-        ? clientActiveTime
-        : serverActiveTime
+      ? disableLiveTick || status !== "active"
+        ? serverActiveTime
+        : clientActiveTime
       : 0;
 
   const now = new Date();
@@ -107,7 +107,6 @@ export default function GroupMemberState({
   const statusIcon =
     status === "active" ? Book : status === "rest" ? Sleep : Empty;
 
-  // 할 일 제목 표시 (task가 없으면 "뭔가 하는 중")
   const line1 =
     status === "active"
       ? task
@@ -117,10 +116,6 @@ export default function GroupMemberState({
         ? "잠시 쉬어갈래요"
         : "몰입에 참여하지 않았어요";
 
-  // 누적 시간 표시
-  // activeTime이 null이거나 undefined이면 비공개로 간주하여 "참여 중" 등으로 표시
-  // 백엔드에서 isTimerPublic이 false이면 null을 보내므로, null이면 "참여 중" 표시
-  // activeTime이 0이면서 status가 active인 경우는 실제로 0초인 경우이므로 시간 표시
   const hasActiveTime = activeTime !== null && activeTime !== undefined;
 
   const line2 = hasActiveTime
@@ -171,9 +166,4 @@ export default function GroupMemberState({
       </p>
     </div>
   );
-}
-
-function toSec(x: number): number {
-  if (x > 100_000) return Math.floor(x / 1000);
-  return Math.floor(x);
 }
