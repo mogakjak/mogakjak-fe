@@ -24,6 +24,11 @@ type OfficialLoungeSummaryResponse = {
     daysSinceLastParticipation?: number | null;
     personalTimerSeconds?: number | null;
     todoTitle?: string | null;
+    todo?: {
+      id: string;
+      title?: string | null;
+      actualTimeInSeconds?: number | null;
+    } | null;
     lastActiveAt?: string | null;
     cheerCount?: number | null;
     isMate?: boolean | null;
@@ -52,6 +57,7 @@ const normalizeMembers = (
     daysSinceLastParticipation: member.daysSinceLastParticipation ?? null,
     personalTimerSeconds: member.personalTimerSeconds ?? null,
     todoTitle: member.todoTitle ?? null,
+    todo: member.todo ?? null,
     lastActiveAt: member.lastActiveAt ?? null,
     cheerCount: member.cheerCount ?? 0,
     isMate: member.isMate ?? false,

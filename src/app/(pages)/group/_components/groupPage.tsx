@@ -24,6 +24,7 @@ import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExi
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 import GroupNoti from "./sidebar/groupNoti";
 import { sendGAEvent } from "@next/third-parties/google";
+import { useSelectedTodoActualSeconds } from "@/app/_hooks/todo/useSelectedTodoActualSeconds";
 
 type GroupPageProps = {
   onExitGroup: () => void;
@@ -135,6 +136,8 @@ export default function GroupPage({
   const currentUserId = useMemo(() => {
     return getUserIdFromToken(token);
   }, [token]);
+
+  const myTodoActual = useSelectedTodoActualSeconds();
 
   // 방장 권한 확인 (한 번만 계산)
   const isHost = useIsGroupHost(memberStatuses);
@@ -281,13 +284,13 @@ export default function GroupPage({
                   } else {
                     displayStatus = "end";
                   }
-                  const activeTime =
-                    status.personalTimerSeconds !== null &&
-                      status.personalTimerSeconds !== undefined
-                      ? status.personalTimerSeconds
-                      : undefined;
-
                   const isCurrentUser = member.userId === currentUserId;
+                  const todoActual = status.todo?.actualTimeInSeconds;
+                  const activeTime = isCurrentUser && myTodoActual.hasTodo
+                    ? myTodoActual.actualSeconds
+                    : todoActual !== null && todoActual !== undefined
+                      ? todoActual
+                      : undefined;
 
                   // 최근 참여 일수
                   const lastActiveAt = status.daysSinceLastParticipation
@@ -312,7 +315,17 @@ export default function GroupPage({
                         level={status.level}
                         isPublic={true}
                         activeTime={activeTime}
-                        task={status.todoTitle ?? undefined}
+                        todoId={
+                          isCurrentUser && myTodoActual.hasTodo
+                            ? myTodoActual.todoId
+                            : status.todo?.id
+                        }
+                        disableLiveTick={isCurrentUser && myTodoActual.hasTodo}
+                        task={
+                          isCurrentUser && myTodoActual.hasTodo
+                            ? myTodoActual.taskTitle
+                            : status.todo?.title ?? status.todoTitle ?? undefined
+                        }
                         lastActiveAt={lastActiveAt}
                         profileUrl={member.profileUrl}
                         isCurrentUser={member.userId === currentUserId}
