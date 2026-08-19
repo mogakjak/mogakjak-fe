@@ -7,7 +7,8 @@ import Icon from "../../../_components/common/Icons";
 
 import ReviewPopup from "../../../_components/group/review/reviewPopup";
 import GroupTimer from "./sidebar/groupTimer";
-import GroupGoal from "./sidebar/groupGoal";
+import GroupQuote from "./sidebar/groupQuote";
+import GroupPresence from "./sidebar/groupPresence";
 import SidebarButton from "./sidebar/sidebarButton";
 import InviteModal from "@/app/_components/home/room/inviteModal";
 import TimerEndModal from "@/app/_components/common/timerEndModal";
@@ -184,11 +185,16 @@ export default function GroupPage({
     return true;
   }, [isConnected]);
 
-  const participatingMemberCount = useMemo(() => {
+  const realtimeParticipatingMemberCount = useMemo(() => {
     return Array.from(memberStatuses.values()).filter(
       (status) => status.participationStatus !== "NOT_PARTICIPATING",
     ).length;
   }, [memberStatuses]);
+
+  const participatingMemberCount =
+    realtimeParticipatingMemberCount ||
+    groupData.participatingMemberCount ||
+    0;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -205,39 +211,34 @@ export default function GroupPage({
 
   return (
     <div className="flex flex-col items-center w-full gap-5">
-      <div className="flex gap-5 w-full">
+      <div className="hidden" aria-hidden="true">
+        <GroupTimer
+          groupId={groupData.groupId}
+          initialAccumulatedDuration={groupData.accumulatedDuration || 0}
+          onSessionIdChange={setSessionId}
+          onStatusChange={setTimerStatus}
+          memberStatuses={memberStatuses}
+        />
+      </div>
+      <div className="flex w-full gap-5">
         <div
-          className={`flex flex-col gap-3 bg-white px-8 py-5 rounded-2xl ${onboardingStep === 1 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
+          className={`min-w-0 flex-3 ${onboardingStep === 1 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
         >
-          <h3 className="text-heading4-20SB text-black">그룹 타이머</h3>
-          <GroupTimer
-            groupId={groupData.groupId}
-            initialAccumulatedDuration={groupData.accumulatedDuration || 0}
-            onSessionIdChange={setSessionId}
-            onStatusChange={setTimerStatus}
-            memberStatuses={memberStatuses}
-          />
+          <GroupQuote />
         </div>
-        <div className="w-full">
-          <div className="flex gap-5 h-full">
-            <div
-              className={`w-full ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""
-                }`}
-            >
-              <GroupGoal data={groupData} isHost={isHost} />
-            </div>
-
-            <div
-              className={`w-full ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""
-                }`}
-            >
-              <GroupNoti
-                data={groupData}
-                isHost={isHost}
-                isOnboarding={onboardingStep !== undefined}
-              />
-            </div>
-          </div>
+        <div
+          className={`min-w-0 flex-3 ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
+        >
+          <GroupPresence participatingMemberCount={participatingMemberCount} />
+        </div>
+        <div
+          className={`min-w-0 flex-2 ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
+        >
+          <GroupNoti
+            data={groupData}
+            isHost={isHost}
+            isOnboarding={onboardingStep !== undefined}
+          />
         </div>
       </div>
 
@@ -245,7 +246,7 @@ export default function GroupPage({
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {participatingMemberCount}/
-            {groupData.members.length}
+            {groupData.totalMemberCount ?? groupData.members.length}
           </p>
           <SidebarButton
             className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)] font-bold" : ""}`}
