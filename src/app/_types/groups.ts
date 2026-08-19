@@ -113,6 +113,8 @@ export type GroupDetail = {
   members: GroupMembers;
   progressRate: number;
   groupGoal: GroupGoal;
+  participatingMemberCount?: number;
+  totalMemberCount?: number;
 };
 
 // 그룹 공동 목표
@@ -149,9 +151,7 @@ export type GroupMemberStatus = {
 
 // 알림
 export type NotiReq = {
-  isNotificationAgreed: boolean;
   notificationCycle: number;
-  notificationMessage: string;
 };
 
 export type NotiRes = {
@@ -160,6 +160,15 @@ export type NotiRes = {
   isNotificationAgreed: boolean;
   notificationCycle: number;
   notificationMessage: string;
+};
+
+export type GroupFocusCheckReq = {
+  enabled: boolean;
+};
+
+export type GroupFocusCheckRes = {
+  groupId: string;
+  myFocusCheckEnabled: boolean;
 };
 
 //  목표시간
