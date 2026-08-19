@@ -12,6 +12,8 @@ export const groupKeys = {
   detail: (groupId: string) => [...groupKeys.all(), "detail", groupId] as const,
   notifications: (groupId: string) =>
     [...groupKeys.all(), "notifications", groupId] as const,
+  focusCheck: (groupId: string) =>
+    [...groupKeys.all(), "focus-check", groupId] as const,
   goal: (groupId: string) => [...groupKeys.all(), "goal", groupId] as const,
   invitations: (groupId: string) =>
     [...groupKeys.all(), "invitations", groupId] as const,

@@ -14,6 +14,8 @@ import type {
   CommonGroup,
   PokeRequest,
   GroupHostAckStatus,
+  GroupFocusCheckReq,
+  GroupFocusCheckRes,
 } from "@/app/_types/groups";
 import { request } from "../request";
 
@@ -176,6 +178,20 @@ export const putGroupNoti = (groupId: string, payload: NotiReq) =>
 export const getGroupNoti = (groupId: string) =>
   request<NotiRes>(GROUPS_BASE, `/${groupId}/notifications`, {
     method: "GET",
+  });
+
+export const getMyGroupFocusCheck = (groupId: string) =>
+  request<GroupFocusCheckRes>(GROUPS_BASE, `/${groupId}/notifications/me`, {
+    method: "GET",
+  });
+
+export const putMyGroupFocusCheck = (
+  groupId: string,
+  payload: GroupFocusCheckReq,
+) =>
+  request<GroupFocusCheckRes>(GROUPS_BASE, `/${groupId}/notifications/me`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
   });
 
 export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>

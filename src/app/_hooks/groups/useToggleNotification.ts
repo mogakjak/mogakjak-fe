@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGetGroupNotifications } from "./useGetGroupNotifications";
-import { useUpdateGroupNotifications } from "./useUpdateGroupNotifications";
+import { useGetMyGroupFocusCheck } from "./useGetMyGroupFocusCheck";
+import { useUpdateMyGroupFocusCheck } from "./useUpdateMyGroupFocusCheck";
 
 /**
  * 그룹 알림 토글 상태를 관리하는 커스텀 훅
@@ -8,39 +9,37 @@ import { useUpdateGroupNotifications } from "./useUpdateGroupNotifications";
  * @returns 알림 데이터, 로컬 토글 상태, 토글 핸들러
  */
 export function useToggleNotification(groupId: string) {
-    const [localAgreed, setLocalAgreed] = useState(false);
+    const [localEnabled, setLocalEnabled] = useState(true);
 
     const { data: notiData } = useGetGroupNotifications(groupId);
-    const { mutateAsync: updateNoti } = useUpdateGroupNotifications(groupId);
+    const { data: focusCheckData } = useGetMyGroupFocusCheck(groupId);
+    const { mutateAsync: updateFocusCheck } = useUpdateMyGroupFocusCheck(groupId);
 
     // 서버 데이터로 로컬 상태 동기화
     useEffect(() => {
-        if (notiData) {
-            setLocalAgreed(notiData.isNotificationAgreed);
+        if (focusCheckData) {
+            setLocalEnabled(focusCheckData.myFocusCheckEnabled);
         }
-    }, [notiData]);
+    }, [focusCheckData]);
 
     const handleToggle = (checked: boolean) => {
-        if (!notiData) return;
+        if (!focusCheckData) return;
 
         // 낙관적 업데이트: 즉시 UI 반영
-        setLocalAgreed(checked);
+        setLocalEnabled(checked);
 
         // 백그라운드에서 서버 업데이트 (await 제거)
-        updateNoti({
-            isNotificationAgreed: checked,
-            notificationCycle: notiData.notificationCycle,
-            notificationMessage: notiData.notificationMessage,
-        }).catch((e) => {
+        updateFocusCheck(checked).catch((e) => {
             console.error("알림 설정 업데이트 실패:", e);
             // 실패 시 롤백
-            setLocalAgreed(!checked);
+            setLocalEnabled(!checked);
         });
     };
 
     return {
         notiData,
-        localAgreed,
+        localEnabled,
         handleToggle,
+        isReady: !!notiData && !!focusCheckData,
     };
 }
