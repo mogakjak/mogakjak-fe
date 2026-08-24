@@ -3,6 +3,7 @@ import {
   putGroupNoti,
   putMyGroupFocusCheck,
 } from "@/app/api/groups/api";
+import { postCheckAward } from "@/app/api/characters/api";
 
 describe("group focus check API", () => {
   const fetchMock = jest.fn();
@@ -60,6 +61,17 @@ describe("group focus check API", () => {
         method: "PUT",
         body: JSON.stringify({ notificationCycle: 3 }),
       }),
+    );
+  });
+
+  it("캐릭터 성장 조건은 서버가 계산하므로 check-award 요청에 본문을 보내지 않는다", async () => {
+    fetchMock.mockResolvedValue(response([]));
+
+    await postCheckAward();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/characters/check-award",
+      expect.not.objectContaining({ body: expect.anything() }),
     );
   });
 });

@@ -11,7 +11,7 @@ export default function Board({ selectedMenu, basket }: BoardProps) {
   return (
     <div className="w-full h-full p-6 bg-white rounded-[20px]">
       {selectedMenu === "내 과일 바구니" ? (
-        <BoardBasket ownedCharacters={basket.ownedCharacters} />
+        <BoardBasket basket={basket} />
       ) : (
         <BoardMate />
       )}

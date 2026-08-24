@@ -20,6 +20,14 @@ export type CharacterGuideItem = {
   name: string;
   imageUrl: string;
   unlockTime: string;
+  currentAttendanceDays: number;
+  currentFocusTimeInSeconds: number;
+  requiredAttendanceDays: number;
+  requiredFocusTimeInSeconds: number;
+  unlocked: boolean;
+  requirementsSatisfied: boolean;
+  attendanceProgressRate: number;
+  focusTimeProgressRate: number;
 };
 
 export type CharacterCard = {
@@ -28,6 +36,24 @@ export type CharacterCard = {
   imageUrl: string;
   level: number;
   unlockCondition: string;
+  requiredAttendanceDays: number;
+  requiredFocusTimeInSeconds: number;
+  attendanceProgressRate: number;
+  focusTimeProgressRate: number;
+};
+
+export type CharacterGrowthProgress = {
+  currentAttendanceDays: number;
+  currentFocusTimeInSeconds: number;
+  currentLevel: number;
+  nextLevel: number | null;
+  requiredAttendanceDays: number | null;
+  requiredFocusTimeInSeconds: number | null;
+  remainingAttendanceDays: number | null;
+  remainingFocusTimeInSeconds: number | null;
+  attendanceProgressRate: number;
+  focusTimeProgressRate: number;
+  maxLevelReached: boolean;
 };
 
 export type CharacterBasket = {
@@ -40,6 +66,7 @@ export type CharacterBasket = {
   collectedCharacterCount: number;
   ownedCharacters: CharacterCard[];
   lockedCharacters: CharacterCard[];
+  growthProgress: CharacterGrowthProgress;
 };
 
 // 프로필 관련 타입
@@ -56,6 +83,7 @@ export type Character = {
   mainCharacterImage: string;
   isActive: boolean;
   unlockTimeInSeconds: number;
+  requiredAttendanceDays?: number;
 };
 
 export type Quote = {

@@ -61,6 +61,8 @@ export default function ReviewPopup({
             level={awardCharacter.level}
             imageSrc={awardCharacter.imageSrc}
             name={awardCharacter.name}
+            requiredAttendanceDays={awardCharacter.requiredAttendanceDays}
+            requiredFocusTimeInSeconds={awardCharacter.requiredFocusTimeInSeconds}
             onClose={handleAwardModalClose}
           />
         </div>

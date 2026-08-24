@@ -1,21 +1,25 @@
 import Image from "next/image";
 
 interface CharacterProps {
-  hours: number;
   level: number;
   name: string;
   description: string;
   imageUrl: string;
   locked?: boolean;
+  unlockCondition?: string;
+  attendanceProgressRate?: number;
+  focusTimeProgressRate?: number;
 }
 
 export default function Character({
-  hours,
   level,
   name,
   description,
   imageUrl,
   locked = false,
+  unlockCondition,
+  attendanceProgressRate,
+  focusTimeProgressRate,
 }: CharacterProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-100 border border-gray-200">
@@ -32,6 +36,12 @@ export default function Character({
           <p className="text-caption-12R text-gray-600 text-center whitespace-pre-line">
             {description}
           </p>
+          {attendanceProgressRate != null && focusTimeProgressRate != null &&
+            (attendanceProgressRate < 100 || focusTimeProgressRate < 100) && (
+              <p className="text-caption-12R text-gray-400">
+                출석 {Math.round(attendanceProgressRate)}% · 몰입 {Math.round(focusTimeProgressRate)}%
+              </p>
+            )}
         </div>
       ) : (
         <div className="flex flex-col gap-3 items-center justify-center py-2">
@@ -43,7 +53,7 @@ export default function Character({
             className="object-contain opacity-80"
           />
           <p className="text-body1-16SB text-gray-400 text-center">
-            {hours}시간 달성 후에 만나요!
+            {unlockCondition || "성장 조건 달성 후에 만나요!"}
           </p>
         </div>
       )}

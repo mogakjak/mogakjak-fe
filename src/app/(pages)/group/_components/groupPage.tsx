@@ -129,7 +129,12 @@ export default function GroupPage({
   }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId]);
 
   // 그룹 멤버 상태 관리 훅
-  const { memberStatuses, isConnected } = useGroupMemberStatus({
+  const {
+    memberStatuses,
+    isConnected,
+    participatingMemberCount: wsParticipatingMemberCount,
+    totalMemberCount: wsTotalMemberCount,
+  } = useGroupMemberStatus({
     groupId: groupData.groupId,
     groupData,
   });
@@ -192,9 +197,12 @@ export default function GroupPage({
   }, [memberStatuses]);
 
   const participatingMemberCount =
-    realtimeParticipatingMemberCount ||
-    groupData.participatingMemberCount ||
-    0;
+    wsParticipatingMemberCount ??
+    groupData.participatingMemberCount ??
+    realtimeParticipatingMemberCount;
+
+  const totalMemberCount =
+    wsTotalMemberCount ?? groupData.totalMemberCount ?? groupData.members.length;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -246,7 +254,7 @@ export default function GroupPage({
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {participatingMemberCount}/
-            {groupData.totalMemberCount ?? groupData.members.length}
+            {totalMemberCount}
           </p>
           <SidebarButton
             className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)] font-bold" : ""}`}

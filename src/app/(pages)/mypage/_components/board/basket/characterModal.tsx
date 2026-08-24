@@ -1,11 +1,13 @@
 import Image from "next/image";
-import { rows } from "@/app/_utils/getCharacterByHours";
+import { CharacterCard } from "@/app/_types/mypage";
 
 interface CharacterModalProps {
   onClose: () => void;
+  characters: CharacterCard[];
+  ownedLevels: Set<number>;
 }
 
-export default function CharacterModal({ onClose }: CharacterModalProps) {
+export default function CharacterModal({ onClose, characters, ownedLevels }: CharacterModalProps) {
   return (
     <div className="bg-white p-5 w-[516px] rounded-[20px]">
       <button className="flex ml-auto" onClick={onClose} aria-label="닫기">
@@ -27,13 +29,13 @@ export default function CharacterModal({ onClose }: CharacterModalProps) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((item) => (
-                  <tr key={item.level} className={"border-b border-gray-300 "}>
+                {characters.map((item) => (
+                  <tr key={item.level} className="border-b border-gray-300">
                     <td className="py-[13px] pl-4 text-gray-600 text-body1-16R">
                       Lv {item.level}
                     </td>
                     <td className="py-[13px] text-gray-800">
-                      {item.level === 1 ? "회원가입" : `${item.hours}시간`}
+                      {ownedLevels.has(item.level) ? "달성" : item.unlockCondition}
                     </td>
                     <td className="py-[13px] pr-4 text-left text-black">
                       {item.name}

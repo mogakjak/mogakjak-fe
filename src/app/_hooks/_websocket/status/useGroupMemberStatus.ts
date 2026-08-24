@@ -29,6 +29,8 @@ export type GroupMemberStatusUpdate = {
   groupId: string;
   members?: GroupMemberStatus[];
   updatedMember?: GroupMemberStatus;
+  participatingMemberCount?: number;
+  totalMemberCount?: number;
 };
 
 type UseGroupMemberStatusOptionsBase = {
@@ -70,6 +72,8 @@ export function useGroupMemberStatus(
   connect: () => Promise<void>;
   disconnect: () => void;
   memberStatuses: Map<string, GroupsGroupMemberStatus>;
+  participatingMemberCount: number | undefined;
+  totalMemberCount: number | undefined;
 };
 
 export function useGroupMemberStatus(
@@ -80,6 +84,8 @@ export function useGroupMemberStatus(
   disconnect: () => void;
   membersWithStatus: (HomeGroupMember & { isActive: boolean })[];
   activeCount: number;
+  participatingMemberCount: number | undefined;
+  totalMemberCount: number | undefined;
 };
 
 export function useGroupMemberStatus(
@@ -88,6 +94,8 @@ export function useGroupMemberStatus(
   isConnected: boolean;
   connect: () => Promise<void>;
   disconnect: () => void;
+  participatingMemberCount: number | undefined;
+  totalMemberCount: number | undefined;
 };
 
 export function useGroupMemberStatus({
@@ -107,9 +115,20 @@ export function useGroupMemberStatus({
     Map<string, GroupMemberStatus>
   >(new Map());
 
+  // 그룹 상세 WS가 보내는 서버 기준 참여/전체 인원 수를 보관합니다.
+  const [memberCounts, setMemberCounts] = useState<{
+    participating?: number;
+    total?: number;
+  }>({});
+
   // groupData가 제공되면 초기 멤버 상태 설정 및 groupData 변경 시 업데이트
   useEffect(() => {
     if (!groupData) return;
+
+    setMemberCounts({
+      participating: groupData.participatingMemberCount,
+      total: groupData.totalMemberCount,
+    });
 
     setMemberStatuses((prev) => {
       const next = new Map(prev);
@@ -147,6 +166,17 @@ export function useGroupMemberStatus({
   }, [groupData]);
 
   const handleUpdate = (update: GroupMemberStatusUpdate) => {
+    if (
+      update.participatingMemberCount !== undefined ||
+      update.totalMemberCount !== undefined
+    ) {
+      setMemberCounts((prev) => ({
+        participating:
+          update.participatingMemberCount ?? prev.participating,
+        total: update.totalMemberCount ?? prev.total,
+      }));
+    }
+
     // groupData가 제공되면 상태 관리 모드
     if (groupData) {
       setMemberStatuses((prev) => {
@@ -256,6 +286,8 @@ export function useGroupMemberStatus({
       connect,
       disconnect,
       memberStatuses,
+      participatingMemberCount: memberCounts.participating,
+      totalMemberCount: memberCounts.total,
     } as const;
   }
 
@@ -267,6 +299,8 @@ export function useGroupMemberStatus({
       disconnect,
       membersWithStatus,
       activeCount,
+      participatingMemberCount: memberCounts.participating,
+      totalMemberCount: memberCounts.total,
     } as const;
   }
 
@@ -275,5 +309,7 @@ export function useGroupMemberStatus({
     isConnected,
     connect,
     disconnect,
+    participatingMemberCount: memberCounts.participating,
+    totalMemberCount: memberCounts.total,
   } as const;
 }

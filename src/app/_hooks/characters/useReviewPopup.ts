@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCreateFeedback } from "@/app/_hooks/feedback/useCreateFeedback";
 import { useFeedbackTags } from "@/app/_hooks/feedback/useFeedbackTags";
 import { FeedbackTagType } from "@/app/_types/feedback";
 // import { useExitGroupSession } from "@/app/_hooks/groups/useExitGroupSession"; // 제거됨
-import { useTotalStudyTime } from "@/app/_hooks/mypage/useTotalStudyTime";
 import { useCheckAward } from "@/app/_hooks/characters/useCheckAward";
 import type { AwardCharacterState } from "@/app/_types/characters";
+import { mypageKeys } from "@/app/api/mypage/keys";
+import { characterKeys } from "@/app/api/characters/keys";
 
 export type EmojiType = "toobad" | "bad" | "soso" | "good" | "sogood";
 
@@ -76,7 +78,7 @@ export function useReviewPopup({
     const { mutateAsync: createFeedback, isPending: isSubmitting } =
         useCreateFeedback();
     const { mutateAsync: checkAward } = useCheckAward();
-    const { refetch: refetchTotalStudyTime } = useTotalStudyTime();
+    const queryClient = useQueryClient();
 
     const handleEmojiClick = (emoji: EmojiType) => {
         setSelectedEmoji((prev) => (prev === emoji ? null : emoji));
@@ -105,14 +107,14 @@ export function useReviewPopup({
                 ]);
             }
 
-            const { data: studyTimeData } = await refetchTotalStudyTime();
-            const totalStudyTime = studyTimeData?.totalStudyTime ?? 0;
-
-            const awards = await checkAward({
-                totalStudyTimeInSeconds: totalStudyTime,
-            });
-
-
+            // 서버가 출석일과 몰입 시간을 기준으로 직접 판정하므로 요청 본문은 없습니다.
+            const awards = await checkAward();
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: mypageKeys.basket() }),
+                queryClient.invalidateQueries({ queryKey: mypageKeys.guide() }),
+                queryClient.invalidateQueries({ queryKey: mypageKeys.profile() }),
+                queryClient.invalidateQueries({ queryKey: characterKeys.all() }),
+            ]);
 
             if (awards && awards.length > 0) {
                 const first = awards[0];
@@ -120,6 +122,8 @@ export function useReviewPopup({
                     level: first.level,
                     name: first.name,
                     imageSrc: first.mainCharacterImage,
+                    requiredAttendanceDays: first.requiredAttendanceDays,
+                    requiredFocusTimeInSeconds: first.unlockTimeInSeconds,
                 });
                 return;
             }
