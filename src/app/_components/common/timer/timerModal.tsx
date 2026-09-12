@@ -43,9 +43,16 @@ export default function TimerModal({
 
   const updateTime = useCallback(
     (h: number, m: number, s: number) => {
-      const newHours = Math.max(0, Math.min(99, h));
+      const newHours = Math.max(0, Math.min(24, h));
       const newMinutes = Math.max(0, Math.min(59, m));
       const newSeconds = Math.max(0, Math.min(59, s));
+      // 24:00:00만 허용하고 24:xx:xx는 24:00:00으로 고정
+      if (newHours === 24 && (newMinutes > 0 || newSeconds > 0)) {
+        setHours(24);
+        setMinutes(0);
+        setSeconds(0);
+        return;
+      }
       setHours(newHours);
       setMinutes(newMinutes);
       setSeconds(newSeconds);
@@ -54,7 +61,11 @@ export default function TimerModal({
   );
 
   const handleStart = useCallback(() => {
-    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    const MAX_SECONDS = 24 * 3600;
+    const totalSeconds = Math.min(
+      MAX_SECONDS,
+      hours * 3600 + minutes * 60 + seconds,
+    );
     if (totalSeconds > 0) {
       onStart(totalSeconds);
       onClose();
@@ -113,7 +124,7 @@ export default function TimerModal({
                 value={formatTime(hours)}
                 onChange={(e) => {
                   const val = e.target.value.replace(/\D/g, '');
-                  const num = val === '' ? 0 : Math.min(99, parseInt(val, 10));
+                  const num = val === '' ? 0 : Math.min(24, parseInt(val, 10));
                   updateTime(num, minutes, seconds);
                 }}
                 onBlur={(e) => {

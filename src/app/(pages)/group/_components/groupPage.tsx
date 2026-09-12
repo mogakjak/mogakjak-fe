@@ -6,21 +6,21 @@ import GroupFriendField from "./field/groupFriendField";
 import Icon from "../../../_components/common/Icons";
 
 import ReviewPopup from "../../../_components/group/review/reviewPopup";
-import GroupTimer from "./sidebar/groupTimer";
 import GroupQuote from "./sidebar/groupQuote";
 import GroupPresence from "./sidebar/groupPresence";
 import SidebarButton from "./sidebar/sidebarButton";
 import InviteModal from "@/app/_components/home/room/inviteModal";
+import KickMemberModal from "@/app/_components/home/room/kickMemberModal";
 import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
-import { useFinishGroupTimer } from "@/app/_hooks/timers/useFinishGroupTimer";
 import { useTimer } from "@/app/_contexts/TimerContext";
 
 import Add from "/Icons/add.svg";
 import { GroupDetail } from "@/app/_types/groups";
 import { useGroupMemberStatus } from "@/app/_hooks/_websocket/status/useGroupMemberStatus";
 import { useSendCheer } from "@/app/_hooks/groups/useSendCheer";
+import { useKickGroupMember } from "@/app/_hooks/groups/useKickGroupMember";
 import { useGroupSessionExitGuard } from "@/app/_hooks/groups/useGroupSessionExitGuard";
 import { useIsGroupHost } from "@/app/_hooks/groups/useIsGroupHost";
 import GroupNoti from "./sidebar/groupNoti";
@@ -34,8 +34,6 @@ type GroupPageProps = {
   onboardingStep?: number;
 };
 
-type TimerStatus = "idle" | "running" | "paused";
-
 export default function GroupPage({
   onExitGroup,
   groupData,
@@ -45,36 +43,30 @@ export default function GroupPage({
   const [openReview, setOpenReview] = useState(false);
   const [openInviteModal, setOpenInviteModal] = useState(false);
   const [openTimerEndModal, setOpenTimerEndModal] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [timerStatus, setTimerStatus] = useState<TimerStatus>("idle");
+  const [kickTarget, setKickTarget] = useState<{
+    userId: string;
+    nickname: string;
+  } | null>(null);
   const [pendingRoute, setPendingRoute] = useState<(() => void) | null>(null);
   const [isExiting, setIsExiting] = useState(false);
-  const isExitingRef = useRef(false); // useCallback 클로저 문제 방지용 ref
-
-  const finishGroupTimerMutation = useFinishGroupTimer(
-    groupData.groupId,
-    sessionId || "",
-  );
+  const isExitingRef = useRef(false);
 
   const { setNavigationInterceptor, isRunning, forceStopTimer } = useTimer();
   const { exitSessionOnce } = useGroupSessionExitGuard(groupData.groupId);
 
-
-
   const { token } = useAuthState();
 
-  // 네비게이션 인터셉터 등록
   useEffect(() => {
     setNavigationInterceptor(() => (onConfirm: () => void | Promise<void>) => {
       setPendingRoute(() => onConfirm);
-      if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
+      if (isRunning) {
         setOpenTimerEndModal(true);
       } else {
         setOpenReview(true);
       }
     });
     return () => setNavigationInterceptor(null);
-  }, [setNavigationInterceptor, timerStatus, isRunning]);
+  }, [setNavigationInterceptor, isRunning]);
 
   useEffect(() => {
     history.pushState(null, "", location.href);
@@ -82,7 +74,7 @@ export default function GroupPage({
     const handlePopState = () => {
       history.pushState(null, "", location.href);
 
-      if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
+      if (isRunning) {
         setOpenTimerEndModal(true);
       } else {
         setOpenReview(true);
@@ -94,16 +86,17 @@ export default function GroupPage({
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [timerStatus, isRunning]);
+  }, [isRunning]);
 
-  // 최종 나가기 처리 (리뷰 팝업 등에서 호출)
   const handleFinalExit = useCallback(async () => {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
 
     try {
-      const enterTimeStr = sessionStorage.getItem(`group_enter_time_${groupData.groupId}`);
+      const enterTimeStr = sessionStorage.getItem(
+        `group_enter_time_${groupData.groupId}`,
+      );
       if (enterTimeStr) {
         const enterTime = Number(enterTimeStr);
         const stayDurationSeconds = Math.floor((Date.now() - enterTime) / 1000);
@@ -128,7 +121,6 @@ export default function GroupPage({
     }
   }, [exitSessionOnce, pendingRoute, onExitGroup, groupData.groupId]);
 
-  // 그룹 멤버 상태 관리 훅
   const { memberStatuses, isConnected } = useGroupMemberStatus({
     groupId: groupData.groupId,
     groupData,
@@ -139,11 +131,10 @@ export default function GroupPage({
   }, [token]);
 
   const myTodoActual = useSelectedTodoActualSeconds();
-
-  // 방장 권한 확인 (한 번만 계산)
   const isHost = useIsGroupHost(memberStatuses);
 
   const sendCheerMutation = useSendCheer(groupData.groupId);
+  const kickMemberMutation = useKickGroupMember();
 
   const handleCheerClick = (targetUserId: string) => {
     sendGAEvent("event", "cheer_click");
@@ -152,6 +143,30 @@ export default function GroupPage({
       {
         onError: (error) => {
           console.error("응원 보내기 실패:", error);
+        },
+      },
+    );
+  };
+
+  const handleKickClick = (userId: string, nickname: string) => {
+    setKickTarget({ userId, nickname });
+  };
+
+  const handleConfirmKick = () => {
+    if (!kickTarget) return;
+    kickMemberMutation.mutate(
+      { groupId: groupData.groupId, targetUserId: kickTarget.userId },
+      {
+        onSuccess: () => {
+          setKickTarget(null);
+        },
+        onError: (error) => {
+          console.error("멤버 내보내기 실패:", error);
+          alert(
+            error instanceof Error
+              ? error.message
+              : "멤버 내보내기에 실패했습니다.",
+          );
         },
       },
     );
@@ -179,9 +194,7 @@ export default function GroupPage({
   }, [memberStatuses, currentUserId]);
 
   const isMemberStatusLoaded = useMemo(() => {
-    // WebSocket 연결 여부와 상관없이 기본 데이터가 있으면 로드된 것으로 간주하되,
-    // WebSocket 업데이트가 오면 실시간 정보를 덧씌움
-    if (!isConnected) return true; // 연결 중이어도 이미 groupData가 있으므로 true
+    if (!isConnected) return true;
     return true;
   }, [isConnected]);
 
@@ -195,6 +208,9 @@ export default function GroupPage({
     realtimeParticipatingMemberCount ||
     groupData.participatingMemberCount ||
     0;
+
+  const totalMemberCount =
+    groupData.totalMemberCount ?? groupData.members.length;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -211,15 +227,6 @@ export default function GroupPage({
 
   return (
     <div className="flex flex-col items-center w-full gap-5">
-      <div className="hidden" aria-hidden="true">
-        <GroupTimer
-          groupId={groupData.groupId}
-          initialAccumulatedDuration={groupData.accumulatedDuration || 0}
-          onSessionIdChange={setSessionId}
-          onStatusChange={setTimerStatus}
-          memberStatuses={memberStatuses}
-        />
-      </div>
       <div className="flex w-full gap-5">
         <div
           className={`min-w-0 flex-3 ${onboardingStep === 1 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
@@ -229,7 +236,10 @@ export default function GroupPage({
         <div
           className={`min-w-0 flex-3 ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
         >
-          <GroupPresence participatingMemberCount={participatingMemberCount} />
+          <GroupPresence
+            participatingMemberCount={participatingMemberCount}
+            totalMemberCount={totalMemberCount}
+          />
         </div>
         <div
           className={`min-w-0 flex-2 ${onboardingStep === 2 ? "rounded-2xl border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)]" : ""}`}
@@ -246,7 +256,7 @@ export default function GroupPage({
         <div className="flex justify-between mb-2">
           <p className="text-heading4-20R text-gray-600 mb-3">
             <b className="text-black">그룹원</b> {participatingMemberCount}/
-            {groupData.totalMemberCount ?? groupData.members.length}
+            {totalMemberCount}
           </p>
           <SidebarButton
             className={`px-7 py-2 cursor-pointer ${onboardingStep === 3 ? "border-4 border-red-200 shadow-[0_0_30px_5px_rgba(0,0,0,0.2)] font-bold" : ""}`}
@@ -287,18 +297,22 @@ export default function GroupPage({
                   }
                   const isCurrentUser = member.userId === currentUserId;
                   const todoActual = status.todo?.actualTimeInSeconds;
-                  const activeTime = isCurrentUser && myTodoActual.hasTodo
-                    ? myTodoActual.actualSeconds
-                    : todoActual !== null && todoActual !== undefined
-                      ? todoActual
-                      : undefined;
+                  const activeTime =
+                    isCurrentUser && myTodoActual.hasTodo
+                      ? myTodoActual.actualSeconds
+                      : todoActual !== null && todoActual !== undefined
+                        ? todoActual
+                        : undefined;
 
-                  // 최근 참여 일수
                   const lastActiveAt = status.daysSinceLastParticipation
                     ? new Date(
-                      Date.now() -
-                      status.daysSinceLastParticipation * 24 * 60 * 60 * 1000,
-                    )
+                        Date.now() -
+                          status.daysSinceLastParticipation *
+                            24 *
+                            60 *
+                            60 *
+                            1000,
+                      )
                     : undefined;
 
                   return (
@@ -325,7 +339,9 @@ export default function GroupPage({
                         task={
                           isCurrentUser && myTodoActual.hasTodo
                             ? myTodoActual.taskTitle
-                            : status.todo?.title ?? status.todoTitle ?? undefined
+                            : (status.todo?.title ??
+                              status.todoTitle ??
+                              undefined)
                         }
                         lastActiveAt={lastActiveAt}
                         profileUrl={member.profileUrl}
@@ -335,6 +351,10 @@ export default function GroupPage({
                         userId={member.userId}
                         groupId={groupData.groupId}
                         onCheerClick={handleCheerClick}
+                        canKick={
+                          isHost && !isCurrentUser && status.role !== "HOST"
+                        }
+                        onKickClick={handleKickClick}
                       />
                     </div>
                   );
@@ -347,7 +367,7 @@ export default function GroupPage({
         <div className="flex mt-4">
           <Button
             onClick={() => {
-              if (timerStatus === "running" || timerStatus === "paused" || isRunning) {
+              if (isRunning) {
                 setOpenTimerEndModal(true);
               } else {
                 setOpenReview(true);
@@ -371,20 +391,11 @@ export default function GroupPage({
             <TimerEndModal
               onClose={() => setOpenTimerEndModal(false)}
               onConfirm={async () => {
-                // 개인 타이머 UI 강제 종료 (버튼 + 디스플레이 리셋)
                 if (isRunning) {
                   try {
                     await forceStopTimer();
                   } catch (error) {
                     console.error("개인 타이머 강제 종료 실패:", error);
-                  }
-                }
-
-                if (sessionId && participatingMemberCount <= 1) {
-                  try {
-                    await finishGroupTimerMutation.mutateAsync();
-                  } catch (error) {
-                    console.error("그룹 타이머 종료 실패:", error);
                   }
                 }
 
@@ -404,7 +415,7 @@ export default function GroupPage({
           <div className="relative" onClick={(e) => e.stopPropagation()}>
             <ReviewPopup
               groupName={groupData.name}
-              sessionId={sessionId || ""}
+              sessionId=""
               onClose={() => setOpenReview(false)}
               onExitGroup={handleFinalExit}
               isExiting={isExiting}
@@ -424,6 +435,17 @@ export default function GroupPage({
               onClose={() => setOpenInviteModal(false)}
             />
           </div>
+        </div>
+      )}
+
+      {kickTarget && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-100">
+          <KickMemberModal
+            memberName={kickTarget.nickname}
+            isPending={kickMemberMutation.isPending}
+            onClose={() => setKickTarget(null)}
+            onConfirm={handleConfirmKick}
+          />
         </div>
       )}
     </div>

@@ -87,7 +87,7 @@ function Category({
   };
 
   const handleRename = async (id: string, newName: string, reason: "enter" | "blur") => {
-    const trimmed = newName.trim();
+    const trimmed = newName.trim().slice(0, 20);
     const target = categoryList.find((c) => c.id === id);
     if (!target) return true;
 

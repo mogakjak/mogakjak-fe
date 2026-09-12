@@ -176,7 +176,8 @@ export default function CategoryRow({
             <input
               ref={inputRef}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              maxLength={20}
+              onChange={(e) => setValue(e.target.value.slice(0, 20))}
               onBlur={() => {
                 if (ignoreBlurOnCommit.current) return;
                 void commitEdit("blur");

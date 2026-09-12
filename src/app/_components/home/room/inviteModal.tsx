@@ -210,6 +210,8 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                       const isInviting = invitingUserId === profile.userId;
                       const isAlreadyInvited =
                         profile.inviteStatus === "ALREADY_INVITED";
+                      const isInOfficialLounge =
+                        profile.inviteStatus === "ALREADY_IN_OFFICIAL_LOUNGE";
                       const isCanInvite = profile.inviteStatus === "CAN_INVITE";
 
                       return (
@@ -240,6 +242,11 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                           <button
                             onClick={() => handleInvite(profile.userId)}
                             disabled={isInviting || !isCanInvite}
+                            title={
+                              isInOfficialLounge
+                                ? "이미 공식 라운지 참여 중"
+                                : undefined
+                            }
                             className="w-20 h-7 px-2.5 py-2.5 bg-gray-200 rounded-2xl flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <span className="text-zinc-500 text-xs font-semibold leading-4">
@@ -247,7 +254,9 @@ export default function InviteModal({ onClose, groupId }: InviteModalProps) {
                                 ? "초대 중..."
                                 : isAlreadyInvited
                                   ? "초대함"
-                                  : "초대하기"}
+                                  : isInOfficialLounge
+                                    ? "라운지 중"
+                                    : "초대하기"}
                             </span>
                           </button>
                         </div>

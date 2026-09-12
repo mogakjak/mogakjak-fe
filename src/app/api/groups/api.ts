@@ -7,8 +7,6 @@ import type {
   CreateGroupBody,
   NotiRes,
   NotiReq,
-  GroupGoalRes,
-  GroupGoalReq,
   InviteResponse,
   InviteRequest,
   CommonGroup,
@@ -194,14 +192,13 @@ export const putMyGroupFocusCheck = (
     body: JSON.stringify(payload),
   });
 
-export const putGroupGoal = (groupId: string, payload: GroupGoalReq) =>
-  request<GroupGoalRes>(GROUPS_BASE, `/${groupId}/goals`, {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
-
 export const leaveGroup = (groupId: string) =>
   request<unknown>(GROUPS_BASE, `/${groupId}/members/me`, {
+    method: "DELETE",
+  });
+
+export const kickGroupMember = (groupId: string, targetUserId: string) =>
+  request<unknown>(GROUPS_BASE, `/${groupId}/members/${targetUserId}`, {
     method: "DELETE",
   });
 

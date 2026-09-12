@@ -16,7 +16,8 @@ export default function WorkTitleField({
   return (
     <input
       value={value}
-      onChange={(e) => onChange?.(e.target.value)}
+      maxLength={35}
+      onChange={(e) => onChange?.(e.target.value.slice(0, 35))}
       placeholder={placeholder}
       className={clsx(
         "h-11 w-full px-4 py-2 bg-gray-100 rounded-lg outline-1 outline-gray-200 text-sm leading-tight text-neutral-900 placeholder:text-zinc-500",
