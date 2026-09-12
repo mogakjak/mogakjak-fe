@@ -3,7 +3,7 @@
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: "todoRequired" | "groupTimerLimit" | "newHostAck" | "officialLoungeFull";
+  type: "todoRequired" | "newHostAck" | "officialLoungeFull";
 }
 
 const MODAL_CONTENT = {
@@ -16,19 +16,6 @@ const MODAL_CONTENT = {
         상단의 ✏️연필 아이콘을 눌러
         <br />
         오늘 집중할 목표를 설정해 주세요.
-      </>
-    ),
-    confirmText: "확인",
-  },
-  groupTimerLimit: {
-    title: "공통 타이머는 2명부터 시작할 수 있어요",
-    description: (
-      <>
-        메이트가 2명 이상 참여해야 활성화됩니다.
-        <br />
-        모각작 메이트를 초대하거나, 우측
-        <span className="text-red-500 ml-1">개인타이머</span>
-        <br />를 이용해 먼저 몰입을 실행해 보세요.
       </>
     ),
     confirmText: "확인",
@@ -47,7 +34,7 @@ const MODAL_CONTENT = {
         <br />
         새로운 방장이 되셨어요!
         <br />
-        이제 그룹의 이름과 목표를 수정할 수 있습니다.
+        이제 그룹의 이름을 수정할 수 있습니다.
       </>
     ),
     confirmText: "확인",
@@ -56,7 +43,9 @@ const MODAL_CONTENT = {
     title: "인원이 가득 차 접속할 수 없어요",
     description: (
       <>
-        지금 라운지가 열기로 가득 찼어요!
+        공식 라운지는 최대 20명까지 입장할 수 있어요.
+        <br />
+        지금 라운지가 열기로 가득 찼으니
         <br />
         잠시 후 다시 시도해 주세요.
       </>
