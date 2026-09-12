@@ -19,6 +19,7 @@ import { useAuthState } from "@/app/_hooks/login/useAuthState";
 import { getUserIdFromToken } from "@/app/_lib/getJwtExp";
 import { getDefaultTimerSecondsFromTodo } from "@/app/_utils/todoTimer";
 import type { Todo } from "@/app/_types/todo";
+import { useRandomQuote } from "@/app/_hooks/quotes/useRandomQuote";
 
 type PreviewMainProps = {
   state: boolean;
@@ -29,6 +30,7 @@ type PreviewMainProps = {
 
 export default function PreviewMain({ state, groupId, isOnboarding = false, currentStep }: PreviewMainProps) {
   const { data: profile, isLoading } = useProfile();
+  const { data: randomQuote } = useRandomQuote(!state);
   const queryClient = useQueryClient();
   const { data: todayTodos = [], isFetched: isTodayTodosFetched } =
     useTodayTodos();
@@ -191,7 +193,14 @@ export default function PreviewMain({ state, groupId, isOnboarding = false, curr
         <div className="mt-4 w-full h-[60px] rounded-lg bg-gray-100 animate-pulse" />
       ) : (
         <>
-          {!state && <Quotes Quotes={profile.quote} />}
+          {!state && (
+            <Quotes
+              Quotes={
+                randomQuote ??
+                profile.quote ?? { id: "", content: "", author: "" }
+              }
+            />
+          )}
           <GroupMySidebar
             state={state}
             isTaskPublic={isTaskPublic}
