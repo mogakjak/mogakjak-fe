@@ -46,7 +46,7 @@ export default function ProfileEditModal({
       const payload: ProfileUpdate = {};
 
       if (name.trim()) {
-        payload.nickname = name.trim();
+        payload.nickname = name.trim().slice(0, 20);
       }
       if (email.trim()) {
         payload.email = email.trim();
@@ -119,7 +119,8 @@ export default function ProfileEditModal({
             placeholder="이름"
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            maxLength={20}
+            onChange={(e) => setName(e.target.value.slice(0, 20))}
             className="rounded-lg py-2 px-3 bg-gray-100 border border-gray-200"
           />
         </div>

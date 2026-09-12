@@ -171,7 +171,7 @@ export default function AddWorkForm({
       }
       onSubmit?.({
         categoryId,
-        title: title.trim(),
+        title: title.trim().slice(0, 35),
         date,
         targetSeconds: target,
         isOnboarding,

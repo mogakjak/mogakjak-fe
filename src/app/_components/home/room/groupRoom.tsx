@@ -73,6 +73,7 @@ export default function GroupRoom({ group }: GroupRoomProps) {
   const [isEntering, setIsEntering] = useState(false);
   const [openPopup, setOpenPopup] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [hostLeaveBlocked, setHostLeaveBlocked] = useState(false);
 
   const { refs, floatingStyles, context } = useFloating({
     open: openPopup,
@@ -121,9 +122,31 @@ export default function GroupRoom({ group }: GroupRoomProps) {
     router.push(`/group/${groupId}`);
   };
 
-  const handleLeaveGroup = () => {
+  const handleConfirmLeave = () => {
+    if (isHost || hostLeaveBlocked) {
+      setOpenModal(false);
+      setHostLeaveBlocked(false);
+      return;
+    }
+
     leaveGroupMutate(groupId, {
       onSuccess: () => {
+        setOpenModal(false);
+      },
+      onError: (error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        const status = (error as Error & { status?: number }).status;
+        const isHostBlocked =
+          status === 400 ||
+          message.includes("방장") ||
+          message.includes("탈퇴가 거부") ||
+          message.toLowerCase().includes("host");
+        if (isHostBlocked) {
+          setHostLeaveBlocked(true);
+          return;
+        }
+        console.error("그룹 나가기 실패:", error);
+        alert(message || "그룹 나가기에 실패했습니다.");
         setOpenModal(false);
       },
     });
@@ -258,8 +281,12 @@ export default function GroupRoom({ group }: GroupRoomProps) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-100">
           <LeaveGroupModal
             groupName={groupName}
-            onClose={() => setOpenModal(false)}
-            onConfirm={handleLeaveGroup}
+            isHost={isHost || hostLeaveBlocked}
+            onClose={() => {
+              setOpenModal(false);
+              setHostLeaveBlocked(false);
+            }}
+            onConfirm={handleConfirmLeave}
           />
         </div>
       )}

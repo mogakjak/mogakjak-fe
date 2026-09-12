@@ -27,6 +27,8 @@ export interface GroupFriendFieldProps {
   showCheerAction?: boolean;
   isLoading?: boolean;
   isMate?: boolean;
+  canKick?: boolean;
+  onKickClick?: (userId: string, nickname: string) => void;
 }
 
 export default function GroupFriendField({
@@ -48,6 +50,8 @@ export default function GroupFriendField({
   showCheerAction = true,
   isLoading = false,
   isMate,
+  canKick = false,
+  onKickClick,
 }: GroupFriendFieldProps) {
   const isActive = status === "end";
   const canShowCheer = showCheerAction && !isActive && !isCurrentUser;
@@ -85,18 +89,30 @@ export default function GroupFriendField({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
+      {canKick && userId && onKickClick && (
+        <button
+          type="button"
+          aria-label={`${friendName} 내보내기`}
+          onClick={() => onKickClick(userId, friendName)}
+          className="absolute top-2 right-2 z-10 px-2 py-0.5 text-caption-12R text-gray-500 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+        >
+          내보내기
+        </button>
+      )}
       <div className="bg-white p-4 pt-3 rounded-t-xl w-[224px] h-[144px] border-2 border-gray-200 shrink-0">
         <section
-          className={`flex items-center ${isActive || !canShowCheer ? "justify-start" : "justify-between"
-            }`}
+          className={`flex items-center ${
+            isActive || !canShowCheer ? "justify-start" : "justify-between"
+          }`}
         >
           <div className="flex items-center gap-1">
             <MemberProfile isActive size="small" profileUrl={profileUrl} />
             <div className="flex items-center gap-1">
               <p
-                className={`text-body2-14SB ${isActive && "text-gray-500"
-                  } max-w-[70px] truncate`}
+                className={`text-body2-14SB ${
+                  isActive && "text-gray-500"
+                } max-w-[70px] truncate`}
               >
                 {friendName}
               </p>

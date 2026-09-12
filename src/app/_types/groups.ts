@@ -84,7 +84,8 @@ export type MatesPage = PageResponse<Mate>;
 export type InviteMateStatus =
   | "CAN_INVITE"
   | "ALREADY_INVITED"
-  | "ALREADY_GROUP_MEMBER";
+  | "ALREADY_GROUP_MEMBER"
+  | "ALREADY_IN_OFFICIAL_LOUNGE";
 
 export type InviteMate = {
   userId: string;
@@ -109,10 +110,10 @@ export type GroupDetail = {
   groupId: string;
   name: string;
   imageUrl: string;
-  accumulatedDuration?: number; // 그룹 타이머 누적 시간 (초 단위)
+  accumulatedDuration?: number; // @deprecated 그룹 타이머 제거 예정
   members: GroupMembers;
-  progressRate: number;
-  groupGoal: GroupGoal;
+  progressRate?: number; // @deprecated 그룹 목표 제거 예정
+  groupGoal?: GroupGoal; // @deprecated 그룹 목표 제거 예정
   participatingMemberCount?: number;
   totalMemberCount?: number;
 };

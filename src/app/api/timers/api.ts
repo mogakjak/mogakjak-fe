@@ -112,35 +112,3 @@ export const updatePersonalTimerVisibility = (
     method: "PUT",
     body: JSON.stringify(payload),
   });
-
-//// 그룹 타이머
-
-export type StartGroupTimerPayload = {
-  targetSeconds: number;
-  participationType?: "INDIVIDUAL" | "GROUP";
-  groupId?: string;
-};
-
-export const startGroupTimer = (
-  groupId: string,
-  payload: StartGroupTimerPayload
-) =>
-  request<PomodoroSession>(TIMER_BASE, `/groups/${groupId}/start/timer`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-export const resumeGroupTimer = (groupId: string, sessionId: string) =>
-  request<PomodoroSession>(TIMER_BASE, `/groups/${groupId}/resume/${sessionId}`, {
-    method: "POST",
-  });
-
-export const pauseGroupTimer = (groupId: string, sessionId: string) =>
-  request<PomodoroSession>(TIMER_BASE, `/groups/${groupId}/pause/${sessionId}`, {
-    method: "POST",
-  });
-
-export const finishGroupTimer = (groupId: string, sessionId: string) =>
-  request<PomodoroSession>(TIMER_BASE, `/groups/${groupId}/finish/${sessionId}`, {
-    method: "POST",
-  });

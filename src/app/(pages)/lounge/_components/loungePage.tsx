@@ -28,6 +28,7 @@ import GroupFriendField from "@/app/(pages)/group/_components/field/groupFriendF
 import type { HomeGroupMember } from "@/app/_types/groups";
 import { sendGAEvent } from "@next/third-parties/google";
 import { useSelectedTodoActualSeconds } from "@/app/_hooks/todo/useSelectedTodoActualSeconds";
+import { useRandomQuote } from "@/app/_hooks/quotes/useRandomQuote";
 
 function toDisplayStatus(member: HomeGroupMember) {
   if (member.participationStatus === "PARTICIPATING") return "active" as const;
@@ -164,8 +165,11 @@ export default function LoungePage() {
   }, [lounge?.members]);
 
   const memberListTotal = lounge?.members?.length ?? 0;
-  const currentMemberCount = lounge?.currentMemberCount ?? displayedMembers.length;
-  const hasQuote = Boolean(lounge?.todayQuote?.content);
+  const mateCount = lounge?.maxMemberCount ?? memberListTotal;
+  const { data: randomQuote, isPending: quoteLoading } = useRandomQuote(entered);
+  const quoteContent =
+    randomQuote?.content?.trim() || lounge?.todayQuote?.content?.trim() || "";
+  const hasQuote = Boolean(quoteContent);
   const focusEnabled = lounge?.myFocusCheckEnabled ?? false;
 
   const handleCheer = async (targetUserId: string) => {
@@ -226,25 +230,25 @@ export default function LoungePage() {
             <div className="flex flex-3 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
               <h3 className="text-heading4-20SB text-black">오늘의 한마디</h3>
               <div className="flex h-[108px] flex-1 flex-col justify-center rounded-2xl border border-gray-200 bg-gray-100 px-10 py-8 text-gray-700 overflow-y-auto">
-  {hasQuote ? (
-    <div className="text-center">
-      <p className="text-body1-16R leading-7">
-        {lounge?.todayQuote?.content}
-      </p>
-    </div>
-  ) : (
-    <p className="text-center text-body1-16R leading-7 text-gray-500">
-      명언을 불러오는 중이에요.
-    </p>
-  )}
-</div>
+                {hasQuote ? (
+                  <div className="text-center">
+                    <p className="text-body1-16R leading-7">{quoteContent}</p>
+                  </div>
+                ) : (
+                  <p className="text-center text-body1-16R leading-7 text-gray-500">
+                    {quoteLoading
+                      ? "명언을 불러오는 중이에요."
+                      : "오늘의 한마디가 아직 없어요."}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-3 min-w-0 flex-col gap-3 bg-white px-8 py-5 rounded-2xl">
               <h3 className="text-heading4-20SB text-black">라운지 현황</h3>
               <div className="flex h-[108px] flex-1 flex-col items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 px-6 py-6 text-gray-700">
                 <p className="text-heading2-28SB text-center">
-                  {currentMemberCount}명 🔥
+                  {participatingMemberCount}/{mateCount}명 🔥
                 </p>
                 <p className="mt-2 text-body1-16R text-center text-gray-600">
                   함께 몰입 중입니다

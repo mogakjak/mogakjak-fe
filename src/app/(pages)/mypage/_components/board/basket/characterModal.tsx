@@ -1,11 +1,32 @@
 import Image from "next/image";
-import { rows } from "@/app/_utils/getCharacterByHours";
+import { rows, formatUnlockCondition } from "@/app/_utils/getCharacterByHours";
+import { useCharactersGuide } from "@/app/_hooks/mypage/useCharactersGuide";
 
 interface CharacterModalProps {
   onClose: () => void;
 }
 
 export default function CharacterModal({ onClose }: CharacterModalProps) {
+  const { data: guide } = useCharactersGuide();
+
+  const items =
+    guide && guide.length > 0
+      ? [...guide]
+          .sort((a, b) => a.level - b.level)
+          .map((g) => ({
+            level: g.level,
+            name: g.name,
+            condition:
+              g.level === 1
+                ? "회원가입"
+                : `${g.requiredAttendanceDays ?? 0}일 · ${Math.floor((g.requiredFocusTimeInSeconds ?? 0) / 3600)}시간`,
+          }))
+      : rows.map((item) => ({
+          level: item.level,
+          name: item.name,
+          condition: formatUnlockCondition(item),
+        }));
+
   return (
     <div className="bg-white p-5 w-[516px] rounded-[20px]">
       <button className="flex ml-auto" onClick={onClose} aria-label="닫기">
@@ -22,19 +43,17 @@ export default function CharacterModal({ onClose }: CharacterModalProps) {
                   <th className="py-3 pl-4 w-[150px] text-gray-600 text-body1-16R">
                     레벨
                   </th>
-                  <th className="py-3 w-40">보상 기준</th>
+                  <th className="py-3 w-48">보상 기준</th>
                   <th className="py-3 pr-4 text-left">캐릭터</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((item) => (
+                {items.map((item) => (
                   <tr key={item.level} className={"border-b border-gray-300 "}>
                     <td className="py-[13px] pl-4 text-gray-600 text-body1-16R">
                       Lv {item.level}
                     </td>
-                    <td className="py-[13px] text-gray-800">
-                      {item.level === 1 ? "회원가입" : `${item.hours}시간`}
-                    </td>
+                    <td className="py-[13px] text-gray-800">{item.condition}</td>
                     <td className="py-[13px] pr-4 text-left text-black">
                       {item.name}
                     </td>

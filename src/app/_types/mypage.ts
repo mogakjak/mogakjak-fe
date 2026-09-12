@@ -20,6 +20,14 @@ export type CharacterGuideItem = {
   name: string;
   imageUrl: string;
   unlockTime: string;
+  currentAttendanceDays?: number;
+  currentFocusTimeInSeconds?: number;
+  requiredAttendanceDays?: number;
+  requiredFocusTimeInSeconds?: number;
+  unlocked?: boolean;
+  requirementsSatisfied?: boolean;
+  attendanceProgressRate?: number;
+  focusTimeProgressRate?: number;
 };
 
 export type CharacterCard = {
@@ -28,6 +36,10 @@ export type CharacterCard = {
   imageUrl: string;
   level: number;
   unlockCondition: string;
+  requiredAttendanceDays?: number;
+  requiredFocusTimeInSeconds?: number;
+  attendanceProgressRate?: number;
+  focusTimeProgressRate?: number;
 };
 
 export type CharacterBasket = {

@@ -55,11 +55,6 @@ const dummyGroupData: GroupDetail = {
             level: 2,
         }
     ],
-    groupGoal: {
-        groupId: "1",
-        goalHours: 0,
-        goalMinutes: 0,
-    },
     progressRate: 0,
 };
 

@@ -120,9 +120,11 @@ export default function WorkSelectField({
                 <input
                   type="text"
                   value={newCategory}
+                  maxLength={35}
                   onChange={(e) => {
-                    setNewCategory(e.target.value);
-                    onChange(e.target.value, true);
+                    const next = e.target.value.slice(0, 35);
+                    setNewCategory(next);
+                    onChange(next, true);
                   }}
                   onKeyDown={handleAddNew}
                   placeholder="새 작업 추가"

@@ -1,10 +1,10 @@
 "use client";
 
-import { useProfile } from "@/app/_hooks/mypage/useProfile";
+import { useRandomQuote } from "@/app/_hooks/quotes/useRandomQuote";
 
 export default function GroupQuote() {
-  const { data: profile, isPending } = useProfile();
-  const content = profile?.quote?.content?.trim();
+  const { data: quote, isPending } = useRandomQuote();
+  const content = quote?.content?.trim();
 
   return (
     <div className="flex h-full min-w-0 flex-col gap-3 rounded-2xl bg-white px-8 py-5">
