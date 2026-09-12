@@ -62,6 +62,7 @@ export default function BoardBasket({
             <Character
               key={`character-level-${characterInfo.level}`}
               hours={characterInfo.hours}
+              attendanceDays={characterInfo.attendanceDays}
               level={characterInfo.level}
               name={ownedCharacter?.name || characterInfo.name}
               description={getDescriptionByLevel(characterInfo.level)}

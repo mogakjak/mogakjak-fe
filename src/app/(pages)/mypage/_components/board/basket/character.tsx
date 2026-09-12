@@ -2,6 +2,7 @@ import Image from "next/image";
 
 interface CharacterProps {
   hours: number;
+  attendanceDays?: number;
   level: number;
   name: string;
   description: string;
@@ -11,12 +12,18 @@ interface CharacterProps {
 
 export default function Character({
   hours,
+  attendanceDays,
   level,
   name,
   description,
   imageUrl,
   locked = false,
 }: CharacterProps) {
+  const lockHint =
+    attendanceDays && attendanceDays > 0
+      ? `${attendanceDays}일 · ${hours}시간 달성 후에 만나요!`
+      : `${hours}시간 달성 후에 만나요!`;
+
   return (
     <div className="flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-100 border border-gray-200">
       {!locked ? (
@@ -42,9 +49,7 @@ export default function Character({
             height={48}
             className="object-contain opacity-80"
           />
-          <p className="text-body1-16SB text-gray-400 text-center">
-            {hours}시간 달성 후에 만나요!
-          </p>
+          <p className="text-body1-16SB text-gray-400 text-center">{lockHint}</p>
         </div>
       )}
     </div>

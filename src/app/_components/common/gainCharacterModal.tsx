@@ -18,9 +18,15 @@ export default function GainCharacterModal({
 
   const matched = getCharacterByLevel(level);
 
-
   const hours = matched?.hours ?? 0;
+  const attendanceDays = matched?.attendanceDays ?? 0;
   const description = matched?.description ?? "집중하여 캐릭터를 획득했어요!";
+  const unlockLabel =
+    level === 1
+      ? "회원가입"
+      : attendanceDays > 0
+        ? `${attendanceDays}일 · ${hours}시간`
+        : `${hours}시간`;
 
   return (
     <div className="bg-white rounded-[20px] shadow-lg p-5 flex flex-col items-center">
@@ -32,7 +38,7 @@ export default function GainCharacterModal({
         <p className="text-heading4-20SB mb-2">축하합니다!</p>
 
         <p className="text-heading3-24SB mb-1">
-          <b className="text-red-500">{hours}시간</b>을 달성하여
+          <b className="text-red-500">{unlockLabel}</b>을 달성하여
         </p>
 
         <p className="text-heading3-24SB">
