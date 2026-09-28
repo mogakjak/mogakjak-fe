@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Board from "./_components/board/boardMain";
 import Menu from "./_components/menu/menuMain";
 import Profile from "./_components/profile/profileMain";
 import { useCharacterBasket } from "@/app/_hooks/mypage/useCharacterBasket";
 import FloatingButtons from "./_components/floatingButton";
 
+const MATE_MENU = "내 모각작 메이트";
+
 export default function MyPage() {
   const [selectedMenu, setSelectedMenu] = useState("내 과일 바구니");
+
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "mate") setSelectedMenu(MATE_MENU);
+  }, []);
 
   const { data: basket, isLoading } = useCharacterBasket();
 
