@@ -106,7 +106,7 @@ export default function TodoPage() {
             id: todo.id,
             date: todo.date,
             title: todo.task,
-            targetSeconds: todo.targetTimeInSeconds,
+            targetSeconds: todo.targetTimeInSeconds ?? 0,
             currentSeconds: todo.actualTimeInSeconds,
             completed: todo.isCompleted,
           })),

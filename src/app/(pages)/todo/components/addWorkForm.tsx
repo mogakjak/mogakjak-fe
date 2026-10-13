@@ -257,7 +257,7 @@ export default function AddWorkForm({
                         skipDateClearRef.current = true;
                       }
                       setDate(new Date());
-                      setTarget(selectedTodo.targetTimeInSeconds);
+                      setTarget(selectedTodo.targetTimeInSeconds ?? 0);
                     }
                   } else {
                     setSelectedTodoId(undefined); // 새 작업 입력 시 ID 초기화

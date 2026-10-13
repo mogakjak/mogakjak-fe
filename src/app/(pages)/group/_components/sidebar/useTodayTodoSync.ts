@@ -38,7 +38,7 @@ export function useTodayTodoSync({
         categoryId: todayTodo.categoryId,
         title: todayTodo.task,
         date: new Date(year, month - 1, day),
-        targetSeconds: todayTodo.targetTimeInSeconds,
+        targetSeconds: todayTodo.targetTimeInSeconds ?? 0,
       });
 
       queryClient.setQueryData(timerKeys.pomodoro(todayTodo.id), {
