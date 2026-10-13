@@ -72,7 +72,7 @@ export function useEnsureTodayTodo({
             categoryId: createdTodo.categoryId,
             title: createdTodo.task,
             date: new Date(year, month - 1, day),
-            targetSeconds: createdTodo.targetTimeInSeconds,
+            targetSeconds: createdTodo.targetTimeInSeconds ?? 0,
           });
         }
       } catch (error) {

@@ -106,7 +106,7 @@ export default function TodoPage() {
             id: todo.id,
             date: todo.date,
             title: todo.task,
-            targetSeconds: todo.targetTimeInSeconds,
+            targetSeconds: todo.targetTimeInSeconds ?? 0,
             currentSeconds: todo.actualTimeInSeconds,
             completed: todo.isCompleted,
           })),
@@ -253,8 +253,6 @@ export default function TodoPage() {
           <div className="w-[360px] h-full min-h-[600px] bg-white rounded-[24px] animate-pulse" />
         ) : (
           <CategorySidebar
-            filter={filter}
-            onChangeFilter={setFilter}
             categories={sidebarCategories}
             selectedId={selectedId}
             onSelect={setSelectedId}
@@ -280,6 +278,7 @@ export default function TodoPage() {
         ) : (
           <TodoSection
             filter={filter}
+            onChangeFilter={setFilter}
             dateLabel={dateLabel}
             categories={todoListCategories}
             allCategories={allCategoryOptions}

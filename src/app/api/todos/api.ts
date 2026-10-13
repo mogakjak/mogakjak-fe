@@ -7,14 +7,15 @@ export type CreateTodoPayload = {
   categoryId: string;
   task: string;
   date: string; // YYYY-MM-DD
-  targetTimeInSeconds: number;
+  /** null이면 목표 시간 없이 생성 (0은 BE에서 거부) */
+  targetTimeInSeconds: number | null;
 };
 
 export type UpdateTodoPayload = {
   categoryId?: string;
   task?: string;
   date?: string;
-  targetTimeInSeconds?: number;
+  targetTimeInSeconds?: number | null;
 };
 
 export const getTodayTodos = () => request<TodoCategoryWithTodos[]>(TODO_BASE, "/today", { method: "GET" });

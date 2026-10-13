@@ -5,7 +5,8 @@ export type Todo = {
   categoryId: string;
   task: string;
   date: string; // YYYY-MM-DD
-  targetTimeInSeconds: number;
+  /** 목표 시간 미설정 시 null */
+  targetTimeInSeconds: number | null;
   actualTimeInSeconds: number;
   isCompleted: boolean;
   progressRate?: number; 

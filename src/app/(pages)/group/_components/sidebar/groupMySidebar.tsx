@@ -1,31 +1,47 @@
 "use client";
 
 import { useCallback, useMemo, useState, useEffect, useRef } from "react";
+import clsx from "clsx";
 
 import Icon from "../../../../_components/common/Icons";
 import Edit from "/Icons/edit.svg";
 import Book from "/Icons/book.svg";
 import Clock from "/Icons/stopwatch.svg";
-import AddWorkForm, {
-  AddWorkPayload,
-} from "@/app/(pages)/todo/components/addWorkForm";
-import { CategoryOption } from "@/app/(pages)/todo/components/categorySelect";
+import type { AddWorkPayload } from "@/app/(pages)/todo/components/addWorkForm";
+import CategorySelect, {
+  type CategoryOption,
+} from "@/app/(pages)/todo/components/categorySelect";
 import VisibilityToggle from "./visibilityButton";
+import WorkCombobox from "./todoSetting/workCombobox";
+import TargetTimeBox, { formatHms } from "./todoSetting/targetTimeBox";
 import { CATEGORY_COLOR_TOKEN_BY_NAME } from "@/app/_constants/categoryColor";
-import { useTodoCategoryController } from "@/app/_hooks/todoCategory/useTodoCategoryController";
+import {
+  DEFAULT_CATEGORY_NAME,
+  useTodoCategoryController,
+} from "@/app/_hooks/todoCategory/useTodoCategoryController";
 import { useTodoController } from "@/app/_hooks/todo/useTodoController";
 import { useTodayTodos } from "@/app/_hooks/todo/useTodayTodos";
-import { getTodayTodos } from "@/app/api/todos/api";
+import { useMyTodos } from "@/app/_hooks/todo/useMyTodos";
 import { useQueryClient } from "@tanstack/react-query";
 import { todoKeys } from "@/app/api/todos/keys";
 import { timerKeys } from "@/app/api/timers/keys";
 import type { Todo, TodoCategoryWithTodos } from "@/app/_types/todo";
+import type { TodoCategoryColor } from "@/app/_types/todoCategory";
 import { useTodayTodoSync } from "./useTodayTodoSync";
 import { updatePersonalTimerVisibility } from "@/app/api/timers/api";
 import { useTimer } from "@/app/_contexts/TimerContext";
 import { useLiveTimer } from "@/app/_hooks/timers/useLiveTimer";
 import TimerEndModal from "@/app/_components/common/timerEndModal";
 import { sendGAEvent } from "@next/third-parties/google";
+import {
+  isTodayDateString,
+  parseLocalDateString,
+  toLocalDateString,
+} from "@/app/_utils/date";
+
+const CATEGORY_COLORS = Object.keys(
+  CATEGORY_COLOR_TOKEN_BY_NAME,
+) as TodoCategoryColor[];
 
 type GroupMySidebarProps = {
   state: boolean;
@@ -37,6 +53,18 @@ type GroupMySidebarProps = {
   isOnboarding?: boolean;
   isStepFive?: boolean;
 };
+
+function getProgressRate(todo: Todo | null) {
+  if (!todo) return 0;
+  if (todo.progressRate !== undefined && todo.progressRate !== null) {
+    return Math.round(todo.progressRate);
+  }
+  const target = todo.targetTimeInSeconds ?? 0;
+  if (target > 0) {
+    return Math.round((todo.actualTimeInSeconds / target) * 100);
+  }
+  return 0;
+}
 
 export default function GroupMySidebar({
   state,
@@ -75,17 +103,17 @@ export default function GroupMySidebar({
     }
     return null;
   });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
-  );
+  const [pickedCategoryId, setPickedCategoryId] = useState<string | null>(null);
+  const [isWorkOpen, setIsWorkOpen] = useState(false);
+  const [isEditingTarget, setIsEditingTarget] = useState(false);
   const [timerEndModalOpen, setTimerEndModalOpen] = useState(false);
 
   const { isRunning, forceStopTimer } = useTimer();
 
-  const { categories } = useTodoCategoryController();
+  const { categories, createCategory } = useTodoCategoryController();
   const { createTodo, updateTodo } = useTodoController();
   const { data: todayTodos = [], refetch: refetchTodayTodos } = useTodayTodos();
+  const { data: myTodos = [] } = useMyTodos();
   const queryClient = useQueryClient();
   const prevSessionIdRef = useRef<string | null | undefined>(currentSessionId);
 
@@ -124,6 +152,9 @@ export default function GroupMySidebar({
     setSelectedTodoId,
   });
 
+  const activeTodo = todayTodo ?? currentTodo;
+  const isSessionActive = isRunning || !!currentSessionId;
+
   const serverActualSeconds = useMemo(() => {
     return todayTodo?.actualTimeInSeconds ?? currentTodo?.actualTimeInSeconds ?? 0;
   }, [todayTodo, currentTodo]);
@@ -132,17 +163,6 @@ export default function GroupMySidebar({
     serverSeconds: serverActualSeconds,
     isRunning: isRunning && !!currentSessionId,
   });
-
-  const formatSeconds = (seconds: number) => {
-    const safeSeconds = Math.max(0, seconds);
-    const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, "0");
-    const minutes = String(Math.floor((safeSeconds % 3600) / 60)).padStart(
-      2,
-      "0"
-    );
-    const secs = String(safeSeconds % 60).padStart(2, "0");
-    return `${hours} : ${minutes} : ${secs}`;
-  };
 
   const categoryOptions = useMemo<CategoryOption[]>(
     () =>
@@ -160,157 +180,220 @@ export default function GroupMySidebar({
     [categories]
   );
 
-  const prefetchTodosForModal = useCallback(() => {
-    void queryClient.prefetchQuery({
-      queryKey: todoKeys.today(),
-      queryFn: getTodayTodos,
-    });
-  }, [queryClient]);
-
-  const openWorkModal = useCallback(() => {
-    prefetchTodosForModal();
-    setModalOpen(true);
-  }, [prefetchTodosForModal]);
-
-  const handleWorkSubmit = useCallback(
-    async (payload: AddWorkPayload) => {
-      const yyyy = payload.date.getFullYear();
-      const mm = String(payload.date.getMonth() + 1).padStart(2, "0");
-      const dd = String(payload.date.getDate()).padStart(2, "0");
-      const formatted = `${yyyy}-${mm}-${dd}`;
-
-      let resultTodo: Todo | null = null;
-
-      if (payload.todoId) {
-        // 선택·과거 작업 포함 — todoId 기준으로 한 번에 반영
-        resultTodo = await updateTodo({
-          todoId: payload.todoId,
-          payload: {
-            categoryId: payload.categoryId,
-            task: payload.title,
-            date: formatted,
-            targetTimeInSeconds: payload.targetSeconds,
-          },
-        });
-      } else {
-        const existingTodo = todayTodosList.find(
-          (todo) =>
-            todo.task === payload.title &&
-            todo.categoryId === payload.categoryId,
-        );
-
-      if (existingTodo) {
-        // 오늘 할 일 목록 중 동일한 이름이 이미 있는 경우 업데이트
-        resultTodo = await updateTodo({
-          todoId: existingTodo.id,
-          payload: {
-            categoryId: payload.categoryId,
-            task: payload.title,
-            date: formatted,
-            targetTimeInSeconds: payload.targetSeconds,
-          },
-        });
-      } else {
-        // 완전히 새로운 작업 생성
-        resultTodo = await createTodo({
-          categoryId: payload.categoryId,
-          task: payload.title,
-          date: formatted,
-          targetTimeInSeconds: payload.targetSeconds,
-        });
-      }
-      }
-
-      if (resultTodo) {
-        queryClient.setQueryData<TodoCategoryWithTodos[]>(
-          todoKeys.today(),
-          (prev = []) => {
-            const next = prev.map((cat) => {
-              if (cat.id !== resultTodo.categoryId) return cat;
-              const idx = cat.todos.findIndex((t) => t.id === resultTodo.id);
-              const todos =
-                idx >= 0
-                  ? cat.todos.map((t) => (t.id === resultTodo.id ? resultTodo : t))
-                  : [...cat.todos, resultTodo];
-              return { ...cat, todos };
-            });
-            const hasCategory = next.some((c) => c.id === resultTodo.categoryId);
-            if (!hasCategory) {
-              const cat = categories.find((c) => c.id === resultTodo.categoryId);
-              if (cat) {
-                next.push({
-                  ...cat,
-                  todos: [resultTodo],
-                });
-              }
-            }
-            return next;
-          }
-        );
-
-        setSelectedTodoId(resultTodo.id);
-        setCurrentTodo(resultTodo);
-        const [year, month, day] = resultTodo.date.split("-").map(Number);
-        setSelectedWork({
-          categoryId: resultTodo.categoryId,
-          title: resultTodo.task,
-          date: new Date(year, month - 1, day),
-          targetSeconds: resultTodo.targetTimeInSeconds,
-        });
-        queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
-          todo: {
-            id: resultTodo.id,
-            task: resultTodo.task,
-            targetTimeInSeconds: resultTodo.targetTimeInSeconds,
-          },
-        });
-
-        await refetchTodayTodos();
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("selectedTodoId", resultTodo.id);
-          window.dispatchEvent(new Event("todoIdChanged"));
-        }
-
-        setModalOpen(false);
-        setSelectedCategoryId(null);
-      }
-    },
-    [
-      createTodo,
-      updateTodo,
-      todayTodosList,
-      queryClient,
-      refetchTodayTodos,
-      categories,
-    ]
+  const defaultCategoryId = useMemo(
+    () =>
+      categories.find((c) => c.name === DEFAULT_CATEGORY_NAME)?.id ??
+      categories[0]?.id ??
+      null,
+    [categories],
   );
 
-  const hasTodo = isOnboarding || !!(todayTodo || currentTodo || selectedWork);
+  const categoryId =
+    pickedCategoryId ??
+    activeTodo?.categoryId ??
+    selectedWork?.categoryId ??
+    defaultCategoryId;
+
+  const categoryName = useMemo(
+    () => categories.find((c) => c.id === categoryId)?.name ?? "",
+    [categories, categoryId],
+  );
+
+  const categoryTodos = useMemo(
+    () => myTodos.filter((todo) => todo.categoryId === categoryId),
+    [myTodos, categoryId],
+  );
+
+  const applyTodo = useCallback(
+    async (resultTodo: Todo) => {
+      queryClient.setQueryData<TodoCategoryWithTodos[]>(
+        todoKeys.today(),
+        (prev = []) => {
+          const next = prev.map((cat) => {
+            if (cat.id !== resultTodo.categoryId) return cat;
+            const idx = cat.todos.findIndex((t) => t.id === resultTodo.id);
+            const todos =
+              idx >= 0
+                ? cat.todos.map((t) => (t.id === resultTodo.id ? resultTodo : t))
+                : [...cat.todos, resultTodo];
+            return { ...cat, todos };
+          });
+          const hasCategory = next.some((c) => c.id === resultTodo.categoryId);
+          if (!hasCategory) {
+            const cat = categories.find((c) => c.id === resultTodo.categoryId);
+            if (cat) {
+              next.push({
+                ...cat,
+                todos: [resultTodo],
+              });
+            }
+          }
+          return next;
+        }
+      );
+
+      setSelectedTodoId(resultTodo.id);
+      setCurrentTodo(resultTodo);
+      setPickedCategoryId(null);
+      setSelectedWork({
+        categoryId: resultTodo.categoryId,
+        title: resultTodo.task,
+        date: parseLocalDateString(resultTodo.date),
+        targetSeconds: resultTodo.targetTimeInSeconds ?? 0,
+      });
+      queryClient.setQueryData(timerKeys.pomodoro(resultTodo.id), {
+        todo: {
+          id: resultTodo.id,
+          task: resultTodo.task,
+          targetTimeInSeconds: resultTodo.targetTimeInSeconds,
+        },
+      });
+
+      await refetchTodayTodos();
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("selectedTodoId", resultTodo.id);
+        window.dispatchEvent(new Event("todoIdChanged"));
+      }
+    },
+    [queryClient, categories, refetchTodayTodos]
+  );
+
+  const handleSelectTodo = useCallback(
+    async (todo: Todo) => {
+      setIsWorkOpen(false);
+      try {
+        if (isTodayDateString(todo.date)) {
+          await applyTodo(todo);
+          return;
+        }
+        // 과거 작업을 선택하면 오늘 할 일로 옮겨서 실행
+        sendGAEvent("event", "past_todo_select_to_today");
+        const updated = await updateTodo({
+          todoId: todo.id,
+          payload: {
+            categoryId: todo.categoryId,
+            task: todo.task,
+            date: toLocalDateString(new Date()),
+            targetTimeInSeconds: todo.targetTimeInSeconds,
+          },
+        });
+        if (updated) await applyTodo(updated);
+      } catch (error) {
+        console.error("할 일 선택 실패:", error);
+      }
+    },
+    [applyTodo, updateTodo]
+  );
+
+  const handleCreateTodo = useCallback(
+    async (title: string) => {
+      if (!categoryId) return;
+      setIsWorkOpen(false);
+      try {
+        const existingTodo = todayTodosList.find(
+          (todo) => todo.task === title && todo.categoryId === categoryId,
+        );
+        if (existingTodo) {
+          await applyTodo(existingTodo);
+          return;
+        }
+        const created = await createTodo({
+          categoryId,
+          task: title,
+          date: toLocalDateString(new Date()),
+          targetTimeInSeconds: null,
+        });
+        if (created) await applyTodo(created);
+      } catch (error) {
+        console.error("할 일 생성 실패:", error);
+      }
+    },
+    [categoryId, todayTodosList, applyTodo, createTodo]
+  );
+
+  const handleCreateCategory = useCallback(
+    async (name: string) => {
+      try {
+        const created = await createCategory({
+          name,
+          color: CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length],
+        });
+        setPickedCategoryId(created.id);
+        setIsWorkOpen(true);
+      } catch (error) {
+        console.error("카테고리 생성 실패:", error);
+      }
+    },
+    [createCategory, categories.length]
+  );
+
+  const handleCategoryChange = useCallback((id: string) => {
+    setPickedCategoryId(id);
+    setIsWorkOpen(true);
+  }, []);
+
+  const handleWorkOpenChange = useCallback(
+    (open: boolean) => {
+      setIsWorkOpen(open);
+      // 작업을 고르지 않고 닫으면 현재 할 일의 카테고리로 되돌림
+      if (!open && activeTodo) setPickedCategoryId(null);
+    },
+    [activeTodo]
+  );
+
+  const handleTargetSubmit = useCallback(
+    async (seconds: number | null) => {
+      if (!activeTodo) return;
+      try {
+        const updated = await updateTodo({
+          todoId: activeTodo.id,
+          payload: {
+            categoryId: activeTodo.categoryId,
+            task: activeTodo.task,
+            date: activeTodo.date,
+            targetTimeInSeconds: seconds,
+          },
+        });
+        if (updated) await applyTodo(updated);
+      } catch (error) {
+        console.error("목표 시간 수정 실패:", error);
+      }
+    },
+    [activeTodo, updateTodo, applyTodo]
+  );
+
+  const showTodoCard = isOnboarding || isSessionActive;
+  const cardTitle = isOnboarding
+    ? mockOnboardingTodo.task
+    : (activeTodo?.task ?? selectedWork?.title ?? "");
+  const cardTargetSeconds = isOnboarding
+    ? mockOnboardingTodo.targetTimeInSeconds
+    : (activeTodo?.targetTimeInSeconds ?? selectedWork?.targetSeconds ?? 0);
+  const cardProgressRate = isOnboarding
+    ? mockOnboardingTodo.progressRate
+    : getProgressRate(activeTodo);
+
   return (
     <div className=" bg-white rounded-2xl">
-      <div className={`border rounded-lg p-3 ${isStepFive ? 'border-red-200 border-4' : 'border-gray-200'}`}>
-        {hasTodo ? (
-          <div className="flex flex-col gap-2">
+      {showTodoCard ? (
+        <div
+          className={clsx(
+            "border rounded-lg overflow-hidden",
+            isStepFive ? "border-red-200 border-4" : "border-gray-200",
+          )}
+        >
+          <div className="flex flex-col gap-2 p-3">
             <div className="flex items-center gap-1">
               <Icon Svg={Book} size={24} className="text-gray-400" />
-              <p
-                className="text-body2-14SB truncate"
-                title={isOnboarding ? mockOnboardingTodo.task : (todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title)}
-              >
-                {isOnboarding
-                  ? mockOnboardingTodo.task
-                  : (todayTodo?.task ?? currentTodo?.task ?? selectedWork?.title)}
+              <p className="text-body2-14SB truncate" title={cardTitle}>
+                “{cardTitle}”
               </p>
 
               <button
                 className="ml-auto"
                 onClick={() => {
-                  if (isRunning) {
-                    setTimerEndModalOpen(true);
-                  } else {
-                    openWorkModal();
-                  }
+                  if (isSessionActive) setTimerEndModalOpen(true);
                 }}
                 aria-label="할 일 편집"
               >
@@ -339,141 +422,103 @@ export default function GroupMySidebar({
                 }}
               />
             )}
-            <div className="flex flex-col gap-1 mt-1">
-              <div className="flex items-center">
-                <Icon Svg={Clock} size={24} className={"text-gray-400"} />
-                <h3 className="text-body2-14SB ml-1">
-                  {isOnboarding
-                    ? formatSeconds(mockOnboardingTodo.actualTimeInSeconds)
-                    : formatSeconds(
-                      liveActualSeconds > 0 ? liveActualSeconds : serverActualSeconds
-                    )}
-                </h3>
-              </div>
-              {state && (
-                <VisibilityToggle
-                  isTaskOpen={isTimeOpen}
-                  setIsTaskOpen={async (v: boolean) => {
-                    sendGAEvent("event", "visibility_toggle", {
-                      public_type: "timer",
-                      is_public: v ? "public" : "private",
-                    });
-                    setIsTimeOpen(v);
-                    if (currentSessionId) {
-                      try {
-                        await updatePersonalTimerVisibility(currentSessionId, {
-                          isTimerPublic: v,
-                        });
-                      } catch (error) {
-                        console.error(
-                          "타이머 누적 시간 공개/비공개 설정 실패:",
-                          error
-                        );
-                        setIsTimeOpen(!v);
-                      }
+            <div className="flex items-center mt-1">
+              <Icon Svg={Clock} size={24} className={"text-gray-400"} />
+              <h3 className="text-body2-14SB ml-1">
+                {isOnboarding
+                  ? formatHms(mockOnboardingTodo.actualTimeInSeconds)
+                  : formatHms(
+                    liveActualSeconds > 0 ? liveActualSeconds : serverActualSeconds
+                  )}
+              </h3>
+            </div>
+            {state && (
+              <VisibilityToggle
+                isTaskOpen={isTimeOpen}
+                setIsTaskOpen={async (v: boolean) => {
+                  sendGAEvent("event", "visibility_toggle", {
+                    public_type: "timer",
+                    is_public: v ? "public" : "private",
+                  });
+                  setIsTimeOpen(v);
+                  if (currentSessionId) {
+                    try {
+                      await updatePersonalTimerVisibility(currentSessionId, {
+                        isTimerPublic: v,
+                      });
+                    } catch (error) {
+                      console.error(
+                        "타이머 누적 시간 공개/비공개 설정 실패:",
+                        error
+                      );
+                      setIsTimeOpen(!v);
                     }
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-1">
-                  <Icon Svg={Book} size={24} className="text-gray-400" />
-                  <p className="text-body2-14SB text-gray-400">
-                    할 일을 설정해 주세요!
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    if (isRunning) {
-                      setTimerEndModalOpen(true);
-                    } else {
-                      openWorkModal();
-                    }
-                  }}
-                  aria-label="할 일 설정"
-                >
-                  <Icon Svg={Edit} size={24} className="text-gray-600" />
-                </button>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center">
-                <Icon Svg={Clock} size={24} className="text-gray-400" />
-                <h3 className="text-body2-14SB ml-1 text-gray-400">
-                  00 : 00 : 00
-                </h3>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1 mt-2 bg-gray-100 rounded-lg px-4 py-3">
-        <p className="text-14 text-medium text-gray-600">
-          <b className="text-black mr-2 text-body2-14SB">목표시간</b>{" "}
-          {formatSeconds(
-            isOnboarding
-              ? mockOnboardingTodo.targetTimeInSeconds
-              : (todayTodo?.targetTimeInSeconds ?? currentTodo?.targetTimeInSeconds ?? selectedWork?.targetSeconds ?? 0)
-          )}
-        </p>
-        <p className="text-14 text-medium text-gray-600">
-          <b className="text-black mr-2 text-body2-14SB">현재 달성률</b>{" "}
-          {(() => {
-            if (isOnboarding) return mockOnboardingTodo.progressRate; // 온보딩 시 33% 고정
-
-            const todo = todayTodo ?? currentTodo;
-            if (todo?.progressRate !== undefined && todo.progressRate !== null) {
-              return Math.round(todo.progressRate);
-            }
-            if (todo && todo.targetTimeInSeconds > 0) {
-              return Math.round((todo.actualTimeInSeconds / todo.targetTimeInSeconds) * 100);
-            }
-            return 0;
-          })()}
-          %
-        </p>
-      </div>
-
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-999">
-          <AddWorkForm
-            type="select"
-            categories={categoryOptions}
-            initialValues={
-              todayTodo ?? currentTodo
-                ? (() => {
-                  const todo = todayTodo ?? currentTodo;
-                  if (!todo) return undefined;
-                  const [year, month, day] = todo.date.split("-").map(Number);
-                  return {
-                    todoId: todo.id, // ID 추가
-                    categoryId: todo.categoryId,
-                    title: todo.task,
-                    date: new Date(year, month - 1, day),
-                    targetSeconds: todo.targetTimeInSeconds,
-                  };
-                })()
-                : selectedCategoryId
-                  ? {
-                    categoryId: selectedCategoryId,
                   }
+                }}
+              />
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1 bg-gray-100 px-4 py-3">
+            <p className="text-body2-14R text-gray-600">
+              <b className="text-gray-800 mr-3 text-body2-14SB">목표 시간</b>
+              {cardTargetSeconds > 0 ? formatHms(cardTargetSeconds) : "미설정"}
+            </p>
+            <p className="text-body2-14R text-gray-600">
+              <b className="text-gray-800 mr-3 text-body2-14SB">현재 달성률</b>
+              {cardProgressRate}%
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-body2-14SB text-gray-800">카테고리</p>
+            <CategorySelect
+              value={categoryId}
+              options={categoryOptions}
+              onChange={handleCategoryChange}
+              onCreate={handleCreateCategory}
+              disabled={isEditingTarget}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-body2-14SB text-gray-800">작업</p>
+            <WorkCombobox
+              categoryName={categoryName}
+              todos={categoryTodos}
+              selectedTitle={
+                activeTodo && activeTodo.categoryId === categoryId
+                  ? activeTodo.task
                   : undefined
-            }
-            onSubmit={handleWorkSubmit}
-            onCategorySelect={setSelectedCategoryId}
-            onClose={() => {
-              setModalOpen(false);
-              setSelectedCategoryId(null);
-            }}
-          />
+              }
+              open={isWorkOpen}
+              onOpenChange={handleWorkOpenChange}
+              onSelect={handleSelectTodo}
+              onCreate={handleCreateTodo}
+              disabled={isEditingTarget}
+            />
+          </div>
+
+          {activeTodo && (
+            <div className={clsx(isEditingTarget && "relative z-50")}>
+              <TargetTimeBox
+                targetSeconds={activeTodo.targetTimeInSeconds ?? 0}
+                progressRate={getProgressRate(activeTodo)}
+                editing={isEditingTarget}
+                onEditingChange={setIsEditingTarget}
+                onSubmit={handleTargetSubmit}
+              />
+            </div>
+          )}
         </div>
       )}
+
+      {isEditingTarget && (
+        <div className="fixed inset-0 z-40" aria-hidden />
+      )}
+
       {timerEndModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
           <TimerEndModal
@@ -481,7 +526,7 @@ export default function GroupMySidebar({
             onConfirm={async () => {
               await forceStopTimer();
               setTimerEndModalOpen(false);
-              openWorkModal();
+              setIsWorkOpen(true);
             }}
           />
         </div>

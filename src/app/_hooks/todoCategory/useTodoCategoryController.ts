@@ -7,7 +7,7 @@ import { useDeleteTodoCategory } from "./useDeleteTodoCategory";
 import { useReorderTodoCategories } from "./useReorderTodoCategories";
 import { useUpdateTodoCategory } from "./useUpdateTodoCategory";
 
-const DEFAULT_CATEGORY_NAME = "기본";
+export const DEFAULT_CATEGORY_NAME = "기본";
 const DEFAULT_CATEGORY_COLOR = "RED" as const;
 
 export const useTodoCategoryController = () => {

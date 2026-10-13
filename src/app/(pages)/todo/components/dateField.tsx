@@ -12,7 +12,7 @@ function fmtKoreanDate(d: Date) {
   return `${yyyy}년 ${mm}월 ${dd}일`;
 }
 
-function monthMatrix(base: Date) {
+export function monthMatrix(base: Date) {
   const y = base.getFullYear();
   const m = base.getMonth();
   const first = new Date(y, m, 1);

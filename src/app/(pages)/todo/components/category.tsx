@@ -3,7 +3,6 @@
 import clsx from "clsx";
 import Image from "next/image";
 import { memo, useEffect, useState } from "react";
-import FilterPill from "./filterPill";
 import CategoryRow from "./categoryRow";
 import { CATEGORY_COLOR_TOKENS } from "@/app/_constants/categoryColor";
 
@@ -19,8 +18,6 @@ export type Category = {
 type CreateCategoryResult = Pick<Category, "id" | "name" | "colorToken"> | void;
 
 function Category({
-  filter,
-  onChangeFilter,
   categories,
   selectedId,
   onSelect,
@@ -30,8 +27,6 @@ function Category({
   onDeleteCategory,
   onReorderCategories,
 }: {
-  filter: DayFilter;
-  onChangeFilter?: (f: DayFilter) => void;
   categories: Category[];
   selectedId: string;
   onSelect?: (id: string) => void;
@@ -250,32 +245,14 @@ function Category({
         className,
       )}
     >
-      <h2 className="text-xl font-semibold text-neutral-900 leading-7">할 일</h2>
+      <h2 className="text-xl font-semibold text-neutral-900 leading-7">카테고리</h2>
 
       <div className="flex flex-col gap-5 flex-1 overflow-y-auto">
-        <div className="flex gap-2 my-2 mx-0.5">
-          <FilterPill
-            selected={filter === "today"}
-            onClick={() => onChangeFilter?.("today")}
-            icon="/Icons/todoToday.svg"
-            label="오늘"
-          />
-          <FilterPill
-            selected={filter === "all"}
-            onClick={() => onChangeFilter?.("all")}
-            icon="/Icons/todoAll.svg"
-            label="전체"
-          />
-        </div>
-
-        <div className="h-px w-full bg-gray-200" />
-
         <div className="flex flex-col gap-4">
-          <h3 className="text-base font-semibold text-neutral-900">카테고리</h3>
           <CategoryRow
             id="all"
             index={-1}
-            label="전체"
+            label="전체 카테고리"
             colorToken="bg-gray-500"
             selected={selectedId === "all"}
             onSelect={() => onSelect?.("all")}
