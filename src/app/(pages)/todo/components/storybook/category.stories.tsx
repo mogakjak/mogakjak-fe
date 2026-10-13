@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
 import { useState } from "react";
 import CategoryPanel, {
-  type DayFilter,
   type Category as CategoryType,
 } from "@/app/(pages)/todo/components/category";
 
@@ -19,15 +18,12 @@ const meta = {
   tags: ["autodocs"],
   parameters: { layout: "centered" },
   argTypes: {
-    filter: { control: "radio", options: ["today", "all"] },
     selectedId: { control: false },
-    onChangeFilter: { control: false },
     onSelect: { control: false },
   },
   args: {
     selectedId: "all",
     categories: sampleCategories,
-    filter: "today" as DayFilter,
   },
 } satisfies Meta<typeof CategoryPanel>;
 
@@ -36,46 +32,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {
   render: (args) => {
-    const [filter, setFilter] = useState<DayFilter>(args.filter ?? "today");
     const [selectedId, setSelectedId] = useState<string>(args.selectedId ?? "all");
 
     return (
       <CategoryPanel
         {...args}
-        filter={filter}
-        selectedId={selectedId}
-        onChangeFilter={setFilter}
-        onSelect={setSelectedId}
-      />
-    );
-  },
-};
-
-export const TodayOnly: Story = {
-  args: { filter: "today" as DayFilter },
-  render: (args) => {
-    const [selectedId, setSelectedId] = useState<string>(args.selectedId ?? "all");
-    return (
-      <CategoryPanel
-        {...args}
         selectedId={selectedId}
         onSelect={setSelectedId}
-        onChangeFilter={() => {}}
-      />
-    );
-  },
-};
-
-export const AllTab: Story = {
-  args: { filter: "all" as DayFilter },
-  render: (args) => {
-    const [selectedId, setSelectedId] = useState<string>(args.selectedId ?? "all");
-    return (
-      <CategoryPanel
-        {...args}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-        onChangeFilter={() => {}}
       />
     );
   },

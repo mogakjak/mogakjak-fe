@@ -32,6 +32,7 @@ export type TodoListProps = {
   onDeleteTodo?: (todoId: string) => Promise<void> | void;
   onToggleTodo?: (todoId: string, next: boolean) => Promise<void> | void;
   onCategorySelect?: (categoryId: string) => void;
+  emptyMessage?: string;
   className?: string;
 };
 
@@ -90,7 +91,7 @@ function CategoryHeader({
             className="p-1 rounded-lg flex justify-start items-center gap-2"
           >
             <span className="text-zinc-600 text-sm leading-tight">
-              작업 추가하기
+              할 일 추가하기
             </span>
             <Image
               src="/Icons/plusRed.svg"
@@ -130,6 +131,7 @@ export default function TodoList({
   onDeleteTodo,
   onToggleTodo,
   onCategorySelect,
+  emptyMessage = "오늘 등록된 작업이 없어요!\n지금 바로 몰입할 작업을 추가해 보세요.",
   className,
 }: TodoListProps) {
   const [openMap, setOpenMap] = useState<Record<string | number, boolean>>(() =>
@@ -394,7 +396,7 @@ export default function TodoList({
         {totalItemsCount === 0 && (
           <div className="flex flex-col items-center justify-center py-50 px-4 text-center">
             <p className="text-gray-600 text-body1-16SB whitespace-pre-wrap">
-              오늘 등록된 작업이 없어요!{"\n"}지금 바로 몰입할 작업을 추가해 보세요.
+              {emptyMessage}
             </p>
           </div>
         )}

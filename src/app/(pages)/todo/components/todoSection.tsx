@@ -1,12 +1,14 @@
 "use client";
 
 import TodoList from "./todoList";
+import FilterPill from "./filterPill";
 import type { Category as CategoryType } from "@/app/_types/category";
 import type { DayFilter } from "./category";
 import type { CategoryOption } from "./categorySelect";
 
 export default function TodoSection({
   filter,
+  onChangeFilter,
   dateLabel,
   categories,
   allCategories,
@@ -17,6 +19,7 @@ export default function TodoSection({
   onCategorySelect,
 }: {
   filter: DayFilter;
+  onChangeFilter?: (f: DayFilter) => void;
   dateLabel?: string;
   categories: CategoryType[];
   allCategories?: CategoryOption[];
@@ -36,27 +39,42 @@ export default function TodoSection({
 
   return (
     <section className="w-full h-full bg-white rounded-[20px] p-6 flex flex-col">
-      {isToday ? (
-        <div className="flex items-baseline gap-3 mb-0">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-baseline gap-3">
           <h2 className="text-neutral-900 text-xl font-semibold font-['Pretendard'] leading-7">
-            오늘 작업 목록
+            {isToday ? "오늘의 작업 목록" : "전체 작업 목록"}
           </h2>
-          {dateLabel && (
+          {isToday && dateLabel && (
             <span className="text-gray-400 text-base font-semibold font-['Pretendard'] leading-snug">
               {dateLabel}
             </span>
           )}
         </div>
-      ) : (
-        <h2 className="text-neutral-900 text-xl font-semibold font-['Pretendard'] leading-7 mb-0">
-          전체 투두리스트
-        </h2>
-      )}
+        <div className="flex shrink-0 gap-2">
+          <FilterPill
+            selected={filter === "all"}
+            onClick={() => onChangeFilter?.("all")}
+            icon="/Icons/todoAll.svg"
+            label="전체"
+          />
+          <FilterPill
+            selected={filter === "today"}
+            onClick={() => onChangeFilter?.("today")}
+            icon="/Icons/todoToday.svg"
+            label="오늘"
+          />
+        </div>
+      </div>
 
       <div className="flex-1 overflow-y-auto">
         <TodoList
           categories={categories}
           allCategories={allCategories}
+          emptyMessage={
+            isToday
+              ? undefined
+              : "등록된 작업이 없어요!\n카테고리에서 작업을 추가해 보세요."
+          }
           className="w-full"
           onCreateTodo={onCreateTodo}
           onUpdateTodo={onUpdateTodo}

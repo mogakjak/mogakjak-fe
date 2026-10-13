@@ -15,18 +15,19 @@ export default function FilterPill({ selected, onClick, icon, label }: Props) {
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={selected}
       className={clsx(
-        "flex-1 h-9 rounded-[80px] px-4 py-2.5 inline-flex items-center justify-center gap-2",
+        "h-9 min-w-[100px] rounded-[80px] px-4 inline-flex items-center justify-center gap-2 transition-colors",
         selected
-          ? "bg-red-50 outline-[1.5px] outline-red-500"
-          : "bg-gray-100 outline-1 outline-gray-200",
+          ? "bg-red-50 outline-1 outline-red-200"
+          : "bg-gray-100 outline-1 outline-gray-200 hover:bg-gray-200",
       )}
     >
-      <Image src={icon} alt="" width={24} height={24} className="w-6 h-6" />
+      <Image src={icon} alt="" width={20} height={20} className="w-5 h-5" />
       <span
         className={clsx(
-          "text-sm leading-tight",
-          selected ? "text-red-500 font-semibold" : "text-neutral-700",
+          "text-body2-14SB",
+          selected ? "text-red-500" : "text-gray-700",
         )}
       >
         {label}

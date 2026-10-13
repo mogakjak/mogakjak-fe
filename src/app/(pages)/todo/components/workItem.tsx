@@ -29,7 +29,7 @@ export type WorkItemProps = {
 };
 
 function toDateLabel(d: Date | string) {
-  if (typeof d === "string") return d;
+  if (typeof d === "string") return d.slice(0, 10).replaceAll("-", ".");
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
@@ -220,7 +220,7 @@ export default function WorkItem({
                   목표 달성 시간
                 </div>
                 <div className="text-gray-500 text-sm font-regular leading-tight">
-                  {toHHMMSS(safeTarget)}
+                  {safeTarget > 0 ? toHHMMSS(safeTarget) : "미설정"}
                 </div>
               </div>
 
