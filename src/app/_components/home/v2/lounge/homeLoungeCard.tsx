@@ -10,12 +10,6 @@ import { useOfficialLoungeSummary } from "@/app/_hooks/lounge/useOfficialLoungeS
 import { useOfficialLoungePresenceSubscription } from "@/app/_hooks/lounge/useOfficialLoungePresenceSubscription";
 import { useGroupRowActions } from "@/app/_hooks/groups/useGroupRowActions";
 
-const LOUNGE_CHARACTERS = [
-  { src: "/character/tomato.svg", alt: "토마토 캐릭터" },
-  { src: "/character/level8.svg", alt: "오렌지 캐릭터" },
-  { src: "/character/level12.svg", alt: "레몬 캐릭터" },
-];
-
 export default function HomeLoungeCard() {
   const { data: lounge } = useOfficialLoungeSummary({ refetchInterval: 3000 });
 
@@ -82,18 +76,13 @@ function HomeLoungeCardContent({ lounge }: { lounge: MyGroup }) {
       </div>
 
       <div className="flex-1 flex items-center gap-8">
-        <div className="flex items-end shrink-0">
-          {LOUNGE_CHARACTERS.map(({ src, alt }, idx) => (
-            <Image
-              key={src}
-              src={src}
-              alt={alt}
-              width={84}
-              height={100}
-              className={idx === 0 ? "h-[100px] w-auto" : "-ml-3 h-[100px] w-auto"}
-            />
-          ))}
-        </div>
+        <Image
+          src="/character/loungeFruits.svg"
+          alt="토마토, 오렌지, 레몬 캐릭터"
+          width={246}
+          height={83}
+          className="shrink-0"
+        />
 
         <div className="flex-1 min-w-0 flex flex-col gap-2">
           <p className="text-heading2-28SB text-black">
