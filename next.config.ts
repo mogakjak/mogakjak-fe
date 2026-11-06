@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     const apiProxy =
-      process.env.NEXT_PUBLIC_API_PROXY || "https://lets.mogakjak.site";
+      process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.cloud";
     return {
       beforeFiles: [],
       afterFiles: [],

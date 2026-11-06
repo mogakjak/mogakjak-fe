@@ -13,7 +13,7 @@ export function getWebSocketUrl(): string {
 
   // 환경 변수가 없으면 프로덕션 URL 사용
   if (!apiBase) {
-    return "https://lets.mogakjak.site/connect";
+    return "https://mogakjak.cloud/connect";
   }
 
   // SockJS는 http/https를 사용하므로 변환하지 않음

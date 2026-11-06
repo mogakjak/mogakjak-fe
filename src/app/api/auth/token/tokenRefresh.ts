@@ -1,6 +1,6 @@
 import { RefreshResponse, RefreshTokenResult } from "../../../_types/refresh";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://lets.mogakjak.site";
+const API_BASE = process.env.NEXT_PUBLIC_API_PROXY || "https://mogakjak.cloud";
 
 export async function refreshAccessToken(
   refreshToken: string,
