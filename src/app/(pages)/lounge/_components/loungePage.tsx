@@ -50,6 +50,11 @@ export default function LoungePage() {
   const [blockedOpen, setBlockedOpen] = useState(false);
   const isEnteringRef = useRef(false);
   const hasEnteredRef = useRef(false);
+  // 퇴실을 시작한 뒤에는 재입실을 막기 위한 플래그
+  const hasLeftRef = useRef(false);
+  const leaveRef = useRef(leaveMutation.mutateAsync);
+  leaveRef.current = leaveMutation.mutateAsync;
+  const pendingLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentUserId = useMemo(() => getUserIdFromToken(token), [token]);
   const myTodoActual = useSelectedTodoActualSeconds();
 
@@ -75,7 +80,7 @@ export default function LoungePage() {
   }, [enteredFromHome]);
 
   const attemptEnter = useCallback(async () => {
-    if (isEnteringRef.current) return;
+    if (isEnteringRef.current || hasLeftRef.current) return;
     isEnteringRef.current = true;
     try {
       const next = await enterMutation.mutateAsync();
@@ -132,20 +137,28 @@ export default function LoungePage() {
     }
   }, [attemptEnter, entered, lounge]);
 
+  // 탭 닫기(pagehide)나 헤더 링크 등으로 페이지를 벗어날 때(언마운트)도 퇴실 처리
   useEffect(() => {
     const leaveIfNeeded = () => {
       if (!hasEnteredRef.current) return;
-      void leaveMutation
-        .mutateAsync()
-        .catch((error) => console.error("공식 라운지 퇴실 실패:", error));
       hasEnteredRef.current = false;
+      void leaveRef
+        .current()
+        .catch((error) => console.error("공식 라운지 퇴실 실패:", error));
     };
+
+    // StrictMode(개발 모드)의 즉시 재마운트에서는 퇴실하지 않도록 언마운트 퇴실을 한 틱 미룸
+    if (pendingLeaveTimerRef.current) {
+      clearTimeout(pendingLeaveTimerRef.current);
+      pendingLeaveTimerRef.current = null;
+    }
 
     window.addEventListener("pagehide", leaveIfNeeded);
     return () => {
       window.removeEventListener("pagehide", leaveIfNeeded);
+      pendingLeaveTimerRef.current = setTimeout(leaveIfNeeded, 0);
     };
-  }, [leaveMutation]);
+  }, []);
 
   const displayedMembers = useMemo(() => {
     const members = lounge?.members ?? [];
@@ -185,12 +198,14 @@ export default function LoungePage() {
     if (isExitingRef.current) return;
     isExitingRef.current = true;
     setIsExiting(true);
+    // entered를 false로 바꾸면 입실 effect가 다시 돌아 재입실되므로 상태는 유지하고 플래그로 막음
+    hasLeftRef.current = true;
     try {
       await leaveMutation.mutateAsync();
       hasEnteredRef.current = false;
-      setEntered(false);
       router.push("/");
     } catch (error) {
+      hasLeftRef.current = false;
       console.error("공식 라운지 퇴실 실패:", error);
     } finally {
       isExitingRef.current = false;
