@@ -4,4 +4,5 @@ export const mypageKeys = {
   guide: () => [...mypageKeys.all, "guide"] as const,
   basket: () => [...mypageKeys.all, "basket"] as const,
   totalStudyTime: () => [...mypageKeys.all, "totalStudyTime"] as const,
+  attendance: () => [...mypageKeys.all, "attendance"] as const,
 };

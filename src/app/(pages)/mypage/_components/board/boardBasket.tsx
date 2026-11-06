@@ -31,13 +31,13 @@ export default function BoardBasket({
   }, [ownedCharacters]);
 
   return (
-    <div className="w-full h-full min-h-0 flex flex-col">
-      <div className="flex justify-between items-center  mb-3.5">
+    <section className="w-full h-[438px] p-6 rounded-[20px] bg-white flex flex-col gap-5">
+      <div className="flex justify-between items-center">
         <h2 className="text-heading4-20SB text-black">
           내 과일 바구니 ({ownedCharacters.length}/12)
         </h2>
         <button
-          className="flex items-center gap-2.5 text-body1-16M text-gray-400 px-7 py-2 border border-gray-200 rounded-[22px]"
+          className="h-10 flex items-center gap-2.5 text-body1-16M text-gray-400 px-7 border border-gray-200 rounded-[22px]"
           onClick={() => {
             sendGAEvent("event", "fruit_dex_open");
             setOpenCharacter(true);
@@ -53,7 +53,7 @@ export default function BoardBasket({
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 items-stretch min-h-[420px] auto-rows-fr">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-3 grid grid-cols-4 gap-x-[11px] gap-y-5 content-start">
         {rows.map((characterInfo) => {
           const ownedCharacter = ownedCharactersMap.get(characterInfo.level);
           const isLocked = !ownedCharacter;
@@ -86,6 +86,6 @@ export default function BoardBasket({
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
