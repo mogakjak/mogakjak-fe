@@ -4,7 +4,7 @@
 기준일: 2026-03-13
 
 관련 정책: 그룹방 · 공식 라운지 · 그룹 타이머 제거 · 캐릭터 성장  
-참고 Swagger: [https://lets.mogakjak.site/swagger-ui/index.html](https://lets.mogakjak.site/swagger-ui/index.html)
+참고 Swagger: [https://mogakjak.cloud/swagger-ui/index.html](https://mogakjak.cloud/swagger-ui/index.html)
 
 ---
 
