@@ -106,20 +106,20 @@ export default function Profile({ basket }: { basket: CharacterBasket }) {
         )}
       </div>
 
-      <section className="flex flex-col items-center mb-12">
-        <div className="w-[130px] h-[130px] border-2 border-gray-300 rounded-full overflow-hidden mt-4 relative">
+      <section className="flex flex-col items-center mb-[52px]">
+        <div className="w-40 h-40 rounded-full overflow-hidden mt-7 relative bg-gray-100">
           <Image
             src={profileImage}
             alt="프로필"
-            width={130}
-            height={130}
+            width={160}
+            height={160}
             className="rounded-full object-cover"
             style={{ aspectRatio: "1 / 1" }}
             onError={() => setProfileImage("/profile.svg")}
           />
         </div>
         <div className="flex flex-col gap-1 text-center mt-5 mb-6">
-          <p className="text-heading3-24SB text-black max-w-[150px] truncate">
+          <p className="text-heading3-24SB text-black max-w-[279px] truncate">
             {nickname}
           </p>
           <p className="text-body1-16R text-gray-500">{email}</p>

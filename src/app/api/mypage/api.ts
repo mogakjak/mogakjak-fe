@@ -5,6 +5,7 @@ import type {
   CharacterBasket,
   Profile,
   TotalStudyTimeResponse,
+  MyPageAttendance,
 } from "../../_types/mypage";
 import { request } from "../request";
 
@@ -32,3 +33,6 @@ export const getTotalStudyTime = () =>
   request<TotalStudyTimeResponse>(MYPAGE_BASE, "/total-study-time", {
     method: "GET",
   });
+
+export const getAttendance = () =>
+  request<MyPageAttendance>(MYPAGE_BASE, "/attendance", { method: "GET" });

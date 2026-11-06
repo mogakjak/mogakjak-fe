@@ -42,12 +42,31 @@ export type CharacterCard = {
   focusTimeProgressRate?: number;
 };
 
+export type CharacterGrowthProgress = {
+  currentAttendanceDays: number;
+  currentFocusTimeInSeconds: number;
+  currentLevel: number;
+  nextLevel: number;
+  requiredAttendanceDays: number;
+  requiredFocusTimeInSeconds: number;
+  remainingAttendanceDays: number;
+  remainingFocusTimeInSeconds: number;
+  attendanceProgressRate: number;
+  focusTimeProgressRate: number;
+  /** 현재 레벨에서 다음 레벨까지 두 조건 중 느린 쪽의 진행률(0~100) */
+  levelProgressRate: number;
+  /** Lv.1~12 전체 진행률(0~100) */
+  overallProgressRate: number;
+  maxLevelReached: boolean;
+};
+
 export type CharacterBasket = {
   nickname: string;
   email: string;
   imageUrl: string;
   totalTaskCount: number;
   totalFocusTime: string;
+  growthProgress?: CharacterGrowthProgress;
   mainCharacter: CharacterCard;
   collectedCharacterCount: number;
   ownedCharacters: CharacterCard[];
@@ -80,3 +99,20 @@ export type Quote = {
 export interface TotalStudyTimeResponse {
   totalStudyTime: number;
 }
+
+// 출석 현황 조회 타입 (KST 기준 과거 5일·오늘·미래 4일)
+export type AttendanceDay = {
+  date: string;
+  focusTimeInSeconds: number;
+  attended: boolean;
+  today: boolean;
+  future: boolean;
+};
+
+export type MyPageAttendance = {
+  referenceDate: string;
+  timeZone: string;
+  attendanceThresholdInSeconds: number;
+  totalAttendanceDays: number;
+  days: AttendanceDay[];
+};

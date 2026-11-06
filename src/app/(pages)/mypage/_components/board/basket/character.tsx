@@ -25,16 +25,16 @@ export default function Character({
       : `${hours}시간 달성 후에 만나요!`;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-100 border border-gray-200">
+    <div className="h-[236px] flex flex-col items-center justify-center gap-2 rounded-lg p-6 bg-gray-50 border border-gray-200">
       {!locked ? (
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-body1-16SB">{`Lv.${level} ${name}`}</p>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-body1-16SB text-black">{`Lv${level}. ${name}`}</p>
           <Image
             src={imageUrl}
             alt={name}
             width={120}
             height={120}
-            className="object-contain"
+            className="size-[120px] object-contain"
           />
           <p className="text-caption-12R text-gray-600 text-center whitespace-pre-line">
             {description}
@@ -47,7 +47,7 @@ export default function Character({
             alt="잠김"
             width={48}
             height={48}
-            className="object-contain opacity-80"
+            className="object-contain"
           />
           <p className="text-body1-16SB text-gray-400 text-center">{lockHint}</p>
         </div>
