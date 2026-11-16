@@ -130,23 +130,26 @@ export default function TimerComponent({
 
   const defaultMode = orderedModes[0] ?? initialMode;
 
+  // 기본 탭 순서가 로드/변경될 때만 기본 모드를 적용한다.
+  // running을 의존성에 두면 휴식(일시정지)으로 running이 false가 되는 순간
+  // 기본 탭(예: 뽀모도로)으로 강제 이동되어 진행 중인 세션을 재개할 수 없게 된다.
   useEffect(() => {
-    if (!isTabOrderFetched || running) return;
+    if (!isTabOrderFetched || sessionIdRef.current) return;
     setMode(defaultMode);
-  }, [isTabOrderFetched, defaultMode, running]);
+  }, [isTabOrderFetched, defaultMode]);
 
   const handleDefaultModeChange = useCallback(
     async (next: Mode) => {
       try {
         await updateTabOrder({ tabOrder: buildTabOrderWithFirst(next) });
-        if (!running) {
+        if (!sessionIdRef.current) {
           setMode(next);
         }
       } catch (error) {
         console.error("타이머 탭 순서 저장 실패:", error);
       }
     },
-    [running, updateTabOrder],
+    [updateTabOrder],
   );
 
   const pomoRef = useRef<PomodoroDialHandle>(null);
